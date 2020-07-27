@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsbv",
-	"lastUpdated": "2019-10-19 17:03:34"
+	"lastUpdated": "2020-07-27 12:20:45"
 }
 
 function detectWeb(doc, url) {
@@ -181,6 +181,11 @@ function complementItem(doc, item) {
 	var tags = ZU.xpathText(doc, '//span[@class="Keyword"]');
 	if (tags && (!item.tags || item.tags.length === 0)) {
 		item.tags = tags.split(',');
+	} else {
+		if (!tags && (!item.tags || item.tags.length === 0)) {
+			let tagstwo = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "c-article-subject-list__subject", " " ))]');	
+			item.tags = tagstwo.split(',');
+		}
 	}
 	return item;
 }
@@ -556,6 +561,73 @@ var testCases = [
 					},
 					{
 						"tag": "Social mediation "
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://link.springer.com/article/10.1007/s11089-020-00907-4",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Metabolizing Death: Re-Thinking Recovery from Substance Use Disorder through the Creative Cartographies of William James and Ernest Becker",
+				"creators": [
+					{
+						"lastName": "Boeving",
+						"firstName": "Nicholas Grant",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020-06-01",
+				"DOI": "10.1007/s11089-020-00907-4",
+				"ISSN": "1573-6679",
+				"abstractNote": "This study is designed to bring together the existential-psychoanalytic psychology of Ernest Becker and the pluralistic transpersonal psychology of William James to bear on how perceptions of death and transformations of death anxiety shape, in subtle and significant ways, the phenomenology of substance use disorder. Specifically, this study examines the ways in which these two divergent sympathies (read: ontologies) are actually two reciprocally-enforcing ends of a continuum of how to think about substance use disorder and, more importantly, how to overcome it. In yoking these oppositional cartographies of consciousness together, this article brings to light the integral role that unconscious death anxiety plays in the formation and sustainment of addictions and explores the mechanics of recovery through the lens of the transformation of death anxiety. In doing so, it demonstrates that recovery from substance use disorder is dependent upon the successful metabolization of death anxiety from both a Jamesian and Beckerian perspective.",
+				"issue": "3",
+				"journalAbbreviation": "Pastoral Psychol",
+				"language": "en",
+				"libraryCatalog": "Springer Link",
+				"pages": "169-186",
+				"publicationTitle": "Pastoral Psychology",
+				"shortTitle": "Metabolizing Death",
+				"url": "https://doi.org/10.1007/s11089-020-00907-4",
+				"volume": "69",
+				"attachments": [
+					{
+						"title": "Springer Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [
+					{
+						"tag": " 12-step movement"
+					},
+					{
+						"tag": " AA"
+					},
+					{
+						"tag": " Addiction"
+					},
+					{
+						"tag": " Ernest Becker"
+					},
+					{
+						"tag": " Existential psychology"
+					},
+					{
+						"tag": " Recovery"
+					},
+					{
+						"tag": " Transpersonal psychology"
+					},
+					{
+						"tag": " William James"
+					},
+					{
+						"tag": "Substance use disorder"
 					}
 				],
 				"notes": [],
