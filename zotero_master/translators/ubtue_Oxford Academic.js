@@ -6,10 +6,10 @@
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 100,
-	"inRepository": false,
+	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2019-01-08 15:40:06"
+	"lastUpdated": "2020-07-27 14:19:10"
 }
 
 /*
@@ -35,12 +35,12 @@
 
 
 function detectWeb(doc, url) {
-    if (url.match(/\/issue\/[0-9]+\/[0-9]+/))
-        return "multiple";
-    else if (url.match(/\/article\/[0-9]+\/[0-9]+/)) {
-        // placeholder, actual type determined by the embedded metadata translator
-        return "journalArticle";
-    }
+	if (url.match(/\/issue\/[0-9]+\/[0-9]+/))
+		return "multiple";
+	else if (url.match(/\/article\/[0-9]+\/[0-9]+/)) {
+		// placeholder, actual type determined by the embedded metadata translator
+		return "journalArticle";
+	}
 }
 
 function getSearchResults(doc) {
@@ -58,22 +58,23 @@ function getSearchResults(doc) {
 }
 
 function invokeEmbeddedMetadataTranslator(doc, url) {
-    var translator = Zotero.loadTranslator("web");
-    translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
-    translator.setDocument(doc);
-    translator.setHandler("itemDone", function (t, i) {
-        // update abstract from the webpage as the embedded data is often incomplete
-        var abstractText = ZU.xpathText(doc, '//section[@class="abstract"]');
-        if (abstractText)
-            i.abstractNote = abstractText;
-
-        i.complete();
-    });
-    translator.translate();
+	var translator = Zotero.loadTranslator("web");
+	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
+	translator.setDocument(doc);
+	translator.setHandler("itemDone", function (t, i) {
+		// update abstract from the webpage as the embedded data is often incomplete
+		var abstractText = ZU.xpathText(doc, '//section[@class="abstract"]');
+		if (abstractText) i.abstractNote = abstractText;
+		var tagreview = ZU.xpathText(doc, '//*[(@id = "ContentTab")]//a')
+		if (tagreview.match(/Book Reviews/i)) delete i.abstractNote;
+		if (tagreview.match(/Book Reviews/i)) i.tags.push('RezensionstagPica');
+		i.complete();
+	});
+	translator.translate();
 }
 
 function doWeb(doc, url) {
-    if (detectWeb(doc, url) === "multiple") {
+	if (detectWeb(doc, url) === "multiple") {
 		Zotero.selectItems(getSearchResults(doc), function (items) {
 			if (!items) {
 				return true;
@@ -84,6 +85,6 @@ function doWeb(doc, url) {
 			}
 			ZU.processDocuments(articles, invokeEmbeddedMetadataTranslator);
 		});
-    } else
-        invokeEmbeddedMetadataTranslator(doc, url);
+	} else
+		invokeEmbeddedMetadataTranslator(doc, url);
 }
