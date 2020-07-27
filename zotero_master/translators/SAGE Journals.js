@@ -157,14 +157,14 @@ function scrape(doc, url) {
 				item.tags = tagentry.split(",");
 			}
 			// ubtue: add tags "Book Review" if "Review Article"
-			if (articleType) {
+			/*if (articleType) {
 				for (let r of articleType) {
 					let reviewDOIlink = r.innerHTML;
 					if (reviewDOIlink.match(/Review Article/)) {
 						item.tags.push('Book Review');
 					}
 				}
-			}
+			}*/
 			// Workaround while Sage hopefully fixes RIS for authors
 			for (let i = 0; i < item.creators.length; i++) {
 				if (!item.creators[i].firstName) {
