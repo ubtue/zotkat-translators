@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-07-29 07:15:38"
+	"lastUpdated": "2020-07-29 09:46:40"
 }
 
 /*
@@ -36,7 +36,7 @@
 function attr(docOrElem,selector,attr,index){var elem=index?docOrElem.querySelectorAll(selector).item(index):docOrElem.querySelector(selector);return elem?elem.getAttribute(attr):null;}function text(docOrElem,selector,index){var elem=index?docOrElem.querySelectorAll(selector).item(index):docOrElem.querySelector(selector);return elem?elem.textContent:null;}
 
 function detectWeb(doc, url) {
-	if (url.includes('/abs/10.') || url.includes('/full/10.') || url.includes('/pdf/10.') || url.includes('/doi/10.')) {
+	if (url.includes('/abs/10.') || url.includes('/full/10.') || url.includes('/pdf/10.')) {
 		return "journalArticle";
 	}
 	else if (getSearchResults(doc, true)) {
@@ -80,7 +80,7 @@ function doWeb(doc, url) {
 	}
 }
 
-function postProcess(doc, item) {
+/*function postProcess(doc, item) {
 	// remove partial DOIs stored in the pages field of online-first articles
 	if (item.DOI) {
 		var doiMatches = item.DOI.match(/\b(10[.][0-9]{4,}(?:[.][0-9]+)*\/((?:(?!["&'<>])\S)+))\b/);
@@ -89,7 +89,7 @@ function postProcess(doc, item) {
 			if (item.pages === secondPart) item.pages = "";
 		}
 	}
-}
+}*/
 
 function scrape(doc, url) {
 	var risURL = "//journals.sagepub.com/action/downloadCitation";
@@ -99,7 +99,7 @@ function scrape(doc, url) {
 	}
 	var post = "doi=" + encodeURIComponent(doi) + "&include=abs&format=ris&direct=false&submit=Download+Citation";
 	var pdfurl = "//" + doc.location.host + "/doi/pdf/" + doi;
-	var articleType = ZU.xpath(doc, '//span[@class="ArticleType"]/span');
+	//var articleType = ZU.xpath(doc, '//span[@class="ArticleType"]/span');
 	
 	//Z.debug(pdfurl);
 	//Z.debug(post);
@@ -109,8 +109,8 @@ function scrape(doc, url) {
 		//and will therefore simply delete the later in cases both
 		//dates are present.
 		//Z.debug(text);
-		if (text.indexOf("DA  - ") > -1) {
-			text = text.replace(/Y1 - .*\r?\n/, '');
+		if (text.includes("DA  - ")) {
+			text = text.replace(/Y1[ ]{2}- .*\r?\n/, '');
 		}
 		var translator = Zotero.loadTranslator("import");
 		translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
@@ -154,7 +154,7 @@ function scrape(doc, url) {
 			}
 
 			var tagentry = ZU.xpathText(doc, '//kwd-group[1] | //*[contains(concat( " ", @class, " " ), concat( " ", "hlFld-KeywordText", " " ))]');
-			if (tags) {
+			if (tagentry) {
 				item.tags = tagentry.split(",");
 			}
 			// ubtue: add tags "Book Review" if "Review Article"
@@ -195,7 +195,7 @@ function scrape(doc, url) {
 				title: "SAGE PDF Full Text",
 				mimeType: "application/pdf"
 			});
-			postProcess(doc, item);
+			//postProcess(doc, item);
 			item.complete();
 		});
 		translator.translate();
@@ -391,6 +391,68 @@ var testCases = [
 					},
 					{
 						"tag": "delinquency"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://journals.sagepub.com/doi/full/10.1177/2056997119868248",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Discernment, technology, and digital citizenship in a Christian school system",
+				"creators": [
+					{
+						"lastName": "Smith",
+						"firstName": "David I",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Sevensma",
+						"firstName": "Kara",
+						"creatorType": "author"
+					}
+				],
+				"date": "Juli 1, 2020",
+				"DOI": "10.1177/2056997119868248",
+				"ISSN": "2056-9971",
+				"abstractNote": "Using a qualitative analysis of school artifacts, this article analyzes the documentary record of one Christian school system’s experience with technological change. It focuses on documentary evidence for how the concept of Christian discernment was deployed to situate new technologies within a Christian discourse. The idea of discernment shifted in emphasis as new technologies were implemented. The theologically rooted concept of discernment both shaped and was shaped by the ongoing effort to manage technological change. Examining this evolution offers an empirical contribution to discussions of how Christian schools can sustain an integrity of fit between faith and practice.",
+				"issue": "2",
+				"journalAbbreviation": "International Journal of Christianity & Education",
+				"language": "en",
+				"libraryCatalog": "SAGE Journals",
+				"pages": "135-152",
+				"publicationTitle": "International Journal of Christianity & Education",
+				"url": "https://doi.org/10.1177/2056997119868248",
+				"volume": "24",
+				"attachments": [
+					{
+						"title": "SAGE PDF Full Text",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [
+					{
+						"tag": " digital citizenship"
+					},
+					{
+						"tag": " digital technology"
+					},
+					{
+						"tag": " discernment"
+					},
+					{
+						"tag": " school leadership"
+					},
+					{
+						"tag": " theology"
+					},
+					{
+						"tag": "Keywords Christian schools"
 					}
 				],
 				"notes": [],
