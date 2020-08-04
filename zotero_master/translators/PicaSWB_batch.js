@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2020-05-12 16:43:00"
+	"lastUpdated": "2020-08-04 12:16:00"
 }
 
 // Zotero Export Translator für das Pica Intern Format
@@ -232,7 +232,7 @@ function addLine(itemid, code, value) {
 	value = EscapeNonASCIICharacters(value);
 
     //Zeile zusammensetzen
-    var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '');
+    var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace('|s|Book Reviews', '|f|Book Reviews').replace(/\t/g, '');
     itemsOutputCache[itemid].push(line);
 }
 
@@ -385,7 +385,7 @@ function performExport() {
 
         //1131 Art des Inhalts
         for (i=0; i<item.tags.length; i++) {
-			if (item.tags[i].tag.match(/RezensionstagPica/)) {
+			if (item.tags[i].tag.match(/RezensionstagPica | Book Reviews/)) {
 				addLine(currentItemId, "\\n1131", "!106186019!");
 			}
 		}
