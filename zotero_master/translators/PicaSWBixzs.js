@@ -214,7 +214,7 @@ async function processDocumentsCustom (url, processor, processorParams, onDone, 
 
 function addLine(itemid, code, value) {
     //Zeile zusammensetzen
-    var line = code + " " + value.replace('|s|RezensionstagPica', '').replace(/\t/g, '');
+    var line = code + " " + value.replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace('|s|Book Reviews', '|f|Book Reviews');
     itemsOutputCache[itemid].push(line);
 }
 
@@ -367,7 +367,7 @@ function performExport() {
 
         //1131 Art des Inhalts
         for (i=0; i<item.tags.length; i++) {
-			if (item.tags[i].tag.match(/RezensionstagPica/)) {
+			if (item.tags[i].tag.match(/RezensionstagPica  | Book Reviews/)) {
 				addLine(currentItemId, "1131", "!106186019!");
 			}
 		}
