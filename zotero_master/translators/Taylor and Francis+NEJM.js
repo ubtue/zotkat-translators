@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2017-06-29 05:39:46"
+	"lastUpdated": "2020-08-05 12:16:46"
 }
 
 /*
@@ -163,7 +163,7 @@ function finalizeItem(item, doc, doi, baseUrl) {
 	if (sectionheading) {
 		sectionheading = sectionheading.trim();
 		if (sectionheading.match(/^(Book )?Reviews?$/i))
-			item.tags.push("Book Reviews");
+			item.tags.push("RezensionstagPica");
 	}
 	
 	//add attachments
