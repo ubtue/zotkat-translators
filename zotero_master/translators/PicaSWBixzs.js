@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2020-06-03 18:01:00"
+	"lastUpdated": "2020-08-05 12:16:00"
 }
 
 
@@ -214,7 +214,7 @@ async function processDocumentsCustom (url, processor, processorParams, onDone, 
 
 function addLine(itemid, code, value) {
     //Zeile zusammensetzen
-    var line = code + " " + value.replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace('|s|Book Reviews', '|f|Book Reviews');
+    var line = code + " " + value.replace('|s|RezensionstagPica', '').replace(/\t/g, '');
     itemsOutputCache[itemid].push(line);
 }
 
@@ -367,7 +367,7 @@ function performExport() {
 
         //1131 Art des Inhalts
         for (i=0; i<item.tags.length; i++) {
-			if (item.tags[i].tag.match(/RezensionstagPica  | Book Reviews/)) {
+			if (item.tags[i].tag.match(/RezensionstagPica|Book Reviews/)) {
 				addLine(currentItemId, "1131", "!106186019!");
 			}
 		}
