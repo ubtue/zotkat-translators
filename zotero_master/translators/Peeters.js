@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2018-03-27 05:23:49"
+	"lastUpdated": "2020-08-17 15:29:47"
 }
 
 /*
@@ -143,7 +143,8 @@ function scrape(doc, url) {
 	item.pages = ZU.xpathText(doc, '//b[contains(text(), "Pages:")]/following-sibling::text()[1]');
 	item.DOI = ZU.xpathText(doc, '//b[contains(text(), "DOI:")]/following-sibling::text()[1]');
 	item.abstractNote = ZU.xpathText(doc, '//b[contains(text(), "Abstract :")]/following-sibling::text()[1]');
-	
+	if (item.publicationTitle === 'Journal of Coptic Studies') item.ISSN = '1783-1512';
+	if (item.publicationTitle === 'Lumen Vitae') item.ISSN = '0024-7324';
 	item.attachments.push({
 		url: url,
 		title: "Snapshot",
