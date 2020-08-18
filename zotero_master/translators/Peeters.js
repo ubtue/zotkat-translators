@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-08-18 11:02:31"
+	"lastUpdated": "2020-08-18 14:53:24"
 }
 
 /*
@@ -146,9 +146,13 @@ function scrape(doc, url) {
 	item.url = urlLink[2].baseURI;
 	let abstract = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "whitecell", " " ))]');
 	item.abstractNote = abstract[2].textContent.replace(/(\r\n|\n|\r)/gm,"").match(/Abstract.*/g);
-	if (item.publicationTitle === 'Journal of Coptic Studies') item.ISSN = '1783-1512';
-	if (item.publicationTitle === 'Lumen Vitae') item.ISSN = '0024-7324';
-	if (item.publicationTitle === 'Theoforum') item.ISSN = '2295-5186';
+	let publicationTitleToISSN = {
+		'Journal of Coptic Studies' : '1783-1512',
+		'Lumen Vitae' : '0024-7324',
+		'Theoforum' : '2295-5186',
+		'Journal of Septuagint and Cognate Studies' : '2593-7308',
+	}
+	item.ISSN = publicationTitleToISSN[item.publicationTitle];
 	item.attachments.push({
 		url: url,
 		title: "Snapshot",
