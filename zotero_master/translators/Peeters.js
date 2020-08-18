@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-08-17 15:29:47"
+	"lastUpdated": "2020-08-18 11:02:31"
 }
 
 /*
@@ -142,9 +142,13 @@ function scrape(doc, url) {
 	item.date = ZU.xpathText(doc, '//b[contains(text(), "Date:")]/following-sibling::text()[1]');
 	item.pages = ZU.xpathText(doc, '//b[contains(text(), "Pages:")]/following-sibling::text()[1]');
 	item.DOI = ZU.xpathText(doc, '//b[contains(text(), "DOI:")]/following-sibling::text()[1]');
-	item.abstractNote = ZU.xpathText(doc, '//b[contains(text(), "Abstract :")]/following-sibling::text()[1]');
+	let urlLink = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "whitecell", " " ))]');
+	item.url = urlLink[2].baseURI;
+	let abstract = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "whitecell", " " ))]');
+	item.abstractNote = abstract[2].textContent.replace(/(\r\n|\n|\r)/gm,"").match(/Abstract.*/g);
 	if (item.publicationTitle === 'Journal of Coptic Studies') item.ISSN = '1783-1512';
 	if (item.publicationTitle === 'Lumen Vitae') item.ISSN = '0024-7324';
+	if (item.publicationTitle === 'Theoforum') item.ISSN = '2295-5186';
 	item.attachments.push({
 		url: url,
 		title: "Snapshot",
