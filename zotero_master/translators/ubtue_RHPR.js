@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsbv",
-	"lastUpdated": "2020-08-19 15:14:59"
+	"lastUpdated": "2020-08-19 15:41:53"
 }
 
 /*
@@ -51,7 +51,11 @@ function invokeEMTranslator(doc) {
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
-		
+		let firstandlastpages = i.pages.split('-');
+		if (firstandlastpages[0] === firstandlastpages[1]) i.pages = firstandlastpages[0];
+		i.volume = i.volume.substr(6, 7);
+		let issue = i.issue.split('n°');
+		i.issue = issue[1];
 		i.complete();
 	});
 	translator.translate();
@@ -75,6 +79,11 @@ function doWeb(doc, url) {
 var testCases = [
 	{
 		"type": "web",
+		"url": "https://classiques-garnier.com/revue-d-histoire-et-de-philosophie-religieuses-2020-2-100e-annee-n-2-varia.html",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
 		"url": "https://classiques-garnier.com/revue-d-histoire-et-de-philosophie-religieuses-2020-2-100e-annee-n-2-varia-sigmund-mowinckel-et-la-question-de-l-aniconisme-dans-la-religion-yahwiste.html",
 		"items": [
 			{
@@ -91,13 +100,13 @@ var testCases = [
 				"DOI": "10.15122/isbn.978-2-406-10673-9.p.0005",
 				"ISSN": "2269-479X",
 				"abstractNote": "Cet article évalue l’importance de l’étude de S. Mowinckel, parue en 1929 dans la Revue d’Histoire et de Philosophie Religieuses, dans laquelle il émet des hypothèses sur les origines de l’aniconisme biblique. Ses études sur la forme bovine des représentations de Yhwh dont l’une se trouvait dans l’arche sont importantes mais doivent être modifiées à la lumière des recherches récentes qui ont montré que l’aniconisme ne naît qu’après la destruction de Jérusalem en 587 avant l’ère chrétienne.",
-				"issue": "100e année, n° 2",
+				"issue": "2",
 				"language": "fr_FR",
 				"libraryCatalog": "classiques-garnier.com",
 				"pages": "5-19",
 				"publicationTitle": "Revue d'Histoire et de Philosophie religieuses",
 				"url": "https://classiques-garnier.com/revue-d-histoire-et-de-philosophie-religieuses-2020-2-100e-annee-n-2-varia-sigmund-mowinckel-et-la-question-de-l-aniconisme-dans-la-religion-yahwiste.html",
-				"volume": "2020 – 2",
+				"volume": "2",
 				"attachments": [
 					{
 						"title": "Full Text PDF",
@@ -144,8 +153,71 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://classiques-garnier.com/revue-d-histoire-et-de-philosophie-religieuses-2020-2-100e-annee-n-2-varia.html",
-		"items": "multiple"
+		"url": "https://classiques-garnier.com/revue-d-histoire-et-de-philosophie-religieuses-2020-2-100e-annee-n-2-varia-sommaire.html",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Sommaire",
+				"creators": [],
+				"date": "2020/07/08",
+				"DOI": "10.15122/isbn.978-2-406-10673-9.p.0003",
+				"ISSN": "2269-479X",
+				"issue": "2",
+				"language": "fr_FR",
+				"libraryCatalog": "classiques-garnier.com",
+				"pages": "3",
+				"publicationTitle": "Revue d'Histoire et de Philosophie religieuses",
+				"url": "https://classiques-garnier.com/revue-d-histoire-et-de-philosophie-religieuses-2020-2-100e-annee-n-2-varia-sommaire.html",
+				"volume": "2",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://classiques-garnier.com/revue-d-histoire-et-de-philosophie-religieuses-2020-2-100e-annee-n-2-varia-sommaire.html",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Sommaire",
+				"creators": [],
+				"date": "2020/07/08",
+				"DOI": "10.15122/isbn.978-2-406-10673-9.p.0003",
+				"ISSN": "2269-479X",
+				"issue": "2",
+				"language": "fr_FR",
+				"libraryCatalog": "classiques-garnier.com",
+				"pages": "3",
+				"publicationTitle": "Revue d'Histoire et de Philosophie religieuses",
+				"url": "https://classiques-garnier.com/revue-d-histoire-et-de-philosophie-religieuses-2020-2-100e-annee-n-2-varia-sommaire.html",
+				"volume": "2",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
