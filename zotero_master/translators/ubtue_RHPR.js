@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsbv",
-	"lastUpdated": "2020-08-19 15:41:53"
+	"lastUpdated": "2020-08-19 16:03:19"
 }
 
 /*
@@ -53,9 +53,11 @@ function invokeEMTranslator(doc) {
 	translator.setHandler("itemDone", function (t, i) {
 		let firstandlastpages = i.pages.split('-');
 		if (firstandlastpages[0] === firstandlastpages[1]) i.pages = firstandlastpages[0];
-		i.volume = i.volume.substr(6, 7);
-		let issue = i.issue.split('n°');
+		var issue = i.issue.split('n°');
+		i.volume = issue[0].match(/\d+/);
 		i.issue = issue[1];
+		let tagentry = ZU.xpathText(doc, );
+		i.tags
 		i.complete();
 	});
 	translator.translate();
@@ -168,7 +170,7 @@ var testCases = [
 				"pages": "3",
 				"publicationTitle": "Revue d'Histoire et de Philosophie religieuses",
 				"url": "https://classiques-garnier.com/revue-d-histoire-et-de-philosophie-religieuses-2020-2-100e-annee-n-2-varia-sommaire.html",
-				"volume": "2",
+				"volume": "100",
 				"attachments": [
 					{
 						"title": "Full Text PDF",
@@ -202,7 +204,7 @@ var testCases = [
 				"pages": "3",
 				"publicationTitle": "Revue d'Histoire et de Philosophie religieuses",
 				"url": "https://classiques-garnier.com/revue-d-histoire-et-de-philosophie-religieuses-2020-2-100e-annee-n-2-varia-sommaire.html",
-				"volume": "2",
+				"volume": "100",
 				"attachments": [
 					{
 						"title": "Full Text PDF",
@@ -214,6 +216,144 @@ var testCases = [
 					}
 				],
 				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://classiques-garnier.com/revue-d-histoire-et-de-philosophie-religieuses-2019-4-99e-annee-n-4-varia-trois-hymnes-du-corpus-hermetique.html",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Trois hymnes du Corpus hermétique - Leurs structures, leurs rythmes et leur double public",
+				"creators": [
+					{
+						"firstName": "Michèle",
+						"lastName": "Biraud",
+						"creatorType": "author"
+					}
+				],
+				"date": "2019/12/18",
+				"DOI": "10.15122/isbn.978-2-406-09894-2.p.0005",
+				"ISSN": "0035-2403",
+				"abstractNote": "L’étude des clausules (métriques et accentuelles) en réseaux d’échos dans les trois parties de l’Hymnodie secrète (Corpus hermeticum, XIII, 17-20) montre que c’est une prose eurythmique dans les deux prononciations, ce qui n’est pas exceptionnel à l’époque de la Seconde Sophistique, tandis que l’hymne du Poimandrès (I, 31-32) et la prière de V, 10-11 ne présentent un réel intérêt rythmique qu’en lecture orale moderne. Autant de lectures, autant de fidèles aux compétences culturelles différentes.",
+				"issue": "4",
+				"language": "fr_FR",
+				"libraryCatalog": "classiques-garnier.com",
+				"pages": "5-26",
+				"publicationTitle": "Revue d'Histoire et de Philosophie religieuses",
+				"url": "https://classiques-garnier.com/revue-d-histoire-et-de-philosophie-religieuses-2019-4-99e-annee-n-4-varia-trois-hymnes-du-corpus-hermetique.html",
+				"volume": "99",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Accent"
+					},
+					{
+						"tag": "Hymnes hermétiques"
+					},
+					{
+						"tag": "charnière textuelle"
+					},
+					{
+						"tag": "clausule accentuelle"
+					},
+					{
+						"tag": "clausule métrique"
+					},
+					{
+						"tag": "composition en anneau"
+					},
+					{
+						"tag": "eurythmie"
+					},
+					{
+						"tag": "gnose"
+					},
+					{
+						"tag": "écho rythmique"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://classiques-garnier.com/revue-d-histoire-et-de-philosophie-religieuses-2019-4-99e-annee-n-4-varia-trois-hymnes-du-corpus-hermetique.html",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Trois hymnes du Corpus hermétique - Leurs structures, leurs rythmes et leur double public",
+				"creators": [
+					{
+						"firstName": "Michèle",
+						"lastName": "Biraud",
+						"creatorType": "author"
+					}
+				],
+				"date": "2019/12/18",
+				"DOI": "10.15122/isbn.978-2-406-09894-2.p.0005",
+				"ISSN": "0035-2403",
+				"abstractNote": "L’étude des clausules (métriques et accentuelles) en réseaux d’échos dans les trois parties de l’Hymnodie secrète (Corpus hermeticum, XIII, 17-20) montre que c’est une prose eurythmique dans les deux prononciations, ce qui n’est pas exceptionnel à l’époque de la Seconde Sophistique, tandis que l’hymne du Poimandrès (I, 31-32) et la prière de V, 10-11 ne présentent un réel intérêt rythmique qu’en lecture orale moderne. Autant de lectures, autant de fidèles aux compétences culturelles différentes.",
+				"issue": "4",
+				"language": "fr_FR",
+				"libraryCatalog": "classiques-garnier.com",
+				"pages": "5-26",
+				"publicationTitle": "Revue d'Histoire et de Philosophie religieuses",
+				"url": "https://classiques-garnier.com/revue-d-histoire-et-de-philosophie-religieuses-2019-4-99e-annee-n-4-varia-trois-hymnes-du-corpus-hermetique.html",
+				"volume": "99",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Accent"
+					},
+					{
+						"tag": "Hymnes hermétiques"
+					},
+					{
+						"tag": "charnière textuelle"
+					},
+					{
+						"tag": "clausule accentuelle"
+					},
+					{
+						"tag": "clausule métrique"
+					},
+					{
+						"tag": "composition en anneau"
+					},
+					{
+						"tag": "eurythmie"
+					},
+					{
+						"tag": "gnose"
+					},
+					{
+						"tag": "écho rythmique"
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
