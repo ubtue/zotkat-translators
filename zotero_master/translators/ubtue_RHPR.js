@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsbv",
-	"lastUpdated": "2020-08-19 16:03:19"
+	"lastUpdated": "2020-08-19 16:17:54"
 }
 
 /*
@@ -56,8 +56,6 @@ function invokeEMTranslator(doc) {
 		var issue = i.issue.split('n°');
 		i.volume = issue[0].match(/\d+/);
 		i.issue = issue[1];
-		let tagentry = ZU.xpathText(doc, );
-		i.tags
 		i.complete();
 	});
 	translator.translate();
