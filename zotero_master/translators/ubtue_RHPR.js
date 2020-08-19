@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsbv",
-	"lastUpdated": "2020-08-19 15:07:42"
+	"lastUpdated": "2020-08-19 15:14:58"
 }
 
 /*
@@ -75,85 +75,77 @@ function doWeb(doc, url) {
 var testCases = [
 	{
 		"type": "web",
-		"url": "https://search.library.utoronto.ca/search?N=0&Ntk=Anywhere&Ntt=nimni+challenge+of+post-zionism&Ntx=mode%252Bmatchallpartial&Nu=p_work_normalized&Np=1&formName=search_form_simple",
+		"url": "https://classiques-garnier.com/revue-d-histoire-et-de-philosophie-religieuses-2020-2-100e-annee-n-2-varia-sigmund-mowinckel-et-la-question-de-l-aniconisme-dans-la-religion-yahwiste.html",
 		"items": [
 			{
-				"itemType": "book",
-				"title": "The challenge of Post-Zionism: alternatives to Israeli fundamentalist politics",
+				"itemType": "journalArticle",
+				"title": "Sigmund Mowinckel et la question de l’aniconisme dans la religion yahwiste",
 				"creators": [
 					{
-						"firstName": "Ephraim",
-						"lastName": "Nimni",
-						"creatorType": "editor"
-					}
-				],
-				"date": "2003",
-				"ISBN": "9781856498937 9781856498944",
-				"callNumber": "DS113.4 .C45 2003",
-				"extra": "OCLC: 50670646",
-				"libraryCatalog": "search.library.utoronto.ca",
-				"numPages": "209",
-				"place": "London ; New York",
-				"publisher": "Zed Books",
-				"series": "Postcolonial encounters",
-				"shortTitle": "The challenge of Post-Zionism",
-				"attachments": [],
-				"tags": [
-					{
-						"tag": "Israel"
-					},
-					{
-						"tag": "National characteristics, Israeli"
-					},
-					{
-						"tag": "Philosophy"
-					},
-					{
-						"tag": "Politics and government"
-					},
-					{
-						"tag": "Post-Zionism"
-					},
-					{
-						"tag": "Zionism"
-					}
-				],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://search.library.utoronto.ca/search?N=0&Ntk=Anywhere&Ntt=adam+smith&Ntx=mode%252Bmatchallpartial&Nu=p_work_normalized&Np=1&formName=search_form_simple",
-		"items": "multiple"
-	},
-	{
-		"type": "web",
-		"url": "http://demo1.orex.es/cgi-bin/koha/opac-detail.pl?biblionumber=3",
-		"items": [
-			{
-				"itemType": "book",
-				"title": "Carlota Fainberg",
-				"creators": [
-					{
-						"firstName": "Antonio",
-						"lastName": "Muñoz Molina",
+						"firstName": "Thomas",
+						"lastName": "Römer",
 						"creatorType": "author"
 					}
 				],
-				"date": "1999",
-				"ISBN": "9788420441610",
-				"libraryCatalog": "demo1.orex.es",
-				"numPages": "174",
-				"place": "Madrid",
-				"publisher": "Alfaguara",
-				"attachments": [],
-				"tags": [],
+				"date": "2020/07/08",
+				"DOI": "10.15122/isbn.978-2-406-10673-9.p.0005",
+				"ISSN": "2269-479X",
+				"abstractNote": "Cet article évalue l’importance de l’étude de S. Mowinckel, parue en 1929 dans la Revue d’Histoire et de Philosophie Religieuses, dans laquelle il émet des hypothèses sur les origines de l’aniconisme biblique. Ses études sur la forme bovine des représentations de Yhwh dont l’une se trouvait dans l’arche sont importantes mais doivent être modifiées à la lumière des recherches récentes qui ont montré que l’aniconisme ne naît qu’après la destruction de Jérusalem en 587 avant l’ère chrétienne.",
+				"issue": "100e année, n° 2",
+				"language": "fr_FR",
+				"libraryCatalog": "classiques-garnier.com",
+				"pages": "5-19",
+				"publicationTitle": "Revue d'Histoire et de Philosophie religieuses",
+				"url": "https://classiques-garnier.com/revue-d-histoire-et-de-philosophie-religieuses-2020-2-100e-annee-n-2-varia-sigmund-mowinckel-et-la-question-de-l-aniconisme-dans-la-religion-yahwiste.html",
+				"volume": "2020 – 2",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Josias"
+					},
+					{
+						"tag": "Jéroboam"
+					},
+					{
+						"tag": "Mowinckel"
+					},
+					{
+						"tag": "aniconisme"
+					},
+					{
+						"tag": "arche"
+					},
+					{
+						"tag": "monothéisme"
+					},
+					{
+						"tag": "représentations de Yhwh"
+					},
+					{
+						"tag": "statues"
+					},
+					{
+						"tag": "stèles"
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://classiques-garnier.com/revue-d-histoire-et-de-philosophie-religieuses-2020-2-100e-annee-n-2-varia.html",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
