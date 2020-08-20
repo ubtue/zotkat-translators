@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2020-08-04 12:16:00"
+	"lastUpdated": "2020-08-05 12:13:00"
 }
 
 // Zotero Export Translator für das Pica Intern Format
@@ -517,9 +517,10 @@ function performExport() {
                     processDocumentsCustom(lookupUrl,
                         // processing callback function
                         function(doc, url, threadParams){
-                            var ppn = Zotero.Utilities.xpathText(doc, '//small[a[img]]');
-                            if (ppn) {
-                                var authorValue = "!" + ppn.slice(0,10).trim() + "!" + "$BVerfasserIn$4aut" + "\\n8910 $aixzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet\\n";
+                            var ppn = Zotero.Utilities.xpathText(doc, '//tr[(((count(preceding-sibling::*) + 1) = 5) and parent::*)]//*[contains(concat( " ", @class, " " ), concat( " ", "presvalue", " " ))]//div');
+                            var ppnDigits = ppn.match(/\d+/);
+							if (ppn) {
+                                var authorValue = "!" + ppnDigits + "!" + "$BVerfasserIn$4aut" + "\\n8910 $aixzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet\\n";
                                 addLine(threadParams["currentItemId"], threadParams["code"], authorValue);
                             } else {
                                 addLine(threadParams["currentItemId"], threadParams["code"], threadParams["authorName"]  + "$BVerfasserIn$4aut");
