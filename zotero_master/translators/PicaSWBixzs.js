@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2020-08-05 12:16:00"
+	"lastUpdated": "2020-08-20 13:04:00"
 }
 
 
@@ -502,9 +502,10 @@ function performExport() {
                     processDocumentsCustom(lookupUrl,
                         // processing callback function
                         function(doc, url, threadParams){
-                            var ppn = Zotero.Utilities.xpathText(doc, '//small[a[img]]');
+                            var ppn = Zotero.Utilities.xpathText(doc, '//tr[(((count(preceding-sibling::*) + 1) = 5) and parent::*)]//*[contains(concat( " ", @class, " " ), concat( " ", "presvalue", " " ))]//div');
+                            var ppnDigits = ppn.match(/\d+/);
                             if (ppn) {
-                                var authorValue = "!" + ppn.slice(0,10).trim() + "!$BVerfasserIn$4aut \n8910 $aixzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet";
+                                var authorValue = "!" + ppnDigits + "!$BVerfasserIn$4aut \n8910 $aixzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet";
                                 addLine(threadParams["currentItemId"], threadParams["code"], authorValue);
                             } else {
                                 addLine(threadParams["currentItemId"], threadParams["code"], threadParams["authorName"]  + "$BVerfasserIn$4aut");
@@ -607,7 +608,7 @@ function performExport() {
         //Inhaltliche Zusammenfassung --> 4207
         if (item.abstractNote) {
 			item.abstractNote = ZU.unescapeHTML(item.abstractNote);
-			addLine(currentItemId, "4207", item.abstractNote.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, ''));
+			addLine(currentItemId, "4207", item.abstractNote.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract\s?:?/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, ''));
         }
 
         //item.publicationTitle --> 4241 Beziehungen zur größeren Einheit
