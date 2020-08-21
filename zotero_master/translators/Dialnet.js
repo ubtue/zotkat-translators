@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2018-03-28 21:36:40"
+	"lastUpdated": "2020-08-21 08:51:53"
 }
 
 /*
@@ -88,7 +88,7 @@ function scrape(doc, url) {
 	translator.setHandler('itemDone', function (obj, item) {
 		item.url = url;
 		// Delete generic abstract as "Información del artículo <title>"
-		if (item.abstractNote && item.abstractNote.includes(item.title) && item.abstractNote.length<item.title.length+30) {
+		if (item.abstractNote && item.abstractNote.includes(item.title) && item.abstractNote.length<item.title.length+30 || item.abstractNote.match(/Autoría|Localización/)) {
 			delete item.abstractNote;
 		}
 		// in case of double issue e.g. "3-4" wrong issue number in Embedded Metadata e,g. "3" 
@@ -220,6 +220,45 @@ var testCases = [
 				"attachments": [
 					{
 						"title": "Snapshot"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://dialnet.unirioja.es/revista/10829/V/53",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7003450",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "El Estado actual del Ecumenismo en América Latina y El Caribe",
+				"creators": [
+					{
+						"firstName": "Juan D. Escobar",
+						"lastName": "Soriano",
+						"creatorType": "author"
+					}
+				],
+				"date": "2018",
+				"ISSN": "0210-2870",
+				"issue": "165",
+				"language": "spa",
+				"libraryCatalog": "dialnet.unirioja.es",
+				"pages": "7-19",
+				"publicationTitle": "Diálogo ecuménico",
+				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7003450",
+				"volume": "53",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
 					}
 				],
 				"notes": [],
