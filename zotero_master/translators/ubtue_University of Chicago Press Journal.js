@@ -175,7 +175,7 @@ function scrape(doc, url, extras) {
 	var doi = url.match(/10\.[^?#]+/)[0];
 	var citationurl = url.replace(replURLRegExp, "/action/showCitFormats?doi=");
 	var abstract = doc.getElementsByClassName('abstractSection')[0];
-	var tags = ZU.xpath(doc, '//meta[@name="dc.Subject"]');Z.debug(tags)
+	var tags = ZU.xpath(doc, '//meta[@name="dc.Subject"]');
 	Z.debug("Citation URL: " + citationurl);
 	ZU.processDocuments(citationurl, function(citationDoc){
 		var filename = citationDoc.evaluate('//form//input[@name="downloadFileName"]', citationDoc, null, XPathResult.ANY_TYPE, null).iterateNext().value;
