@@ -99,16 +99,16 @@ function scrape(doc, url) {
 	}
 	var post = "doi=" + encodeURIComponent(doi) + "&include=abs&format=ris&direct=false&submit=Download+Citation";
 	var pdfurl = "//" + doc.location.host + "/doi/pdf/" + doi;
-	//var articleType = ZU.xpath(doc, '//span[@class="ArticleType"]/span');
+	var articleType = ZU.xpath(doc, '//span[@class="ArticleType"]/span');
 	
 	//Z.debug(pdfurl);
-	//Z.debug(post);
+	Z.debug(post);
 	ZU.doPost(risURL, post, function (text) {
 		//The publication date is saved in DA and the date first
 		//appeared online is in Y1. Thus, we want to prefer DA over T1
 		//and will therefore simply delete the later in cases both
 		//dates are present.
-		//Z.debug(text);
+		Z.debug(text);
 		if (text.includes("DA  - ")) {
 			text = text.replace(/Y1[ ]{2}- .*\r?\n/, '');
 		}
