@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-08-24 11:33:02"
+	"lastUpdated": "2020-08-24 12:04:27"
 }
 
 /*
@@ -81,8 +81,10 @@ function scrape(doc, url) {
 		let volumeIssueEntry = text(doc, '.title'); // Z.debug(volumeIssueEntry)
 		item.volume = volumeIssueEntry.split(',')[0].replace('v.', '');
 		item.issue = volumeIssueEntry.split(',')[1].replace('n.', '');
-		let firstandlastpages = item.pages.split('-');
-		if (firstandlastpages[0] === firstandlastpages[1]) item.pages = firstandlastpages[0];
+		if (item.pages) {
+			let firstandlastpages = item.pages.split('-');
+			if (firstandlastpages[0] === firstandlastpages[1]) item.pages = firstandlastpages[0];
+		}
 		item.complete();
 	});
 
