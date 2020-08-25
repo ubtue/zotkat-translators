@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-08-25 14:07:05"
+	"lastUpdated": "2020-08-25 17:01:46"
 }
 
 /*
@@ -78,6 +78,7 @@ function invokeEMTranslator(doc) {
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
 		if (i.title.match(/ISBN/)) i.tags.push('RezensionstagPica') && delete i.abstractNote;
+		if (i.abstractNote) i.abstractNote += ZU.xpathText(doc, '//*[(@id = "transAbstract")]//p');
 		i.complete();
 	});
 	translator.translate();
