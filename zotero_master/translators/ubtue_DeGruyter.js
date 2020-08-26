@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-08-25 17:01:46"
+	"lastUpdated": "2020-08-26 11:50:05"
 }
 
 /*
@@ -36,7 +36,7 @@
 */
 
 function detectWeb(doc, url) {
-	if (url.includes('/article/')) return "journalArticle";
+	if (url.match(/article/)) return "journalArticle";
 		else if (url.match(/issue/) && getSearchResults(doc)) return "multiple";
 	else return false;
 }
@@ -78,7 +78,8 @@ function invokeEMTranslator(doc) {
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
 		if (i.title.match(/ISBN/)) i.tags.push('RezensionstagPica') && delete i.abstractNote;
-		if (i.abstractNote) i.abstractNote += ZU.xpathText(doc, '//*[(@id = "transAbstract")]//p');
+		let transAbstract = ZU.xpathText(doc, '//*[(@id = "transAbstract")]//p');
+		if (i.abstractNote && transAbstract) i.abstractNote += '\\n4207' + transAbstract;
 		i.complete();
 	});
 	translator.translate();
