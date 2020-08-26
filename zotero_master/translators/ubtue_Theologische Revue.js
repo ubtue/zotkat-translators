@@ -80,7 +80,7 @@ function postProcess(doc, item) {
 	};
 	
 	let issuetext = text(doc, '#pkp_content_main .title');Z.debug(issuetext)
-	item.issue = issuetext.match(/Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember/); Z.debug(item.issue)
+	item.issue = issuetext.match(/Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember/); //Z.debug(item.issue)
 	item.issue = month[item.issue];
 	item.complete();
 }
