@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-08-26 15:44:24"
+	"lastUpdated": "2020-08-27 09:31:33"
 }
 
 /*
@@ -80,7 +80,7 @@ function invokeEMTranslator(doc, url) {
 	translator.setDocument(doc);
 	translator.setHandler('itemDone', function (t, i) {
 		let abstracts = text(doc, '.hlFld-Abstract');
-		if (i.abstractNote) i.abstractNote = abstracts.replace(/^Abstract/, '');
+		if (i.abstractNote) i.abstractNote = abstracts.replace(/^Abstract/, '').replace(/\.(\w)/, './n4207$1');
 		if (i.reportType === "book-review") i.tags.push('RezensionstagPica') && delete i.abstractNote;
 		i.complete();
 	});
