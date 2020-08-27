@@ -1,15 +1,15 @@
 {
 	"translatorID": "68643a57-3182-4e27-b34a-326347044d89",
-	"label": "Oxford Academic",
+	"label": "ubtue_Oxford Academic",
 	"creator": "Madeesh Kannan",
 	"target": "^https?://academic.oup.com",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 100,
-	"inRepository": true,
+	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-07-27 14:19:10"
+	"lastUpdated": "2020-08-27 13:03:35"
 }
 
 /*
@@ -66,8 +66,8 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		var abstractText = ZU.xpathText(doc, '//section[@class="abstract"]');
 		if (abstractText) i.abstractNote = abstractText;
 		var tagreview = ZU.xpathText(doc, '//*[(@id = "ContentTab")]//a')
-		if (tagreview.match(/Book Reviews/i)) delete i.abstractNote;
-		if (tagreview.match(/Book Reviews/i)) i.tags.push('RezensionstagPica');
+		if (tagreview.match(/Reviews|Book Reviews/i)) delete i.abstractNote;
+		if (tagreview.match(/Reviews|Book Reviews/i)) i.tags.push('RezensionstagPica');
 		i.complete();
 	});
 	translator.translate();
@@ -88,3 +88,53 @@ function doWeb(doc, url) {
 	} else
 		invokeEmbeddedMetadataTranslator(doc, url);
 }
+/** BEGIN TEST CASES **/
+var testCases = [
+	{
+		"type": "web",
+		"url": "https://academic.oup.com/jss/article/65/1/245/5738633",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Nevada Levi Delapp, Theophanic “Type-Scenes” in the Pentateuch: Visions of YHWH",
+				"creators": [
+					{
+						"firstName": "George",
+						"lastName": "Savran",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020/04/01",
+				"DOI": "10.1093/jss/fgz049",
+				"ISSN": "0022-4480",
+				"issue": "1",
+				"journalAbbreviation": "J Semit Stud",
+				"language": "en",
+				"libraryCatalog": "academic.oup.com",
+				"pages": "245-246",
+				"publicationTitle": "Journal of Semitic Studies",
+				"shortTitle": "Nevada Levi Delapp, Theophanic “Type-Scenes” in the Pentateuch",
+				"url": "https://academic.oup.com/jss/article/65/1/245/5738633",
+				"volume": "65",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	}
+]
+/** END TEST CASES **/
