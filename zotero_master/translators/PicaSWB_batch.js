@@ -449,7 +449,7 @@ function performExport() {
         }
         if (item.language == "fre" || !item.language) {
             titleStatement = titleStatement.replace(/^(Le|La|Les|Des|Un|Une) ([^@])/, "$1 @$2");
-            titleStatement = titleStatement.replace(/^L'([^@])/, "L' @$1");
+            titleStatement = titleStatement.replace(/^L'([^@])/, "L' @$1").replace(/^L’([^@])/, "L' @$1");
         }
 		if (item.language == "ita" || !item.language) {
 			titleStatement = titleStatement.replace(/^(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/, "$1 @$2");
