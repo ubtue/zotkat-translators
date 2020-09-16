@@ -207,7 +207,7 @@ function complementItem(doc, item) {
 	}
 
 	let docType = ZU.xpathText(doc, '//meta[@name="citation_article_type"]/@content | //meta[@name="dc.type"]/@content');
-	if (docType.match(/Book (R|r)eviews?|Review (P|p)aper|BookReview/)) item.tags.push("Book Reviews");
+	if (docType.match(/Book (R|r)eviews?|Review (P|p)aper|BookReview/)) item.tags.push("RezensionstagPica");
 	return item;
 }
 
