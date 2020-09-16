@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2020-09-15 12:54:00"
+	"lastUpdated": "2020-09-15 13:54:00"
 }
 
 // Zotero Export Translator für das Pica Intern Format
@@ -423,9 +423,9 @@ function performExport() {
         //item.DOI --> 2051 bei "Oou" bzw. 2053 bei "Aou"
         if (item.DOI) {
             if (physicalForm === "O" || item.DOI) {
-                addLine(currentItemId, "\\n2051", item.DOI);
+                addLine(currentItemId, "\\n2051", item.DOI.replace('https://doi.org/', ''));
             } else if (physicalForm === "A") {
-                addLine(currentItemId, "\\n2053", item.DOI);
+                addLine(currentItemId, "\\n2053", item.DOI.replace('https://doi.org/', ''));
             }
         }
 
