@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsbv",
-	"lastUpdated": "2020-07-27 12:20:45"
+	"lastUpdated": "2020-09-16 12:18:43"
 }
 
 function detectWeb(doc, url) {
@@ -56,6 +56,9 @@ function getResultList(doc) {
 	}
 	if (!results.length) {
 		results = ZU.xpath(doc, '//div[@class="toc"]/ol//li[contains(@class,"toc-item")]/p[@class="title"]/a');
+	}
+	if (!results.length) {
+		results = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "c-card__title", " " ))]//a');
 	}
 	return results;
 }
@@ -117,7 +120,7 @@ function complementItem(doc, item) {
 			item.rights = '©' + year + ' ' + item.rights;
 		}
 	}
-	
+
 	if (itemType == "journalArticle") {
 		if (!item.ISSN) {
 			item.ISSN = ZU.xpathText(doc, '//dd[@id="abstract-about-issn" or @id="abstract-about-electronic-issn"]');
@@ -172,22 +175,57 @@ function complementItem(doc, item) {
 		item.volume = "";
 	}
 	// add abstract
-	var abs = ZU.xpathText(doc, '//div[contains(@class,"abstract-content")][1]');
-	if (!abs) {
-		abs = ZU.xpathText(doc, '//section[@class="Abstract" and @lang="en"]');
+	let abstractSections = ZU.xpath(doc, '//section[@class="Abstract"]//div[@class="AbstractSection"]');
+	if (abstractSections && abstractSections.length > 0) {
+		let sectionTitles = ZU.xpath(doc, '//section[@class="Abstract"]//div[@class="AbstractSection"]//h3[@class="Heading"]');
+		let abstract = "";
+		for (let i = 0; i < sectionTitles.length; ++i) {
+			let titleText = sectionTitles[i].textContent.trim();
+			let sectionBody = ZU.xpathText(abstractSections[i], './/p').trim();
+
+			abstract += titleText + ": " + sectionBody + "\n\n";
+		}
+
+		item.abstractNote = abstract.trim();
+	} else {
+		let absSections = ZU.xpath(doc, '//*[(@id = "Abs2-content")]//p');
+		let sectionTitles = ZU.xpath(doc, '//*[(@id = "Abs2-content")]//*[contains(concat( " ", @class, " " ), concat( " ", "c-article__sub-heading", " " ))]');
+		let titleTextGerman = ZU.xpathText(doc, '//*[(@id = "Abs1-content")]//p');
+		let abs = "";
+		for (let i = 0; i < sectionTitles.length; ++i) {
+			let titleText = sectionTitles[i].textContent.trim();
+			let sectionBody = ZU.xpathText(absSections[i], '//*[(@id = "Abs2-content")]//p').trim();
+			abs += titleText + ": " + sectionBody + "\n\n";
+			item.abstractNote = abs.trim();
+		}
+		item.abstractNote = titleTextGerman + "\n\n" + ZU.trimInternal(abs).replace(/^Abstract[:\s]*/, "");
 	}
-	if (abs) item.abstractNote = ZU.trimInternal(abs).replace(/^Abstract[:\s]*/, "");
-	// add tags
-	var tags = ZU.xpathText(doc, '//span[@class="Keyword"]');
+
+	let tags = ZU.xpathText(doc, '//span[@class="Keyword"] | //*[contains(concat( " ", @class, " " ), concat( " ", "c-article-subject-list__subject", " " ))]//span');
 	if (tags && (!item.tags || item.tags.length === 0)) {
 		item.tags = tags.split(',');
-	} else {
-		if (!tags && (!item.tags || item.tags.length === 0)) {
-			let tagstwo = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "c-article-subject-list__subject", " " ))]');	
-			item.tags = tagstwo.split(',');
-		}
 	}
+
+	let docType = ZU.xpathText(doc, '//meta[@name="citation_article_type"]/@content | //meta[@name="dc.type"]/@content');
+	if (docType.match(/Book (R|r)eviews?|Review (P|p)aper|BookReview/)) item.tags.push("Book Reviews");
 	return item;
+}
+
+function shouldPostprocessWithEmbeddedMetadata(item) {
+	if (!item.pages) return true;
+	return false;
+}
+
+function postprocessWithEmbeddedMetadataTranslator(doc, originalItem) {
+	var translator = Zotero.loadTranslator("web");
+	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
+	translator.setDocument(doc);
+	translator.setHandler("itemDone", function (t, extractedMetadata) {
+		originalItem.pages = extractedMetadata.pages;
+
+		originalItem.complete();
+	});
+	translator.translate();
 }
 
 function scrape(doc, url) {
@@ -203,19 +241,20 @@ function scrape(doc, url) {
 		translator.setString(text);
 		translator.setHandler("itemDone", function (obj, item) {
 			item = complementItem(doc, item);
-			
+
 			item.attachments.push({
 				url: pdfURL,
 				title: "Springer Full Text PDF",
 				mimeType: "application/pdf"
 			});
-			item.complete();
+
+			if (shouldPostprocessWithEmbeddedMetadata(item)) postprocessWithEmbeddedMetadataTranslator(doc, item);
+			else
+				item.complete();
 		});
 		translator.translate();
 	});
 }
-
-
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -628,6 +667,49 @@ var testCases = [
 					},
 					{
 						"tag": "Substance use disorder"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://link.springer.com/article/10.1007/s40839-019-00082-6",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Orlando Nang Kwok Ho: Rethinking the curriculum: the Epistle to the Romans as a pedagogic text",
+				"creators": [
+					{
+						"lastName": "O’Shea",
+						"firstName": "Gerard",
+						"creatorType": "author"
+					}
+				],
+				"date": "2019-07-01",
+				"DOI": "10.1007/s40839-019-00082-6",
+				"ISSN": "2199-4625",
+				"abstractNote": "null",
+				"issue": "2",
+				"journalAbbreviation": "j. relig. educ.",
+				"language": "en",
+				"libraryCatalog": "Springer Link",
+				"pages": "165-166",
+				"publicationTitle": "Journal of Religious Education",
+				"shortTitle": "Orlando Nang Kwok Ho",
+				"url": "https://doi.org/10.1007/s40839-019-00082-6",
+				"volume": "67",
+				"attachments": [
+					{
+						"title": "Springer Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Book Reviews"
 					}
 				],
 				"notes": [],
