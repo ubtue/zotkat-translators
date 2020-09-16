@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2020-09-15 12:54:00"
+	"lastUpdated": "2020-09-15 13:54:00"
 }
 
 
@@ -408,9 +408,9 @@ function performExport() {
         //item.DOI --> 2051 bei "Oou" bzw. 2053 bei "Aou"
         if (item.DOI) {
             if (physicalForm === "O" || item.DOI) {
-                addLine(currentItemId, "2051", item.DOI);
+                addLine(currentItemId, "2051", item.DOI.replace('https://doi.org/', ''));
             } else if (physicalForm === "A") {
-                addLine(currentItemId, "2053", item.DOI);
+                addLine(currentItemId, "2053", item.DOI.replace('https://doi.org/', ''));
             }
         }
 
@@ -502,7 +502,7 @@ function performExport() {
                     processDocumentsCustom(lookupUrl,
                         // processing callback function
                         function(doc, url, threadParams){
-                            var ppn = Zotero.Utilities.xpathText(doc, '//tr[(((count(preceding-sibling::*) + 1) = 5) and parent::*)]//*[contains(concat( " ", @class, " " ), concat( " ", "presvalue", " " ))]//div');Z.write(ppn);
+                            var ppn = Zotero.Utilities.xpathText(doc, '//tr[(((count(preceding-sibling::*) + 1) = 5) and parent::*)]//*[contains(concat( " ", @class, " " ), concat( " ", "presvalue", " " ))]//div');
                             if (ppn) {
                                 var authorValue = "!" + ppn.match(/\d+X?/) + "!$BVerfasserIn$4aut \n8910 $aixzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet";
                                 addLine(threadParams["currentItemId"], threadParams["code"], authorValue);
