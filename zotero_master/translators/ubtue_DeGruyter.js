@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-09-18 13:46:38"
+	"lastUpdated": "2020-09-18 15:35:33"
 }
 
 /*
@@ -80,6 +80,8 @@ function invokeEMTranslator(doc) {
 		if (i.title.match(/ISBN/)) i.tags.push('RezensionstagPica') && delete i.abstractNote;
 		let transAbstract = ZU.xpathText(doc, '//*[(@id = "transAbstract")]//p');
 		if (i.abstractNote && transAbstract) i.abstractNote += '\\n4207' + transAbstract;
+		let pseudoabstract = i.title; Z.debug(pseudoabstract)
+		if (i.abstractNote.match(pseudoabstract)) delete i.abstractNote;
 		if (!i.ISSN) i.ISSN = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "onlineissn", " " )) and contains(concat( " ", @class, " " ), concat( " ", "text-metadata-value", " " ))]');
 		i.complete();
 	});
@@ -112,6 +114,62 @@ var testCases = [
 				"publicationTitle": "Archiv für Reformationsgeschichte - Archive for Reformation History",
 				"shortTitle": "Zwischen Tradition und Innovation",
 				"url": "https://www.degruyter.com/view/journals/arg/110/1/article-p23.xml",
+				"volume": "110",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Frühe Neuzeit"
+					},
+					{
+						"tag": "Geschichte"
+					},
+					{
+						"tag": "Historische Epochen"
+					},
+					{
+						"tag": "Kirchengeschichte der Reformationszeit"
+					},
+					{
+						"tag": "Theologie und Religion"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.degruyter.com/view/journals/arg/110/1/article-p200.xml",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Heinrich Bullinger, sein Diarium und der Beginn der Kleinen Eiszeit-Phase von 1570 bis 1630",
+				"creators": [
+					{
+						"firstName": "Otto",
+						"lastName": "Ulbricht",
+						"creatorType": "author"
+					}
+				],
+				"date": "2019/12/01",
+				"DOI": "10.14315/arg-2019-1100109",
+				"ISSN": "2198-0489",
+				"issue": "1",
+				"language": "de",
+				"libraryCatalog": "www.degruyter.com",
+				"pages": "200-236",
+				"publicationTitle": "Archiv für Reformationsgeschichte - Archive for Reformation History",
+				"url": "https://www.degruyter.com/view/journals/arg/110/1/article-p200.xml",
 				"volume": "110",
 				"attachments": [
 					{
