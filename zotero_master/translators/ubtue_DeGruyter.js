@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-09-18 15:35:33"
+	"lastUpdated": "2020-09-18 16:02:03"
 }
 
 /*
@@ -80,8 +80,8 @@ function invokeEMTranslator(doc) {
 		if (i.title.match(/ISBN/)) i.tags.push('RezensionstagPica') && delete i.abstractNote;
 		let transAbstract = ZU.xpathText(doc, '//*[(@id = "transAbstract")]//p');
 		if (i.abstractNote && transAbstract) i.abstractNote += '\\n4207' + transAbstract;
-		let pseudoabstract = i.title; Z.debug(pseudoabstract)
-		if (i.abstractNote.match(pseudoabstract)) delete i.abstractNote;
+		let pseudoabstract = i.title;
+		if (i.abstractNote.match(pseudoabstract) || i.abstractNote.match(/^Der Artikel/)) delete i.abstractNote;
 		if (!i.ISSN) i.ISSN = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "onlineissn", " " )) and contains(concat( " ", @class, " " ), concat( " ", "text-metadata-value", " " ))]');
 		i.complete();
 	});
@@ -193,6 +193,60 @@ var testCases = [
 					},
 					{
 						"tag": "Kirchengeschichte der Reformationszeit"
+					},
+					{
+						"tag": "Theologie und Religion"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.degruyter.com/view/journals/vf/61/2/article-p127.xml",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Überlappender Konsens? Neue Trends in der evangelischen Ethik",
+				"creators": [
+					{
+						"firstName": "Klaas",
+						"lastName": "Huizing",
+						"creatorType": "author"
+					}
+				],
+				"date": "2016/08/01",
+				"DOI": "10.14315/vf-2016-0206",
+				"ISSN": "0342-2410, 2198-0454",
+				"issue": "2",
+				"language": "de",
+				"libraryCatalog": "www.degruyter.com",
+				"pages": "127-134",
+				"publicationTitle": "Verkündigung und Forschung",
+				"shortTitle": "Überlappender Konsens?",
+				"url": "https://www.degruyter.com/view/journals/vf/61/2/article-p127.xml",
+				"volume": "61",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Allgemeines und Rezeptionsgeschichte der Bibel"
+					},
+					{
+						"tag": "Praktische Theologie"
+					},
+					{
+						"tag": "Religions- und Gemeindepädagogik"
 					},
 					{
 						"tag": "Theologie und Religion"
