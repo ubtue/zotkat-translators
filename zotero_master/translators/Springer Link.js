@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsbv",
-	"lastUpdated": "2020-09-16 12:18:43"
+	"lastUpdated": "2020-09-18 08:57:35"
 }
 
 function detectWeb(doc, url) {
@@ -187,6 +187,7 @@ function complementItem(doc, item) {
 		}
 
 		item.abstractNote = abstract.trim();
+		if (item.abstractNote.match(/^null/)) item.abstractNote = '';
 	} else {
 		let absSections = ZU.xpath(doc, '//*[(@id = "Abs2-content")]//p');
 		let sectionTitles = ZU.xpath(doc, '//*[(@id = "Abs2-content")]//*[contains(concat( " ", @class, " " ), concat( " ", "c-article__sub-heading", " " ))]');
@@ -199,6 +200,7 @@ function complementItem(doc, item) {
 			item.abstractNote = abs.trim();
 		}
 		item.abstractNote = titleTextGerman + "\n\n" + ZU.trimInternal(abs).replace(/^Abstract[:\s]*/, "");
+		if (item.abstractNote.match(/^null/)) item.abstractNote = '';
 	}
 
 	let tags = ZU.xpathText(doc, '//span[@class="Keyword"] | //*[contains(concat( " ", @class, " " ), concat( " ", "c-article-subject-list__subject", " " ))]//span');
@@ -710,6 +712,48 @@ var testCases = [
 				"tags": [
 					{
 						"tag": "Book Reviews"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://link.springer.com/article/10.1007/s40839-019-00082-6",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Orlando Nang Kwok Ho: Rethinking the curriculum: the Epistle to the Romans as a pedagogic text",
+				"creators": [
+					{
+						"lastName": "O’Shea",
+						"firstName": "Gerard",
+						"creatorType": "author"
+					}
+				],
+				"date": "2019-07-01",
+				"DOI": "10.1007/s40839-019-00082-6",
+				"ISSN": "2199-4625",
+				"issue": "2",
+				"journalAbbreviation": "j. relig. educ.",
+				"language": "en",
+				"libraryCatalog": "Springer Link",
+				"pages": "165-166",
+				"publicationTitle": "Journal of Religious Education",
+				"shortTitle": "Orlando Nang Kwok Ho",
+				"url": "https://doi.org/10.1007/s40839-019-00082-6",
+				"volume": "67",
+				"attachments": [
+					{
+						"title": "Springer Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
 					}
 				],
 				"notes": [],
