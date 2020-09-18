@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-08-26 11:50:05"
+	"lastUpdated": "2020-09-18 13:46:38"
 }
 
 /*
@@ -80,7 +80,70 @@ function invokeEMTranslator(doc) {
 		if (i.title.match(/ISBN/)) i.tags.push('RezensionstagPica') && delete i.abstractNote;
 		let transAbstract = ZU.xpathText(doc, '//*[(@id = "transAbstract")]//p');
 		if (i.abstractNote && transAbstract) i.abstractNote += '\\n4207' + transAbstract;
+		if (!i.ISSN) i.ISSN = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "onlineissn", " " )) and contains(concat( " ", @class, " " ), concat( " ", "text-metadata-value", " " ))]');
 		i.complete();
 	});
 	translator.translate();
 }
+/** BEGIN TEST CASES **/
+var testCases = [
+	{
+		"type": "web",
+		"url": "https://www.degruyter.com/view/journals/arg/110/1/article-p23.xml",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Zwischen Tradition und Innovation: Lukas von Prag als liturgischer Theologe der Böhmischen Brüder",
+				"creators": [
+					{
+						"firstName": "Tabita",
+						"lastName": "Landová",
+						"creatorType": "author"
+					}
+				],
+				"date": "2019/12/01",
+				"DOI": "10.14315/arg-2019-1100103",
+				"ISSN": "2198-0489",
+				"abstractNote": "Der Artikel Zwischen Tradition und Innovation: Lukas von Prag als liturgischer Theologe der Böhmischen Brüder wurde am 01.12.2019 in der Zeitschrift Archiv für Reformationsgeschichte - Archive for Reformation History (Band 110, Heft 1) veröffentlicht.",
+				"issue": "1",
+				"language": "de",
+				"libraryCatalog": "www.degruyter.com",
+				"pages": "23-48",
+				"publicationTitle": "Archiv für Reformationsgeschichte - Archive for Reformation History",
+				"shortTitle": "Zwischen Tradition und Innovation",
+				"url": "https://www.degruyter.com/view/journals/arg/110/1/article-p23.xml",
+				"volume": "110",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Frühe Neuzeit"
+					},
+					{
+						"tag": "Geschichte"
+					},
+					{
+						"tag": "Historische Epochen"
+					},
+					{
+						"tag": "Kirchengeschichte der Reformationszeit"
+					},
+					{
+						"tag": "Theologie und Religion"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	}
+]
+/** END TEST CASES **/
