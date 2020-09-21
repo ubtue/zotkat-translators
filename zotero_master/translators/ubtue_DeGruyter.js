@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-09-18 16:02:03"
+	"lastUpdated": "2020-09-21 16:58:05"
 }
 
 /*
@@ -77,10 +77,11 @@ function invokeEMTranslator(doc) {
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
-		if (i.title.match(/ISBN/)) i.tags.push('RezensionstagPica') && delete i.abstractNote;
+		if (i.title.match(/ISBN/) || i.publicationTitle === 'Verkündigung und Forschung') i.tags.push('RezensionstagPica') && delete i.abstractNote;
 		let transAbstract = ZU.xpathText(doc, '//*[(@id = "transAbstract")]//p');
 		if (i.abstractNote && transAbstract) i.abstractNote += '\\n4207' + transAbstract;
 		let pseudoabstract = i.title;
+		if (i.abstractNote === undefined) i.abstractNote = '';
 		if (i.abstractNote.match(pseudoabstract) || i.abstractNote.match(/^Der Artikel/)) delete i.abstractNote;
 		if (!i.ISSN) i.ISSN = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "onlineissn", " " )) and contains(concat( " ", @class, " " ), concat( " ", "text-metadata-value", " " ))]');
 		i.complete();
@@ -247,6 +248,62 @@ var testCases = [
 					},
 					{
 						"tag": "Religions- und Gemeindepädagogik"
+					},
+					{
+						"tag": "Theologie und Religion"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.degruyter.com/view/journals/vf/65/2/article-p98.xml",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "New Testament and Digital Humanities",
+				"creators": [
+					{
+						"firstName": "Claire",
+						"lastName": "Clivaz",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020/08/01",
+				"DOI": "10.14315/vf-2020-650205",
+				"ISSN": "0342-2410, 2198-0454",
+				"issue": "2",
+				"language": "de",
+				"libraryCatalog": "www.degruyter.com",
+				"pages": "98-104",
+				"publicationTitle": "Verkündigung und Forschung",
+				"url": "https://www.degruyter.com/view/journals/vf/65/2/article-p98.xml",
+				"volume": "65",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Allgemeines und Rezeptionsgeschichte der Bibel"
+					},
+					{
+						"tag": "Praktische Theologie"
+					},
+					{
+						"tag": "Religions- und Gemeindepädagogik"
+					},
+					{
+						"tag": "RezensionstagPica"
 					},
 					{
 						"tag": "Theologie und Religion"
