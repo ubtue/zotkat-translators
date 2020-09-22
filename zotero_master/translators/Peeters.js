@@ -152,6 +152,7 @@ function scrape(doc, url) {
 		'Theoforum' : '2295-5186',
 		'Journal of Septuagint and Cognate Studies' : '2593-7308',
 		'Ons Geestelijk Erf' : '1783-1652',
+		'Biblica' : '2385-2062',
 	}
 	item.ISSN = publicationTitleToISSN[item.publicationTitle];
 	item.attachments.push({
