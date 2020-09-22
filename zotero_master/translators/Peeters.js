@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-08-18 14:53:24"
+	"lastUpdated": "2020-09-22 14:44:39"
 }
 
 /*
@@ -151,6 +151,7 @@ function scrape(doc, url) {
 		'Lumen Vitae' : '0024-7324',
 		'Theoforum' : '2295-5186',
 		'Journal of Septuagint and Cognate Studies' : '2593-7308',
+		'Ons Geestelijk Erf' : '1783-1652',
 	}
 	item.ISSN = publicationTitleToISSN[item.publicationTitle];
 	item.attachments.push({
@@ -580,6 +581,43 @@ var testCases = [
 				"publicationTitle": "Byzantion",
 				"shortTitle": "The Unedited <i>Life</i> of St John Chrysostom by Nicetas David the Paphlagonian",
 				"volume": "87",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3288399&journal_code=OGE",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Een kasteel voor Christus:  De burcht als mediatief beeld aan het einde van de middeleeuwen",
+				"creators": [
+					{
+						"creatorType": "author",
+						"lastName": "Dlabačová",
+						"firstName": " Anna"
+					}
+				],
+				"date": "2019-2020",
+				"DOI": "10.2143/OGE.90.1.3288399",
+				"ISSN": "1783-1652",
+				"abstractNote": "Abstract :The allegorical Middle Dutch text, Een gheestelijc casteel [A Spiritual Castle], encourages readers to mentally construct a precious castle in which they will be able to receive Christ. The description of the castle provides a mnemonic image that readers could use during prayer and meditation. Although the author makes no direct reference to Luke 10:38, the allegory is authorized by the exegesis of this Biblical passage: Mary is the castle in which Jesus has entered and she keeps the active and spiritual life, symbolized by Martha and Mary Magdalene, in perfect balance. The Middle Dutch text likely originated around 1460 in the Brussels convent of Jericho (Regular Canonesses). In the last decade of the fifteenth century, the text, now adapted for a lay audience, was printed in Antwerp by Govaert Bac. He was an important member of the Antwerp guild of St Luke, the professional association of painters and printers that also included Antwerp’s principal chamber of rhetoric. The attractive architectural allegory and exercise presented in Bac’s booklet finds parallels in contemporary paintings of Mary and the Christ Child, who are often either portrayed in a landscape with a castle-like architectural structure clearly visible in the background or within a castle-like building. In the former compositions the castle can be viewed as a reflection or ‘echo’ of Mary as a castle (the painting thus portrays two castles) while at the same time functioning as a reminder to those familiar with the meditative image of the spiritual castle to pursue their spiritual skopos. The latter images could be seen as portraying a castle (Mary) within a castle (building), similar to Mary (or the womb) within a room, or even Jan van Eyck’s Madonna in the Church.\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+				"issue": "1-2",
+				"libraryCatalog": "Peeters",
+				"pages": "19-62",
+				"publicationTitle": "Ons Geestelijk Erf",
+				"shortTitle": "Een kasteel voor Christus",
+				"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3288399&journal_code=OGE",
+				"volume": "90",
 				"attachments": [
 					{
 						"title": "Snapshot",
