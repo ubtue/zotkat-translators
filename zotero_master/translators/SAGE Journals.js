@@ -2,14 +2,14 @@
 	"translatorID": "908c1ca2-59b6-4ad8-b026-709b7b927bda",
 	"label": "SAGE Journals",
 	"creator": "Sebastian Karcher",
-	"target": "^https?://journals\\.sagepub\\.com(/doi/((abs|full|pdf)/)?10\\.|/action/doSearch\\?|/toc/)",
+	"target": "^https?://journals\\.sagepub\\.com(/toc)?(/doi/((abs|full|pdf)/)?10\\.|/action/doSearch\\?|/toc/)",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-08-05 12:16:40"
+	"lastUpdated": "2020-09-23 16:52:00"
 }
 
 /*
@@ -48,10 +48,10 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = ZU.xpath(doc, '//span[contains(@class, "art_title")]/a[contains(@href, "/doi/full/10.") or contains(@href, "/doi/abs/10.") or contains(@href, "/doi/pdf/10.")][1]');
+	var rows = ZU.xpath(doc, '//span[contains(@class, "art_title")]/a[contains(@href, "/doi/full/10.") or contains(@href, "/doi/abs/10.") or contains(@href, "/doi/pdf/10.")][1] | //a[contains(concat( " ", @class, " " ), concat( " ", "ref", " " )) and contains(concat( " ", @class, " " ), concat( " ", "nowrap", " " ))]');
 	for (var i = 0; i < rows.length; i++) {
 		var href = rows[i].href;
-		var title = ZU.trimInternal(rows[i].textContent);
+		var title = ZU.trimInternal(rows[i].textContent.replace(/Citation|ePub.*|Abstract/, ''));
 		if (!href || !title) continue;
 		if (checkOnly) return true;
 		found = true;
@@ -94,21 +94,21 @@ function doWeb(doc, url) {
 function scrape(doc, url) {
 	var risURL = "//journals.sagepub.com/action/downloadCitation";
 	var doi = ZU.xpathText(doc, '//meta[@name="dc.Identifier" and @scheme="doi"]/@content');
-	if (!doi) {
+	/*if (!doi) {
 		doi = url.match(/10\.[^?#]+/)[0];
-	}
+	}*/
 	var post = "doi=" + encodeURIComponent(doi) + "&include=abs&format=ris&direct=false&submit=Download+Citation";
 	var pdfurl = "//" + doc.location.host + "/doi/pdf/" + doi;
 	var articleType = ZU.xpath(doc, '//span[@class="ArticleType"]/span');
 	
 	//Z.debug(pdfurl);
-	Z.debug(post);
+	//Z.debug(post);
 	ZU.doPost(risURL, post, function (text) {
 		//The publication date is saved in DA and the date first
 		//appeared online is in Y1. Thus, we want to prefer DA over T1
 		//and will therefore simply delete the later in cases both
 		//dates are present.
-		Z.debug(text);
+		//Z.debug(text);
 		if (text.includes("DA  - ")) {
 			text = text.replace(/Y1[ ]{2}- .*\r?\n/, '');
 		}
@@ -453,6 +453,61 @@ var testCases = [
 					},
 					{
 						"tag": "Keywords Christian schools"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://journals.sagepub.com/doi/full/10.1177/0040571X20944577",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Praying to win: reflections on the involvement of God in the outcomes of sport",
+				"creators": [
+					{
+						"lastName": "Smith",
+						"firstName": "Jason M.",
+						"creatorType": "author"
+					}
+				],
+				"date": "September 1, 2020",
+				"DOI": "10.1177/0040571X20944577",
+				"ISSN": "0040-571X",
+				"abstractNote": "This article applies to sport the question: to what extent is God involved in the outcomes of worldly affairs? It examines Lincoln Harvey’s assertion that sport is one unique area of creation in which God has left the outcomes entirely up to us, as a ‘liturgical celebration of our contingency’. Not entirely satisfied with this answer, I take up concepts from Kathryn Tanner’s work to try to arrive at a solution wherein God’s providential care over all worldly affairs is maintained but with sufficient care so as not to imagine God choosing one team over another during every sporting event.",
+				"issue": "5",
+				"journalAbbreviation": "Theology",
+				"language": "en",
+				"libraryCatalog": "SAGE Journals",
+				"pages": "329-336",
+				"publicationTitle": "Theology",
+				"shortTitle": "Praying to win",
+				"url": "https://doi.org/10.1177/0040571X20944577",
+				"volume": "123",
+				"attachments": [
+					{
+						"title": "SAGE PDF Full Text",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [
+					{
+						"tag": " Kathryn Tanner"
+					},
+					{
+						"tag": " Lincoln Harvey"
+					},
+					{
+						"tag": " providence"
+					},
+					{
+						"tag": " sport"
+					},
+					{
+						"tag": "Keywords contingency"
 					}
 				],
 				"notes": [],
