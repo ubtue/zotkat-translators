@@ -1,15 +1,15 @@
 {
     "translatorID": "4ccf849b-f9e9-4cec-9bae-7c10aa4dea53",
-    "label": "University of Toronto Press",
+    "label": "ubtue_University of Toronto Press",
     "creator": "Madeesh Kannan",
-    "target": "^https?:\/\/www.utpjournals.press\/((doi)|(toc))\/",
+    "target": "^https?://(www\\\\.)?utpjournals\\.press/((doi)|(toc))/",
     "minVersion": "3.0",
     "maxVersion": "",
     "priority": 90,
-    "inRepository": false,
+    "inRepository": true,
     "translatorType": 4,
     "browserSupport": "gcsibv",
-    "lastUpdated": "2019-03-22 13:14:00"
+    "lastUpdated": "2020-09-23 12:53:40"
 }
 
 /*
@@ -105,3 +105,62 @@ function doWeb(doc, url) {
     } else
         invokeEmbeddedMetadataTranslator(doc, url);
 }
+/** BEGIN TEST CASES **/
+var testCases = [
+    {
+        "type": "web",
+        "url": "https://utpjournals.press/doi/full/10.3138/tjt-2020-0003",
+        "items": [
+            {
+                "itemType": "journalArticle",
+                "title": "Quantum Mechanics and Salvation: A New Meeting Point for Science and Theology",
+                "creators": [
+                    {
+                        "firstName": "Emily",
+                        "lastName": "Qureshi-Hurst",
+                        "creatorType": "author"
+                    }
+                ],
+                "date": "2020-07-02",
+                "DOI": "10.3138/tjt-2020-0003",
+                "abstractNote": "Quantum mechanics has recently indicated that temporal order is not always fixed, a finding that has far-reaching philosophical and theological implications. The phenomena, termed “indefinite causal order,” shows that events can be in a superposition with regard to their order. In the experimental setting with which this article is concerned, two events, A and B, were shown to be in the ordering relations “A before B” and “B before A” at the same time. This article introduces an ongoing project that seeks to make sense of this result, with a particular focus on the methodology by which this research will be undertaken. Specific research questions, particularly regarding what indefinite causal order might mean for the metaphysics of time and the doctrine of salvation, are introduced. The collaborative approach detailed brings together the disciplinary skills of a working scientist and a working theologian. What is offered is a collaborative methodology for interaction between science and religion that is more than the sum of its parts. Alister McGrath’s idea of multiple rationalities is employed as an epistemological framework within which this research takes place. Within an epistemologically pluralistic model, collaborative efforts are not only encouraged but necessary. Complex reality requires an equally complex, usually interdisciplinary, explanation. I argue that such dialogue is both theologically justified and culturally valuable and indicates the direction in which this research will be taken.",
+                "archiveLocation": "world",
+                "issue": "1",
+                "language": "en",
+                "libraryCatalog": "utpjournals.press",
+                "pages": "3-13",
+                "publicationTitle": "Toronto Journal of Theology",
+                "rights": "Toronto Institute of Theology 2019",
+                "shortTitle": "Quantum Mechanics and Salvation",
+                "url": "https://utpjournals.press/doi/abs/10.3138/tjt-2020-0003",
+                "volume": "36",
+                "attachments": [
+                    {
+                        "title": "Snapshot",
+                        "mimeType": "text/html"
+                    }
+                ],
+                "tags": [
+                    {
+                        "tag": "indefinite causal order"
+                    },
+                    {
+                        "tag": "philosophy of time"
+                    },
+                    {
+                        "tag": "quantum mechanics"
+                    },
+                    {
+                        "tag": "salvation"
+                    },
+                    {
+                        "tag": "science and religion"
+                    }
+                ],
+                "notes": [],
+                "seeAlso": []
+            }
+        ]
+    }
+]
+/** END TEST CASES **/
