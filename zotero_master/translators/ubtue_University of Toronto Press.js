@@ -13,24 +13,24 @@
 }
 
 /*
-	***** BEGIN LICENSE BLOCK *****
+    ***** BEGIN LICENSE BLOCK *****
 
-	Copyright © 2019 Universitätsbibliothek Tübingen.  All rights reserved.
+    Copyright © 2019 Universitätsbibliothek Tübingen.  All rights reserved.
 
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU Affero General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU Affero General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
 
-	You should have received a copy of the GNU Affero General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-	***** END LICENSE BLOCK *****
+    ***** END LICENSE BLOCK *****
 */
 
 
@@ -44,34 +44,34 @@ function detectWeb(doc, url) {
 }
 
 function getSearchResults(doc) {
-	var items = {};
-	var found = false;
-	var rows = ZU.xpath(doc, '//div[@class="art_title linkable"]/a')
-	for (let i=0; i<rows.length; i++) {
-		let href = rows[i].href;
-		let title = ZU.trimInternal(rows[i].textContent);
-		if (!href || !title) continue;
-		found = true;
-		items[href] = title;
-	}
-	return found ? items : false;
+    var items = {};
+    var found = false;
+    var rows = ZU.xpath(doc, '//div[@class="art_title linkable"]/a')
+    for (let i=0; i<rows.length; i++) {
+        let href = rows[i].href;
+        let title = ZU.trimInternal(rows[i].textContent);
+        if (!href || !title) continue;
+        found = true;
+        items[href] = title;
+    }
+    return found ? items : false;
 }
 
 
 function postProcess(doc, item) {
-	var volIssue = ZU.xpathText(doc, '//div[@class="journalNavTitle"]');
-	var page = ZU.xpathText(doc, '//span[@class="articlePageRange"]');
+    var volIssue = ZU.xpathText(doc, '//div[@class="journalNavTitle"]');
+    var page = ZU.xpathText(doc, '//span[@class="articlePageRange"]');
 
-	if (!item.volume && (match = volIssue.match(/Volume\s(\d+)/)))
-		item.volume = match[1];
-	if (!item.issue && (match = volIssue.match(/Issue\s(\d+)/)))
-		item.issue = match[1];
-	if (!item.pages && (match = page.match(/^pp\.\s(\d+-\d+)/)))
-		item.pages = match[1];
+    if (!item.volume && (match = volIssue.match(/Volume\s(\d+)/)))
+        item.volume = match[1];
+    if (!item.issue && (match = volIssue.match(/Issue\s(\d+)/)))
+        item.issue = match[1];
+    if (!item.pages && (match = page.match(/^pp\.\s(\d+-\d+)/)))
+        item.pages = match[1];
 
-	var abstract = ZU.xpathText(doc, '//div[contains(@class, "abstractInFull")]//p');
-	if (!item.abstractNote || item.abstractNote.length < abstract.length)
-		item.abstractNote = abstract;
+    var abstract = ZU.xpathText(doc, '//div[contains(@class, "abstractInFull")]//p');
+    if (!item.abstractNote || item.abstractNote.length < abstract.length)
+        item.abstractNote = abstract;
 
     var keywords = ZU.xpath(doc, '//kwd-group//a');
     if (keywords)
@@ -92,16 +92,16 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 
 function doWeb(doc, url) {
     if (detectWeb(doc, url) === "multiple") {
-		Zotero.selectItems(getSearchResults(doc), function (items) {
-			if (!items) {
-				return true;
-			}
-			var articles = [];
-			for (var i in items) {
-				articles.push(i);
-			}
-			ZU.processDocuments(articles, invokeEmbeddedMetadataTranslator);
-		});
+        Zotero.selectItems(getSearchResults(doc), function (items) {
+            if (!items) {
+                return true;
+            }
+            var articles = [];
+            for (var i in items) {
+                articles.push(i);
+            }
+            ZU.processDocuments(articles, invokeEmbeddedMetadataTranslator);
+        });
     } else
         invokeEmbeddedMetadataTranslator(doc, url);
 }
