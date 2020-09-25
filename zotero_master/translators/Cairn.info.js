@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2018-03-17 13:48:44"
+	"lastUpdated": "2020-09-25 14:30:07"
 }
 
 /*
@@ -31,10 +31,10 @@
 */
 
 function detectWeb(doc,url) {
-	breadcrumbPage = ZU.xpathText(doc, '//div[@id="breadcrump"]/a[last()]');
+	breadcrumbPage = ZU.xpathText(doc, '//div[@id="breadcrump"]/a[last()] | //li[contains(concat( " ", @class, " " ), concat( " ", "active", " " ))]'); //Z.debug(breadcrumbPage)
 	if (breadcrumbPage == "Ouvrage collectif") {
 		return "book";
-	} else if (breadcrumbPage == "Article") {
+	} else if (breadcrumbPage.match(/Article/)) {
 		return "journalArticle";
 	} else if (breadcrumbPage == "Chapitre") {
 		return "bookSection";
@@ -369,6 +369,66 @@ var testCases = [
 					}
 				],
 				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.cairn.info/revue-nouvelle-revue-theologique-2020-4-page-529.htm",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Le gardien des espèces. Gn 1,28 dans le contexte du Covid-19 : un texte prémonitoire",
+				"creators": [
+					{
+						"firstName": "Jean-Pierre",
+						"lastName": "Sonnet",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020-09-24",
+				"ISSN": "0029-4845",
+				"abstractNote": "La crise du Covid-19 a été annoncée par des scientifiques clairvoyants. Bien avant eux, la Bible a fait entendre un avertissement qu’il s’agit d’entendre à nouveau. En Gn 1,28, le Dieu créateur institue Adam gardien des espèces animales et fait de lui le garant de leur distinction. Loin d’être une anthologie d’obscurantismes, la Bible est le précipité d’une sagesse immémoriale et prophétique ; elle sait que le rapport de l’homme aux espèces animales est un lieu redoutable, où se joue quelque chose du divin.",
+				"issue": "4",
+				"language": "fr",
+				"libraryCatalog": "Cairn.info",
+				"pages": "529-541",
+				"publicationTitle": "Nouvelle revue theologique",
+				"shortTitle": "Le gardien des espèces. Gn 1,28 dans le contexte du Covid-19",
+				"url": "https://www.cairn.info/revue-nouvelle-revue-theologique-2020-4-page-529.htm",
+				"volume": "Tome 142",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Covid-19"
+					},
+					{
+						"tag": "Genèse 1"
+					},
+					{
+						"tag": "Lévitique 11"
+					},
+					{
+						"tag": "espèces animales"
+					},
+					{
+						"tag": "respect des distinctions"
+					},
+					{
+						"tag": "zoonose"
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
