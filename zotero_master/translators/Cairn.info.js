@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-09-25 14:30:07"
+	"lastUpdated": "2020-09-25 15:35:01"
 }
 
 /*
@@ -31,7 +31,7 @@
 */
 
 function detectWeb(doc,url) {
-	breadcrumbPage = ZU.xpathText(doc, '//div[@id="breadcrump"]/a[last()] | //li[contains(concat( " ", @class, " " ), concat( " ", "active", " " ))]'); //Z.debug(breadcrumbPage)
+	breadcrumbPage = ZU.xpathText(doc, '//div[@id="breadcrump"]/a[last()] | //li[contains(concat( " ", @class, " " ), concat( " ", "active", " " ))]');
 	if (breadcrumbPage == "Ouvrage collectif") {
 		return "book";
 	} else if (breadcrumbPage.match(/Article/)) {
@@ -155,8 +155,10 @@ function scrape(doc, url) {
 		item.title = ZU.unescapeHTML(item.title);
 		if (item.abstractNote) {
 			item.abstractNote = ZU.unescapeHTML(item.abstractNote);
-		}
-
+		}//Z.debug(item.abstractNote)
+		let abstractFR = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "lang-fr", " " ))]//p');
+		let abstractEN = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "lang-en", " " ))]//p')
+		if (item.abstractNote && abstractEN.length > 100) item.abstractNote = item.abstractNote + '\n4207 ' + abstractEN;
 		item.complete();
 	});
 	translator.translate();
@@ -427,6 +429,124 @@ var testCases = [
 					},
 					{
 						"tag": "zoonose"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.cairn.info/revue-nouvelle-revue-theologique-2020-4-page-529.htm?contenu=resume",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Le gardien des espèces. Gn 1,28 dans le contexte du Covid-19 : un texte prémonitoire",
+				"creators": [
+					{
+						"firstName": "Jean-Pierre",
+						"lastName": "Sonnet",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020-09-24",
+				"ISSN": "0029-4845",
+				"abstractNote": "La crise du Covid-19 a été annoncée par des scientifiques clairvoyants. Bien avant eux, la Bible a fait entendre un avertissement qu’il s’agit d’entendre à nouveau. En Gn 1,28, le Dieu créateur institue Adam gardien des espèces animales et fait de lui le garant de leur distinction. Loin d’être une anthologie d’obscurantismes, la Bible est le précipité d’une sagesse immémoriale et prophétique ; elle sait que le rapport de l’homme aux espèces animales est un lieu redoutable, où se joue quelque chose du divin.\\n4207The Covid-19 crisis was predicted by far-sighted scientists. Long before they did, the Bible sounded a warning that must be heard again. In Gen 1:28, the Creator God ordained Adam as the guardian of the animal species and made him the guarantor of their distinction. Far from being an anthology of obscurantism, the Bible is the precipitate of an immemorial and prophetic wisdom; it knows that man’s relationship with animal species is a awe-inspiring space, where something divine is at stake.",
+				"issue": "4",
+				"language": "fr",
+				"libraryCatalog": "Cairn.info",
+				"pages": "529-541",
+				"publicationTitle": "Nouvelle revue theologique",
+				"shortTitle": "Le gardien des espèces. Gn 1,28 dans le contexte du Covid-19",
+				"url": "https://www.cairn.info/revue-nouvelle-revue-theologique-2020-4-page-529.htm?contenu=resume",
+				"volume": "Tome 142",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Covid-19"
+					},
+					{
+						"tag": "Genèse 1"
+					},
+					{
+						"tag": "Lévitique 11"
+					},
+					{
+						"tag": "espèces animales"
+					},
+					{
+						"tag": "respect des distinctions"
+					},
+					{
+						"tag": "zoonose"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.cairn.info/revue-archives-de-philosophie-2020-2-page-17.htm",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Monde et monde humain",
+				"creators": [
+					{
+						"firstName": "Karl",
+						"lastName": "Löwith",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Guillaume",
+						"lastName": "Fagniez",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020-04-19",
+				"ISSN": "0003-9632",
+				"abstractNote": "Dans ce texte de 1960, Karl Löwith s’interroge sur l’origine de la « perte de monde » qui caractérise selon lui la situation de l’homme moderne. Il met au jour les sources judéo-chrétiennes de l’occultation du monde naturel par le monde humain et historique, et montre comment le subjectivisme de la philosophie moderne a encore renforcé cet acosmisme. Löwith indique ainsi la nécessité et la possibilité de repenser le monde naturel comme tel, au sein duquel l’homme pourrait trouver sa juste place.",
+				"issue": "2",
+				"language": "fr",
+				"libraryCatalog": "Cairn.info",
+				"pages": "17-45",
+				"publicationTitle": "Archives de Philosophie",
+				"url": "https://www.cairn.info/revue-archives-de-philosophie-2020-2-page-17.htm",
+				"volume": "Tome 83",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Karl Löwith"
+					},
+					{
+						"tag": "histoire"
+					},
+					{
+						"tag": "monde"
+					},
+					{
+						"tag": "nature"
 					}
 				],
 				"notes": [],
