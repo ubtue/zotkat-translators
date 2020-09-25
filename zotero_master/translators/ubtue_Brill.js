@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2019-05-17 14:20:25"
+	"lastUpdated": "2020-09-25 16:23:37"
 }
 
 /*
@@ -66,12 +66,12 @@ function postProcess(doc, item) {
         if (item.abstractNote && item.abstractNote.length > 0)
             item.abstractNote = item.abstractNote[0].textContent.trim();
     }
-	let pseudoabstract = i.title;
 	if (item.abstractNote === undefined) item.abstractNote = '';
-	if (item.abstractNote.match(pseudoabstract)) delete item.abstractNote;
-    	item.tags = ZU.xpath(doc, '//dd[contains(@class, "keywords")]//a');
-    	if (item.tags)
-        	item.tags = item.tags.map(i => i.textContent.trim());
+	// i set 100 as limit of string length, because usually a string of a pseudoabstract has less then 150 character e.g. "abstractNote": "\"Die Vernünftigkeit des jüdischen Dogmas\" published on 05 Sep 2020 by Brill."
+	if (item.abstractNote.length < 100) delete item.abstractNote;	
+	item.tags = ZU.xpath(doc, '//dd[contains(@class, "keywords")]//a');
+	if (item.tags)
+		item.tags = item.tags.map(i => i.textContent.trim());
 }
 
 function invokeEmbeddedMetadataTranslator(doc, url) {
@@ -100,6 +100,8 @@ function doWeb(doc, url) {
 	} else
         invokeEmbeddedMetadataTranslator(doc, url);
 }
+
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -175,7 +177,47 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://brill.com/view/journals/zrgg/72/4/article-p371_2.xml",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Die Vernünftigkeit des jüdischen Dogmas: Samuel Holdheims Kritik an Mendelssohns Religionsphilosophie",
+				"creators": [
+					{
+						"firstName": "George Y.",
+						"lastName": "Kohler",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020/09/05",
+				"DOI": "10.1163/15700739-07204002",
+				"ISSN": "0044-3441, 1570-0739",
+				"issue": "4",
+				"language": "de",
+				"libraryCatalog": "brill.com",
+				"pages": "371-389",
+				"publicationTitle": "Zeitschrift für Religions- und Geistesgeschichte",
+				"shortTitle": "Die Vernünftigkeit des jüdischen Dogmas",
+				"url": "https://brill.com/view/journals/zrgg/72/4/article-p371_2.xml",
+				"volume": "72",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
-
