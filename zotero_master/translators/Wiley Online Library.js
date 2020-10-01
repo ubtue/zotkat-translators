@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-01 12:11:59"
+	"lastUpdated": "2020-10-01 12:19:10"
 }
 
 /*
@@ -1210,7 +1210,49 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://onlinelibrary.wiley.com/doi/10.1111/cros.12425",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Privacy, Interiority and Confession: A Historical Perspective",
+				"creators": [
+					{
+						"firstName": "Yelena",
+						"lastName": "Mazour‐Matusevich",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020",
+				"DOI": "10.1111/cros.12425",
+				"ISSN": "1939-3881",
+				"issue": "2",
+				"itemID": "doi:10.1111/cros.12425",
+				"language": "en",
+				"libraryCatalog": "Wiley Online Library",
+				"pages": "95-106",
+				"publicationTitle": "CrossCurrents",
+				"rights": "© 2020 Association for Religion and Intellectual Life",
+				"shortTitle": "Privacy, Interiority and Confession",
+				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/cros.12425",
+				"volume": "70",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					},
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
 	}
 ]
-
 /** END TEST CASES **/
