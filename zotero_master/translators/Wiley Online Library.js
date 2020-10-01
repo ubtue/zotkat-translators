@@ -265,7 +265,10 @@ function scrapeBibTeX(doc, url) {
 			if (item.title && item.title.toUpperCase() == item.title) {
 				item.title = ZU.capitalizeTitle(item.title, true);
 			}
-
+			
+			//missing subtitle in bibtex
+			let addsubtitle = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "citation__subtitle", " " ))]'); //Z.debug(addsubtitle)
+			if (item.title !== addsubtitle && addsubtitle !== null) item.title += ': ' + addsubtitle;
 			if (!item.date) {
 				item.date = ZU.xpathText(doc, '//meta[@name="citation_publication_date"]/@content');
 			}
