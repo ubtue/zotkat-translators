@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-09-30 14:57:56"
+	"lastUpdated": "2020-10-01 09:03:29"
 }
 
 /*
@@ -80,10 +80,10 @@ function scrape(doc, text) {
 	// trenner trennt zwischen Abstract und bibliographischen Angaben
 	var trenner = str.split("Résumé"); //Z.debug(trenner)
 	// metadata mit Komma getrennt für bibliographische Angaben
-	var metadata = trenner[0].split(','); //Z.debug(metadata)
-	if (metadata[1].match(/\w*\s\(\w*\)/) && metadata[1].length < 30) {
+	var metadata = trenner[0].split(','); //#Z.debug(metadata)
+	if (metadata[1].match(/[a-zA-Z\u00C0-\u017F]*\s\([a-zA-Z\u00C0-\u017F]*\)/) && metadata[1].length < 30) {
 		item.title = metadata[2];
-	} else if (metadata[1].match(/\w*\s\(\w*\)/) && metadata[1].length > 30 && metadata[3].match(/in Revue des Questions Scientifiques/)){
+	} else if (metadata[1].match(/[a-zA-Z\u00C0-\u017F]*\s\([a-zA-Z\u00C0-\u017F]*\)/) && metadata[1].length > 30 && metadata[3].match(/in Revue des Questions Scientifiques/)){
 		item.title = metadata[1] + ':' + metadata[2];
 	} else {
 		item.title = metadata[1];
