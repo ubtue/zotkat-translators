@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-08-21 17:30:16"
+	"lastUpdated": "2020-10-02 15:07:49"
 }
 
 /*
@@ -91,7 +91,7 @@ function scrape(doc, url) {
 		translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
 		translator.setString(text);
 		translator.setHandler("itemDone", function (obj, item) {
-			// Z.debug(text)
+			//Z.debug(text)
 			var tags = ZU.xpath(doc, '//meta[@name="dc.Subject"]');
 			for (var i in tags){
 					//let tags[0].content = tags[0].content.split(';'))
@@ -103,6 +103,8 @@ function scrape(doc, url) {
 			// 
 			var abstract = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "abstractInFull", " " ))]//p');
 			if (item.abstractNote) item.abstractNote = abstract; // Z.debug(abstract)
+			let review = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "citation__top__item", " " ))]');
+			if (review) item.tags.push('RezensionstagPica');
 			item.complete();
 		});
 		translator.translate();
