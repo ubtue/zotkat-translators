@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-09-25 15:35:01"
+	"lastUpdated": "2020-10-02 16:42:33"
 }
 
 /*
@@ -158,7 +158,10 @@ function scrape(doc, url) {
 		}//Z.debug(item.abstractNote)
 		let abstractFR = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "lang-fr", " " ))]//p');
 		let abstractEN = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "lang-en", " " ))]//p')
-		if (item.abstractNote && abstractEN.length > 100) item.abstractNote = item.abstractNote + '\n4207 ' + abstractEN;
+		if (item.abstractNote && abstractEN.length > 100) item.abstractNote = item.abstractNote + '\\n4207 ' + abstractEN;
+		let DOIentry = ZU.xpathText(doc, '//dd');
+		let splitDOIentry = DOIentry.split('\n');//Z.debug(splitDOIentry)
+		if (splitDOIentry) item.DOI = splitDOIentry[1]; 
 		item.complete();
 	});
 	translator.translate();
@@ -547,6 +550,67 @@ var testCases = [
 					},
 					{
 						"tag": "nature"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.cairn.info/revue-nouvelle-revue-theologique-2020-4-page-529.htm",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Le gardien des espèces. Gn 1,28 dans le contexte du Covid-19 : un texte prémonitoire",
+				"creators": [
+					{
+						"firstName": "Jean-Pierre",
+						"lastName": "Sonnet",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020-09-24",
+				"DOI": "https://doi.org/10.3917/nrt.424.0529",
+				"ISSN": "0029-4845",
+				"abstractNote": "La crise du Covid-19 a été annoncée par des scientifiques clairvoyants. Bien avant eux, la Bible a fait entendre un avertissement qu’il s’agit d’entendre à nouveau. En Gn 1,28, le Dieu créateur institue Adam gardien des espèces animales et fait de lui le garant de leur distinction. Loin d’être une anthologie d’obscurantismes, la Bible est le précipité d’une sagesse immémoriale et prophétique ; elle sait que le rapport de l’homme aux espèces animales est un lieu redoutable, où se joue quelque chose du divin.\\n4207 The Covid-19 crisis was predicted by far-sighted scientists. Long before they did, the Bible sounded a warning that must be heard again. In Gen 1:28, the Creator God ordained Adam as the guardian of the animal species and made him the guarantor of their distinction. Far from being an anthology of obscurantism, the Bible is the precipitate of an immemorial and prophetic wisdom; it knows that man’s relationship with animal species is a awe-inspiring space, where something divine is at stake.",
+				"issue": "4",
+				"language": "fr",
+				"libraryCatalog": "Cairn.info",
+				"pages": "529-541",
+				"publicationTitle": "Nouvelle revue theologique",
+				"shortTitle": "Le gardien des espèces. Gn 1,28 dans le contexte du Covid-19",
+				"url": "https://www.cairn.info/revue-nouvelle-revue-theologique-2020-4-page-529.htm",
+				"volume": "Tome 142",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Covid-19"
+					},
+					{
+						"tag": "Genèse 1"
+					},
+					{
+						"tag": "Lévitique 11"
+					},
+					{
+						"tag": "espèces animales"
+					},
+					{
+						"tag": "respect des distinctions"
+					},
+					{
+						"tag": "zoonose"
 					}
 				],
 				"notes": [],
