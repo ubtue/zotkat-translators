@@ -6,10 +6,10 @@
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 80,
-	"inRepository": false,
+	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-09-21 16:58:05"
+	"lastUpdated": "2020-10-02 10:30:36"
 }
 
 /*
@@ -37,7 +37,7 @@
 
 function detectWeb(doc, url) {
 	if (url.match(/article/)) return "journalArticle";
-		else if (url.match(/issue/) && getSearchResults(doc)) return "multiple";
+		else if (url.match(/issue|latestIssueToc/) && getSearchResults(doc)) return "multiple";
 	else return false;
 }
 
