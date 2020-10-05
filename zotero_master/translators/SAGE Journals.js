@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-05 10:55:15"
+	"lastUpdated": "2020-10-05 11:23:52"
 }
 
 /*
@@ -189,6 +189,11 @@ function scrape(doc, url) {
 			/*if (articleType && articleType.length > 0) {
 				if (articleType[0].textContent.trim().match(/Book Review/)) item.tags.push("Book Review");
 			}*/
+			
+			//fix pages if RIS tag "SP" is equal to "EP" e.g. "193-193"
+			let checkPages = item.pages.split('-'); //Z.debug(checkPages)
+			if (checkPages[0] === checkPages[1]) item.pages = checkPages[0];
+		
 			item.notes = [];
 			item.language = ZU.xpathText(doc, '//meta[@name="dc.Language"]/@content');
 			item.attachments.push({
@@ -562,6 +567,43 @@ var testCases = [
 						"tag": " philosophy of education"
 					}
 				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://journals.sagepub.com/doi/full/10.1177/0014524620944817",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Commentary on the Letter of Polycarp to the Philippians",
+				"creators": [
+					{
+						"lastName": "Foster",
+						"firstName": "Paul",
+						"creatorType": "author"
+					}
+				],
+				"date": "Oktober 1, 2020",
+				"DOI": "10.1177/0014524620944817",
+				"ISSN": "0014-5246",
+				"issue": "1",
+				"journalAbbreviation": "The Expository Times",
+				"language": "en",
+				"libraryCatalog": "SAGE Journals",
+				"pages": "40",
+				"publicationTitle": "The Expository Times",
+				"url": "https://doi.org/10.1177/0014524620944817",
+				"volume": "132",
+				"attachments": [
+					{
+						"title": "SAGE PDF Full Text",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [],
 				"notes": [],
 				"seeAlso": []
 			}
