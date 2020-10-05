@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsib",
-	"lastUpdated": "2018-12-26 11:18:52"
+	"lastUpdated": "2020-10-05 11:14:38"
 }
 
 function detectWeb(doc, url) {
@@ -69,7 +69,7 @@ function downloadFunction(text, url, prefs) {
 	// load translator for RIS
 	var translator = Zotero.loadTranslator("import");
 	translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
-	translator.setString(text);
+	translator.setString(text); //Z.debug(text)
 	translator.setHandler("itemDone", function(obj, item) {
 		/* Fix capitalization issues */
 		//title
@@ -84,7 +84,9 @@ function downloadFunction(text, url, prefs) {
 				item.title = ZU.capitalizeTitle(item.title, true);
 			}
 		}
-
+		//fix pages if RIS tag "SP" is equal to "EP" e.g. "193-193"
+		let checkPages = item.pages.split('-'); //Z.debug(checkPages)
+		if (checkPages[0] === checkPages[1]) item.pages = checkPages[0];
 		//authors
 		var fn, ln;
 		for(var i=0, n=item.creators.length; i<n; i++) {
@@ -515,11 +517,12 @@ function doDelivery(doc, itemInfo) {
 var testCases = [
 	{
 		"type": "web",
-		"defer": true,
 		"url": "http://web.ebscohost.com/ehost/detail?sid=4bcfec05-db01-4d69-9028-c40ff1331e56%40sessionmgr15&vid=1&hid=28&bdata=JnNpdGU9ZWhvc3QtbGl2ZQ%3d%3d#db=aph&AN=9606204477",
+		"defer": true,
 		"items": [
 			{
 				"itemType": "journalArticle",
+				"title": "Zbigniew Herbert",
 				"creators": [
 					{
 						"lastName": "Brodsky",
@@ -527,27 +530,78 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"notes": [],
-				"tags": [
-					"POETS, Polish",
-					"HERBERT, Zbigniew, 1924-1998"
-				],
-				"seeAlso": [],
-				"attachments": [],
-				"title": "Zbigniew Herbert",
-				"journalAbbreviation": "Wilson Quarterly",
-				"publicationTitle": "Wilson Quarterly",
-				"volume": "17",
-				"issue": "1",
-				"pages": "112",
-				"publisher": "Woodrow Wilson International Center for Scholars",
+				"date": "Winter 1993",
 				"ISSN": "03633276",
 				"abstractNote": "Introduces the poetry of Polish poet Zbigniew Herbert. Impression of difficulty in modern poetry; Polish poet Czeslaw Milosz; Herbert's 1980 Nobel Prize; Translations into English; Use of vers libre; Sample poems.",
-				"url": "http://search.ebscohost.com/login.aspx?direct=true&db=aph&AN=9606204477&site=ehost-live",
-				"libraryCatalog": "EBSCOhost",
-				"callNumber": "9606204477",
 				"accessDate": "CURRENT_TIMESTAMP",
-				"date": "Winter 1993"
+				"callNumber": "9606204477",
+				"issue": "1",
+				"journalAbbreviation": "Wilson Quarterly",
+				"libraryCatalog": "EBSCOhost",
+				"pages": "112",
+				"publicationTitle": "Wilson Quarterly",
+				"publisher": "Woodrow Wilson International Center for Scholars",
+				"url": "http://search.ebscohost.com/login.aspx?direct=true&db=aph&AN=9606204477&site=ehost-live",
+				"volume": "17",
+				"attachments": [],
+				"tags": [
+					"HERBERT, Zbigniew, 1924-1998",
+					"POETS, Polish"
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "http://web.b.ebscohost.com/ehost/detail/detail?vid=0&sid=6b7a8a3a-0bf3-475b-983c-32a4dbca7bd7%40pdc-v-sessmgr01&bdata=JnNpdGU9ZWhvc3QtbGl2ZQ%3d%3d#AN=145399377&db=aph",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Totality",
+				"creators": [
+					{
+						"lastName": "Slade",
+						"firstName": "Bradley",
+						"creatorType": "author"
+					}
+				],
+				"date": "Summer 2020",
+				"DOI": "10.5406/dialjmormthou.53.2.0193",
+				"ISSN": "00122157",
+				"issue": "2",
+				"journalAbbreviation": "Dialogue: A Journal of Mormon Thought",
+				"libraryCatalog": "EBSCOhost",
+				"pages": "193",
+				"publicationTitle": "Dialogue: A Journal of Mormon Thought",
+				"volume": "53",
+				"attachments": [
+					{
+						"title": "EBSCO Record",
+						"mimeType": "text/html",
+						"snapshot": false
+					}
+				],
+				"tags": [
+					{
+						"tag": "ECLIPSES in art"
+					},
+					{
+						"tag": "MOON in art"
+					},
+					{
+						"tag": "PHOTOGRAPHY of eclipses"
+					},
+					{
+						"tag": "PHOTOGRAPHY of the sky"
+					},
+					{
+						"tag": "SUN in art"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
 			}
 		]
 	}
