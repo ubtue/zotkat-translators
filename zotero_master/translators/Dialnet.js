@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-05 10:36:11"
+	"lastUpdated": "2020-10-05 12:20:39"
 }
 
 /*
@@ -91,19 +91,25 @@ function scrape(doc, url) {
 		if (item.abstractNote && item.abstractNote.includes(item.title) && item.abstractNote.length<item.title.length+30 || item.abstractNote.match(/Autoría|Localización/)) {
 			delete item.abstractNote;
 		}
+		// scrape abstract
+		let abstrctEntry = ZU.xpathText(doc, '//*[(@id = "resumen")]//p');
+		if (abstrctEntry) item.abstractNote = abstrctEntry;
 		// in case of double issue e.g. "3-4" wrong issue number in Embedded Metadata e,g. "3" 
 		// clean issue number in case of multiple download
 		var issue = ZU.xpathText(doc, '//*[@id="informacion"]//a[contains(text(), "Nº.")]');
 		if (issue) {
 			// e.g. Vol. 89, Nº. 3-4, 2012 or  Vol. 65, Nº. 1-2 (Enero-Junio)
-			let issueEntry = issue.split('Nº.')[1].split(',')[0];//Z.debug(issueEntry)
-			item.issue = issueEntry.split('\(')[0];//(/^\d+/);
+			var issueEntry = issue.split('Nº.')[1].split(',')[0];//Z.debug(issueEntry)
+			item.issue = issueEntry.split('\(')[0];
 		}
 		// variable for other split seperator 'Fasc.''
-		var multiIssue = ZU.xpathText(doc, '//*[@id="informacion"]//a[contains(text(), "Fasc.")]');Z.debug(multiIssue)
+		var multiIssue = ZU.xpathText(doc, '//*[@id="informacion"]//a[contains(text(), "Fasc.")]');//Z.debug(multiIssue)
  		if (multiIssue) {
  			item.issue = multiIssue.split('Fasc.')[1].split(',')[0];
  		}
+ 		// replace issue number with volume number for certain journals e.g. 'Analecta calasanctiana: publicación semestral religioso cultural y de investigación histórica' 
+ 		if (item.ISSN.match(/0569-9789|1594-344/)) item.volume = issueEntry.split('\(')[0];
+ 		if (item.issue === item.volume) delete item.issue;
  		// Delete generic keywords
  		if (item.tags);
  			delete item.tags;
@@ -362,6 +368,107 @@ var testCases = [
 				"publicationTitle": "Estudio agustiniano",
 				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7133018",
 				"volume": "54",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7558938",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Calasanz y Nikolsburg",
+				"creators": [
+					{
+						"firstName": "Miguel Angel",
+						"lastName": "Asiain",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020",
+				"ISSN": "0569-9789",
+				"abstractNote": "El artículo es un estudio documentado sobre la fundación primera escolapia fuera de Italia, en Nikolsburg (ahora Mikulov, en la República Checa y en los años que contempla este estudio en Moravia. Fue pedida a San José de Calasanz por el Cardenal Francisco Dietrichstein (1570-1636), gobernador de Moravia, que había nacido en España por ser hijo del embajador moravo en Madrid. La fundación se llevó a cabo y fue mantenida por el Cardenal que siempre manifestó su agradecimiento a Calasanz., El estudio se centra solamente en los años de la fundación y primera consolidación (1631 a 1648). La fuentes documentales son básicamente los epistolarios calasancios ya publicados: Epistolario de Calasanz, dos Epistolarios de Cartas a él dirigidas y Epistolario de correspondencia entre escolapios durante la vida de Calasanz. Destacan los escolapios que fueron enviados y crearon la escuela, el internado y varias congregaciones asociativas para los escolares. La presencia escolapia acabó en 1884, al reclamar derechos propios sobre toda la obra los herederos del Cardenal",
+				"issue": "123",
+				"language": "spa",
+				"libraryCatalog": "dialnet.unirioja.es",
+				"pages": "11-231",
+				"publicationTitle": "Analecta calasanctiana: publicación semestral religioso cultural y de investigación histórica",
+				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7558938",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7558938",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Calasanz y Nikolsburg",
+				"creators": [
+					{
+						"firstName": "Miguel Angel",
+						"lastName": "Asiain",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020",
+				"ISSN": "0569-9789",
+				"abstractNote": "El artículo es un estudio documentado sobre la fundación primera escolapia fuera de Italia, en Nikolsburg (ahora Mikulov, en la República Checa y en los años que contempla este estudio en Moravia. Fue pedida a San José de Calasanz por el Cardenal Francisco Dietrichstein (1570-1636), gobernador de Moravia, que había nacido en España por ser hijo del embajador moravo en Madrid. La fundación se llevó a cabo y fue mantenida por el Cardenal que siempre manifestó su agradecimiento a Calasanz., El estudio se centra solamente en los años de la fundación y primera consolidación (1631 a 1648). La fuentes documentales son básicamente los epistolarios calasancios ya publicados: Epistolario de Calasanz, dos Epistolarios de Cartas a él dirigidas y Epistolario de correspondencia entre escolapios durante la vida de Calasanz. Destacan los escolapios que fueron enviados y crearon la escuela, el internado y varias congregaciones asociativas para los escolares. La presencia escolapia acabó en 1884, al reclamar derechos propios sobre toda la obra los herederos del Cardenal",
+				"language": "spa",
+				"libraryCatalog": "dialnet.unirioja.es",
+				"pages": "11-231",
+				"publicationTitle": "Analecta calasanctiana: publicación semestral religioso cultural y de investigación histórica",
+				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7558938",
+				"volume": "123",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=6584233",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Filosemitismo e ecumenismo in P. Giovanni Semeria",
+				"creators": [
+					{
+						"firstName": "Antonio M.",
+						"lastName": "Gentili",
+						"creatorType": "author"
+					}
+				],
+				"date": "2017",
+				"ISSN": "1594-3445",
+				"language": "ita",
+				"libraryCatalog": "dialnet.unirioja.es",
+				"pages": "37-70",
+				"publicationTitle": "Barnabiti Studi: Rivista di ricerche storiche dei Chierici Regolari di S. Paolo",
+				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=6584233",
+				"volume": "34",
 				"attachments": [
 					{
 						"title": "Snapshot",
