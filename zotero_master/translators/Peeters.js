@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-09-22 14:44:39"
+	"lastUpdated": "2020-10-05 11:30:37"
 }
 
 /*
@@ -152,7 +152,8 @@ function scrape(doc, url) {
 		'Theoforum' : '2295-5186',
 		'Journal of Septuagint and Cognate Studies' : '2593-7308',
 		'Ons Geestelijk Erf' : '1783-1652',
-		'Biblica' : '2385-2062',
+		'Ethical Perspectives' : '1783-1431',
+		'Ephemerides Theologicae Lovanienses' : '1783-1423',
 	}
 	item.ISSN = publicationTitleToISSN[item.publicationTitle];
 	item.attachments.push({
