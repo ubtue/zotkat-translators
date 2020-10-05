@@ -1,15 +1,15 @@
 {
-    "translatorID": "b60e74db-2e5d-4b2a-94ac-f484737364b1",
-    "label": "Open Journal Systems Multi-Wrapper",
-    "creator": "Madeesh Kannan",
-    "target": "/issue/view/",
-    "minVersion": "3.0",
-    "maxVersion": "",
-    "priority": 100,
-    "inRepository": false,
-    "translatorType": 4,
-    "browserSupport": "gcsibv",
-    "lastUpdated": "2019-07-31 17:00:25"
+	"translatorID": "b60e74db-2e5d-4b2a-94ac-f484737364b1",
+	"label": "ubtue_Open Journal Systems Multi-Wrapper",
+	"creator": "Madeesh Kannan",
+	"target": "/(article|issue)/(view)?",
+	"minVersion": "3.0",
+	"maxVersion": "",
+	"priority": 100,
+	"inRepository": true,
+	"translatorType": 4,
+	"browserSupport": "gcsibv",
+	"lastUpdated": "2020-10-05 12:34:30"
 }
 
 /*
@@ -30,71 +30,79 @@
 
 
 function detectWeb(doc, url) {
-    if (url.match(/\/issue\/view/) && getSearchResults(doc))
-        return "multiple";
+	if (url.match(/\/issue\/view/) && getSearchResults(doc))
+		return "multiple";
 }
 
 function getSearchResults(doc) {
-    var items = {};
-    var found = false;
-    var rows = ZU.xpath(doc, '//a[contains(@href, "/article/view/") and not(contains(@href, "/pdf"))]')
-    for (let i = 0; i < rows.length; i++) {
-        let href = rows[i].href;
-        let title = ZU.trimInternal(rows[i].textContent);
+	var items = {};
+	var found = false;
+	var rows = ZU.xpath(doc, '//a[contains(@href, "/article/view/") and not(contains(@href, "/pdf"))]')
+	for (let i = 0; i < rows.length; i++) {
+		let href = rows[i].href;
+		let title = ZU.trimInternal(rows[i].textContent);
 
-        if (!href || !title)
-            continue;
-        if (title.match(/PDF|EPUB|XML|HTML|Download Full Text/i))
-            continue;
-        found = true;
-        items[href] = title;
-    }
-    return found ? items : false;
+		if (!href || !title)
+			continue;
+		if (title.match(/PDF|EPUB|XML|HTML|Download Full Text/i))
+			continue;
+		found = true;
+		items[href] = title;
+	}
+	return found ? items : false;
 }
 
 function invokeBestTranslator(doc, url) {
-    var translator = Zotero.loadTranslator("web");
-    translator.setDocument(doc);
-    translator.setHandler("translators", function (o, valid_translators) {
-        if (valid_translators && valid_translators.length > 0) {
-            translator.setTranslator(valid_translators);
-            translator.translate();
-        }
-    });
-    translator.setHandler("itemDone", function (t, item) {
-        if (item.issue === "0")
-            item.issue = "";
+	var translator = Zotero.loadTranslator("web");
+	translator.setDocument(doc);
+	translator.setHandler("translators", function (o, valid_translators) {
+		if (valid_translators && valid_translators.length > 0) {
+			translator.setTranslator(valid_translators);
+			translator.translate();
+		}
+	});
+	translator.setHandler("itemDone", function (t, item) {
+		if (item.issue === "0")
+			item.issue = "";
 
-        if (item.volume === "0")
-            item.volume = "";
+		if (item.volume === "0")
+			item.volume = "";
 
-        item.complete();
-    });
-    translator.getTranslators();
+		item.complete();
+	});
+	translator.getTranslators();
 }
 
 function doWeb(doc, url) {
-    let items = getSearchResults(doc);
-    if (items) {
-        Zotero.selectItems(items, function (items) {
-            if (!items) {
-                return true;
-            }
-            let articles = [];
-            for (let i in items) {
-                articles.push(i);
-            }
-            ZU.processDocuments(articles, invokeBestTranslator);
-        });
-    } else {
-        // attempt to skip landing pages for issues
-        let tocLinks = ZU.xpath(doc, '//a[contains(@href, "/issue/view/") and not(contains(@href, "/pdf"))]')
-        for (let entry in tocLinks) {
-            let link = tocLinks[entry].href;
-            if (link.match(/\/issue\/view\/\d+\/showToc$/i)) {
-                ZU.processDocuments([link], invokeBestTranslator);
-                break;
-            }
-        }
-    }
-}
+	let items = getSearchResults(doc);
+	if (items) {
+		Zotero.selectItems(items, function (items) {
+			if (!items) {
+				return true;
+			}
+			let articles = [];
+			for (let i in items) {
+				articles.push(i);
+			}
+			ZU.processDocuments(articles, invokeBestTranslator);
+		});
+	} else {
+		// attempt to skip landing pages for issues.
+		let tocLinks = ZU.xpath(doc, '//a[contains(@href, "/issue/view/") and not(contains(@href, "/pdf"))]')
+		for (let entry in tocLinks) {
+			let link = tocLinks[entry].href;
+			if (link.match(/\/issue\/view\/\d+\/showToc$/i)) {
+				ZU.processDocuments([link], invokeBestTranslator);
+				break;
+			}
+		}
+	}
+}/** BEGIN TEST CASES **/
+var testCases = [
+	{
+		"type": "web",
+		"url": "http://www.zwingliana.ch/index.php/zwa/article/view/2517",
+		"items": "multiple"
+	}
+]
+/** END TEST CASES **/
