@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-05 10:15:54"
+	"lastUpdated": "2020-10-05 10:36:11"
 }
 
 /*
@@ -95,11 +95,15 @@ function scrape(doc, url) {
 		// clean issue number in case of multiple download
 		var issue = ZU.xpathText(doc, '//*[@id="informacion"]//a[contains(text(), "Nº.")]');
 		if (issue) {
-			// e.g. Vol. 89, Nº. 3-4, 2012
+			// e.g. Vol. 89, Nº. 3-4, 2012 or  Vol. 65, Nº. 1-2 (Enero-Junio)
 			let issueEntry = issue.split('Nº.')[1].split(',')[0];//Z.debug(issueEntry)
 			item.issue = issueEntry.split('\(')[0];//(/^\d+/);
 		}
- 		
+		// variable for other split seperator 'Fasc.''
+		var multiIssue = ZU.xpathText(doc, '//*[@id="informacion"]//a[contains(text(), "Fasc.")]');Z.debug(multiIssue)
+ 		if (multiIssue) {
+ 			item.issue = multiIssue.split('Fasc.')[1].split(',')[0];
+ 		}
  		// Delete generic keywords
  		if (item.tags);
  			delete item.tags;
@@ -290,6 +294,74 @@ var testCases = [
 				"publicationTitle": "Compostellanum: revista de la Archidiócesis de Santiago de Compostela",
 				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7567487",
 				"volume": "65",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=6401889",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "El significado del término euaggelion en los comienzos del cristianismo",
+				"creators": [
+					{
+						"firstName": "Santiago Guijarro",
+						"lastName": "Oporto",
+						"creatorType": "author"
+					}
+				],
+				"date": "2017",
+				"ISSN": "0425-340X",
+				"issue": "1-3",
+				"language": "spa",
+				"libraryCatalog": "dialnet.unirioja.es",
+				"pages": "123-143",
+				"publicationTitle": "Estudio agustiniano",
+				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=6401889",
+				"volume": "52",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7133018",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "La utilización de san Pablo en los In Epistulam Iohannus ad Parthos Tractatus de san Agustín (II)",
+				"creators": [
+					{
+						"firstName": "Pío de Luis",
+						"lastName": "Vizcaíno",
+						"creatorType": "author"
+					}
+				],
+				"date": "2019",
+				"ISSN": "0425-340X",
+				"issue": "1-2",
+				"language": "spa",
+				"libraryCatalog": "dialnet.unirioja.es",
+				"pages": "109-140",
+				"publicationTitle": "Estudio agustiniano",
+				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7133018",
+				"volume": "54",
 				"attachments": [
 					{
 						"title": "Snapshot",
