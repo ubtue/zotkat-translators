@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-09-23 16:52:00"
+	"lastUpdated": "2020-10-05 10:55:15"
 }
 
 /*
@@ -48,7 +48,7 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = ZU.xpath(doc, '//span[contains(@class, "art_title")]/a[contains(@href, "/doi/full/10.") or contains(@href, "/doi/abs/10.") or contains(@href, "/doi/pdf/10.")][1] | //a[contains(concat( " ", @class, " " ), concat( " ", "ref", " " )) and contains(concat( " ", @class, " " ), concat( " ", "nowrap", " " ))]');
+	var rows = ZU.xpath(doc, '//span[contains(@class, "art_title")]/a[contains(@href, "/doi/full/10.") or contains(@href, "/doi/abs/10.") or contains(@href, "/doi/pdf/10.")][1] | //a[contains(concat( " ", @class, " " ), concat( " ", "ref", " " )) and contains(concat( " ", @class, " " ), concat( " ", "nowrap", " " ))] | //*[contains(concat( " ", @class, " " ), concat( " ", "hlFld-Title", " " ))]');
 	for (var i = 0; i < rows.length; i++) {
 		var href = rows[i].href;
 		var title = ZU.trimInternal(rows[i].textContent.replace(/Citation|ePub.*|Abstract/, ''));
@@ -155,6 +155,7 @@ function scrape(doc, url) {
 
 			var tagentry = ZU.xpathText(doc, '//kwd-group[1] | //*[contains(concat( " ", @class, " " ), concat( " ", "hlFld-KeywordText", " " ))]');
 			if (tagentry) {
+				tagentry = tagentry.replace('Keywords', '')
 				item.tags = tagentry.split(",");
 			}
 			// ubtue: add tags "Book Review" if "Review Article"
@@ -508,6 +509,57 @@ var testCases = [
 					},
 					{
 						"tag": "Keywords contingency"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://journals.sagepub.com/doi/full/10.1177/2056997120919765",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Covenant and pedagogy",
+				"creators": [
+					{
+						"lastName": "Faber",
+						"firstName": "Ben",
+						"creatorType": "author"
+					}
+				],
+				"date": "November 1, 2020",
+				"DOI": "10.1177/2056997120919765",
+				"ISSN": "2056-9971",
+				"abstractNote": "This article argues that “covenant” ought to serve universally as a framework for education, beyond the exclusive sense of covenant in use in Reformed Christian education. The article begins with covenant as creation’s answerable relationship with the Creator, then offers a brief account of language as a form of covenantal exchange, and concludes with pedagogy as a function of the covenantal structures of being and of speaking.",
+				"issue": "3",
+				"journalAbbreviation": "International Journal of Christianity & Education",
+				"language": "en",
+				"libraryCatalog": "SAGE Journals",
+				"pages": "254-268",
+				"publicationTitle": "International Journal of Christianity & Education",
+				"url": "https://doi.org/10.1177/2056997120919765",
+				"volume": "24",
+				"attachments": [
+					{
+						"title": "SAGE PDF Full Text",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [
+					{
+						"tag": " Speech Act Theory"
+					},
+					{
+						"tag": " answerability"
+					},
+					{
+						"tag": " covenant theology"
+					},
+					{
+						"tag": " philosophy of education"
 					}
 				],
 				"notes": [],
