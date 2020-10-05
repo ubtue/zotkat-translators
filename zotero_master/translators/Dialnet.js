@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-08-21 08:51:53"
+	"lastUpdated": "2020-10-05 10:15:54"
 }
 
 /*
@@ -96,7 +96,8 @@ function scrape(doc, url) {
 		var issue = ZU.xpathText(doc, '//*[@id="informacion"]//a[contains(text(), "Nº.")]');
 		if (issue) {
 			// e.g. Vol. 89, Nº. 3-4, 2012
-			item.issue = issue.split('Nº.')[1].split(',')[0];
+			let issueEntry = issue.split('Nº.')[1].split(',')[0];//Z.debug(issueEntry)
+			item.issue = issueEntry.split('\(')[0];//(/^\d+/);
 		}
  		
  		// Delete generic keywords
@@ -255,6 +256,40 @@ var testCases = [
 				"publicationTitle": "Diálogo ecuménico",
 				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7003450",
 				"volume": "53",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7567487",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Antropología filosófica de Karol Jósef Wojtyla",
+				"creators": [
+					{
+						"firstName": "Vicente González",
+						"lastName": "Radío",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020",
+				"ISSN": "0573-2018",
+				"issue": "1-2",
+				"language": "spa",
+				"libraryCatalog": "dialnet.unirioja.es",
+				"pages": "11-34",
+				"publicationTitle": "Compostellanum: revista de la Archidiócesis de Santiago de Compostela",
+				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7567487",
+				"volume": "65",
 				"attachments": [
 					{
 						"title": "Snapshot",
