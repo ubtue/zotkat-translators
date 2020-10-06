@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-05 11:23:52"
+	"lastUpdated": "2020-10-06 11:37:24"
 }
 
 /*
@@ -99,7 +99,7 @@ function scrape(doc, url) {
 	}*/
 	var post = "doi=" + encodeURIComponent(doi) + "&include=abs&format=ris&direct=false&submit=Download+Citation";
 	var pdfurl = "//" + doc.location.host + "/doi/pdf/" + doi;
-	var articleType = ZU.xpath(doc, '//span[@class="ArticleType"]/span');
+	var articleType = ZU.xpath(doc, '//span[@class="ArticleType"]/span');//Z.debug(articleType)
 	
 	//Z.debug(pdfurl);
 	//Z.debug(post);
@@ -161,7 +161,7 @@ function scrape(doc, url) {
 			// ubtue: add tags "Book Review" if "Review Article"
 			if (articleType) {
 				for (let r of articleType) {
-					let reviewDOIlink = r.innerHTML;
+					let reviewDOIlink = r.textContent;
 					if (reviewDOIlink.match(/Review Article/)) {
 						item.tags.push('RezensionstagPica');
 					}
@@ -186,9 +186,9 @@ function scrape(doc, url) {
 				}
 			}
 
-			/*if (articleType && articleType.length > 0) {
-				if (articleType[0].textContent.trim().match(/Book Review/)) item.tags.push("Book Review");
-			}*/
+			if (articleType && articleType.length > 0) {
+				if (articleType[0].textContent.trim().match(/Book Review/)) item.tags.push("RezensionstagPica");
+			}
 			
 			//fix pages if RIS tag "SP" is equal to "EP" e.g. "193-193"
 			let checkPages = item.pages.split('-'); //Z.debug(checkPages)
@@ -604,6 +604,47 @@ var testCases = [
 					}
 				],
 				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://journals.sagepub.com/doi/full/10.1177/0014524620944817",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Commentary on the Letter of Polycarp to the Philippians",
+				"creators": [
+					{
+						"lastName": "Foster",
+						"firstName": "Paul",
+						"creatorType": "author"
+					}
+				],
+				"date": "Oktober 1, 2020",
+				"DOI": "10.1177/0014524620944817",
+				"ISSN": "0014-5246",
+				"issue": "1",
+				"journalAbbreviation": "The Expository Times",
+				"language": "en",
+				"libraryCatalog": "SAGE Journals",
+				"pages": "40",
+				"publicationTitle": "The Expository Times",
+				"url": "https://doi.org/10.1177/0014524620944817",
+				"volume": "132",
+				"attachments": [
+					{
+						"title": "SAGE PDF Full Text",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
