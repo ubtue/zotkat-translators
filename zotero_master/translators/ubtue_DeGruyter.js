@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-02 10:30:36"
+	"lastUpdated": "2020-10-08 13:11:36"
 }
 
 /*
@@ -79,7 +79,7 @@ function invokeEMTranslator(doc) {
 	translator.setHandler("itemDone", function (t, i) {
 		if (i.title.match(/ISBN/) || i.publicationTitle === 'Verkündigung und Forschung') i.tags.push('RezensionstagPica') && delete i.abstractNote;
 		let transAbstract = ZU.xpathText(doc, '//*[(@id = "transAbstract")]//p');
-		if (i.abstractNote && transAbstract) i.abstractNote += '\\n4207' + transAbstract;
+		if (i.abstractNote && transAbstract) i.abstractNote += '\\n4207 ' + transAbstract;
 		let pseudoabstract = i.title;
 		if (i.abstractNote === undefined) i.abstractNote = '';
 		if (i.abstractNote.match(pseudoabstract) || i.abstractNote.match(/^Der Artikel/)) delete i.abstractNote;
