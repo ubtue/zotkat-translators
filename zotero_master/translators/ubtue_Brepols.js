@@ -84,7 +84,12 @@ function invokeEMTranslator(doc, url) {
 			var abstractsEntry = row.innerText; //Z.debug(abstractsEntry)
 			if (abstractsEntry) {
 				var abstractsOneTwo = abstractsEntry.split('\n\n'); //Z.debug(abstractsOneTwo)
-				i.abstractNote = abstractsOneTwo[1] + '/n4207 ' + abstractsOneTwo[2];
+				if (abstractsOneTwo[2]) {
+					i.abstractNote = abstractsOneTwo[1] + '/n4207 ' + abstractsOneTwo[2];
+				}
+				else if (!abstractsOneTwo[2]) {
+					i.abstractNote = abstractsOneTwo[1];
+				}
 			} else {
 				i.abstractNote = '';
 				}
@@ -112,5 +117,6 @@ function invokeEMTranslator(doc, url) {
 	});
 	translator.translate();
 }
+
 
 
