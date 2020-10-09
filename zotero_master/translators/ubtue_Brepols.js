@@ -117,13 +117,14 @@ function invokeEMTranslator(doc, url) {
 		i.archive = i.issue;
 		if (issueError) i.issue = issueError.split('>')[3].split('Issue')[1];
 		let year = attr(doc, 'ul.breadcrumbs li:nth-child(4) a', 'href');//Z.debug(year)
-		if (year.match(/\/jaaj\/\d+/)) i.date = year.split('/')[3];//Z.debug(i.date)
+		if (year.match(/\w+\/\d+/)) i.date = year.split('/')[3];//Z.debug(i.date)
 		let issn = text(doc, '.serialDetailsEissn');
 		if (issn) i.ISSN = issn.replace('Online ISSN:', '');
 		i.complete();
 	});
 	translator.translate();
 }
+
 
 
 
