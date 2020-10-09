@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-09 13:23:16"
+	"lastUpdated": "2020-10-09 14:23:16"
 }
 
 /*
@@ -83,13 +83,17 @@ function invokeEMTranslator(doc, url) {
 		for (let row of rows) {
 			var abstractsEntry = row.innerText; //Z.debug(abstractsEntry)
 			if (abstractsEntry) {
-				var abstractsOneTwo = abstractsEntry.split('\n\n'); //Z.debug(abstractsOneTwo)
-				if (abstractsOneTwo[2]) {
-					i.abstractNote = abstractsOneTwo[1] + '/n4207 ' + abstractsOneTwo[2];
+				var abstractsOneTwoThree = abstractsEntry.split('\n\n'); //Z.debug(abstractsOneTwo)
+				if (abstractsOneTwoThree[3]) {
+					i.abstractNote = abstractsOneTwoThree[1] + '/n4207 ' + abstractsOneTwoThree[2] + '/n4207 ' + abstractsOneTwoThree[3];
 				}
-				else if (!abstractsOneTwo[2]) {
-					i.abstractNote = abstractsOneTwo[1];
+				else if (abstractsOneTwoThree[2]) {
+					i.abstractNote = abstractsOneTwoThree[1] + '/n4207 ' + abstractsOneTwoThree[2];
 				}
+				else if (!abstractsOneTwoThree[2]) {
+					i.abstractNote = abstractsOneTwoThree[1];
+				}
+				
 			} else {
 				i.abstractNote = '';
 				}
@@ -110,7 +114,8 @@ function invokeEMTranslator(doc, url) {
 		if (volumes) i.volume = volumes.match(/Volume\s?\d+/)[0].replace('Volume', '');
 		let issue = text(doc, '.breadcrumbs');
 		let issueError = issue.toString();
-		if (issueError) i.issue = issueError.split('>')[3].split(',')[1].replace('Issue', '');
+		i.archive = i.issue;
+		if (issueError) i.issue = issueError.split('>')[3].split('Issue')[1];
 		let year = attr(doc, 'ul.breadcrumbs li:nth-child(4) a', 'href');//Z.debug(year)
 		if (year.match(/\/jaaj\/\d+/)) i.date = year.split('/')[3];//Z.debug(i.date)
 		let issn = text(doc, '.serialDetailsEissn');
