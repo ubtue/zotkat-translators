@@ -99,15 +99,7 @@ function invokeEMTranslator(doc, url) {
 				}
 			}
 		
-		/*if (abstractsEntry) {
-			var abstractsOneTwo = abstractsEntry.split('\n\n'); //Z.debug(abstractsOneTwo)
-			i.abstractNote = abstractsOneTwo[1] + '/n4207' + abstractsOneTwo[2];
-		} else {
-			i.abstractNote = '';
-		}*/
-		//if (i.abstractNote) i.abstractNote = abstractsOneTwo[1] + '/n4207' + abstractsOneTwo[2];
-		if (i.reportType === "book-review") i.tags.push('RezensionstagPica') && delete i.abstractNote;
-		
+		if (i.reportType === "book-review") i.tags.push('RezensionstagPica') && delete i.abstractNote;	
 		let pages = text(doc, '.publicationContentPages'); //Z.debug(pages)
 		if (pages) i.pages = pages.match(/\s\d+-\d+/)[0]; //Z.debug(i.pages)
 		let volumes = text(doc, '.breadcrumbs'); //Z.debug(volumes)
@@ -124,8 +116,3 @@ function invokeEMTranslator(doc, url) {
 	});
 	translator.translate();
 }
-
-
-
-
-
