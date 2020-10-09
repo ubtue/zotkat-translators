@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-09 12:25:16"
+	"lastUpdated": "2020-10-09 13:23:16"
 }
 
 /*
@@ -107,9 +107,11 @@ function invokeEMTranslator(doc, url) {
 		let pages = text(doc, '.publicationContentPages'); //Z.debug(pages)
 		if (pages) i.pages = pages.match(/\s\d+-\d+/)[0]; //Z.debug(i.pages)
 		let volumes = text(doc, '.breadcrumbs'); //Z.debug(volumes)
-		if (volumes) i.volume = volumes.match(/Volume\s?\d/)[0].replace('Volume', '');//Z.debug(i.volumes)
-		//let year = attr(doc, 'li a', 'href'); Z.debug(year)
-		let year = attr(doc, 'ul.breadcrumbs li:nth-child(4) a', 'href'); Z.debug(year)
+		if (volumes) i.volume = volumes.match(/Volume\s?\d+/)[0].replace('Volume', '');
+		let issue = text(doc, '.breadcrumbs');
+		let issueError = issue.toString();
+		if (issueError) i.issue = issueError.split('>')[3].split(',')[1].replace('Issue', '');
+		let year = attr(doc, 'ul.breadcrumbs li:nth-child(4) a', 'href');//Z.debug(year)
 		if (year.match(/\/jaaj\/\d+/)) i.date = year.split('/')[3];//Z.debug(i.date)
 		let issn = text(doc, '.serialDetailsEissn');
 		if (issn) i.ISSN = issn.replace('Online ISSN:', '');
@@ -117,6 +119,7 @@ function invokeEMTranslator(doc, url) {
 	});
 	translator.translate();
 }
+
 
 
 
