@@ -6,10 +6,10 @@
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 100,
-	"inRepository": false,
+	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-08-27 11:00:57"
+	"lastUpdated": "2020-10-09 12:25:16"
 }
 
 /*
@@ -39,7 +39,7 @@ function attr(docOrElem ,selector ,attr ,index){ var elem=index?docOrElem.queryS
 
 function detectWeb(doc, url) {
 	if (url.match(/doi/)) return "journalArticle";
-		else if (url.match(/toc/) && getSearchResults(doc, true)) return "multiple";
+		else if (url.match(/toc/) && getSearchResults(doc, true)) return "journalArticle";
 	else return false;
 }
 
@@ -49,7 +49,7 @@ function getSearchResults(doc, checkOnly) {
 	var rows = doc.querySelectorAll('.hlFld-Title');
 	for (let row of rows) {
 		let href = row.parentElement;
-		let title = ZU.trimInternal(row.innerHTML);
+		let title = ZU.trimInternal(row.innerHTML);//Z.debug(title)
 		if (!href || !title) continue;
 		if (checkOnly) return true;
 		found = true;
@@ -79,15 +79,38 @@ function invokeEMTranslator(doc, url) {
 	translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48');
 	translator.setDocument(doc);
 	translator.setHandler('itemDone', function (t, i) {
-		var rows = doc.querySelectorAll('.hlFld-Abstract');
+		var rows = doc.querySelectorAll('.hlFld-Abstract');//Z.debug(rows)
 		for (let row of rows) {
 			var abstractsEntry = row.innerText; //Z.debug(abstractsEntry)
-		}
-		let abstractsOneTwo = abstractsEntry.split('\n\n'); //Z.debug(abstractsOneTwo)
-		if (i.abstractNote) i.abstractNote = abstractsOneTwo[1] + '/n4207' + abstractsOneTwo[2];
+			if (abstractsEntry) {
+				var abstractsOneTwo = abstractsEntry.split('\n\n'); //Z.debug(abstractsOneTwo)
+				i.abstractNote = abstractsOneTwo[1] + '/n4207 ' + abstractsOneTwo[2];
+			} else {
+				i.abstractNote = '';
+				}
+			}
+		
+		/*if (abstractsEntry) {
+			var abstractsOneTwo = abstractsEntry.split('\n\n'); //Z.debug(abstractsOneTwo)
+			i.abstractNote = abstractsOneTwo[1] + '/n4207' + abstractsOneTwo[2];
+		} else {
+			i.abstractNote = '';
+		}*/
+		//if (i.abstractNote) i.abstractNote = abstractsOneTwo[1] + '/n4207' + abstractsOneTwo[2];
 		if (i.reportType === "book-review") i.tags.push('RezensionstagPica') && delete i.abstractNote;
+		
+		let pages = text(doc, '.publicationContentPages'); //Z.debug(pages)
+		if (pages) i.pages = pages.match(/\s\d+-\d+/)[0]; //Z.debug(i.pages)
+		let volumes = text(doc, '.breadcrumbs'); //Z.debug(volumes)
+		if (volumes) i.volume = volumes.match(/Volume\s?\d/)[0].replace('Volume', '');//Z.debug(i.volumes)
+		//let year = attr(doc, 'li a', 'href'); Z.debug(year)
+		let year = attr(doc, 'ul.breadcrumbs li:nth-child(4) a', 'href'); Z.debug(year)
+		if (year.match(/\/jaaj\/\d+/)) i.date = year.split('/')[3];//Z.debug(i.date)
+		let issn = text(doc, '.serialDetailsEissn');
+		if (issn) i.ISSN = issn.replace('Online ISSN:', '');
 		i.complete();
 	});
 	translator.translate();
 }
+
 
