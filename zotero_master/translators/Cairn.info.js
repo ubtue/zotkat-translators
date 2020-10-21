@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-02 16:42:33"
+	"lastUpdated": "2020-10-21 12:03:42"
 }
 
 /*
@@ -123,10 +123,9 @@ function scrape(doc, url) {
 		}
 
 		// Correct volume and issue information
-		if (item.volume) {
+		if (item.volume) {Z.debug(item.volume)
 			if (item.volume.search(/^n°/i) != -1) {
-				item.issue = item.volume.split(/n°/i)[1].trim();
-				item.volume = '';
+				item.volume = item.volume.split(/n°/i)[1].trim();
 			} else if (item.volume.search(/^Vol./i) != -1) {
 				item.volume = item.volume.split(/Vol./i)[1].trim();
 			}
@@ -611,6 +610,64 @@ var testCases = [
 					},
 					{
 						"tag": "zoonose"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.cairn.info/revue-d-ethique-et-de-theologie-morale-2020-2-page-11.htm",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Éthiques animales : la double dissociation",
+				"creators": [
+					{
+						"firstName": "Eric",
+						"lastName": "Charmetant",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020-10-02",
+				"DOI": "https://doi.org/10.3917/retm.308.0011",
+				"ISSN": "1266-0078",
+				"abstractNote": "La constitution des éthiques animales depuis le xixe siècle est marquée par une double dissociation : premièrement, entre la militance contre la souffrance animale et la protection de la nature sauvage ; deuxièmement, entre les diverses éthiques animales académiques et les éthiques environnementales. Cette étude montrera comment cette dissociation s’est constituée historiquement, quelles en sont les conséquences et comment la surmonter. Seul un dépassement de la césure radicale entre le sauvage et le domestique permet de fonder une éthique qui soit animale et environnementale.\\n4207 The constitution of animal ethics since the 19th century is marked by a double dissociation: first, between militancy against animal suffering and the protection of the wilderness; second, between various academic animal ethics and environmental ethics. This study will show how this dissociation was historically constituted, what the consequences are and how it can be overcome. Only by overcoming the radical break between the wild and the domesticated can an animal and environmental ethic be founded.",
+				"issue": "2",
+				"language": "fr",
+				"libraryCatalog": "Cairn.info",
+				"pages": "11-22",
+				"publicationTitle": "Revue d'ethique et de theologie morale",
+				"shortTitle": "Éthiques animales",
+				"url": "https://www.cairn.info/revue-d-ethique-et-de-theologie-morale-2020-2-page-11.htm",
+				"volume": "306",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "domestication"
+					},
+					{
+						"tag": "sauvage"
+					},
+					{
+						"tag": "écologie"
+					},
+					{
+						"tag": "éthique animale"
+					},
+					{
+						"tag": "éthique environnementale"
 					}
 				],
 				"notes": [],
