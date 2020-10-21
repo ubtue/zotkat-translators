@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-05 11:30:37"
+	"lastUpdated": "2020-10-21 11:46:37"
 }
 
 /*
@@ -154,6 +154,9 @@ function scrape(doc, url) {
 		'Ons Geestelijk Erf' : '1783-1652',
 		'Ethical Perspectives' : '1783-1431',
 		'Ephemerides Theologicae Lovanienses' : '1783-1423',
+		'ET-Studies' : '2033-4273',
+		'Revue théologique de Louvain' : '1783-8401',
+		
 	}
 	item.ISSN = publicationTitleToISSN[item.publicationTitle];
 	item.attachments.push({
