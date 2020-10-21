@@ -2,82 +2,82 @@
 	"translatorID": "a5d5ca83-b975-4abe-86c9-d956d7b9c8fa",
 	"label": "Open Journal Systems Standard",
 	"creator": "Timotheus Kim",
-	"target": "article|issue/view/",
+	"target": "/(article|issue)/(view)?",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 100,
-	"inRepository": false,
+	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-08-27 11:23:17"
+	"lastUpdated": "2020-10-21 10:51:49"
 }
 
 /*
-    ***** BEGIN LICENSE BLOCK *****
-    Copyright © 2020 Universitätsbibliothek Tübingen.  All rights reserved.
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    ***** END LICENSE BLOCK *****
+	***** BEGIN LICENSE BLOCK *****
+	Copyright © 2020 Universitätsbibliothek Tübingen.  All rights reserved.
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Affero General Public License for more details.
+	You should have received a copy of the GNU Affero General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	***** END LICENSE BLOCK *****
 */
 
 function detectWeb(doc, url) {
-    if (url.match(/\/issue\/view/) && getSearchResults(doc)) return "multiple";
+	if (url.match(/\/issue\/view/) && getSearchResults(doc)) return "multiple";
 }
 
 function getSearchResults(doc) {
-    var items = {};
-    var found = false;
-    var rows = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "media-heading", " " ))]//a | //*[contains(concat( " ", @class, " " ), concat( " ", "title", " " ))]//a | //a[contains(@href, "/article/view/") and not(contains(@href, "/pdf"))]');
-    for (let row of rows) {
-        let href = row.href;
-        let title = ZU.trimInternal(row.textContent);
-        if (!href || !title) continue;
-        found = true;
-        items[href] = title;
-    }
-    return found ? items : false;
+	var items = {};
+	var found = false;
+	var rows = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "media-heading", " " ))]//a | //*[contains(concat( " ", @class, " " ), concat( " ", "title", " " ))]//a');
+	for (let row of rows) {
+		let href = row.href;
+		let title = ZU.trimInternal(row.textContent);
+		if (!href || !title) continue;
+		found = true;
+		items[href] = title;
+	}
+	return found ? items : false;
 }
 
 function invokeEMTranslator(doc) {
-    var translator = Zotero.loadTranslator("web");
-    translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
-    translator.setDocument(doc);
-    translator.setHandler("itemDone", function (t, i) {
-    	if (i.pages.match(/^\d{1,3}–\d{1,3}-\d{1,3}–\d{1,3}/)) {
+	var translator = Zotero.loadTranslator("web");
+	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
+	translator.setDocument(doc);
+	translator.setHandler("itemDone", function (t, i) {
+		if (i.pages.match(/^\d{1,3}–\d{1,3}-\d{1,3}–\d{1,3}/)) {
 			let firstandlastpages = i.pages.split('–');
 			i.pages = firstandlastpages[0] + '-' + firstandlastpages[2] ; // Z.debug(item.pages)
 		}
-	if (i.issue === "0") delete i.issue;
-	if (i.abstractNote.match(/No abstract available/)) delete i.abstractNote;
-        i.complete();
-    });
-    translator.translate();
+		if (i.issue === "0") delete i.issue;
+		if (i.abstractNote.match(/No abstract available/)) delete i.abstractNote;
+		if (i.tags[0] === "book review") i.tags.push('RezensionstagPica') && delete i.tags[0];
+		i.complete();
+	});
+	translator.translate();
 }
 
 function doWeb(doc, url) {
-    if (detectWeb(doc, url) === "multiple") {
-        Zotero.selectItems(getSearchResults(doc), function (items) {
-            if (!items) {
-                return true;
-            }
-            var articles = [];
-            for (var i in items) {
-                articles.push(i);
-            }
-            ZU.processDocuments(articles, invokeEMTranslator);
-        });
-    } else
-        invokeEMTranslator(doc, url);
+	if (detectWeb(doc, url) === "multiple") {
+		Zotero.selectItems(getSearchResults(doc), function (items) {
+			if (!items) {
+				return true;
+			}
+			var articles = [];
+			for (var i in items) {
+				articles.push(i);
+			}
+			ZU.processDocuments(articles, invokeEMTranslator);
+		});
+	} else
+		invokeEMTranslator(doc, url);
 }
-
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -159,6 +159,45 @@ var testCases = [
 					}
 				],
 				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "http://www.zwingliana.ch/index.php/zwa/article/view/2501",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Reinhard Bodenmann, Les perdants, 2016",
+				"creators": [
+					{
+						"firstName": "Michael W.",
+						"lastName": "Bruening",
+						"creatorType": "author"
+					}
+				],
+				"date": "2017",
+				"ISSN": "0254-4407",
+				"language": "en",
+				"libraryCatalog": "www.zwingliana.ch",
+				"pages": "511-514",
+				"publicationTitle": "Zwingliana",
+				"rights": "Authors who are published in this journal agree to the following conditions:  a) The authors retain the copyright and allow the journal to print the first publication in print as well as to make it electronically available at the end of three years.  b) The author may allot distribution of their first version of the article with additional contracts for non-exclusive publications by naming the first publication in this Journal in said publication (i.e. publishing the article in a book or other publications).",
+				"url": "http://www.zwingliana.ch/index.php/zwa/article/view/2501",
+				"volume": "44",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
