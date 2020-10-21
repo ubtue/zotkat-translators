@@ -6,10 +6,10 @@
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 100,
-	"inRepository": true,
+	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-21 10:51:49"
+	"lastUpdated": "2020-10-21 13:13:33"
 }
 
 /*
@@ -51,12 +51,19 @@ function invokeEMTranslator(doc) {
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
-		if (i.pages.match(/^\d{1,3}–\d{1,3}-\d{1,3}–\d{1,3}/)) {
+		var firstPage = ZU.xpathText(doc, '//meta[@name="citation_firstpage"]/@content');
+		var lastPage = ZU.xpathText(doc, '//meta[@name="citation_lastpage"]/@content');
+		
+		if (firstPage != lastPage) {
+			if (i.pages.match(/^\d{1,3}–\d{1,3}-\d{1,3}–\d{1,3}/)) {
 			let firstandlastpages = i.pages.split('–');
 			i.pages = firstandlastpages[0] + '-' + firstandlastpages[2] ; // Z.debug(item.pages)
+			}	
 		}
 		if (i.issue === "0") delete i.issue;
-		if (i.abstractNote.match(/No abstract available/)) delete i.abstractNote;
+		if (i.abstractNote !== undefined) {
+			if (i.abstractNote.match(/No abstract available/)) delete i.abstractNote;
+		}
 		if (i.tags[0] === "book review") i.tags.push('RezensionstagPica') && delete i.tags[0];
 		i.complete();
 	});
@@ -198,6 +205,94 @@ var testCases = [
 						"tag": "RezensionstagPica"
 					}
 				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://jps.library.utoronto.ca/index.php/renref/article/view/34078",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Becoming “Indians”: The Jesuit Missionary Path from Italy to Asia",
+				"creators": [
+					{
+						"firstName": "Camilla",
+						"lastName": "Russell",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020/04/30",
+				"DOI": "10.33137/rr.v43i1.34078",
+				"ISSN": "2293-7374",
+				"abstractNote": "The Jesuit missions in Asia were among the most audacious undertakings by Europeans in the early modern period. This article focuses on a still relatively little understood aspect of the enterprise: its appointment process. It draws together disparate archival documents to recreate the steps to becoming a Jesuit missionary, specifically the Litterae indipetae (petitions for the “Indies”), provincial reports about missionary candidates, and replies to applicants from the Jesuit superior general. Focusing on candidates from the Italian provinces of the Society of Jesus, the article outlines not just how Jesuit missionaries were appointed but also the priorities, motivations, and attitudes that informed their assessment and selection. Missionaries were made, the study shows, through a specific “way of proceeding” that was negotiated between all parties and seen in both organizational and spiritual terms, beginning with the vocation itself, which, whether the applicant departed or not, earned him the name indiano.",
+				"issue": "1",
+				"journalAbbreviation": "1",
+				"language": "en",
+				"libraryCatalog": "jps.library.utoronto.ca",
+				"pages": "9-50",
+				"publicationTitle": "Renaissance and Reformation",
+				"rights": "Copyright (c)",
+				"shortTitle": "Becoming “Indians”",
+				"url": "https://jps.library.utoronto.ca/index.php/renref/article/view/34078",
+				"volume": "43",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://jps.library.utoronto.ca/index.php/renref/article/view/34078",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Becoming “Indians”: The Jesuit Missionary Path from Italy to Asia",
+				"creators": [
+					{
+						"firstName": "Camilla",
+						"lastName": "Russell",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020/04/30",
+				"DOI": "10.33137/rr.v43i1.34078",
+				"ISSN": "2293-7374",
+				"abstractNote": "The Jesuit missions in Asia were among the most audacious undertakings by Europeans in the early modern period. This article focuses on a still relatively little understood aspect of the enterprise: its appointment process. It draws together disparate archival documents to recreate the steps to becoming a Jesuit missionary, specifically the Litterae indipetae (petitions for the “Indies”), provincial reports about missionary candidates, and replies to applicants from the Jesuit superior general. Focusing on candidates from the Italian provinces of the Society of Jesus, the article outlines not just how Jesuit missionaries were appointed but also the priorities, motivations, and attitudes that informed their assessment and selection. Missionaries were made, the study shows, through a specific “way of proceeding” that was negotiated between all parties and seen in both organizational and spiritual terms, beginning with the vocation itself, which, whether the applicant departed or not, earned him the name indiano.",
+				"issue": "1",
+				"journalAbbreviation": "1",
+				"language": "en",
+				"libraryCatalog": "jps.library.utoronto.ca",
+				"pages": "9-50",
+				"publicationTitle": "Renaissance and Reformation",
+				"rights": "Copyright (c)",
+				"shortTitle": "Becoming “Indians”",
+				"url": "https://jps.library.utoronto.ca/index.php/renref/article/view/34078",
+				"volume": "43",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
 				"notes": [],
 				"seeAlso": []
 			}
