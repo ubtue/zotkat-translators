@@ -6,10 +6,10 @@
 	"minVersion": "2.1",
 	"maxVersion": "",
 	"priority": 80,
-	"inRepository": false,
+	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsbv",
-	"lastUpdated": "2020-08-19 16:17:54"
+	"lastUpdated": "2020-10-22 13:41:30"
 }
 
 /*
@@ -51,8 +51,18 @@ function invokeEMTranslator(doc) {
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
-		let firstandlastpages = i.pages.split('-');
-		if (firstandlastpages[0] === firstandlastpages[1]) i.pages = firstandlastpages[0];
+		
+		//scrape pages from the website
+		let pagesEntry = ZU.xpathText(doc, '//*[(@id = "product-details")]');
+		if (pagesEntry) {
+			i.pages = pagesEntry.split('Pages:')[1].split('Revue:')[0].replace(' à ', '-');
+			if (i.pages) {
+				var firstandlastpages = i.pages.trim().split('-');
+				if (firstandlastpages[0] === firstandlastpages[1]) { 
+					i.pages = firstandlastpages[0]; 
+				}
+			}
+		}
 		var issue = i.issue.split('n°');
 		i.volume = issue[0].match(/\d+/);
 		i.issue = issue[1];
@@ -352,6 +362,104 @@ var testCases = [
 						"tag": "écho rythmique"
 					}
 				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://classiques-garnier.com/revue-d-histoire-et-de-philosophie-religieuses-2020-3-100e-annee-n-3-varia-aux-origines-du-christianisme-l-evenement-la-memoire-et-la-foi.html",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Aux origines du christianisme : l’événement, la mémoire et la foi - I. Le christianisme paulinien",
+				"creators": [
+					{
+						"firstName": "Simon",
+						"lastName": "Butticaz",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020/09/30",
+				"DOI": "10.15122/isbn.978-2-406-10956-3.p.0005",
+				"ISSN": "2269-479X",
+				"abstractNote": "Les questions de méthode sont au cœur de l’ethos scientifique. Les (récents) déplacements intervenus dans l’étude du Nouveau Testament sont l’occasion de revisiter ce questionnement. Répartie dans deux numéros successifs de la revue, cette étude s’y attèle, défendant une approche triple de la littérature biblique : historique, mémorielle et théologique. Après un bref état de la recherche, la première partie de l’étude en illustre les raisons à partir du christianisme paulinien.",
+				"issue": "3",
+				"language": "fr_FR",
+				"libraryCatalog": "classiques-garnier.com",
+				"pages": "335-362",
+				"publicationTitle": "Revue d'Histoire et de Philosophie religieuses",
+				"shortTitle": "Aux origines du christianisme",
+				"url": "https://classiques-garnier.com/revue-d-histoire-et-de-philosophie-religieuses-2020-3-100e-annee-n-3-varia-aux-origines-du-christianisme-l-evenement-la-memoire-et-la-foi.html",
+				"volume": "100",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Nouveau Testament"
+					},
+					{
+						"tag": "Paul"
+					},
+					{
+						"tag": "exégèse"
+					},
+					{
+						"tag": "herméneutique"
+					},
+					{
+						"tag": "histoire"
+					},
+					{
+						"tag": "mémoire"
+					},
+					{
+						"tag": "méthodes"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://classiques-garnier.com/revue-d-histoire-et-de-philosophie-religieuses-2020-3-100e-annee-n-3-varia-adresses-professionnelles-des-auteurs.html",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Adresses professionnelles des auteurs",
+				"creators": [],
+				"date": "2020/09/30",
+				"DOI": "10.15122/isbn.978-2-406-10956-3.p.0131",
+				"ISSN": "2269-479X",
+				"issue": "3",
+				"language": "fr_FR",
+				"libraryCatalog": "classiques-garnier.com",
+				"pages": "461",
+				"publicationTitle": "Revue d'Histoire et de Philosophie religieuses",
+				"url": "https://classiques-garnier.com/revue-d-histoire-et-de-philosophie-religieuses-2020-3-100e-annee-n-3-varia-adresses-professionnelles-des-auteurs.html",
+				"volume": "100",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
 				"notes": [],
 				"seeAlso": []
 			}
