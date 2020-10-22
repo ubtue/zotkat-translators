@@ -6,10 +6,10 @@
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 100,
-	"inRepository": false,
+	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-21 13:13:33"
+	"lastUpdated": "2020-10-22 14:47:28"
 }
 
 /*
@@ -36,10 +36,10 @@ function detectWeb(doc, url) {
 function getSearchResults(doc) {
 	var items = {};
 	var found = false;
-	var rows = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "media-heading", " " ))]//a | //*[contains(concat( " ", @class, " " ), concat( " ", "title", " " ))]//a');
+	var rows = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "media-heading", " " ))]//a | //*[contains(concat( " ", @class, " " ), concat( " ", "title", " " ))]//a | //*[(@id = "content")]//a');
 	for (let row of rows) {
 		let href = row.href;
-		let title = ZU.trimInternal(row.textContent);
+		let title = ZU.trimInternal(row.textContent).replace(/pdf/i, '');
 		if (!href || !title) continue;
 		found = true;
 		items[href] = title;
@@ -294,6 +294,76 @@ var testCases = [
 					}
 				],
 				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "http://jsri.ro/ojs/index.php/jsri/article/view/1194",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Time as a Basic Factor of the Development of Family Relationships in Slovakia",
+				"creators": [
+					{
+						"firstName": "Ladislav",
+						"lastName": "Csontos",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Rastislav",
+						"lastName": "Bednarik",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Jozef",
+						"lastName": "Žuffa",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020/06/26",
+				"ISSN": "1583-0039",
+				"abstractNote": "In the search for factors affecting the stability of marriage and family, support for the family in changing conditions of adult access to children is based on findings of its empirical research that identified selected value and religious aspects of the family. These were enriched by sociological studies of religiosity and scientific studies from the field of psychology and pedagogy. This made it possible to identify family time spent in building relationships as one of the key factors of its stability. The study also includes some aspects of religious beliefs and their implications on declared values, as well as suggestions for creation of specific pastoral plans.",
+				"issue": "56",
+				"language": "en",
+				"libraryCatalog": "jsri.ro",
+				"pages": "3-16",
+				"publicationTitle": "Journal for the Study of Religions and Ideologies",
+				"rights": "Both JSRI and the authors holds the copyright of all published materials. In addition, authors have the right to use all or part of their texts and abstracts for their own personal use and for their teaching purposes.   Authors have the right to use all or part of the text and abstract, in the preparation of derivative works, extension of the article into book-length or in other works, and the right to include the article in full or in part in a thesis or dissertation or books. Authors are kindly asked to provide acknowledgement of the original publication in JSRI, including the title of the article, the journal name, volume, issue number, page numbers, and year of publication.   For use in non-commercial situations there is no need for authors to apply for written permission from JSRI in advance.",
+				"url": "http://jsri.ro/ojs/index.php/jsri/article/view/1194",
+				"volume": "19",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Marriage"
+					},
+					{
+						"tag": "communication"
+					},
+					{
+						"tag": "counseling"
+					},
+					{
+						"tag": "family"
+					},
+					{
+						"tag": "relationship"
+					},
+					{
+						"tag": "trust"
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
