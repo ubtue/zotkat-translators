@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsbv",
-	"lastUpdated": "2020-10-22 13:41:30"
+	"lastUpdated": "2020-10-22 14:25:40"
 }
 
 /*
@@ -29,7 +29,8 @@
 */
 
 function detectWeb(doc, url) {
-	if (url.match(/revue/) && getSearchResults(doc)) return "multiple";
+	if (url.match(/revue-d-histoire-et-de-philosophie-religieuses/)) return "journalArticle"
+	else if (url.match(/revue/) && getSearchResults(doc)) return "multiple";
 }
 
 function getSearchResults(doc) {
