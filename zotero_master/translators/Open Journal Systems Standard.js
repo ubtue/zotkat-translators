@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-22 14:47:28"
+	"lastUpdated": "2020-10-26 11:08:40"
 }
 
 /*
@@ -54,13 +54,8 @@ function invokeEMTranslator(doc) {
 	translator.setHandler("itemDone", function (t, i) {
 		var firstPage = ZU.xpathText(doc, '//meta[@name="citation_firstpage"]/@content');
 		var lastPage = ZU.xpathText(doc, '//meta[@name="citation_lastpage"]/@content');
-		
-		if (firstPage != lastPage) {
-			if (i.pages.match(/^\d{1,3}–\d{1,3}-\d{1,3}–\d{1,3}/)) {
-			let firstandlastpages = i.pages.split('–');
-			i.pages = firstandlastpages[0] + '-' + firstandlastpages[2] ; // Z.debug(item.pages)
-			}	
-		}
+		var firstandlastPages = i.pages.split('-');//Z.debug(firstandlastPages)
+		if (firstandlastPages[0] === firstandlastPages[1]) i.pages = firstandlastPages[0];
 		if (i.issue === "0") delete i.issue;
 		if (i.abstractNote !== undefined) {
 			if (i.abstractNote.match(/No abstract available/)) delete i.abstractNote;
@@ -90,11 +85,6 @@ function doWeb(doc, url) {
 var testCases = [
 	{
 		"type": "web",
-		"url": "https://ojs.reformedjournals.co.za/stj/issue/view/70",
-		"items": "multiple"
-	},
-	{
-		"type": "web",
 		"url": "https://ojs.reformedjournals.co.za/stj/article/view/1969",
 		"items": [
 			{
@@ -115,7 +105,7 @@ var testCases = [
 				"journalAbbreviation": "STJ",
 				"language": "en",
 				"libraryCatalog": "ojs.reformedjournals.co.za",
-				"pages": "13-40",
+				"pages": "13–40",
 				"publicationTitle": "STJ | Stellenbosch Theological Journal",
 				"rights": "Copyright (c) 2020 Pieter de Waal Neethling Trust, Stellenbosch",
 				"shortTitle": "“The message to the people of South Africa” in contemporary context",
@@ -167,45 +157,6 @@ var testCases = [
 					}
 				],
 				"tags": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "http://www.zwingliana.ch/index.php/zwa/article/view/2501",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Reinhard Bodenmann, Les perdants, 2016",
-				"creators": [
-					{
-						"firstName": "Michael W.",
-						"lastName": "Bruening",
-						"creatorType": "author"
-					}
-				],
-				"date": "2017",
-				"ISSN": "0254-4407",
-				"language": "en",
-				"libraryCatalog": "www.zwingliana.ch",
-				"pages": "511-514",
-				"publicationTitle": "Zwingliana",
-				"rights": "Authors who are published in this journal agree to the following conditions:  a) The authors retain the copyright and allow the journal to print the first publication in print as well as to make it electronically available at the end of three years.  b) The author may allot distribution of their first version of the article with additional contracts for non-exclusive publications by naming the first publication in this Journal in said publication (i.e. publishing the article in a book or other publications).",
-				"url": "http://www.zwingliana.ch/index.php/zwa/article/view/2501",
-				"volume": "44",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [
-					{
-						"tag": "RezensionstagPica"
-					}
-				],
 				"notes": [],
 				"seeAlso": []
 			}
@@ -362,6 +313,67 @@ var testCases = [
 					},
 					{
 						"tag": "trust"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "http://jsri.ro/ojs/index.php/jsri/article/view/1212",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Eco-Religious Approach to Deforestation by Indonesian Istighosa Community",
+				"creators": [
+					{
+						"firstName": "Wildana",
+						"lastName": "Wargadinata",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Iffat",
+						"lastName": "Maimunah",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Rohmani Nur",
+						"lastName": "Indah",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020/06/25",
+				"ISSN": "1583-0039",
+				"abstractNote": "This paper aims to explain the involvement of an istighosah community in environmental conservation in Indonesia. The data were obtained through the method of observing religious activities and conservation actions, interviewing the community leaders, and documenting the existence and activity of worshipers. The finding confirmed three aspects. First, the implementation of Sufism teachings is an alternative in nature conservation, not only aiming to meet the spiritual needs of pilgrims, but also fostering awareness of pilgrims to prevent damage to nature. Second, what is shown by pilgrims is very closely related to the human urge to always realize its basic capacity as a leader for nature. The forest is considered as a brother that the sustainability must be guarded, preserved, and guaranteed. Third, the teachings of Sufism become the basis for the group to act to be involved in caring for nature. This doctrine is inherited through formal media such as recitation and carried out in the form of direct action. Therefore, further studies are needed to explore the involvement of other religious organizations in the effort to conserve the environment in a sustainable manner",
+				"issue": "56",
+				"language": "en",
+				"libraryCatalog": "jsri.ro",
+				"pages": "166-178",
+				"publicationTitle": "Journal for the Study of Religions and Ideologies",
+				"rights": "Both JSRI and the authors holds the copyright of all published materials. In addition, authors have the right to use all or part of their texts and abstracts for their own personal use and for their teaching purposes.   Authors have the right to use all or part of the text and abstract, in the preparation of derivative works, extension of the article into book-length or in other works, and the right to include the article in full or in part in a thesis or dissertation or books. Authors are kindly asked to provide acknowledgement of the original publication in JSRI, including the title of the article, the journal name, volume, issue number, page numbers, and year of publication.   For use in non-commercial situations there is no need for authors to apply for written permission from JSRI in advance.",
+				"url": "http://jsri.ro/ojs/index.php/jsri/article/view/1212",
+				"volume": "19",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "conservation"
+					},
+					{
+						"tag": "deforestation"
+					},
+					{
+						"tag": "eco-religious approach"
 					}
 				],
 				"notes": [],
