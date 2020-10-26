@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-08-19 12:58:10"
+	"lastUpdated": "2020-10-26 12:34:04"
 }
 
 /*
@@ -94,11 +94,26 @@ function scrape(doc, url) {
 	// Embedded Metadata
 	translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48');
 	translator.setHandler('itemDone', function (obj, item) {
+		var stringAuthors = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "contrib", " " ))]');//Z.debug(authors)
+		var authors = stringAuthors.replace(/\(bio\)/, '').split('and');
+		if (item.creators.length===0) {
+			for (let i = 0; i < authors.length; i++) {
+				item.creators.push(ZU.cleanAuthor(authors[i], "author"));
+			}
+		}
+		var volumeIssueDateEntry = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "designation", " " ))]');//Z.debug(volumeIssueDateEntry)
+		if (!item.volume) item.volume = volumeIssueDateEntry.split(',')[0].split('Volume')[1];
+		if (!item.issue) item.issue = volumeIssueDateEntry.split(',')[1].split('Number')[1];
+		if (!item.date) item.date = volumeIssueDateEntry.split(',')[2].split(' ')[2]; //Z.debug(item.date)
 		if (abstract) {
 			item.abstractNote = abstract.replace(/^\s*Abstract/, "").replace(/show (less|more)$/, "").replace(/,\s*$/, "").replace(/,\sAbstract:?,?,?/, "").trim();
 		}
+		//var DOI = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "view_citation", " " ))]//a'); Z.debug(DOI)
 		if (tags) {
 			item.tags = tags.split(",");
+		}
+		if (item.title) {
+			item.title = item.title.replace(/Project\sMUSE\s--?\s/, '')
 		}
 		if (url.includes("/article/")) {
 			var pdfurl = url.replace(/(\/article\/\d+).*/, "$1") + "/pdf";
@@ -109,6 +124,7 @@ function scrape(doc, url) {
 			}];
 		}
 		item.libraryCatalog = "Project MUSE";
+		item.itemType = "journalArticle";
 		item.complete();
 	});
 	translator.getTranslatorObject(function (trans) {
@@ -191,7 +207,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://muse.jhu.edu/article/530509",
+		"url": "https://muse.jhu.edu/article/530509",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -203,15 +219,11 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "2013-12-12",
-				"DOI": "10.1353/tech.2013.0137",
-				"ISSN": "1097-3729",
+				"date": "2013",
 				"abstractNote": "This article uses coverage of the fiftieth anniversary of the Pill as an example of what Richard Hirsh describes as the “real world” role of historians of technology. It explores how the presentation of historical topics on the world wide web has complicated how the history of technology is conveyed to the public. The article shows that that the Pill is especially suited to demonstrating the public role of historians of technology because, as the most popular form of reversible birth control, it has touched the lives of millions of Americans. Thus, an exploration of how the Pill’s fiftieth anniversary was covered illustrates how historians can use their expertise to provide a nuanced interpretation of a controversial topic in the history of technology.",
 				"issue": "4",
 				"language": "en",
 				"libraryCatalog": "Project MUSE",
-				"pages": "735-745",
-				"publicationTitle": "Technology and Culture",
 				"shortTitle": "The Pill at Fifty",
 				"url": "https://muse.jhu.edu/article/530509",
 				"volume": "54",
@@ -229,11 +241,11 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://muse.jhu.edu/article/551992",
+		"url": "https://muse.jhu.edu/article/551992",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Accountability and Corruption in Argentina During the Kirchners' Era",
+				"title": "Accountability and Corruption in Argentina During the Kirchners’ Era",
 				"creators": [
 					{
 						"firstName": "Luigi",
@@ -241,15 +253,10 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "2014-08-13",
-				"DOI": "10.1353/lar.2014.0030",
-				"ISSN": "1542-4278",
 				"abstractNote": "This article highlights an important paradox: in Argentina between 2003 and 2013 the center-left Peronist government’s approach to governance mirrors that of the center-right Peronist administration of the 1990s. While the latter centralized authority to pursue neoliberal reforms, the former have centralized authority in the name of expanding government intervention in the economy. In both cases, corruption has tended to go unchecked due to insufficient government accountability. Therefore, although economic policies and political rhetoric have changed dramatically, government corruption remains a constant of the Argentine political system due to the executive branch’s ability to emasculate constitutional checks and balances.",
 				"issue": "2",
 				"language": "en",
 				"libraryCatalog": "Project MUSE",
-				"pages": "173-195",
-				"publicationTitle": "Latin American Research Review",
 				"url": "https://muse.jhu.edu/article/551992",
 				"volume": "49",
 				"attachments": [
@@ -278,18 +285,87 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "2020-08-15",
-				"DOI": "10.1353/cht.2020.0018",
-				"ISSN": "1947-8224",
+				"date": "2020",
 				"abstractNote": "During the Second Vatican Council, American Jewish community members impacted the drafting of the declaration on the Catholic Church's attitude toward Jews and Judaism. This article explores the American Jewish Committee's reactions to the drafting and promulgation of the Declaration on the Relation of the Church with Non-Christian Religions (Nostra Aetate) and its contribution to establishing interfaith relations. The varied Jewish reactions to the declaration provide insight into the internal Jewish discussions regarding Nostra Aetate, revealing that even though the declaration is assessed positively today, initial Jewish reactions were not enthusiastic.",
 				"issue": "3",
 				"language": "en",
 				"libraryCatalog": "Project MUSE",
-				"pages": "25-47",
-				"publicationTitle": "U.S. Catholic Historian",
 				"shortTitle": "American Judaism and the Second Vatican Council",
 				"url": "https://muse.jhu.edu/article/762340",
 				"volume": "38",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [
+					{
+						"tag": " Abram"
+					},
+					{
+						"tag": " American Jewish Committee"
+					},
+					{
+						"tag": " Bea"
+					},
+					{
+						"tag": " Cardinal Augustin"
+					},
+					{
+						"tag": " Declaration on the Relation of the Church with Non-Christian Religions"
+					},
+					{
+						"tag": " Jewish-Catholic relations"
+					},
+					{
+						"tag": " Marc"
+					},
+					{
+						"tag": " Morris B."
+					},
+					{
+						"tag": " Second Vatican Council"
+					},
+					{
+						"tag": " Tanenbaum"
+					},
+					{
+						"tag": " interreligious dialogue"
+					},
+					{
+						"tag": "Nostra Aetate"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://muse.jhu.edu/article/766872",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "The JBL Forum, an Occasional Exchange",
+				"creators": [
+					{
+						"firstName": "Mark G.",
+						"lastName": "Brett",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Susan E.",
+						"lastName": "Hylen",
+						"creatorType": "author"
+					}
+				],
+				"issue": "3",
+				"language": "en",
+				"libraryCatalog": "Project MUSE",
+				"url": "https://muse.jhu.edu/article/766872",
+				"volume": "139",
 				"attachments": [
 					{
 						"title": "Full Text PDF",
