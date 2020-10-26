@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2019-12-22 17:00:53"
+	"lastUpdated": "2020-10-26 15:21:41"
 }
 
 /*
@@ -203,7 +203,7 @@ function processRIS(text, jid) {
 			item.title = item.title + ": " + subtitle[1];
 		}
 		// reviews don't have titles in RIS - we get them from the item page
-		if (!item.title && review) {
+		if (!item.title || item.title === "Review" && review) {
 			var reviewedTitle = review[1];
 			// A2 for reviews is actually the reviewed author
 			var reviewedAuthors = [];
@@ -218,7 +218,7 @@ function processRIS(text, jid) {
 				reviewedTitle = reviewedTitle.replace(reviewedAuthors[i], "");
 			}
 			reviewedTitle = reviewedTitle.replace(/[\s.,]+$/, "");
-			item.title = "Review of " + reviewedTitle;
+			item.title = "Reviewed Work: " + reviewedTitle;
 		}
 		
 		item.url = item.url.replace('http:', 'https:'); // RIS still lists http addresses while JSTOR's stable URLs use https
@@ -618,6 +618,48 @@ var testCases = [
 				"shortTitle": "Errors in Bibliographic Citations",
 				"url": "https://www.jstor.org/stable/4308405",
 				"volume": "59",
+				"attachments": [
+					{
+						"title": "JSTOR Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.jstor.org/stable/10.5325/jmorahist.19.2.0211?seq=1",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Reviewed Work: Glaubenssolidarität im Zeichen des Pietismus: Der württembergische Theologe Georg Konrad Rieger (1687–1743) und seine Kirchengeschichtsschreibung zu den Böhmischen Brüdern",
+				"creators": [
+					{
+						"lastName": "Yoder",
+						"firstName": "Peter James",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Ehinger",
+						"firstName": "Siglind",
+						"creatorType": "reviewedAuthor"
+					}
+				],
+				"date": "2019",
+				"DOI": "10.5325/jmorahist.19.2.0211",
+				"ISSN": "1933-6632",
+				"archive": "JSTOR",
+				"issue": "2",
+				"libraryCatalog": "JSTOR",
+				"pages": "211-213",
+				"publicationTitle": "Journal of Moravian History",
+				"shortTitle": "Reviewed Work",
+				"url": "https://www.jstor.org/stable/10.5325/jmorahist.19.2.0211",
+				"volume": "19",
 				"attachments": [
 					{
 						"title": "JSTOR Full Text PDF",
