@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-21 11:46:37"
+	"lastUpdated": "2020-10-27 11:59:31"
 }
 
 /*
@@ -155,9 +155,8 @@ function scrape(doc, url) {
 		'Ethical Perspectives' : '1783-1431',
 		'Ephemerides Theologicae Lovanienses' : '1783-1423',
 		'ET-Studies' : '2033-4273',
-		'Revue théologique de Louvain' : '1783-8401',
+		'Revue Théologique de Louvain' : '1783-8401',
 		'Louvain Studies' : '1783-161X',
-		
 	}
 	item.ISSN = publicationTitleToISSN[item.publicationTitle];
 	item.attachments.push({
@@ -624,6 +623,43 @@ var testCases = [
 				"shortTitle": "Een kasteel voor Christus",
 				"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3288399&journal_code=OGE",
 				"volume": "90",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3287449&journal_code=RTL",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Un canon biblique en vingt-quatre livres:  L'alphabet, les Anciens de l'Apocalypse et Homère",
+				"creators": [
+					{
+						"creatorType": "author",
+						"lastName": "Bogaert",
+						"firstName": " Pierre-Maurice"
+					}
+				],
+				"date": "2020",
+				"DOI": "10.2143/RTL.51.1.3287449",
+				"ISSN": "1783-8401",
+				"abstractNote": "Abstract :Le chiffre vingt-quatre est appliqué au nombre des livres saints dans le judaïsme à côté de vingt-deux. Ces chiffres sont respectivement ceux des lettres des alphabets grec et hébreu. Les vingt-quatre chants de l’Iliade et de l’Odyssée, éléments fondamentaux de l’éducation hellénistique, sont depuis toujours désignés par les lettres de l’alphabet grec. L’opposition Homère – livres saints, attestée dans le judaïsme rabbinique, peut impliquer la référence à ce compte des chants. Du côté chrétien, le compte des vingt-quatre livres de l’Ancien Testament a été mis en rapport avec les Anciens de l’Apocalypse. En outre, Origène met en relation les livres de l’Ancien Testament avec l’alphabet hébreu, tandis qu’Hilaire et Jérôme connaissent les chiffres de vingt-deux et vingt-quatre des deux alphabets. La convergence de ces observations conduit à une hypothèse obligée, la référence implicite aux épopées homériques dans les traditions juive et chrétienne à propos du canon biblique. Cette référence est un des facteurs qui ont permis de rassembler sous la même autorité des livres de genres littéraires variés.Number twenty-four is applied to the books of Holy Scriptures in Judaism, as also number twenty-two. Those are respectively the numbers of the letters of the Greek and Hebrew alphabets. The twenty-four books of the Iliad and of the Odyssey, fundamental pieces of the Hellenistic education, are designated of old by the letters of the Greek alphabet. The opposition Homer – Sacred Books, witnessed in rabbinical Judaism, may imply a reference to this counting of the Homeric books. On the Christian side, the counting of the twenty-four books has been put in relation with the Elders of the Apocalypse. Moreover, Origen relates the number of the books of the Old Testament and the Hebrew alphabet, while Hilary and Jerome know of the numbers twenty-two and twenty-four of both Hebrew and Greek alphabets. Convergence of those established facts leads to a necessary hypothesis, the implicit reference to the Homeric epics in the Jewish and Christian traditions about the Biblical canon. This reference is one of the factors which permitted to assemble books of diverse literary genres under a sole authority.\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+				"issue": "1",
+				"libraryCatalog": "Peeters",
+				"pages": "1-14",
+				"publicationTitle": "Revue Théologique de Louvain",
+				"shortTitle": "Un canon biblique en vingt-quatre livres",
+				"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3287449&journal_code=RTL",
+				"volume": "51",
 				"attachments": [
 					{
 						"title": "Snapshot",
