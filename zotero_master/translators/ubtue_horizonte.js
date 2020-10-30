@@ -6,10 +6,10 @@
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 70,
-	"inRepository": false,
+	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-08-24 12:04:27"
+	"lastUpdated": "2020-10-30 11:08:39"
 }
 
 /*
@@ -78,9 +78,10 @@ function scrape(doc, url) {
 	var translator = Zotero.loadTranslator('web');
 	translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48'); 	// Embedded Metadata
 	translator.setHandler('itemDone', function (obj, item) {
-		let volumeIssueEntry = text(doc, '.title'); // Z.debug(volumeIssueEntry)
+		//scrape volumeIssueEntry no longer necessary. DC metadata is offered from the website
+		/*let volumeIssueEntry = text(doc, '.title'); // Z.debug(volumeIssueEntry)
 		item.volume = volumeIssueEntry.split(',')[0].replace('v.', '');
-		item.issue = volumeIssueEntry.split(',')[1].replace('n.', '');
+		item.issue = volumeIssueEntry.split(',')[1].replace('n.', '');*/
 		if (item.pages) {
 			let firstandlastpages = item.pages.split('-');
 			if (firstandlastpages[0] === firstandlastpages[1]) item.pages = firstandlastpages[0];
@@ -151,6 +152,62 @@ var testCases = [
 					},
 					{
 						"tag": "religião"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/17687",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Prédicas em torno da conquista e manutenção de Ceuta",
+				"creators": [
+					{
+						"firstName": "Leandro Alves",
+						"lastName": "Teodoro",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020/04/30",
+				"DOI": "10.5752/P.2175-5841.2020v18n55p378",
+				"ISSN": "2175-5841",
+				"abstractNote": "O segundo cronista e guarda-mor da Torre do Tombo, Gomes Eanes de Zurara, notabilizou-se pela produção de crônicas acerca da conquista e manutenção da praça de Ceuta no século XV. Com a finalidade de explorar as impressões desse cronista, o presente trabalho abordará como Zurara fez um uso edificante de duas de suas fontes: o discurso do conde D. Pedro de Meneses e um reportatio do sermão do fr. João Xira. Mais precisamente, o alvo deste estudo é examinar em que medida Zurara reproduziu as palavras dessas célebres figuras na expectativa de legitimar a incursão militar da Coroa no norte da África. Com ênfase na descrição do referido oficial da Torre do Tombo, o alvo consistirá em analisar a função da prédica de um religioso e de um cavaleiro para a exortação dos portugueses enviados a essa região em um período de fortalecimento das bases políticas e religiosas de Portugal.",
+				"issue": "55",
+				"journalAbbreviation": "1",
+				"language": "pt",
+				"libraryCatalog": "periodicos.pucminas.br",
+				"pages": "378",
+				"publicationTitle": "HORIZONTE - Revista de Estudos de Teologia e Ciências da Religião",
+				"rights": "Copyright (c) 2020 HORIZONTE - Revista de Estudos de Teologia e Ciências da Religião",
+				"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/17687",
+				"volume": "18",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Crônicas portuguesas"
+					},
+					{
+						"tag": "Formação moral"
+					},
+					{
+						"tag": "Gomes Eanes de Zurara"
+					},
+					{
+						"tag": "Século XV"
 					}
 				],
 				"notes": [],
