@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2019-09-08 11:33:52"
+	"lastUpdated": "2020-10-30 10:47:20"
 }
 
 /*
@@ -56,21 +56,43 @@ function doWeb(doc, url) {
 	}
 }
 
+/**
+ * This function is used instead of ZU.xpathText,
+ * because there are lots of <br> tags which the original function
+ * does remove instead of replacing it by whitespace.
+ **/
+function xpathTextCustom(node, xpath) {
+	var elements = ZU.xpath(node, xpath);
+	if (!elements.length) return null;
+
+	var strings = new Array(elements.length);
+	var text = '';
+	for(var i=0, n=elements.length; i<n; i++) {
+		var el = elements[i];
+		if (text != '') text += '\n\n';
+		text += el.innerText.trim().replace(/\\\\n/, ' ');
+	}
+	return text;
+}
+
 function scrape(doc, _url) {
 	// use Embeded Metadata
 	var trans = Zotero.loadTranslator('web');
 	trans.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48');
 	trans.setDocument(doc);
-
 	trans.setHandler('itemDone', function (obj, item) {
 		if (!item.itemType) {
 			item.itemType = "journalArticle";
 		}
-		
+
 		if (!item.title) {
 			item.title = doc.getElementById('articleTitle');
 		}
 		
+		//scrape subtitle for "Judaica. Neue digitale Folge" ISSN 2673-4273
+		let subtitle = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "subtitle", " " ))]');
+		if (item.ISSN === '2673-4273' && subtitle.length) item.title += ' ' + subtitle.trim();
+
 		if (item.creators.length == 0) {
 			var authorString = doc.getElementById("authorString");
 			if (authorString) {
@@ -80,16 +102,16 @@ function scrape(doc, _url) {
 				}
 			}
 		}
-		
+
 		if (item.journalAbbreviation && item.journalAbbreviation == "1") {
 			delete item.journalAbbreviation;
 		}
-		
+
 		var doiNode = doc.getElementById('pub-id::doi');
 		if (!item.DOI && doiNode) {
 			item.DOI = doiNode.textContent;
 		}
-		
+
 		// abstract is supplied in DC:description, so it ends up in extra
 		// abstractNote is pulled from description, which is same as title
 		item.abstractNote = item.extra;
@@ -97,15 +119,18 @@ function scrape(doc, _url) {
 
 		// if we still don't have abstract, we can try scraping from page
 		if (!item.abstractNote) {
-			item.abstractNote = ZU.xpathText(doc, '//div[@id="articleAbstract"]/div[1]')
-				|| ZU.xpathText(doc, '//div[contains(@class, "main_entry")]/div[contains(@class, "abstract")]');
+			item.abstractNote = xpathTextCustom(doc, '//div[@id="articleAbstract"]/div[1]')
+				|| xpathTextCustom(doc, '//div[contains(@class, "main_entry")]/div[contains(@class, "abstract")]');
 		}
 		if (item.abstractNote) {
-			item.abstractNote = item.abstractNote.trim().replace(/^Abstract:?\s*/, '');
+			item.abstractNote = item.abstractNote.trim().replace(/^(Abstract|Resumo):?\s*/, '');
 		}
-		
+
+		// clear issue if it's zero
+		if (item.issue === "0") item.issue = "";
+
 		var pdfAttachment = false;
-		
+
 		// some journals link to a PDF view page in the header, not the PDF itself
 		for (let i = 0; i < item.attachments.length; i++) {
 			if (item.attachments[i].mimeType == 'application/pdf') {
@@ -113,7 +138,7 @@ function scrape(doc, _url) {
 				item.attachments[i].url = item.attachments[i].url.replace(/\/article\/view\//, '/article/download/');
 			}
 		}
-		
+
 		var pdfUrl = doc.querySelector("a.obj_galley_link.pdf");
 		// add linked PDF if there isn't one listed in the header
 		if (!pdfAttachment && pdfUrl) {
@@ -122,6 +147,19 @@ function scrape(doc, _url) {
 				mimeType: "application/pdf",
 				url: pdfUrl.href.replace(/\/article\/view\//, '/article/download/')
 			});
+		}
+
+		// remove superfluous last page number
+		if (item.pages) {
+			var matches = item.pages.match(/^([0-9]+)-([0-9]+)-([0-9]+)$/);
+			// only update if the last two captures are the same, otherwise it's ambiguous
+			if (matches && matches[2] === matches[3]) item.pages = matches[1] + "-" + matches[2];
+		}
+
+		let articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
+		if (articleType) {
+			articleType = articleType.trim();
+			if (articleType.match(/Book Reviews?/)) item.tags.push("Book Reviews");
 		}
 
 		item.complete();
@@ -926,7 +964,7 @@ var testCases = [
 				"date": "2019/06/30",
 				"DOI": "10.15503/jecs20191.173.184",
 				"ISSN": "2081-1640",
-				"abstractNote": "Aim. The aim of the article is to analyse the ways African American children’s characters are constructed in selected picture-books and to determine whether they have any impact on the conduct of contemporary black youth facing discrimination in their own lives. It also argues that picture-books are one of the most influential media in the representation of racial problems.Methods. The subjects of the study are picture-books. The analysis pertains to the visual and the verbal narrative of the books, with a special emphasis being placed on the interplay between text and image as well as on the ways the meaning of the books is created. The texts are analysed using a number of existing research methods used for examining the picture-book format. Results. The article shows that the actions of selected children’s characters, whether real or imaginary, may serve as an incentive for contemporary youth to struggle for equal rights and contribute to the process of racial integration on a daily basis.Conclusions. The results can be considered in the process of establishing educational curricula for students from minority groups who need special literature that would empower them to take action and join in the efforts of adult members of their communities.",
+				"abstractNote": "Aim. The aim of the article is to analyse the ways African American children’s characters are constructed in selected picture-books and to determine whether they have any impact on the conduct of contemporary black youth facing discrimination in their own lives. It also argues that picture-books are one of the most influential media in the representation of racial problems.\nMethods. The subjects of the study are picture-books. The analysis pertains to the visual and the verbal narrative of the books, with a special emphasis being placed on the interplay between text and image as well as on the ways the meaning of the books is created. The texts are analysed using a number of existing research methods used for examining the picture-book format.\nResults. The article shows that the actions of selected children’s characters, whether real or imaginary, may serve as an incentive for contemporary youth to struggle for equal rights and contribute to the process of racial integration on a daily basis.\nConclusions. The results can be considered in the process of establishing educational curricula for students from minority groups who need special literature that would empower them to take action and join in the efforts of adult members of their communities.",
 				"issue": "1",
 				"language": "en",
 				"libraryCatalog": "jecs.pl",
@@ -941,7 +979,8 @@ var testCases = [
 						"mimeType": "application/pdf"
 					},
 					{
-						"title": "Snapshot"
+						"title": "Snapshot",
+						"mimeType": "text/html"
 					}
 				],
 				"tags": [
@@ -959,6 +998,52 @@ var testCases = [
 					},
 					{
 						"tag": "text-image relationships"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://bop.unibe.ch/judaica/article/view/1.2",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Grundgeschichte und Chronik: Die Fragestellung der frühjüdischen Chronikbücher und ihre Haltung zur Mosesüberlieferung",
+				"creators": [
+					{
+						"firstName": "Thomas",
+						"lastName": "Willi",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020/09/10",
+				"DOI": "10.36950/jndf.1.2",
+				"ISSN": "2673-4273",
+				"abstractNote": "The Chronicler used two types of sources in writing history: In general, the chronistic narration is based on the „Deuteronomistic history“ as it is called today. Nonetheless, the Pentateuch in its priestly components is another key to its concept.\n\nIn his historical outline, the Chronicler is aware of differences of time: There is, first of all, the epoch of Moses and of the Mosaic institutions given to a wandering Israel. A new age, second, started with David gathering a scattered people toward the new center in Jerusalem.\n\nThese epochs are characterized by both continuity in the worship of Yhwh and discontinuity of theperformance of that worship. The ark, the mobile sanctuary in the tent of the desert, was now to find its definite place and house, to be built and inhabited by Yhwh, prepared by David and finally realized by Solomon.\n\nAccording to the Chronicler, God’s word had been present in both epochs, but in different forms. Originally, it was given orally to Moses. Yet, the history of Israel as described by Chronicles refers to written documents (kakkātûb). In light of their attribution in Chronicles we should not call them „priestly“ – as it has been customary since the 19th century (de Wette, Wellhausen) –but more adequately „Mosaic“ tradition.\n\nFor the Chronicler, such Mosaic tradition was applied and performed by David’s Israel. Of prime importance is the new position of Levi, Moses’ own tribe. According to the P-sources in the Pentateuch, the Levites had to do physical labour for the holy tent. But, in the era of the temple, they gained a new responsibility by interpreting, instructing and applying Tora in its broadest sense. The Priests's duties for their part are presupposed rather than itemized. Since the time of the Exodus – which is deliberately not a topic in Chronicles – they have remained the same.\n\nDecisive for the Chronicler is the new presence of Moses’ revelation in the ongoing history of Israel and its kings, accompanied and guided by Moses’ tribe, the Levites.",
+				"journalAbbreviation": "JNDF",
+				"language": "de",
+				"libraryCatalog": "bop.unibe.ch",
+				"publicationTitle": "Judaica. Neue digitale Folge",
+				"rights": "Copyright (c) 2020 Thomas Willi",
+				"shortTitle": "Grundgeschichte und Chronik",
+				"url": "https://bop.unibe.ch/judaica/article/view/1.2",
+				"volume": "1",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Chronikbücher"
 					}
 				],
 				"notes": [],
