@@ -1,15 +1,15 @@
 {
 	"translatorID": "9e186c48-48e4-4cbc-be69-289bda8359ad",
-	"label": "Journal of Ethics in Antiquity and Christianity",
+	"label": "ubtue_JEAC",
 	"creator": "Madeesh Kannan",
 	"target": "https?://jeac.de/ojs/index.php",
 	"minVersion": "3.0",
 	"maxVersion": "",
-	"priority": 90,
-	"inRepository": false,
+	"priority": 100,
+	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2019-01-10 15:40:06"
+	"lastUpdated": "2020-11-03 14:50:26"
 }
 
 /*
@@ -35,12 +35,12 @@
 
 
 function detectWeb(doc, url) {
-    if (url.match(/\/issue\/view\//))
-        return "multiple";
-    else if (url.match(/\/article\/view\//)) {
-        // placeholder, actual type determined by the OJS translator
-        return "journalArticle";
-    }
+	if (url.match(/\/issue\/view\//))
+		return "multiple";
+	else if (url.match(/\/article\/view\//)) {
+		// placeholder, actual type determined by the OJS translator
+		return "journalArticle";
+	}
 }
 
 function getSearchResults(doc) {
@@ -58,29 +58,29 @@ function getSearchResults(doc) {
 }
 
 function postProcess(doc, item) {
-    var authors = ZU.xpath(doc, '//div[@class="authors"]//strong')
-    if (item.creators.length < authors.length)
-        item.creators = authors.map(i => ZU.cleanAuthor(i.textContent.trim(), 'author'));
+	var authors = ZU.xpath(doc, '//div[@class="authors"]//strong')
+	if (item.creators.length < authors.length)
+		item.creators = authors.map(i => ZU.cleanAuthor(i.textContent.trim(), 'author'));
 
-    if (!item.abstractNote)
-        item.abstractNote = ZU.xpathText(doc, '//div[@class="article-abstract"]');
-
-    item.journalAbbreviation = "JEAC"
+	if (!item.abstractNote)
+		item.abstractNote = ZU.xpathText(doc, '//div[@class="article-abstract"]');
+	if (item.title.match(/^rezension\s?zu:?|review\s?of:?/i)) item.tags.push("RezensionstagPica");
+	item.journalAbbreviation = "JEAC"
 }
 
 function invokeOJSTranslator(doc, url) {
-    var translator = Zotero.loadTranslator("web");
-    translator.setTranslator("99b62ba4-065c-4e83-a5c0-d8cc0c75d388");
-    translator.setDocument(doc);
-    translator.setHandler("itemDone", function (t, i) {
-        postProcess(doc, i);
-        i.complete();
-    });
-    translator.translate();
+	var translator = Zotero.loadTranslator("web");
+	translator.setTranslator("99b62ba4-065c-4e83-a5c0-d8cc0c75d388");
+	translator.setDocument(doc);
+	translator.setHandler("itemDone", function (t, i) {
+		postProcess(doc, i);
+		i.complete();
+	});
+	translator.translate();
 }
 
 function doWeb(doc, url) {
-    if (detectWeb(doc, url) === "multiple") {
+	if (detectWeb(doc, url) === "multiple") {
 		Zotero.selectItems(getSearchResults(doc), function (items) {
 			if (!items) {
 				return true;
@@ -91,6 +91,86 @@ function doWeb(doc, url) {
 			}
 			ZU.processDocuments(articles, invokeOJSTranslator);
 		});
-    } else
-        invokeOJSTranslator(doc, url);
+	} else
+		invokeOJSTranslator(doc, url);
 }
+/** BEGIN TEST CASES **/
+var testCases = [
+	{
+		"type": "web",
+		"url": "https://jeac.de/ojs/index.php/jeac/article/view/296",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Review of: Susan Wessel, On Compassion, Healing, Suffering, and the Purpose of the Emotional Life (Reading Augustine series)",
+				"creators": [
+					{
+						"firstName": "Adam",
+						"lastName": "Trettel",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020/10/31",
+				"DOI": "10.25784/jeac.v2i0.296",
+				"ISSN": "2627-6062",
+				"journalAbbreviation": "JEAC",
+				"language": "en",
+				"libraryCatalog": "jeac.de",
+				"pages": "84-85",
+				"publicationTitle": "Journal of Ethics in Antiquity and Christianity",
+				"rights": "Copyright (c) 2020 Journal of Ethics in Antiquity and Christianity",
+				"shortTitle": "Review of",
+				"url": "https://jeac.de/ojs/index.php/jeac/article/view/296",
+				"volume": "2",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Augustine"
+					},
+					{
+						"tag": "Emotionen"
+					},
+					{
+						"tag": "Ethik"
+					},
+					{
+						"tag": "Ethik in Antike und Christentum"
+					},
+					{
+						"tag": "Ethik und Emotionen"
+					},
+					{
+						"tag": "Freude"
+					},
+					{
+						"tag": "Leiden"
+					},
+					{
+						"tag": "Mitleid"
+					},
+					{
+						"tag": "RezensionstagPica"
+					},
+					{
+						"tag": "Stoizismus"
+					},
+					{
+						"tag": "Susan Wessel"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	}
+]
+/** END TEST CASES **/
