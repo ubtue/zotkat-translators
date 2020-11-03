@@ -5,7 +5,7 @@
 	"target": "https?://periodicos\\.pucminas\\.br/index\\.php/horizonte/issue|article/view",
 	"minVersion": "3.0",
 	"maxVersion": "",
-	"priority": 70,
+	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
