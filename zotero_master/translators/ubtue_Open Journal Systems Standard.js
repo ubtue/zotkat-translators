@@ -1,6 +1,6 @@
 {
 	"translatorID": "a5d5ca83-b975-4abe-86c9-d956d7b9c8fa",
-	"label": "Open Journal Systems Standard",
+	"label": "ubtue_Open Journal Systems Standard",
 	"creator": "Timotheus Kim",
 	"target": "/(article|issue)/(view)?",
 	"minVersion": "3.0",
@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-26 11:08:40"
+	"lastUpdated": "2020-11-04 17:35:40"
 }
 
 /*
