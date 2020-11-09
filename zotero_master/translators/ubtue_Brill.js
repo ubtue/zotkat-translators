@@ -45,7 +45,7 @@ function detectWeb(doc, url) {
 function getSearchResults(doc) {
 	let items = {};
     let found = false;
-    let links = ZU.xpath(doc, '//a[contains(@class, "c-Typography--title")]');
+	let links = ZU.xpath(doc, '//a[contains(@class, "c-Typography--title") | //*[contains(concat( " ", @class, " " ), concat( " ", "label", " " ))]');Z.debug(links)
 	let text = ZU.xpath(doc, '//a[contains(@class, "c-Typography--title")]/span')
 	for (let i = 0; i < links.length; ++i) {
 		let href = links[i].href;

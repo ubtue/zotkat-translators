@@ -9,14 +9,14 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-26 16:19:58"
+	"lastUpdated": "2020-11-09 14:43:29"
 }
 
 /*
 	***** BEGIN LICENSE BLOCK *****
 
 	Copyright © 2016 Sebastian Karcher
-
+	Modiefied 2020 Timotheus Kim
 	This file is part of Zotero.
 
 	Zotero is free software: you can redistribute it and/or modify
@@ -108,7 +108,7 @@ function scrape(doc, url) {
 		if (abstract) {
 			item.abstractNote = abstract.replace(/^\s*Abstract/, "").replace(/show (less|more)$/, "").replace(/,\s*$/, "").replace(/,\sAbstract:?,?,?/, "").trim();
 		}
-		var url = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "view_citation", " " ))]//a'); Z.debug(url)
+		var url = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "view_citation", " " ))]//a'); //Z.debug(url)
 		item.URL = url.href;
 		
 		if (tags) {
@@ -375,6 +375,55 @@ var testCases = [
 					}
 				],
 				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://muse.jhu.edu/article/764665",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Shir Ha-Elohim: A Prolegomenon to Biblical Aesthetics",
+				"creators": [
+					{
+						"firstName": "Luke",
+						"lastName": "Ferretter",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020",
+				"abstractNote": "This article discusses the thought of a series of biblical writers on human art. I analyze the account of the tabernacle by the Priestly writer of the Pentateuch; the stories about David as a poet and musician in the Deuteronomistic History; and the Chronicler’s account of the poetry, song, music, and dance appointed by David for the Jerusalem Temple. I argue that the biblical writers have a high view of art, thinking of it as a central part of covenant life.",
+				"issue": "3",
+				"language": "en",
+				"libraryCatalog": "Project MUSE",
+				"shortTitle": "Shir Ha-Elohim",
+				"url": "https://muse.jhu.edu/article/764665",
+				"volume": "69",
+				"attachments": [
+					{
+						"title": "Snapshot"
+					}
+				],
+				"tags": [
+					{
+						"tag": " Chronicles"
+					},
+					{
+						"tag": " David"
+					},
+					{
+						"tag": " aesthetics"
+					},
+					{
+						"tag": " tabernacle"
+					},
+					{
+						"tag": "Bible"
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
