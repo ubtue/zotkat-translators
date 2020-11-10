@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-11-09 14:43:29"
+	"lastUpdated": "2020-11-10 08:20:27"
 }
 
 /*
@@ -34,6 +34,10 @@
 
 	***** END LICENSE BLOCK *****
 */
+// SAGE uses Atypon, but as of now this is too distinct from any existing Atypon sites to make sense in the same translator.
+
+// attr()/text() v2
+function attr(docOrElem,selector,attr,index){var elem=index?docOrElem.querySelectorAll(selector).item(index):docOrElem.querySelector(selector);return elem?elem.getAttribute(attr):null;}function text(docOrElem,selector,index){var elem=index?docOrElem.querySelectorAll(selector).item(index):docOrElem.querySelector(selector);return elem?elem.textContent:null;}
 
 function detectWeb(doc, url) {
 	if (url.includes('/article/')) {
@@ -110,6 +114,11 @@ function scrape(doc, url) {
 		}
 		var url = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "view_citation", " " ))]//a'); //Z.debug(url)
 		item.URL = url.href;
+		
+		var issn = doc.querySelectorAll('#info_wrap')[0].innerText.split(/issn/i)[1].match(/\d{4}-\d{4}/); Z.debug(issn)
+		item.ISSN = issn;
+		var pages = doc.querySelectorAll('#info_wrap')[0].innerText.split(/pages/i)[1].match(/\d+-\d+/);Z.debug(pages)
+		item.pages = pages;
 		
 		if (tags) {
 			item.tags = tags.split(",");
@@ -395,10 +404,12 @@ var testCases = [
 					}
 				],
 				"date": "2020",
+				"ISSN": "2056-5666",
 				"abstractNote": "This article discusses the thought of a series of biblical writers on human art. I analyze the account of the tabernacle by the Priestly writer of the Pentateuch; the stories about David as a poet and musician in the Deuteronomistic History; and the Chronicler’s account of the poetry, song, music, and dance appointed by David for the Jerusalem Temple. I argue that the biblical writers have a high view of art, thinking of it as a central part of covenant life.",
 				"issue": "3",
 				"language": "en",
 				"libraryCatalog": "Project MUSE",
+				"pages": "339-357",
 				"shortTitle": "Shir Ha-Elohim",
 				"url": "https://muse.jhu.edu/article/764665",
 				"volume": "69",
