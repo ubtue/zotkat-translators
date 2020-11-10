@@ -157,6 +157,7 @@ function scrape(doc, url) {
 		'ET-Studies' : '2033-4273',
 		'Revue Théologique de Louvain' : '1783-8401',
 		'Louvain Studies' : '1783-161X',
+		'Tijdschrift voor Theologie' : '2565-7348',
 	}
 	item.ISSN = publicationTitleToISSN[item.publicationTitle];
 	item.attachments.push({
