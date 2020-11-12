@@ -2,14 +2,14 @@
 	"translatorID": "4ccf849b-f9e9-4cec-9bae-7c10aa4dea53",
 	"label": "ubtue_University of Toronto Press",
 	"creator": "Madeesh Kannan",
-	"target": "^https?://(www\\.)?utpjournals\\.press/(doi)|(toc)/",
+	"target": "^https?://(www\\.)?utpjournals\\.press/(doi|toc)/",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 90,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-11-12 14:03:17"
+	"lastUpdated": "2020-11-12 15:32:06"
 }
 
 /*
@@ -32,7 +32,6 @@
 
 	***** END LICENSE BLOCK *****
 */
-
 
 function detectWeb(doc, url) {
 	if (url.match(/\/toc\//))
@@ -76,7 +75,16 @@ function postProcess(doc, item) {
 	var keywords = ZU.xpath(doc, '//kwd-group//a');
 	if (keywords)
 		item.tags = keywords.map(function(x) { return x.textContent.trim(); })
-
+	
+	if (!item.DOI) item.DOI = ZU.xpathText(doc, '//meta[@name="dc.Identifier" and @scheme="doi"]/@content');
+	
+	// add mapping if issn is missing on website
+	var publicationTitleToIssn = {
+		'The Journal of Religion and Popular Culture' : '1703-289X',
+		
+	}
+	var mapTitleIssn = ZU.xpathText(doc, '//meta[@name="citation_journal_title"]/@content');
+	item.ISSN  = publicationTitleToIssn[mapTitleIssn];
 	item.complete();
 }
 
@@ -183,6 +191,7 @@ var testCases = [
 				],
 				"date": "2019-12-26",
 				"DOI": "10.3138/jrpc.2017-0034",
+				"ISSN": "1703-289X",
 				"abstractNote": "Mithya is living myth. Myth is an absence of mithya. The difference between the modern individual who expressly chooses to believe in or look for myth and aboriginal cultures still living in myth is the difference between myth and mithya. Hindu mythology is mithya and therefore remaking myth in Indian fiction is often conforming and seldom deviant. But lately Indian popular fiction has produced mythopoeic versions of its mithya. Amish Tripathi’s Shiva Trilogy is an example of this trend. Tripathi in his series demythologizes and remythologizes Lord Shiva into a revolutionary tribal chief of the Indus Valley Civilization who was elevated to divinity over time. Such a euhemeristic deliverance transcribes a polytheistic deity as apotheosis. This mythopoeic version, although unorthodox, is produced and consumed in popular fiction. Such popular production and consumption of an alternate mythopoeia in spite of an extant mithya predicates a shift in mithya.",
 				"archiveLocation": "world",
 				"issue": "3",
@@ -214,6 +223,50 @@ var testCases = [
 						"tag": "mythopoeia"
 					}
 				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.utpjournals.press/toc/jrpc/31/3",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://www.utpjournals.press/doi/full/10.3138/jrpc.2017-0068",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "A Charlie Brown Religion: Exploring the Spiritual Life and Work of Charles M. Schulz",
+				"creators": [
+					{
+						"firstName": "John W.",
+						"lastName": "Auxier",
+						"creatorType": "author"
+					}
+				],
+				"date": "2019-12-26",
+				"DOI": "10.3138/jrpc.2017-0068",
+				"ISSN": "1703-289X",
+				"archiveLocation": "world",
+				"issue": "3",
+				"language": "en",
+				"libraryCatalog": "www.utpjournals.press",
+				"pages": "250-251",
+				"publicationTitle": "The Journal of Religion and Popular Culture",
+				"rights": "© University of Toronto Press",
+				"shortTitle": "A Charlie Brown Religion",
+				"url": "https://www.utpjournals.press/doi/abs/10.3138/jrpc.2017-0068",
+				"volume": "31",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
 				"notes": [],
 				"seeAlso": []
 			}
