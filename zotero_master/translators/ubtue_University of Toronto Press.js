@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-11-12 15:32:06"
+	"lastUpdated": "2020-11-13 21:14:20"
 }
 
 /*
@@ -68,24 +68,29 @@ function postProcess(doc, item) {
 	if (!item.pages && (match = page.match(/^pp\.\s(\d+-\d+)/)))
 		item.pages = match[1];
 
-	var abstract = ZU.xpathText(doc, '//div[contains(@class, "abstractInFull")]//p');
+	let abstract = ZU.xpathText(doc, '//div[contains(@class, "abstractInFull")]//p');
 	if (!item.abstractNote || item.abstractNote.length < abstract.length)
 		item.abstractNote = abstract;
 
-	var keywords = ZU.xpath(doc, '//kwd-group//a');
+	let keywords = ZU.xpath(doc, '//kwd-group//a');
 	if (keywords)
 		item.tags = keywords.map(function(x) { return x.textContent.trim(); })
 	
 	if (!item.DOI) item.DOI = ZU.xpathText(doc, '//meta[@name="dc.Identifier" and @scheme="doi"]/@content');
-	
-	// add mapping if issn is missing on website
-	var publicationTitleToIssn = {
-		'The Journal of Religion and Popular Culture' : '1703-289X',
-		
-	}
-	var mapTitleIssn = ZU.xpathText(doc, '//meta[@name="citation_journal_title"]/@content');
-	item.ISSN  = publicationTitleToIssn[mapTitleIssn];
+
+	let publicationTitle = ZU.xpathText(doc, '//meta[@name="citation_journal_title"]/@content');Z.debug(publicationTitle)
+	item.ISSN  = mapTitleIssn(publicationTitle);Z.debug(item.ISSN)
 	item.complete();
+}
+
+function mapTitleIssn(OutputFromPubicationTitle) {
+	// add mapping if issn is missing on website
+	let publicationTitleToIssn = {
+	'The Journal of Religion and Popular Culture' : '1703-289X',
+	'Toronto Journal of Theology' : '1918-6371',
+	}
+	issn = publicationTitleToIssn[OutputFromPubicationTitle];
+	return issn;
 }
 
 function invokeEmbeddedMetadataTranslator(doc, url) {
@@ -131,6 +136,7 @@ var testCases = [
 				],
 				"date": "2020-07-02",
 				"DOI": "10.3138/tjt-2020-0003",
+				"ISSN": "1918-6371",
 				"abstractNote": "Quantum mechanics has recently indicated that temporal order is not always fixed, a finding that has far-reaching philosophical and theological implications. The phenomena, termed “indefinite causal order,” shows that events can be in a superposition with regard to their order. In the experimental setting with which this article is concerned, two events, A and B, were shown to be in the ordering relations “A before B” and “B before A” at the same time. This article introduces an ongoing project that seeks to make sense of this result, with a particular focus on the methodology by which this research will be undertaken. Specific research questions, particularly regarding what indefinite causal order might mean for the metaphysics of time and the doctrine of salvation, are introduced. The collaborative approach detailed brings together the disciplinary skills of a working scientist and a working theologian. What is offered is a collaborative methodology for interaction between science and religion that is more than the sum of its parts. Alister McGrath’s idea of multiple rationalities is employed as an epistemological framework within which this research takes place. Within an epistemologically pluralistic model, collaborative efforts are not only encouraged but necessary. Complex reality requires an equally complex, usually interdisciplinary, explanation. I argue that such dialogue is both theologically justified and culturally valuable and indicates the direction in which this research will be taken.",
 				"archiveLocation": "world",
 				"issue": "1",
@@ -267,6 +273,61 @@ var testCases = [
 					}
 				],
 				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://utpjournals.press/doi/full/10.3138/tjt-2020-0085",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Between Impact Research and Rootedness in the Community",
+				"creators": [
+					{
+						"firstName": "Gilles",
+						"lastName": "Routhier",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020-07-21",
+				"DOI": "10.3138/tjt-2020-0085",
+				"ISSN": "1918-6371",
+				"abstractNote": "The race for high ranking and the search for impact risks are exhausting universities and distracting them from their original vocation. This is all the more true if we are led to eliminate all training that cannot guarantee its usefulness (understood as a contribution to growth and economic development). In this game, theology is immediately eliminated. Conceived as “useless,” it cannot manage to maintain its place in the universities, defined as a place of training for the workforce—unless we come to otherwise define the usefulness of a university discipline. Pope Francis’s proposal, in the introduction to the Apostolic Constitution Veritatis gaudium, not only argues in favour of the usefulness of theology but invites ecclesiastical studies to a radical change of paradigm if they want to play a key role in the development of a new humanism. It is this original proposal that is presented here.",
+				"archiveLocation": "world",
+				"issue": "2",
+				"language": "en",
+				"libraryCatalog": "utpjournals.press",
+				"pages": "125-137",
+				"publicationTitle": "Toronto Journal of Theology",
+				"rights": "Toronto Institute of Theology 2020",
+				"url": "https://utpjournals.press/doi/abs/10.3138/tjt-2020-0085",
+				"volume": "36",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Pope Francis"
+					},
+					{
+						"tag": "Veritatis gaudium"
+					},
+					{
+						"tag": "impact research"
+					},
+					{
+						"tag": "method in theology"
+					},
+					{
+						"tag": "theology"
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
