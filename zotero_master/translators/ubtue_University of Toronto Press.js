@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-11-13 21:14:20"
+	"lastUpdated": "2020-11-13 21:24:34"
 }
 
 /*
@@ -79,7 +79,7 @@ function postProcess(doc, item) {
 	if (!item.DOI) item.DOI = ZU.xpathText(doc, '//meta[@name="dc.Identifier" and @scheme="doi"]/@content');
 
 	let publicationTitle = ZU.xpathText(doc, '//meta[@name="citation_journal_title"]/@content');Z.debug(publicationTitle)
-	item.ISSN  = mapTitleIssn(publicationTitle);Z.debug(item.ISSN)
+	item.ISSN  = mapTitleIssn(publicationTitle); //Z.debug(item.ISSN)
 	item.complete();
 }
 
