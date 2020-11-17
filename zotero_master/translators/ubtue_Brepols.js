@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-09 14:23:16"
+	"lastUpdated": "2020-11-17 13:24:39"
 }
 
 /*
@@ -85,10 +85,10 @@ function invokeEMTranslator(doc, url) {
 			if (abstractsEntry) {
 				var abstractsOneTwoThree = abstractsEntry.split('\n\n'); //Z.debug(abstractsOneTwo)
 				if (abstractsOneTwoThree[3]) {
-					i.abstractNote = abstractsOneTwoThree[1] + '/n4207 ' + abstractsOneTwoThree[2] + '/n4207 ' + abstractsOneTwoThree[3];
+					i.abstractNote = abstractsOneTwoThree[1] + ' /n4207 ' + abstractsOneTwoThree[2] + ' /n4207 ' + abstractsOneTwoThree[3];
 				}
 				else if (abstractsOneTwoThree[2]) {
-					i.abstractNote = abstractsOneTwoThree[1] + '/n4207 ' + abstractsOneTwoThree[2];
+					i.abstractNote = abstractsOneTwoThree[1] + ' /n4207 ' + abstractsOneTwoThree[2];
 				}
 				else if (!abstractsOneTwoThree[2]) {
 					i.abstractNote = abstractsOneTwoThree[1];
@@ -116,3 +116,46 @@ function invokeEMTranslator(doc, url) {
 	});
 	translator.translate();
 }
+/** BEGIN TEST CASES **/
+var testCases = [
+	{
+		"type": "web",
+		"url": "https://www.brepolsonline.net/doi/abs/10.1484/J.REA.5.122730",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Zu Ambrosius, Explanatio in psalm. 61: Titel, Anfangsworte, ‚Veröffentlichung‘ und Corpus-Bildung",
+				"creators": [
+					{
+						"firstName": "Victoria",
+						"lastName": "Zimmerl-Panagl",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020",
+				"DOI": "10.1484/J.REA.5.122730",
+				"ISSN": "2428-3606",
+				"abstractNote": "Ambrosius, in psalm. 61 gilt als zwölfter und letzter Text seiner Explanatio in psalmos XII. Ihr gewissermaßen zweigeteilter Inhalt – einerseits christologische Psalmenexegese, andererseits Bezugnahmen auf politische Ereignisse – hat in der Überlieferung allerdings auch zu anderen Werkzusammenstellungen geführt. Der vorliegende Beitrag untersucht Probleme und Fragen, die sich im Rahmen der Editionsarbeit dieses Textes stellen. Es ist unklar, ob Ambrosius dem Werk einen Titel gab und ob der Text von Ambrosius selbst ‚veröffentlicht‘ wurde. Der Beitrag untersucht unterschiedliche Werkzusammenstellungen und geht der Frage nach, ob der Mailänder Kanoniker Martinus Corbo Urheber der Verbindung der Explanatio in psalmos XII war und ob ein Codex, den Corbo aus Verona erhielt (Milano, Bibl. Ambr. I 145 inf., s. xii), tatsächlich Vorlage für Corbos Text war. /n4207 Ambrosius’ in psalm. 61 is known as twelfth and last part of his Explanatio in psalmos XII. The twofold content – on the one hand, Christological exegesis, on the other hand, political implications – led, however, also to combinations with other works. This contribution focuses on problems and questions that arise when preparing a new critical edition of the text. It is unclear whether Ambrose gave the work a title and whether the text was ‘published’ by Ambrose himself. The article examines how in psalm. 61 was transmitted and asks if it was Martinus Corbo who was the first to add in psalm. 61 to the Explanatio in psalmos XII and whether a manuscript that Corbo received from Verona (Milano, Bibl. Ambr. I 145 inf., s. xii) could indeed have been the exemplar of Corbo’s text. /n4207 L’In psalm. 61 d’Ambroise est connu comme la douzième et dernière partie de son Explanatio in psalmos XII. Son contenu en deux parties – d’une part, l’exégèse christologique des psaumes, d’autre part, les références aux événements politiques – a également suscité, dans la transmission, des combinaisons avec d’autres œuvres. Cet article examine les problèmes et les questions qui se posent lors de la préparation d’une nouvelle édition critique. Il n’est pas certain que ce soit Ambroise qui ait donné un titre à l’œuvre, ni même qu’il ait « publié » luimême le texte. L’article examine comment In psalm. 61 a été transmis et étudie l’hypothèse selon laquelle ce serait en fait Martinus Corbo qui aurait le premier ajouté In psalm. 61 à l’Explanatio in psalmos XII. En outre, est posée la question de savoir si un manuscrit de Vérone (Milano, Bibl. Ambr. I 145 inf., s. xii) était réellement le modèle de Corbo.",
+				"archiveLocation": "Paris, France",
+				"issue": "1",
+				"language": "de",
+				"libraryCatalog": "www.brepolsonline.net",
+				"pages": "17-52",
+				"publicationTitle": "Revue d'Etudes Augustiniennes et Patristiques",
+				"shortTitle": "Zu Ambrosius, Explanatio in psalm. 61",
+				"url": "https://www.brepolsonline.net/doi/abs/10.1484/J.REA.5.122730",
+				"volume": "66",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	}
+]
+/** END TEST CASES **/
