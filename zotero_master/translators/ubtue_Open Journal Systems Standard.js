@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-11-04 17:35:40"
+	"lastUpdated": "2020-11-18 14:20:39"
 }
 
 /*
@@ -60,10 +60,22 @@ function invokeEMTranslator(doc) {
 		if (i.abstractNote !== undefined) {
 			if (i.abstractNote.match(/No abstract available/)) delete i.abstractNote;
 		}
+		if (i.tags[1] === undefined) delete i.tags[0];
+		let tagsEntry = ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content');
+		if (i.ISSN === "2413-9467" && tagsEntry) {
+			tag = tagsEntry.split(/\s*,\s/);
+			for (let t in tag) {
+				i.tags.push(tag[t].capitalizeFirstLetter()) //alternativ .replace(/^\w/, function($0) { return $0.toUpperCase(); }))
+			}
+		}
 		if (i.tags[0] === "book review") i.tags.push('RezensionstagPica') && delete i.tags[0];
 		i.complete();
 	});
 	translator.translate();
+}
+
+String.prototype.capitalizeFirstLetter = function() {
+	return this.charAt(0).toUpperCase() + this.slice(1);
 }
 
 function doWeb(doc, url) {
@@ -374,6 +386,145 @@ var testCases = [
 					},
 					{
 						"tag": "eco-religious approach"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://ojs.reformedjournals.co.za/stj/article/view/1743",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "The cinematic hidden Christ – His invisible divinity and his visible humanity",
+				"creators": [
+					{
+						"firstName": "Martien E.",
+						"lastName": "Brinkman",
+						"creatorType": "author"
+					}
+				],
+				"date": "2017/12/31",
+				"DOI": "10.17570/stj.2017.v3n2.a13",
+				"ISSN": "2413-9467",
+				"abstractNote": "If we want to reflect upon the impact of the many ‘hidden Christ’-images in modern films at a theologically responsible way, we need to incorporate that reflection into our doctrine of revelation. That will imply that we have to re-open the classical Gospel-Culture discussion. Especially in the United States we can recognize a lot of original approaches to this issue in Reformed circles (Wolterstorff, Dyrness, Begbie, Seidell, etc.). The main question to be put in this article will be: How can we develop criteria to assess the depiction of the divine in these films?",
+				"issue": "2",
+				"journalAbbreviation": "STJ",
+				"language": "en",
+				"libraryCatalog": "ojs.reformedjournals.co.za",
+				"pages": "299–317",
+				"publicationTitle": "STJ | Stellenbosch Theological Journal",
+				"rights": "Copyright (c) 2017 Pieter de Waal Neethling Trust, Stellenbosch",
+				"url": "https://ojs.reformedjournals.co.za/stj/article/view/1743",
+				"volume": "3",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Christology"
+					},
+					{
+						"tag": "Hidden Christ"
+					},
+					{
+						"tag": "Immanence"
+					},
+					{
+						"tag": "Revelation"
+					},
+					{
+						"tag": "Symbol"
+					},
+					{
+						"tag": "Transcendence"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://ojs.reformedjournals.co.za/stj/article/view/1731",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Renewal, Renaissance, Reformation, or Revolution? Guiding concepts for social transformation in South Africa in the light of 16th century ecclesial reform and deform movements in Europe",
+				"creators": [
+					{
+						"firstName": "Ernst M.",
+						"lastName": "Conradie",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Teddy C.",
+						"lastName": "Sakupapa",
+						"creatorType": "author"
+					}
+				],
+				"date": "2017/12/31",
+				"DOI": "10.17570/stj.2017.v3n2.a01",
+				"ISSN": "2413-9467",
+				"abstractNote": "This contribution is based on what may be called a pedagogical experiment in a postgraduate course on the 16th century European Reformations that was offered at the University of the Western Cape in the first semester of 2017. On the basis of a close reading of selected literature on the reformation, this contribution highlights the legacy of 16th century ecclesial movements for Southern Africa. The point of departure is located in the context of a discussion on a range of guiding concepts for social transformation in the contemporary (South) African context. It is argued that the deepest diagnosis of current (South) African discourse may well point to a view that none of the options for a category that may be regarded as more ultimate than justice (as a ‘remedy’) is attractive enough to muster sufficient moral energy without endless further contestations. Without necessarily suggesting what that ultimate maybe, it is suggested that a lack of an appealing notion of what is truly ultimate can undermine any attempts to address inequality (as our diagnosis) in current discourse. This necessarily calls attention to the relationship between the penultimate and the ultimate, and indeed between justification and justice.",
+				"issue": "2",
+				"journalAbbreviation": "STJ",
+				"language": "en",
+				"libraryCatalog": "ojs.reformedjournals.co.za",
+				"pages": "11–40",
+				"publicationTitle": "STJ | Stellenbosch Theological Journal",
+				"rights": "Copyright (c) 2017 Pieter de Waal Neethling Trust, Stellenbosch",
+				"shortTitle": "Renewal, Renaissance, Reformation, or Revolution?",
+				"url": "https://ojs.reformedjournals.co.za/stj/article/view/1731",
+				"volume": "3",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Diagnostics"
+					},
+					{
+						"tag": "Inequality"
+					},
+					{
+						"tag": "Justice"
+					},
+					{
+						"tag": "Justification"
+					},
+					{
+						"tag": "Penultimate"
+					},
+					{
+						"tag": "Reformation"
+					},
+					{
+						"tag": "Sin"
+					},
+					{
+						"tag": "Social transformation"
+					},
+					{
+						"tag": "Ultimate"
 					}
 				],
 				"notes": [],
