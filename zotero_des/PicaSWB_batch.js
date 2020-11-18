@@ -232,7 +232,7 @@ function addLine(itemid, code, value) {
 	value = EscapeNonASCIICharacters(value);
 
     //Zeile zusammensetzen
-    var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace('|s|Book Reviews', '|f|Book Reviews').replace(/\t/g, '');
+    var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\|s\|book\s+reviews?)i', '|f|Book Reviews').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed');
     itemsOutputCache[itemid].push(line);
 }
 
