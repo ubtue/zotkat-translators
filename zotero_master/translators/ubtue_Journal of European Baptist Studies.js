@@ -2,14 +2,14 @@
 	"translatorID": "a97f8c1f-e6f5-46b5-8377-3abc9af1bb3c",
 	"label": "ubtue_Journal of European Baptist Studies",
 	"creator": "Timotheus Kim",
-	"target": "^https?://(ojs2)?\\.uni-tuebingen\\.de/ojs/index\\.php/jebs/",
+	"target": "^https?://jebs\\.eu/ojs",
 	"minVersion": "3.0",
 	"maxVersion": "",
-	"priority": 80,
-	"inRepository": false,
+	"priority": 100,
+	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-01 13:37:30"
+	"lastUpdated": "2020-11-18 15:05:11"
 }
 
 /*
@@ -52,7 +52,7 @@ function invokeEMTranslator(doc) {
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
-		if (i.pages.match(/^\d{1,3}–\d{1,3}-\d{1,3}–\d{1,3}/)) {
+		if (i.pages.match(/^\d+–\d+-\d+–\d+/)) {
 			let firstandlastpages = i.pages.split('–');
 			i.pages = firstandlastpages[0] + '-' + firstandlastpages[2] ; // Z.debug(item.pages)
 		}
@@ -82,37 +82,30 @@ function doWeb(doc, url) {
 var testCases = [
 	{
 		"type": "web",
-		"url": "https://ojs.reformedjournals.co.za/stj/issue/view/70",
-		"items": "multiple"
-	},
-	{
-		"type": "web",
-		"url": "https://ojs.reformedjournals.co.za/stj/article/view/1969",
+		"url": "https://jebs.eu/ojs/index.php/jebs/article/view/265",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "“The message to the people of South Africa” in contemporary context: The question of Palestine and the challenge to the church",
+				"title": "The Relationship between State and Church",
 				"creators": [
 					{
-						"firstName": "Mark",
-						"lastName": "Braverman",
+						"firstName": "Uwe",
+						"lastName": "Swarat",
 						"creatorType": "author"
 					}
 				],
-				"date": "2019",
-				"DOI": "10.17570/stj.2019.v5n3.a01",
-				"ISSN": "2413-9467",
-				"abstractNote": "In September 2018 John de Gruchy presented a paper at the Volmoed Colloquium entitled “Revisiting the Message to the people of South Africa,” in which he asks, “what is the significance of the document for our time?” In this expanded version of the author’s response to de Gruchy, two further questions are pursued: First: how can the churches today meet the challenge of today’s global system of economically and politically-driven inequality driven by a constellation of individuals, corporations, and governments? Second: in his review of church history, de Gruchy focused on the issue of church theology described in the 1985 Kairos South Africa document, in which churches use words that purport to support justice but actually serve to shore up the status quo of discrimination, inequality and racism. How does church theology manifest in the contemporary global context, and what is the remedy? The author proposes that ecumenism can serve as a mobilizing and organizing model for church action, and that active engagement in the issue of Palestine is an entry point for church renewal and for a necessary and fruitful exploration of critical issues in theology and ecclesiology.",
-				"issue": "3",
-				"journalAbbreviation": "STJ",
+				"date": "2020/06/09",
+				"ISSN": "1804-6444",
+				"abstractNote": "Baptists have long stood for freedom of religion and of conscience, and these two are inextricably bound together with the relationship between church and state. This paper examines the following church-state models: the Eastern Church model of the established church; the Roman Catholic model of political theocracy; the theology and praxis of Martin Luther’s doctrine of the two regiments; the Reformed Christocratic mode; the Anabaptist model of strict separation of Christians from public affairs; and finally the Baptist model, which emphasises separation of church and state, but permits Christians to take on civil roles in society. The author concludes by pointing out the shortcomings of the state-church and theocratic models, preferring instead the Baptist model of state-church separation, which also attempts to implement Luther’s doctrine of the two regiments.",
+				"issue": "1",
+				"journalAbbreviation": "1",
 				"language": "en",
-				"libraryCatalog": "ojs.reformedjournals.co.za",
-				"pages": "13-40",
-				"publicationTitle": "STJ | Stellenbosch Theological Journal",
-				"rights": "Copyright (c) 2020 Pieter de Waal Neethling Trust, Stellenbosch",
-				"shortTitle": "“The message to the people of South Africa” in contemporary context",
-				"url": "https://ojs.reformedjournals.co.za/stj/article/view/1969",
-				"volume": "5",
+				"libraryCatalog": "jebs.eu",
+				"pages": "9-29",
+				"publicationTitle": "Journal of European Baptist Studies",
+				"rights": "Copyright (c) 2020 Uwe Swarat",
+				"url": "https://jebs.eu/ojs/index.php/jebs/article/view/265",
+				"volume": "20",
 				"attachments": [
 					{
 						"title": "Full Text PDF",
@@ -123,42 +116,20 @@ var testCases = [
 						"mimeType": "text/html"
 					}
 				],
-				"tags": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "http://www.zwingliana.ch/index.php/zwa/article/view/2516",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Geleitwort",
-				"creators": [
+				"tags": [
 					{
-						"firstName": "Christian",
-						"lastName": "Oesterheld",
-						"creatorType": "author"
+						"tag": "Separation of church and state"
+					},
+					{
+						"tag": "State church"
+					},
+					{
+						"tag": "The doctrine of the two kingdoms"
+					},
+					{
+						"tag": "Theocracy"
 					}
 				],
-				"date": "2018",
-				"ISSN": "0254-4407",
-				"language": "en",
-				"libraryCatalog": "www.zwingliana.ch",
-				"pages": "VII-IX",
-				"publicationTitle": "Zwingliana",
-				"rights": "Authors who are published in this journal agree to the following conditions:  a) The authors retain the copyright and allow the journal to print the first publication in print as well as to make it electronically available at the end of three years.  b) The author may allot distribution of their first version of the article with additional contracts for non-exclusive publications by naming the first publication in this Journal in said publication (i.e. publishing the article in a book or other publications).",
-				"url": "http://www.zwingliana.ch/index.php/zwa/article/view/2516",
-				"volume": "45",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [],
 				"notes": [],
 				"seeAlso": []
 			}
