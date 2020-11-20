@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-11-20 11:04:46"
+	"lastUpdated": "2020-11-20 15:28:55"
 }
 
 /*
@@ -86,18 +86,18 @@ function scrape(doc, text) {
 	var titleTrenner = str.split(/in\s?revue\s?des\s?questions|tome/i);
 	//Z.debug(titleTrenner)
 	//Element-Array nach erstem Komma als item.title ausgegeben
-	var titleEntry = titleTrenner;//Z.debug(titleEntry)
-	item.title = titleEntry[0].trim().replace(/^[^,]*,/, '').replace(/,$/, '').replace(/^[^,]*\),/, '');//zweite/r Verfasser aus dem Titel entfernen.
-
+	let titleEntry = titleTrenner;
+	let title = titleEntry[0].trim().replace(/^[^,]*,/, '').replace(/,$/, '').replace(/^[^,]*\),/, '');//zweite/r Verfasser aus dem Titel entfernen.
+	item.title = title;
+	if (title.match(/compte\s?rendu/i)) item.tags.push('RezensionstagPica');
 	//Element-Array mit "(...)" als item.creators ausgegeben
 	for (let m in authorEntry) {
-		let authors = authorEntry[m].trim();//Z.debug(authors)
+		let authors = authorEntry[m].trim();
 		if (authors.match(/[a-zA-Z\u00C0-\u017F]*\s\([a-zA-Z\u00C0-\u017F].*\)/) && authors.length < 25) {
 			authors = authors.replace(/\(/, ',').replace(/\),?/, ';');//"(" durch "," ersetzen für die Trennung von Nach- und Vornamen. Bei meheren Verfasser ")" als Trenner ";" für die Funktion ZU.cleanAuthor verwenden.
 			item.creators.push(ZU.cleanAuthor(authors.replace(';', ''), "author", true));
 		}
 	}
-
 	let cleanMetadata = trenner[0].replace(/(\.[\w].*)/, '').replace(/\.?$/, '');
 	let pages = cleanMetadata.split('p.');
 	item.pages = pages[1];
