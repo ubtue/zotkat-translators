@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-01 09:03:29"
+	"lastUpdated": "2020-11-20 10:49:22"
 }
 
 /*
@@ -48,7 +48,7 @@ function getSearchResults(doc, checkOnly) {
 	var rows = doc.querySelectorAll('.w3-padding-32 div:nth-child(1)'); //Z.debug(rows)
 	for (let i=0; i<rows.length; i++) {
 		let href = i+1;
-		var title = rows[i].innerText.match(/.*n°.*/) + rows[i].innerHTML.match(/data-show-pub="([0-9X]+)"/);
+		var title = rows[i].innerText.match(/.*n°.*/) + rows[i].innerHTML.match(/data-show-pub=.*/);//Z.debug(title)
 		if (!href || !title) continue;
 		if (checkOnly) return true;
 		found = true;
@@ -73,60 +73,48 @@ function doWeb(doc, url) {
 }
 
 function scrape(doc, text) {
+	
 	//Z.debug(text)
 	var item = new Zotero.Item('journalArticle');
-	//wegen type error split ist not a function
+	//wegen type error "split is not a function"
 	var str = text.toString(); //Z.debug(str)
 	// trenner trennt zwischen Abstract und bibliographischen Angaben
-	var trenner = str.split("Résumé"); //Z.debug(trenner)
+	var trenner = str.split("Résumé");
 	// metadata mit Komma getrennt für bibliographische Angaben
-	var metadata = trenner[0].split(','); //#Z.debug(metadata)
-	if (metadata[1].match(/[a-zA-Z\u00C0-\u017F]*\s\([a-zA-Z\u00C0-\u017F]*\)/) && metadata[1].length < 30) {
-		item.title = metadata[2];
-	} else if (metadata[1].match(/[a-zA-Z\u00C0-\u017F]*\s\([a-zA-Z\u00C0-\u017F]*\)/) && metadata[1].length > 30 && metadata[3].match(/in Revue des Questions Scientifiques/)){
-		item.title = metadata[1] + ':' + metadata[2];
-	} else {
-		item.title = metadata[1];
+	var authorEntry = trenner[0].split(',');
+	// Titelbereich trennen mit "in Revue des Questions" oder "Tome"
+	var titleTrenner = str.split(/in\s?revue\s?des\s?questions|tome/i);
+	//Z.debug(titleTrenner)
+	//Element-Array nach erstem Komma als item.title ausgegeben
+	var titleEntry = titleTrenner;//Z.debug(titleEntry)
+	item.title = titleEntry[0].trim().replace(/^[^,]*,/, '').replace(/,$/, '').replace(/^[^,]*\),/, '');//zweite/r Verfasser aus dem Titel entfernen.
+
+	//Element-Array mit "(...)" als item.creators ausgegeben
+	for (let m in authorEntry) {
+		let authors = authorEntry[m].trim();//Z.debug(authors)
+		if (authors.match(/[a-zA-Z\u00C0-\u017F]*\s\([a-zA-Z\u00C0-\u017F].*\)/) && authors.length < 25) {
+			authors = authors.replace(/\(/, ',').replace(/\),?/, ';');//"(" durch "," ersetzen für die Trennung von Nach- und Vornamen. Bei meheren Verfasser ")" als Trenner ";" für die Funktion ZU.cleanAuthor verwenden.
+			item.creators.push(ZU.cleanAuthor(authors.replace(';', ''), "author", true));
+		}
 	}
-	var firstAuthor = metadata[0];
-	var secondAuthor = metadata[1];
-	if (secondAuthor.match(/[a-zA-Z\u00C0-\u017F]*\s\([a-zA-Z\u00C0-\u017F]*\)/) && secondAuthor.length < 25) {
-		var creators = metadata[0].replace(/\(/, ',').replace(/\),?/, ';') + metadata[1].replace(',', '/').replace(/\(/, ',').replace(/\)/, '');
-	} else {
-		creators = metadata[0].replace(/\(/, ',').replace(/\)/, '');
-	}
-	if (creators) creators = creators.split(';'); //Z.debug(creators)
-	for (var i=0; i<creators.length; i++) {
-		item.creators.push(ZU.cleanAuthor(creators[i], "author", true));
-		item.creators[i].lastName = ZU.capitalizeTitle(item.creators[i].lastName , true);
-	}
-	var cleanMetadata = trenner[0].replace(/(\.[\w].*)/, '').replace(/\.?$/, '');
-	var pages = cleanMetadata.split('n°5, p.'); //Z.debug(pages)
-	item.pages = pages[1];//Z.debug(trenner[1])
-	if (trenner[1]) item.abstractNote = trenner[1].replace('Summary', ' ').replace('Détails Auteur(s)PrixGratuitdata-show-pub=', '').replace(/\"\d+\",\d+/, '');
+
+	let cleanMetadata = trenner[0].replace(/(\.[\w].*)/, '').replace(/\.?$/, '');
+	let pages = cleanMetadata.split('p.');
+	item.pages = pages[1];
+	if (trenner[1]) item.abstractNote = trenner[1].replace('Summary', ' ').replace('Détails Auteur(s)PrixGratuitdata-show-pub=', '').replace(/\"\d+\",\d+/, '').replace(/"\d+">$/, '');
 	item.volume = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "w3-section", " " )) and (((count(preceding-sibling::*) + 1) = 2) and parent::*)]//*[contains(concat( " ", @class, " " ), concat( " ", "w3-xlarge", " " ))]');
 	item.date = ZU.xpathText(doc, '//*[(((count(preceding-sibling::*) + 1) = 1) and parent::*)]//*[contains(concat( " ", @class, " " ), concat( " ", "w3-xlarge", " " ))]');
 	item.issue = ZU.xpathText(doc,'//*[contains(concat( " ", @class, " " ), concat( " ", "m2", " " )) and (((count(preceding-sibling::*) + 1) = 3) and parent::*)]//*[contains(concat( " ", @class, " " ), concat( " ", "w3-xlarge", " " ))]');
 	item.ISSN = "0035-2160";
-	var url = ZU.xpath(doc, '//*[(@id = "btn-show-num-pdf")] | //*[(@id = "sidebar")]');//Z.debug(url)
-	var markerArray = str.split(',');//Z.debug(markerArray)
-	var marker = markerArray[markerArray.length - 1];
+	let url = ZU.xpath(doc, '//*[(@id = "btn-show-num-pdf")] | //*[(@id = "sidebar")]');
+	let markerArray = str.split(',');
+	let marker = markerArray[markerArray.length - 1].match(/"\d+"/);
 	if (url) item.url = url[0].baseURI + '&publication=' + marker;
-	item.language = 'fr';
+	item.url = item.url.replace(/"/g, '');
 	item.complete();
 	
 }/** BEGIN TEST CASES **/
 var testCases = [
-	{
-		"type": "web",
-		"url": "https://www.rqs.be/app/views/revue.php?id=544",
-		"items": "multiple"
-	},
-	{
-		"type": "web",
-		"url": "https://www.rqs.be/app/views/revue.php?id=544",
-		"items": "multiple"
-	},
 	{
 		"type": "web",
 		"url": "https://www.rqs.be/app/views/revue.php?id=544",

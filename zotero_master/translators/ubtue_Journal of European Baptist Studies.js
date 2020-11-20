@@ -2,14 +2,14 @@
 	"translatorID": "a97f8c1f-e6f5-46b5-8377-3abc9af1bb3c",
 	"label": "ubtue_Journal of European Baptist Studies",
 	"creator": "Timotheus Kim",
-	"target": "^https?://jebs\\.eu/ojs",
+	"target": "^https?://(ojs2)?\\.uni-tuebingen\\.de/ojs/index\\.php/jebs/",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-11-18 15:05:11"
+	"lastUpdated": "2020-11-18 15:29:29"
 }
 
 /*
@@ -30,6 +30,7 @@
 
 function detectWeb(doc, url) {
 	if (url.match(/\/issue\/view/) && getSearchResults(doc)) return "multiple";
+	 else if(url.includes('/article/')) return "journalArticle";
 	else return false
 }
 
