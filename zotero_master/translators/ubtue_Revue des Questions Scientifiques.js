@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-11-20 10:49:22"
+	"lastUpdated": "2020-11-20 11:04:46"
 }
 
 /*
@@ -79,7 +79,7 @@ function scrape(doc, text) {
 	//wegen type error "split is not a function"
 	var str = text.toString(); //Z.debug(str)
 	// trenner trennt zwischen Abstract und bibliographischen Angaben
-	var trenner = str.split("Résumé");
+	var trenner = str.split('Résumé');
 	// metadata mit Komma getrennt für bibliographische Angaben
 	var authorEntry = trenner[0].split(',');
 	// Titelbereich trennen mit "in Revue des Questions" oder "Tome"
@@ -101,7 +101,7 @@ function scrape(doc, text) {
 	let cleanMetadata = trenner[0].replace(/(\.[\w].*)/, '').replace(/\.?$/, '');
 	let pages = cleanMetadata.split('p.');
 	item.pages = pages[1];
-	if (trenner[1]) item.abstractNote = trenner[1].replace('Summary', ' ').replace('Détails Auteur(s)PrixGratuitdata-show-pub=', '').replace(/\"\d+\",\d+/, '').replace(/"\d+">$/, '');
+	if (trenner[1] && trenner[1] !== 'null') item.abstractNote = trenner[1].replace('Summary', '\\n4207').replace('Détails Auteur(s)PrixGratuitdata-show-pub=', '').replace(/\"\d+\",\d+/, '').replace(/"\d+">$/, '');
 	item.volume = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "w3-section", " " )) and (((count(preceding-sibling::*) + 1) = 2) and parent::*)]//*[contains(concat( " ", @class, " " ), concat( " ", "w3-xlarge", " " ))]');
 	item.date = ZU.xpathText(doc, '//*[(((count(preceding-sibling::*) + 1) = 1) and parent::*)]//*[contains(concat( " ", @class, " " ), concat( " ", "w3-xlarge", " " ))]');
 	item.issue = ZU.xpathText(doc,'//*[contains(concat( " ", @class, " " ), concat( " ", "m2", " " )) and (((count(preceding-sibling::*) + 1) = 3) and parent::*)]//*[contains(concat( " ", @class, " " ), concat( " ", "w3-xlarge", " " ))]');
