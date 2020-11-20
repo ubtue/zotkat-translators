@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-11-20 16:13:27"
+	"lastUpdated": "2020-11-20 16:54:55"
 }
 
 /*
@@ -98,27 +98,31 @@ function scrape(doc, url) {
 	// Embedded Metadata
 	translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48');
 	translator.setHandler('itemDone', function (obj, item) {
-		let stringAuthors = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "contrib", " " ))]');//Z.debug(authors)
-		let authors = stringAuthors.replace(/\d+/g, '').replace(/\(bio\)/, '').split('and');
+		var stringAuthors = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "contrib", " " ))]');//Z.debug(stringAuthors)
+		if (stringAuthors === null) {
+			stringAuthors = ' ';
+			} else {
+			stringAuthors = stringAuthors.replace(/\d+/g, '').replace(/\(bio\)/, '').split('and');
+		}
 		if (item.creators.length===0) {
-			for (let i = 0; i < authors.length; i++) {
-				item.creators.push(ZU.cleanAuthor(authors[i], "author"));
+			for (let i = 0; i < stringAuthors.length; i++) {
+				item.creators.push(ZU.cleanAuthor(stringAuthors[i], "author"));
 			}
 		}
 		let volumeIssueDateEntry = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "designation", " " ))]');//Z.debug(volumeIssueDateEntry)
 		if (!item.volume) item.volume = volumeIssueDateEntry.split(',')[0].split('Volume')[1];
 		if (!item.issue) item.issue = volumeIssueDateEntry.split(',')[1].split('Number')[1];
-		if (!item.date) item.date = volumeIssueDateEntry.split(',')[2].split(' ')[2];//Z.debug(item.date)
+		if (!item.date) item.date = volumeIssueDateEntry.split(',')[1].split(' ')[2];//Z.debug(item.date)
 		if (abstract) {
 			item.abstractNote = abstract.replace(/^\s*Abstract/, "").replace(/show (less|more)$/, "").replace(/,\s*$/, "").replace(/,\sAbstract:?,?,?/, "").trim();
 		}
 		let url = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "view_citation", " " ))]//a');//Z.debug(url)
 		item.URL = url.href;
 		
-		let issn = doc.querySelectorAll('#info_wrap')[0].innerText.split(/issn/i)[1].match(/\d{4}-\d{4}/);//Z.debug(issn)
-		item.ISSN = issn;
+		var issn = doc.querySelectorAll('#info_wrap')[0].innerText.split(/issn/i)[1].match(/\d{4}-\d{4}/);//Z.debug(issn)
+		item.ISSN = issn.toString();
 		let pages = doc.querySelectorAll('#info_wrap')[0].innerText.split(/pages/i)[1].match(/\d+-\d+/);//Z.debug(pages)
-		item.pages = pages;
+		item.pages = pages.toString();
 		
 		if (tags) {
 			item.tags = tags.split(",");
@@ -415,7 +419,8 @@ var testCases = [
 				"volume": "69",
 				"attachments": [
 					{
-						"title": "Snapshot"
+						"title": "Snapshot",
+						"mimeType": "text/html"
 					}
 				],
 				"tags": [
@@ -467,6 +472,35 @@ var testCases = [
 				"pages": "11-17",
 				"shortTitle": "The Bioethics of Translation",
 				"url": "https://muse.jhu.edu/article/766298",
+				"volume": "131",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://muse.jhu.edu/article/766311",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Dissertation Abstracts: Contents",
+				"creators": [],
+				"date": "2020",
+				"ISSN": "2161-8534",
+				"issue": "3",
+				"language": "en",
+				"libraryCatalog": "Project MUSE",
+				"pages": "111-116",
+				"shortTitle": "Dissertation Abstracts",
+				"url": "https://muse.jhu.edu/article/766311",
 				"volume": "131",
 				"attachments": [
 					{
