@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-11-20 17:02:01"
+	"lastUpdated": "2020-11-20 17:20:14"
 }
 
 /*
@@ -98,11 +98,11 @@ function scrape(doc, url) {
 	// Embedded Metadata
 	translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48');
 	translator.setHandler('itemDone', function (obj, item) {
-		var stringAuthors = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "contrib", " " ))]');//Z.debug(stringAuthors)
+		var stringAuthors = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "contrib", " " ))]');Z.debug(stringAuthors)
 		if (stringAuthors === null) {
 			stringAuthors = ' ';
 			} else {
-			stringAuthors = stringAuthors.replace(/O\.P|M\.S\.B\.T/, '').replace(/\d+/g, '').replace(/\(bio\)/, '').split('and');
+			stringAuthors = stringAuthors.replace(/O\.P|M\.S\.B\.T/, '').replace(/\d+/g, '').replace(/\(bio\)/, '').split(/\sand/);Z.debug(stringAuthors)
 		}
 		if (item.creators.length===0) {
 			for (let i = 0; i < stringAuthors.length; i++) {
@@ -581,6 +581,41 @@ var testCases = [
 				"pages": "493-519",
 				"shortTitle": "Feminist Christology",
 				"url": "https://muse.jhu.edu/article/761046",
+				"volume": "83",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://muse.jhu.edu/article/761043",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Wagering on an Ironic God: Pascal on Faith and Philosophy by Thomas S. Hibbs (review)",
+				"creators": [
+					{
+						"firstName": "Randall G.",
+						"lastName": "Colton",
+						"creatorType": "author"
+					}
+				],
+				"date": "4",
+				"ISSN": "2473-3725",
+				"issue": "4",
+				"language": "en",
+				"libraryCatalog": "Project MUSE",
+				"pages": "647-652",
+				"shortTitle": "Wagering on an Ironic God",
+				"url": "https://muse.jhu.edu/article/761043",
 				"volume": "83",
 				"attachments": [
 					{
