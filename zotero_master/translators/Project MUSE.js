@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-11-20 17:36:36"
+	"lastUpdated": "2020-11-23 13:20:19"
 }
 
 /*
@@ -109,7 +109,7 @@ function scrape(doc, url) {
 				item.creators.push(ZU.cleanAuthor(stringAuthors[i], "author"));
 			}
 		}
-		let volumeIssueDateEntry = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "designation", " " ))]');Z.debug(volumeIssueDateEntry)
+		let volumeIssueDateEntry = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "designation", " " ))]');//Z.debug(volumeIssueDateEntry)
 		if (!item.volume) item.volume = volumeIssueDateEntry.split(',')[0].split('Volume')[1];
 		if (!item.issue) item.issue = volumeIssueDateEntry.split(',')[1].split('Number')[1];
 		if (!item.date) item.date = volumeIssueDateEntry.split(',')[2].replace(/[A-Za-z]+/, '');//Z.debug(item.date)
@@ -118,7 +118,6 @@ function scrape(doc, url) {
 		}
 		let url = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "view_citation", " " ))]//a');//Z.debug(url)
 		item.URL = url.href;
-		
 		var issn = doc.querySelectorAll('#info_wrap')[0].innerText.split(/issn/i)[1].match(/\d{4}-\d{4}/);//Z.debug(issn)
 		item.ISSN = issn.toString();
 		let pages = doc.querySelectorAll('#info_wrap')[0].innerText.split(/pages/i)[1].match(/\d+-\d+/);//Z.debug(pages)
@@ -140,8 +139,18 @@ function scrape(doc, url) {
 		}
 		item.libraryCatalog = "Project MUSE";
 		item.itemType = "journalArticle";
-		item.complete();
-	});
+		
+		var doiEntry = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "view_citation", " " ))]//a');
+		var post = 'https://muse.jhu.edu' + doiEntry[0].pathname + doiEntry[0].search;//Z.debug(post)
+				//GET request to the citation URL and scrape DOI from first citation entry
+				ZU.processDocuments(post, function (scrapeDoi){
+				var doi = ZU.xpathText(scrapeDoi, '//*[(@id = "tabs-1")]//p');//Z.debug(doi)
+				if (doi.match(/doi:/)) {
+					item.DOI = doi.split('doi:')[1].replace(/.$/, ''); 
+				}
+				item.complete();
+			});
+		});
 	translator.getTranslatorObject(function (trans) {
 		trans.doWeb(doc, url);
 	});
@@ -235,6 +244,7 @@ var testCases = [
 					}
 				],
 				"date": "2013",
+				"DOI": "10.1353/tech.2013.0137",
 				"ISSN": "1097-3729",
 				"abstractNote": "This article uses coverage of the fiftieth anniversary of the Pill as an example of what Richard Hirsh describes as the “real world” role of historians of technology. It explores how the presentation of historical topics on the world wide web has complicated how the history of technology is conveyed to the public. The article shows that that the Pill is especially suited to demonstrating the public role of historians of technology because, as the most popular form of reversible birth control, it has touched the lives of millions of Americans. Thus, an exploration of how the Pill’s fiftieth anniversary was covered illustrates how historians can use their expertise to provide a nuanced interpretation of a controversial topic in the history of technology.",
 				"issue": "4",
@@ -271,6 +281,7 @@ var testCases = [
 					}
 				],
 				"date": "2014",
+				"DOI": "10.1353/lar.2014.0030",
 				"ISSN": "1542-4278",
 				"abstractNote": "This article highlights an important paradox: in Argentina between 2003 and 2013 the center-left Peronist government’s approach to governance mirrors that of the center-right Peronist administration of the 1990s. While the latter centralized authority to pursue neoliberal reforms, the former have centralized authority in the name of expanding government intervention in the economy. In both cases, corruption has tended to go unchecked due to insufficient government accountability. Therefore, although economic policies and political rhetoric have changed dramatically, government corruption remains a constant of the Argentine political system due to the executive branch’s ability to emasculate constitutional checks and balances.",
 				"issue": "2",
@@ -306,6 +317,7 @@ var testCases = [
 					}
 				],
 				"date": "2020",
+				"DOI": "10.1353/cht.2020.0018",
 				"ISSN": "1947-8224",
 				"abstractNote": "During the Second Vatican Council, American Jewish community members impacted the drafting of the declaration on the Catholic Church's attitude toward Jews and Judaism. This article explores the American Jewish Committee's reactions to the drafting and promulgation of the Declaration on the Relation of the Church with Non-Christian Religions (Nostra Aetate) and its contribution to establishing interfaith relations. The varied Jewish reactions to the declaration provide insight into the internal Jewish discussions regarding Nostra Aetate, revealing that even though the declaration is assessed positively today, initial Jewish reactions were not enthusiastic.",
 				"issue": "3",
@@ -384,6 +396,7 @@ var testCases = [
 					}
 				],
 				"date": "2020",
+				"DOI": "10.1353/jbl.2020.0031",
 				"ISSN": "1934-3876",
 				"issue": "3",
 				"language": "en",
@@ -475,6 +488,7 @@ var testCases = [
 					}
 				],
 				"date": "2020",
+				"DOI": "10.1353/acs.2020.0041",
 				"ISSN": "2161-8534",
 				"issue": "3",
 				"language": "en",
@@ -504,6 +518,7 @@ var testCases = [
 				"title": "Dissertation Abstracts: Contents",
 				"creators": [],
 				"date": "2020",
+				"DOI": "10.1353/acs.2020.0054",
 				"ISSN": "2161-8534",
 				"issue": "3",
 				"language": "en",
@@ -539,6 +554,7 @@ var testCases = [
 					}
 				],
 				"date": "2019",
+				"DOI": "10.1353/tho.2019.0040",
 				"ISSN": "2473-3725",
 				"issue": "4",
 				"language": "en",
@@ -574,6 +590,7 @@ var testCases = [
 					}
 				],
 				"date": "2019",
+				"DOI": "10.1353/tho.2019.0042",
 				"ISSN": "2473-3725",
 				"issue": "4",
 				"language": "en",
@@ -609,6 +626,7 @@ var testCases = [
 					}
 				],
 				"date": "2019",
+				"DOI": "10.1353/tho.2019.0039",
 				"ISSN": "2473-3725",
 				"issue": "4",
 				"language": "en",
@@ -644,6 +662,7 @@ var testCases = [
 					}
 				],
 				"date": "2020",
+				"DOI": "10.1353/jbl.2020.0023",
 				"ISSN": "1934-3876",
 				"abstractNote": "Two of the questions raised by the Joseph story have attracted the attention of scholars for more than a century. Were Reuben and his brothers present or absent when Joseph was first acquired by traders? Was Joseph sold or stolen? Critics of all persuasions assert that the Joseph story gives contradictory answers to these (and other) questions. Such contradictions, they argue, necessitate a diachronic solution of some sort. The evidence presented in this study supports a different conclusion—namely, that the perception of contradiction in these two cases is an artifact of the cultural gap between modern readers and the ancient Israelites. It suggests that an ancient Israelite audience would have resolved these contradictions based on their knowledge of the cultural conventions of herding and human trafficking in their society—conventions that the narrative takes for granted but that are not always fully familiar to modern readers.",
 				"issue": "3",
