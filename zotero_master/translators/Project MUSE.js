@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-11-23 13:20:19"
+	"lastUpdated": "2020-12-08 08:29:56"
 }
 
 /*
@@ -102,7 +102,7 @@ function scrape(doc, url) {
 		if (stringAuthors === null) {
 			stringAuthors = ' ';
 			} else {
-			stringAuthors = stringAuthors.replace(/O\.P|M\.S\.B\.T/, '').replace(/\d+/g, '').replace(/\(bio\)/, '').split(/\sand/);//Z.debug(stringAuthors)
+			stringAuthors = stringAuthors.replace(/O\.P|M\.S\.B\.T|\*/, '').replace(/\d+/g, '').replace(/\(bio\)/, '').split(/\sand/);//Z.debug(stringAuthors)
 		}
 		if (item.creators.length===0) {
 			for (let i = 0; i < stringAuthors.length; i++) {
@@ -143,7 +143,7 @@ function scrape(doc, url) {
 		var doiEntry = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "view_citation", " " ))]//a');
 		var post = 'https://muse.jhu.edu' + doiEntry[0].pathname + doiEntry[0].search;//Z.debug(post)
 				//GET request to the citation URL and scrape DOI from first citation entry
-				ZU.processDocuments(post, function (scrapeDoi){
+				ZU.processDocuments(post, function (scrapeDoi) {
 				var doi = ZU.xpathText(scrapeDoi, '//*[(@id = "tabs-1")]//p');//Z.debug(doi)
 				if (doi.match(/doi:/)) {
 					item.DOI = doi.split('doi:')[1].replace(/.$/, ''); 
@@ -678,6 +678,56 @@ var testCases = [
 					}
 				],
 				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://muse.jhu.edu/article/774094",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Unity, Authority, and Ecclesiastical Power: Augustinian Echoes in the Works of Jean Gerson at the Council of Constance",
+				"creators": [
+					{
+						"firstName": "Serena",
+						"lastName": "Masolini",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020",
+				"DOI": "10.1353/cat.2020.0054",
+				"ISSN": "1534-0708",
+				"abstractNote": "This article analyzes the presence of Augustine in the texts which Jean Gerson (1363–1429) wrote during the years of the Council of Constance. In particular, it focuses on how the Parisian chancellor made use of quotations from Augustine on doctrinal authority (De civitate Dei 10.23), biblical exegesis (Epistola 40 3; Contra epistolam Manichaei 5.6), and on the power of the keys (Sermo 295 2) to support his views on the role theologians had in defining the truths of the faith, their place within the ecclesiastical hierarchy, the nature and limits of papal power, and the relationship between pope and council.",
+				"issue": "4",
+				"language": "en",
+				"libraryCatalog": "Project MUSE",
+				"pages": "509-550",
+				"shortTitle": "Unity, Authority, and Ecclesiastical Power",
+				"url": "https://muse.jhu.edu/article/774094",
+				"volume": "106",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": " Biblical Exegesis"
+					},
+					{
+						"tag": " Conciliarism"
+					},
+					{
+						"tag": " Reception of Augustine"
+					},
+					{
+						"tag": "Ecclesiology"
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
