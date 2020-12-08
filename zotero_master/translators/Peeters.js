@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-27 11:59:31"
+	"lastUpdated": "2020-12-08 13:58:23"
 }
 
 /*
@@ -143,9 +143,9 @@ function scrape(doc, url) {
 	item.pages = ZU.xpathText(doc, '//b[contains(text(), "Pages:")]/following-sibling::text()[1]');
 	item.DOI = ZU.xpathText(doc, '//b[contains(text(), "DOI:")]/following-sibling::text()[1]');
 	let urlLink = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "whitecell", " " ))]');
-	item.url = urlLink[2].baseURI;
+	if(urlLink[2]) item.url = urlLink[2].baseURI;
 	let abstract = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "whitecell", " " ))]');
-	item.abstractNote = abstract[2].textContent.replace(/(\r\n|\n|\r)/gm,"").match(/Abstract.*/g);
+	if (abstract[2]) item.abstractNote = abstract[2].textContent.replace(/(\r\n|\n|\r)/gm,"").match(/Abstract.*/g).toString();
 	let publicationTitleToISSN = {
 		'Journal of Coptic Studies' : '1783-1512',
 		'Lumen Vitae' : '0024-7324',
@@ -158,6 +158,8 @@ function scrape(doc, url) {
 		'Revue Théologique de Louvain' : '1783-8401',
 		'Louvain Studies' : '1783-161X',
 		'Tijdschrift voor Theologie' : '2565-7348',
+		'Studies in Spirituality' : '1783-1814',
+		'Journal of Eastern Christian Studies' : '1783-1520',
 	}
 	item.ISSN = publicationTitleToISSN[item.publicationTitle];
 	item.attachments.push({
