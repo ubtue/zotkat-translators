@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-21 12:03:42"
+	"lastUpdated": "2020-12-08 14:03:26"
 }
 
 /*
@@ -123,7 +123,7 @@ function scrape(doc, url) {
 		}
 
 		// Correct volume and issue information
-		if (item.volume) {Z.debug(item.volume)
+		if (item.volume) {
 			if (item.volume.search(/^n°/i) != -1) {
 				item.volume = item.volume.split(/n°/i)[1].trim();
 			} else if (item.volume.search(/^Vol./i) != -1) {
