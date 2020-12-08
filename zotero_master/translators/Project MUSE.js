@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-12-08 08:29:56"
+	"lastUpdated": "2020-12-08 13:21:40"
 }
 
 /*
@@ -110,18 +110,18 @@ function scrape(doc, url) {
 			}
 		}
 		let volumeIssueDateEntry = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "designation", " " ))]');//Z.debug(volumeIssueDateEntry)
-		if (!item.volume) item.volume = volumeIssueDateEntry.split(',')[0].split('Volume')[1];
-		if (!item.issue) item.issue = volumeIssueDateEntry.split(',')[1].split('Number')[1];
-		if (!item.date) item.date = volumeIssueDateEntry.split(',')[2].replace(/[A-Za-z]+/, '');//Z.debug(item.date)
+		if (!item.volume && volumeIssueDateEntry && volumeIssueDateEntry.split(',')[0]) item.volume = volumeIssueDateEntry.split(',')[0].split('Volume')[1];
+		if (!item.issue && volumeIssueDateEntry && volumeIssueDateEntry.split(',')[1]) item.issue = volumeIssueDateEntry.split(',')[1].split('Number')[1];
+		if (!item.date && volumeIssueDateEntry && volumeIssueDateEntry.split(',')[2]) item.date = volumeIssueDateEntry.split(',')[2].replace(/[A-Za-z]+/, '');//Z.debug(item.date)
 		if (abstract) {
 			item.abstractNote = abstract.replace(/^\s*Abstract/, "").replace(/show (less|more)$/, "").replace(/,\s*$/, "").replace(/,\sAbstract:?,?,?/, "").trim();
 		}
 		let url = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "view_citation", " " ))]//a');//Z.debug(url)
 		item.URL = url.href;
-		var issn = doc.querySelectorAll('#info_wrap')[0].innerText.split(/issn/i)[1].match(/\d{4}-\d{4}/);//Z.debug(issn)
-		item.ISSN = issn.toString();
-		let pages = doc.querySelectorAll('#info_wrap')[0].innerText.split(/pages/i)[1].match(/\d+-\d+/);//Z.debug(pages)
-		item.pages = pages.toString();
+		let issn = doc.querySelectorAll('#info_wrap');
+		if (issn && issn[0].innerText.split(/issn/i)[1]) item.ISSN = issn[0].innerText.split(/issn/i)[1].match(/\d{4}-\d{4}/).toString();//Z.debug(issn)
+		let pages = doc.querySelectorAll('#info_wrap');
+		if (pages && pages[0].innerText.split(/pages/i)[1]) item.pages = pages[0].innerText.split(/pages/i)[1].match(/\d+-\d+/).toString();//Z.debug(pages)
 		
 		if (tags) {
 			item.tags = tags.split(",");
@@ -141,7 +141,8 @@ function scrape(doc, url) {
 		item.itemType = "journalArticle";
 		
 		var doiEntry = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "view_citation", " " ))]//a');
-		var post = 'https://muse.jhu.edu' + doiEntry[0].pathname + doiEntry[0].search;//Z.debug(post)
+		if (doiEntry && doiEntry[0]) {
+			var post = 'https://muse.jhu.edu' + doiEntry[0].pathname + doiEntry[0].search;//Z.debug(post)
 				//GET request to the citation URL and scrape DOI from first citation entry
 				ZU.processDocuments(post, function (scrapeDoi) {
 				var doi = ZU.xpathText(scrapeDoi, '//*[(@id = "tabs-1")]//p');//Z.debug(doi)
@@ -149,7 +150,8 @@ function scrape(doc, url) {
 					item.DOI = doi.split('doi:')[1].replace(/.$/, ''); 
 				}
 				item.complete();
-			});
+				});
+			}
 		});
 	translator.getTranslatorObject(function (trans) {
 		trans.doWeb(doc, url);
