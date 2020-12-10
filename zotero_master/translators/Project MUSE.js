@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-12-08 13:26:56"
+	"lastUpdated": "2020-12-10 07:11:37"
 }
 
 /*
@@ -139,7 +139,8 @@ function scrape(doc, url) {
 		}
 		item.libraryCatalog = "Project MUSE";
 		item.itemType = "journalArticle";
-		
+		let reviewTag = text(doc, '.Review');
+		if (reviewTag) item.tags.push('Book Review');
 		var doiEntry = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "view_citation", " " ))]//a');
 		if (doiEntry && doiEntry[0]) {
 			var post = 'https://muse.jhu.edu' + doiEntry[0].pathname + doiEntry[0].search;//Z.debug(post)
@@ -728,6 +729,44 @@ var testCases = [
 					},
 					{
 						"tag": "Ecclesiology"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://muse.jhu.edu/article/774493",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Spatial Dynamics: The Sanctity of Place and Nation in Ancient Judaism",
+				"creators": [
+					{
+						"firstName": "Aryeh",
+						"lastName": "Amihay",
+						"creatorType": "author"
+					}
+				],
+				"DOI": "10.1353/hbr.2020.0001",
+				"ISSN": "2158-1681",
+				"language": "en",
+				"libraryCatalog": "Project MUSE",
+				"pages": "435-446",
+				"shortTitle": "Spatial Dynamics",
+				"url": "https://muse.jhu.edu/article/774493",
+				"volume": "61",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Book Review"
 					}
 				],
 				"notes": [],
