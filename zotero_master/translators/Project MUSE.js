@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-12-10 07:11:37"
+	"lastUpdated": "2020-12-10 07:15:29"
 }
 
 /*
@@ -140,7 +140,7 @@ function scrape(doc, url) {
 		item.libraryCatalog = "Project MUSE";
 		item.itemType = "journalArticle";
 		let reviewTag = text(doc, '.Review');
-		if (reviewTag) item.tags.push('Book Review');
+		if (reviewTag) item.tags.push('RezensionstagPica');
 		var doiEntry = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "view_citation", " " ))]//a');
 		if (doiEntry && doiEntry[0]) {
 			var post = 'https://muse.jhu.edu' + doiEntry[0].pathname + doiEntry[0].search;//Z.debug(post)
