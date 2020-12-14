@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-12-14 14:54:24"
+	"lastUpdated": "2020-12-14 19:51:45"
 }
 
 /*
@@ -91,9 +91,10 @@ function scrape(doc, url) {
 	let post = 'https://muse.jhu.edu' + citationURL[0].pathname + citationURL[0].search;
 	if (citationURL && citationURL[0]) {
 	ZU.processDocuments(post, function (text) {
-		let risEntry = ZU.xpathText(text, '//*[(@id = "tabs-4")]//p | //*[(@id = "tabs-3")]//p');
-		if (risEntry.includes('doi:')) {
-			var doi = risEntry.split('doi:')[1].replace(/.$/, '');
+		let risEntry = ZU.xpathText(text, '//*[(@id = "tabs-4")]//p'); //*[(@id = "tabs-3")]//p
+		let doiEntry = ZU.xpathText(text, '//*[(@id = "tabs-1")]//p');
+		if (doiEntry.includes('doi:')) {
+			var doi = doiEntry.split('doi:')[1].replace(/.$/, '');
 		}
 		var translator = Zotero.loadTranslator("import");
 		translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
@@ -110,14 +111,12 @@ function scrape(doc, url) {
 			if (tags) {
 				item.tags = tags.split(",");
 			}
-				item.complete();
+			item.complete();
 			});
 			translator.translate();
 		});
 	}
-}
-
-/** BEGIN TEST CASES **/
+}/** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "web",
@@ -162,7 +161,7 @@ var testCases = [
 		"url": "https://muse.jhu.edu/book/785",
 		"items": [
 			{
-				"itemType": "journalArticle",
+				"itemType": "book",
 				"title": "Writing the Forest in Early Modern England: A Sylvan Pastoral Nation",
 				"creators": [
 					{
@@ -172,9 +171,11 @@ var testCases = [
 					}
 				],
 				"date": "2009",
-				"ISSN": "9780820705057",
+				"ISBN": "9780820705057",
 				"abstractNote": "In Writing the Forest in Early Modern England: A Sylvan Pastoral Nation, Jeffrey S. Theis focuses on pastoral literature in early modern England as an emerging form of nature writing. In particular, Theis analyzes what happens when pastoral writing is set in forests — what he terms “sylvan pastoral.”\nDuring the sixteenth and seventeenth centuries, forests and woodlands played an instrumental role in the formation of individual and national identities in England. Although environmentalism as we know it did not yet exist, persistent fears of timber shortages led to a larger anxiety about the status of forests. Perhaps more important, forests were dynamic and contested sites of largely undeveloped spaces where the poor would migrate in a time of rising population when land became scarce. And in addition to being a place where the poor would go, the forest also was a playground for monarchs and aristocrats where they indulged in the symbolically rich sport of hunting.\nConventional pastoral literature, then, transforms when writers use it to represent and define forests and the multiple ways in which English society saw these places. In exploring these themes, authors expose national concerns regarding deforestation and forest law and present views relating to land ownership, nationhood, and the individual’s relationship to nature. Of particular interest are the ways in which cultures turn confusing spaces into known places and how this process is shaped by nature, history, gender, and class.\nTheis examines the playing out of these issues in familiar works by Shakespeare, such as A Midsummer Night’s Dream, The Merry Wives of Windsor, and As You Like It, Andrew Marvell’s “Upon Appleton House,” John Milton’s Mask and Paradise Lost, as well as in lesser known prose works of the English Revolution, such as James Howell’s Dendrologia>/i> and John Evelyn’s Sylva.\nAs a unique ecocritical study of forests in early modern English literature, Writing the Forest makes an important contribution to the growing field of the history of environmentalism, and will be of interest to those working in literary and cultural history as well as philosophers concerned with nature and space theory.",
 				"libraryCatalog": "Project MUSE",
+				"place": "Pittsburgh",
+				"publisher": "Duquesne University Press",
 				"shortTitle": "Writing the Forest in Early Modern England",
 				"url": "https://muse.jhu.edu/book/785",
 				"attachments": [],
@@ -199,7 +200,7 @@ var testCases = [
 					}
 				],
 				"date": "2013",
-				"DOI": "10.1353/tech.2013.0137",
+				"DOI": "10.1353/tech.2013.013",
 				"ISSN": "1097-3729",
 				"abstractNote": "This article uses coverage of the fiftieth anniversary of the Pill as an example of what Richard Hirsh describes as the “real world” role of historians of technology. It explores how the presentation of historical topics on the world wide web has complicated how the history of technology is conveyed to the public. The article shows that that the Pill is especially suited to demonstrating the public role of historians of technology because, as the most popular form of reversible birth control, it has touched the lives of millions of Americans. Thus, an exploration of how the Pill’s fiftieth anniversary was covered illustrates how historians can use their expertise to provide a nuanced interpretation of a controversial topic in the history of technology.",
 				"issue": "4",
@@ -235,7 +236,7 @@ var testCases = [
 					}
 				],
 				"date": "2014",
-				"DOI": "10.1353/lar.2014.0030",
+				"DOI": "10.1353/lar.2014.003",
 				"ISSN": "1542-4278",
 				"abstractNote": "This article highlights an important paradox: in Argentina between 2003 and 2013 the center-left Peronist government’s approach to governance mirrors that of the center-right Peronist administration of the 1990s. While the latter centralized authority to pursue neoliberal reforms, the former have centralized authority in the name of expanding government intervention in the economy. In both cases, corruption has tended to go unchecked due to insufficient government accountability. Therefore, although economic policies and political rhetoric have changed dramatically, government corruption remains a constant of the Argentine political system due to the executive branch’s ability to emasculate constitutional checks and balances.",
 				"issue": "2",
@@ -270,7 +271,7 @@ var testCases = [
 					}
 				],
 				"date": "2020",
-				"DOI": "10.1353/cht.2020.0018",
+				"DOI": "10.1353/cht.2020.001",
 				"ISSN": "1947-8224",
 				"abstractNote": "During the Second Vatican Council, American Jewish community members impacted the drafting of the declaration on the Catholic Church's attitude toward Jews and Judaism. This article explores the American Jewish Committee's reactions to the drafting and promulgation of the Declaration on the Relation of the Church with Non-Christian Religions (Nostra Aetate) and its contribution to establishing interfaith relations. The varied Jewish reactions to the declaration provide insight into the internal Jewish discussions regarding Nostra Aetate, revealing that even though the declaration is assessed positively today, initial Jewish reactions were not enthusiastic.",
 				"issue": "3",
