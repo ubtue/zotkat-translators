@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-12-14 19:51:45"
+	"lastUpdated": "2020-12-14 20:00:43"
 }
 
 /*
@@ -91,7 +91,7 @@ function scrape(doc, url) {
 	let post = 'https://muse.jhu.edu' + citationURL[0].pathname + citationURL[0].search;
 	if (citationURL && citationURL[0]) {
 	ZU.processDocuments(post, function (text) {
-		let risEntry = ZU.xpathText(text, '//*[(@id = "tabs-4")]//p'); //*[(@id = "tabs-3")]//p
+		let risEntry = ZU.xpathText(text, '//*[(@id = "tabs-4")]//p');
 		let doiEntry = ZU.xpathText(text, '//*[(@id = "tabs-1")]//p');
 		if (doiEntry.includes('doi:')) {
 			var doi = doiEntry.split('doi:')[1].replace(/.$/, '');
@@ -100,7 +100,7 @@ function scrape(doc, url) {
 		translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
 		translator.setString(risEntry);
 		translator.setHandler("itemDone", function (obj, item) {
-			if (doi) item.DOI = doi.split(',')[0].replace(/.$/, '');
+			if (doi) item.DOI = doi;
 			let abstract = ZU.xpathText(doc, '//div[@class="abstract"][1]/p');
 			if (!abstract) abstract = ZU.xpathText(doc, '//div[@class="description"][1]');
 			if (!abstract) abstract = ZU.xpathText(doc, '//div[contains(@class, "card_summary") and contains(@class, "no_border")]');
@@ -200,7 +200,7 @@ var testCases = [
 					}
 				],
 				"date": "2013",
-				"DOI": "10.1353/tech.2013.013",
+				"DOI": "10.1353/tech.2013.0137",
 				"ISSN": "1097-3729",
 				"abstractNote": "This article uses coverage of the fiftieth anniversary of the Pill as an example of what Richard Hirsh describes as the “real world” role of historians of technology. It explores how the presentation of historical topics on the world wide web has complicated how the history of technology is conveyed to the public. The article shows that that the Pill is especially suited to demonstrating the public role of historians of technology because, as the most popular form of reversible birth control, it has touched the lives of millions of Americans. Thus, an exploration of how the Pill’s fiftieth anniversary was covered illustrates how historians can use their expertise to provide a nuanced interpretation of a controversial topic in the history of technology.",
 				"issue": "4",
@@ -236,7 +236,7 @@ var testCases = [
 					}
 				],
 				"date": "2014",
-				"DOI": "10.1353/lar.2014.003",
+				"DOI": "10.1353/lar.2014.0030",
 				"ISSN": "1542-4278",
 				"abstractNote": "This article highlights an important paradox: in Argentina between 2003 and 2013 the center-left Peronist government’s approach to governance mirrors that of the center-right Peronist administration of the 1990s. While the latter centralized authority to pursue neoliberal reforms, the former have centralized authority in the name of expanding government intervention in the economy. In both cases, corruption has tended to go unchecked due to insufficient government accountability. Therefore, although economic policies and political rhetoric have changed dramatically, government corruption remains a constant of the Argentine political system due to the executive branch’s ability to emasculate constitutional checks and balances.",
 				"issue": "2",
@@ -271,7 +271,7 @@ var testCases = [
 					}
 				],
 				"date": "2020",
-				"DOI": "10.1353/cht.2020.001",
+				"DOI": "10.1353/cht.2020.0018",
 				"ISSN": "1947-8224",
 				"abstractNote": "During the Second Vatican Council, American Jewish community members impacted the drafting of the declaration on the Catholic Church's attitude toward Jews and Judaism. This article explores the American Jewish Committee's reactions to the drafting and promulgation of the Declaration on the Relation of the Church with Non-Christian Religions (Nostra Aetate) and its contribution to establishing interfaith relations. The varied Jewish reactions to the declaration provide insight into the internal Jewish discussions regarding Nostra Aetate, revealing that even though the declaration is assessed positively today, initial Jewish reactions were not enthusiastic.",
 				"issue": "3",
