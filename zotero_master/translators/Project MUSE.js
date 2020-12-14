@@ -9,14 +9,14 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-12-10 07:15:29"
+	"lastUpdated": "2020-12-14 14:54:24"
 }
 
 /*
 	***** BEGIN LICENSE BLOCK *****
 
 	Copyright © 2016 Sebastian Karcher
-	Modiefied 2020 Timotheus Kim
+	Modified 2020 Timotheus Kim
 	This file is part of Zotero.
 
 	Zotero is free software: you can redistribute it and/or modify
@@ -34,10 +34,6 @@
 
 	***** END LICENSE BLOCK *****
 */
-// SAGE uses Atypon, but as of now this is too distinct from any existing Atypon sites to make sense in the same translator.
-
-// attr()/text() v2
-function attr(docOrElem,selector,attr,index){var elem=index?docOrElem.querySelectorAll(selector).item(index):docOrElem.querySelector(selector);return elem?elem.getAttribute(attr):null;}function text(docOrElem,selector,index){var elem=index?docOrElem.querySelectorAll(selector).item(index):docOrElem.querySelector(selector);return elem?elem.textContent:null;}
 
 function detectWeb(doc, url) {
 	if (url.includes('/article/')) {
@@ -89,143 +85,99 @@ function doWeb(doc, url) {
 	}
 }
 
+
 function scrape(doc, url) {
-	let abstract = ZU.xpathText(doc, '//div[@class="abstract"][1]/p');
-	if (!abstract) abstract = ZU.xpathText(doc, '//div[@class="description"][1]');
-	if (!abstract) abstract = ZU.xpathText(doc, '//div[contains(@class, "card_summary") and contains(@class, "no_border")]');
-	let tags = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "kwd-group", " " ))]//p');
-	var translator = Zotero.loadTranslator('web');
-	// Embedded Metadata
-	translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48');
-	translator.setHandler('itemDone', function (obj, item) {
-		var stringAuthors = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "contrib", " " ))]');//Z.debug(stringAuthors)
-		if (stringAuthors === null) {
-			stringAuthors = ' ';
-			} else {
-			stringAuthors = stringAuthors.replace(/O\.P|M\.S\.B\.T|\*/, '').replace(/\d+/g, '').replace(/\(bio\)/, '').split(/\sand/);//Z.debug(stringAuthors)
+	let citationURL = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "view_citation", " " ))]//a');
+	let post = 'https://muse.jhu.edu' + citationURL[0].pathname + citationURL[0].search;
+	if (citationURL && citationURL[0]) {
+	ZU.processDocuments(post, function (text) {
+		let risEntry = ZU.xpathText(text, '//*[(@id = "tabs-4")]//p | //*[(@id = "tabs-3")]//p');
+		if (risEntry.includes('doi:')) {
+			var doi = risEntry.split('doi:')[1].replace(/.$/, '');
 		}
-		if (item.creators.length===0) {
-			for (let i = 0; i < stringAuthors.length; i++) {
-				item.creators.push(ZU.cleanAuthor(stringAuthors[i], "author"));
+		var translator = Zotero.loadTranslator("import");
+		translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
+		translator.setString(risEntry);
+		translator.setHandler("itemDone", function (obj, item) {
+			if (doi) item.DOI = doi.split(',')[0].replace(/.$/, '');
+			let abstract = ZU.xpathText(doc, '//div[@class="abstract"][1]/p');
+			if (!abstract) abstract = ZU.xpathText(doc, '//div[@class="description"][1]');
+			if (!abstract) abstract = ZU.xpathText(doc, '//div[contains(@class, "card_summary") and contains(@class, "no_border")]');
+			let tags = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "kwd-group", " " ))]//p');
+			if (abstract) {
+				item.abstractNote = abstract.replace(/^\s*Abstract/, "").replace(/show (less|more)$/, "").replace(/,\s*$/, "").replace(/,\sAbstract:?,?,?/, "").trim();
 			}
-		}
-		let volumeIssueDateEntry = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "designation", " " ))]');//Z.debug(volumeIssueDateEntry)
-		if (!item.volume && volumeIssueDateEntry && volumeIssueDateEntry.split(',')[0]) item.volume = volumeIssueDateEntry.split(',')[0].split('Volume')[1];
-		if (!item.issue && volumeIssueDateEntry && volumeIssueDateEntry.split(',')[1]) item.issue = volumeIssueDateEntry.split(',')[1].split('Number')[1];
-		if (!item.date && volumeIssueDateEntry && volumeIssueDateEntry.split(',')[2]) item.date = volumeIssueDateEntry.split(',')[2].replace(/[A-Za-z]+/, '');//Z.debug(item.date)
-		if (abstract) {
-			item.abstractNote = abstract.replace(/^\s*Abstract/, "").replace(/show (less|more)$/, "").replace(/,\s*$/, "").replace(/,\sAbstract:?,?,?/, "").trim();
-		}
-		let url = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "view_citation", " " ))]//a');//Z.debug(url)
-		item.URL = url.href;
-		let issn = doc.querySelectorAll('#info_wrap');
-		if (issn && issn[0].innerText.split(/issn/i)[1]) item.ISSN = issn[0].innerText.split(/issn/i)[1].match(/\d{4}-\d{4}/).toString();//Z.debug(issn)
-		let pages = doc.querySelectorAll('#info_wrap');
-		if (pages && pages[0].innerText.split(/pages/i)[1]) item.pages = pages[0].innerText.split(/pages/i)[1].match(/\d+-\d+/).toString();//Z.debug(pages)
-		
-		if (tags) {
-			item.tags = tags.split(",");
-		}
-		if (item.title) {
-			item.title = item.title.replace(/Project\sMUSE\s--?\s/, '')
-		}
-		if (url.includes("/article/")) {
-			var pdfurl = url.replace(/(\/article\/\d+).*/, "$1") + "/pdf";
-			item.attachments = [{
-				url: pdfurl,
-				title: "Full Text PDF",
-				mimeType: "application/pdf"
-			}];
-		}
-		item.libraryCatalog = "Project MUSE";
-		item.itemType = "journalArticle";
-		let reviewTag = text(doc, '.Review');
-		if (reviewTag) item.tags.push('RezensionstagPica');
-		var doiEntry = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "view_citation", " " ))]//a');
-		if (doiEntry && doiEntry[0]) {
-			var post = 'https://muse.jhu.edu' + doiEntry[0].pathname + doiEntry[0].search;//Z.debug(post)
-				//GET request to the citation URL and scrape DOI from first citation entry
-				ZU.processDocuments(post, function (scrapeDoi) {
-				var doi = ZU.xpathText(scrapeDoi, '//*[(@id = "tabs-1")]//p');//Z.debug(doi)
-				if (doi.match(/doi:/)) {
-					item.DOI = doi.split('doi:')[1].replace(/.$/, ''); 
-				}
+			if (tags) {
+				item.tags = tags.split(",");
+			}
 				item.complete();
-				});
-			}
+			});
+			translator.translate();
 		});
-	translator.getTranslatorObject(function (trans) {
-		trans.doWeb(doc, url);
-	});
-}/** BEGIN TEST CASES **/
+	}
+}
+
+/** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "web",
-		"url": "http://muse.jhu.edu/article/200965",
+		"url": "https://muse.jhu.edu/article/200965",
 		"items": [
 			{
 				"itemType": "journalArticle",
 				"title": "Terror, Trauma and the 'Young Marx' Explanation of Jacobin Politics",
 				"creators": [
 					{
-						"firstName": "Patrice L. R.",
 						"lastName": "Higonnet",
+						"firstName": "Patrice L. R",
 						"creatorType": "author"
 					}
 				],
-				"date": "2006-07-20",
+				"date": "2006",
 				"ISSN": "1477-464X",
 				"issue": "1",
-				"language": "en",
 				"libraryCatalog": "Project MUSE",
 				"pages": "121-164",
 				"publicationTitle": "Past & Present",
 				"url": "https://muse.jhu.edu/article/200965",
 				"volume": "191",
-				"attachments": [
+				"attachments": [],
+				"tags": [],
+				"notes": [
 					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
+						"note": "<p>Number 191, May 2006</p>"
 					}
 				],
-				"tags": [],
-				"notes": [],
 				"seeAlso": []
 			}
 		]
 	},
 	{
 		"type": "web",
-		"url": "http://muse.jhu.edu/issue/597",
+		"url": "https://muse.jhu.edu/issue/597",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
-		"url": "http://muse.jhu.edu/book/785",
+		"url": "https://muse.jhu.edu/book/785",
 		"items": [
 			{
-				"itemType": "book",
+				"itemType": "journalArticle",
 				"title": "Writing the Forest in Early Modern England: A Sylvan Pastoral Nation",
 				"creators": [
 					{
-						"firstName": "Jeffrey S.",
 						"lastName": "Theis",
+						"firstName": "Jeffrey S.",
 						"creatorType": "author"
 					}
 				],
 				"date": "2009",
-				"ISBN": "9780820705057",
+				"ISSN": "9780820705057",
 				"abstractNote": "In Writing the Forest in Early Modern England: A Sylvan Pastoral Nation, Jeffrey S. Theis focuses on pastoral literature in early modern England as an emerging form of nature writing. In particular, Theis analyzes what happens when pastoral writing is set in forests — what he terms “sylvan pastoral.”\nDuring the sixteenth and seventeenth centuries, forests and woodlands played an instrumental role in the formation of individual and national identities in England. Although environmentalism as we know it did not yet exist, persistent fears of timber shortages led to a larger anxiety about the status of forests. Perhaps more important, forests were dynamic and contested sites of largely undeveloped spaces where the poor would migrate in a time of rising population when land became scarce. And in addition to being a place where the poor would go, the forest also was a playground for monarchs and aristocrats where they indulged in the symbolically rich sport of hunting.\nConventional pastoral literature, then, transforms when writers use it to represent and define forests and the multiple ways in which English society saw these places. In exploring these themes, authors expose national concerns regarding deforestation and forest law and present views relating to land ownership, nationhood, and the individual’s relationship to nature. Of particular interest are the ways in which cultures turn confusing spaces into known places and how this process is shaped by nature, history, gender, and class.\nTheis examines the playing out of these issues in familiar works by Shakespeare, such as A Midsummer Night’s Dream, The Merry Wives of Windsor, and As You Like It, Andrew Marvell’s “Upon Appleton House,” John Milton’s Mask and Paradise Lost, as well as in lesser known prose works of the English Revolution, such as James Howell’s Dendrologia>/i> and John Evelyn’s Sylva.\nAs a unique ecocritical study of forests in early modern English literature, Writing the Forest makes an important contribution to the growing field of the history of environmentalism, and will be of interest to those working in literary and cultural history as well as philosophers concerned with nature and space theory.",
-				"language": "English",
 				"libraryCatalog": "Project MUSE",
-				"publisher": "Duquesne University Press",
 				"shortTitle": "Writing the Forest in Early Modern England",
-				"url": "http://muse.jhu.edu/book/785",
-				"attachments": [
-					{
-						"title": "Snapshot"
-					}
-				],
+				"url": "https://muse.jhu.edu/book/785",
+				"attachments": [],
 				"tags": [],
 				"notes": [],
 				"seeAlso": []
@@ -241,8 +193,8 @@ var testCases = [
 				"title": "The Pill at Fifty: Scientific Commemoration and the Politics of American Memory",
 				"creators": [
 					{
-						"firstName": "Heather",
 						"lastName": "Prescott",
+						"firstName": "Heather",
 						"creatorType": "author"
 					}
 				],
@@ -251,20 +203,19 @@ var testCases = [
 				"ISSN": "1097-3729",
 				"abstractNote": "This article uses coverage of the fiftieth anniversary of the Pill as an example of what Richard Hirsh describes as the “real world” role of historians of technology. It explores how the presentation of historical topics on the world wide web has complicated how the history of technology is conveyed to the public. The article shows that that the Pill is especially suited to demonstrating the public role of historians of technology because, as the most popular form of reversible birth control, it has touched the lives of millions of Americans. Thus, an exploration of how the Pill’s fiftieth anniversary was covered illustrates how historians can use their expertise to provide a nuanced interpretation of a controversial topic in the history of technology.",
 				"issue": "4",
-				"language": "en",
 				"libraryCatalog": "Project MUSE",
 				"pages": "735-745",
+				"publicationTitle": "Technology and Culture",
 				"shortTitle": "The Pill at Fifty",
 				"url": "https://muse.jhu.edu/article/530509",
 				"volume": "54",
-				"attachments": [
+				"attachments": [],
+				"tags": [],
+				"notes": [
 					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
+						"note": "<p>Volume 54, Number 4, October 2013</p>"
 					}
 				],
-				"tags": [],
-				"notes": [],
 				"seeAlso": []
 			}
 		]
@@ -278,8 +229,8 @@ var testCases = [
 				"title": "Accountability and Corruption in Argentina During the Kirchners’ Era",
 				"creators": [
 					{
-						"firstName": "Luigi",
 						"lastName": "Manzetti",
+						"firstName": "Luigi",
 						"creatorType": "author"
 					}
 				],
@@ -288,19 +239,18 @@ var testCases = [
 				"ISSN": "1542-4278",
 				"abstractNote": "This article highlights an important paradox: in Argentina between 2003 and 2013 the center-left Peronist government’s approach to governance mirrors that of the center-right Peronist administration of the 1990s. While the latter centralized authority to pursue neoliberal reforms, the former have centralized authority in the name of expanding government intervention in the economy. In both cases, corruption has tended to go unchecked due to insufficient government accountability. Therefore, although economic policies and political rhetoric have changed dramatically, government corruption remains a constant of the Argentine political system due to the executive branch’s ability to emasculate constitutional checks and balances.",
 				"issue": "2",
-				"language": "en",
 				"libraryCatalog": "Project MUSE",
 				"pages": "173-195",
+				"publicationTitle": "Latin American Research Review",
 				"url": "https://muse.jhu.edu/article/551992",
 				"volume": "49",
-				"attachments": [
+				"attachments": [],
+				"tags": [],
+				"notes": [
 					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
+						"note": "<p>Volume 49, Number 2, 2014</p>"
 					}
 				],
-				"tags": [],
-				"notes": [],
 				"seeAlso": []
 			}
 		]
@@ -314,8 +264,8 @@ var testCases = [
 				"title": "American Judaism and the Second Vatican Council: The Response of the American Jewish Committee to Nostra Aetate",
 				"creators": [
 					{
-						"firstName": "Magdalena",
 						"lastName": "Dziaczkowska",
+						"firstName": "Magdalena",
 						"creatorType": "author"
 					}
 				],
@@ -324,18 +274,13 @@ var testCases = [
 				"ISSN": "1947-8224",
 				"abstractNote": "During the Second Vatican Council, American Jewish community members impacted the drafting of the declaration on the Catholic Church's attitude toward Jews and Judaism. This article explores the American Jewish Committee's reactions to the drafting and promulgation of the Declaration on the Relation of the Church with Non-Christian Religions (Nostra Aetate) and its contribution to establishing interfaith relations. The varied Jewish reactions to the declaration provide insight into the internal Jewish discussions regarding Nostra Aetate, revealing that even though the declaration is assessed positively today, initial Jewish reactions were not enthusiastic.",
 				"issue": "3",
-				"language": "en",
 				"libraryCatalog": "Project MUSE",
 				"pages": "25-47",
+				"publicationTitle": "U.S. Catholic Historian",
 				"shortTitle": "American Judaism and the Second Vatican Council",
 				"url": "https://muse.jhu.edu/article/762340",
 				"volume": "38",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": " Abram"
@@ -374,402 +319,11 @@ var testCases = [
 						"tag": "Nostra Aetate"
 					}
 				],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://muse.jhu.edu/article/766872",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "The JBL Forum, an Occasional Exchange",
-				"creators": [
+				"notes": [
 					{
-						"firstName": "Mark G.",
-						"lastName": "Brett",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Susan E.",
-						"lastName": "Hylen",
-						"creatorType": "author"
+						"note": "<p>Volume 38, Number 3, Summer 2020</p>"
 					}
 				],
-				"date": "2020",
-				"DOI": "10.1353/jbl.2020.0031",
-				"ISSN": "1934-3876",
-				"issue": "3",
-				"language": "en",
-				"libraryCatalog": "Project MUSE",
-				"pages": "597-599",
-				"url": "https://muse.jhu.edu/article/766872",
-				"volume": "139",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://muse.jhu.edu/article/764665",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Shir Ha-Elohim: A Prolegomenon to Biblical Aesthetics",
-				"creators": [
-					{
-						"firstName": "Luke",
-						"lastName": "Ferretter",
-						"creatorType": "author"
-					}
-				],
-				"date": "2020",
-				"ISSN": "2056-5666",
-				"abstractNote": "This article discusses the thought of a series of biblical writers on human art. I analyze the account of the tabernacle by the Priestly writer of the Pentateuch; the stories about David as a poet and musician in the Deuteronomistic History; and the Chronicler’s account of the poetry, song, music, and dance appointed by David for the Jerusalem Temple. I argue that the biblical writers have a high view of art, thinking of it as a central part of covenant life.",
-				"issue": "3",
-				"language": "en",
-				"libraryCatalog": "Project MUSE",
-				"pages": "339-357",
-				"shortTitle": "Shir Ha-Elohim",
-				"url": "https://muse.jhu.edu/article/764665",
-				"volume": "69",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [
-					{
-						"tag": " Chronicles"
-					},
-					{
-						"tag": " David"
-					},
-					{
-						"tag": " aesthetics"
-					},
-					{
-						"tag": " tabernacle"
-					},
-					{
-						"tag": "Bible"
-					}
-				],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://muse.jhu.edu/article/766298",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "The Bioethics of Translation: Latinos and the Healthcare Challenges of COVID-19",
-				"creators": [
-					{
-						"firstName": "Bryan",
-						"lastName": "Pilkington",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Ana",
-						"lastName": "Campoverde",
-						"creatorType": "author"
-					}
-				],
-				"date": "2020",
-				"DOI": "10.1353/acs.2020.0041",
-				"ISSN": "2161-8534",
-				"issue": "3",
-				"language": "en",
-				"libraryCatalog": "Project MUSE",
-				"pages": "11-17",
-				"shortTitle": "The Bioethics of Translation",
-				"url": "https://muse.jhu.edu/article/766298",
-				"volume": "131",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://muse.jhu.edu/article/766311",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Dissertation Abstracts: Contents",
-				"creators": [],
-				"date": "2020",
-				"DOI": "10.1353/acs.2020.0054",
-				"ISSN": "2161-8534",
-				"issue": "3",
-				"language": "en",
-				"libraryCatalog": "Project MUSE",
-				"pages": "111-116",
-				"shortTitle": "Dissertation Abstracts",
-				"url": "https://muse.jhu.edu/article/766311",
-				"volume": "131",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://muse.jhu.edu/article/761044",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Aristotle on Female Animals: A Study of the “Generation of Animals.” by Sophia M. Connell (review)",
-				"creators": [
-					{
-						"firstName": "Brian",
-						"lastName": "Chrzastek",
-						"creatorType": "author"
-					}
-				],
-				"date": "2019",
-				"DOI": "10.1353/tho.2019.0040",
-				"ISSN": "2473-3725",
-				"issue": "4",
-				"language": "en",
-				"libraryCatalog": "Project MUSE",
-				"pages": "652-658",
-				"shortTitle": "Aristotle on Female Animals",
-				"url": "https://muse.jhu.edu/article/761044",
-				"volume": "83",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://muse.jhu.edu/article/761046",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Feminist Christology: A New Iconoclasm?",
-				"creators": [
-					{
-						"firstName": "Sara",
-						"lastName": "Butler",
-						"creatorType": "author"
-					}
-				],
-				"date": "2019",
-				"DOI": "10.1353/tho.2019.0042",
-				"ISSN": "2473-3725",
-				"issue": "4",
-				"language": "en",
-				"libraryCatalog": "Project MUSE",
-				"pages": "493-519",
-				"shortTitle": "Feminist Christology",
-				"url": "https://muse.jhu.edu/article/761046",
-				"volume": "83",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://muse.jhu.edu/article/761043",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Wagering on an Ironic God: Pascal on Faith and Philosophy by Thomas S. Hibbs (review)",
-				"creators": [
-					{
-						"firstName": "Randall G.",
-						"lastName": "Colton",
-						"creatorType": "author"
-					}
-				],
-				"date": "2019",
-				"DOI": "10.1353/tho.2019.0039",
-				"ISSN": "2473-3725",
-				"issue": "4",
-				"language": "en",
-				"libraryCatalog": "Project MUSE",
-				"pages": "647-652",
-				"shortTitle": "Wagering on an Ironic God",
-				"url": "https://muse.jhu.edu/article/761043",
-				"volume": "83",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://muse.jhu.edu/article/766864",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Contradictions, Culture Gaps, and Narrative Gaps in the Joseph Story",
-				"creators": [
-					{
-						"firstName": "Richard C.",
-						"lastName": "Steiner",
-						"creatorType": "author"
-					}
-				],
-				"date": "2020",
-				"DOI": "10.1353/jbl.2020.0023",
-				"ISSN": "1934-3876",
-				"abstractNote": "Two of the questions raised by the Joseph story have attracted the attention of scholars for more than a century. Were Reuben and his brothers present or absent when Joseph was first acquired by traders? Was Joseph sold or stolen? Critics of all persuasions assert that the Joseph story gives contradictory answers to these (and other) questions. Such contradictions, they argue, necessitate a diachronic solution of some sort. The evidence presented in this study supports a different conclusion—namely, that the perception of contradiction in these two cases is an artifact of the cultural gap between modern readers and the ancient Israelites. It suggests that an ancient Israelite audience would have resolved these contradictions based on their knowledge of the cultural conventions of herding and human trafficking in their society—conventions that the narrative takes for granted but that are not always fully familiar to modern readers.",
-				"issue": "3",
-				"language": "en",
-				"libraryCatalog": "Project MUSE",
-				"pages": "439-458",
-				"url": "https://muse.jhu.edu/article/766864",
-				"volume": "139",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://muse.jhu.edu/article/774094",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Unity, Authority, and Ecclesiastical Power: Augustinian Echoes in the Works of Jean Gerson at the Council of Constance",
-				"creators": [
-					{
-						"firstName": "Serena",
-						"lastName": "Masolini",
-						"creatorType": "author"
-					}
-				],
-				"date": "2020",
-				"DOI": "10.1353/cat.2020.0054",
-				"ISSN": "1534-0708",
-				"abstractNote": "This article analyzes the presence of Augustine in the texts which Jean Gerson (1363–1429) wrote during the years of the Council of Constance. In particular, it focuses on how the Parisian chancellor made use of quotations from Augustine on doctrinal authority (De civitate Dei 10.23), biblical exegesis (Epistola 40 3; Contra epistolam Manichaei 5.6), and on the power of the keys (Sermo 295 2) to support his views on the role theologians had in defining the truths of the faith, their place within the ecclesiastical hierarchy, the nature and limits of papal power, and the relationship between pope and council.",
-				"issue": "4",
-				"language": "en",
-				"libraryCatalog": "Project MUSE",
-				"pages": "509-550",
-				"shortTitle": "Unity, Authority, and Ecclesiastical Power",
-				"url": "https://muse.jhu.edu/article/774094",
-				"volume": "106",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [
-					{
-						"tag": " Biblical Exegesis"
-					},
-					{
-						"tag": " Conciliarism"
-					},
-					{
-						"tag": " Reception of Augustine"
-					},
-					{
-						"tag": "Ecclesiology"
-					}
-				],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://muse.jhu.edu/article/774493",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Spatial Dynamics: The Sanctity of Place and Nation in Ancient Judaism",
-				"creators": [
-					{
-						"firstName": "Aryeh",
-						"lastName": "Amihay",
-						"creatorType": "author"
-					}
-				],
-				"DOI": "10.1353/hbr.2020.0001",
-				"ISSN": "2158-1681",
-				"language": "en",
-				"libraryCatalog": "Project MUSE",
-				"pages": "435-446",
-				"shortTitle": "Spatial Dynamics",
-				"url": "https://muse.jhu.edu/article/774493",
-				"volume": "61",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [
-					{
-						"tag": "Book Review"
-					}
-				],
-				"notes": [],
 				"seeAlso": []
 			}
 		]
