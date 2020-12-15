@@ -9,14 +9,13 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-12-14 20:00:43"
+	"lastUpdated": "2020-12-15 03:03:06"
 }
 
 /*
 	***** BEGIN LICENSE BLOCK *****
 
 	Copyright © 2016 Sebastian Karcher
-	Modified 2020 Timotheus Kim
 	This file is part of Zotero.
 
 	Zotero is free software: you can redistribute it and/or modify
@@ -81,21 +80,20 @@ function doWeb(doc, url) {
 		});
 	}
 	else {
-		scrape(doc, url);
+		scrape(doc);
 	}
 }
 
 
-function scrape(doc, url) {
-	let citationURL = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "view_citation", " " ))]//a');
-	let post = 'https://muse.jhu.edu' + citationURL[0].pathname + citationURL[0].search;
-	if (citationURL && citationURL[0]) {
-	ZU.processDocuments(post, function (text) {
+function scrape(doc) {
+	let citationURL = ZU.xpathText(doc, '//li[@class="view_citation"]//a/@href');
+	ZU.processDocuments(citationURL, function (text) {
 		let risEntry = ZU.xpathText(text, '//*[(@id = "tabs-4")]//p');
 		let doiEntry = ZU.xpathText(text, '//*[(@id = "tabs-1")]//p');
 		if (doiEntry.includes('doi:')) {
 			var doi = doiEntry.split('doi:')[1].replace(/.$/, '');
 		}
+		// RIS translator
 		var translator = Zotero.loadTranslator("import");
 		translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
 		translator.setString(risEntry);
@@ -106,16 +104,16 @@ function scrape(doc, url) {
 			if (!abstract) abstract = ZU.xpathText(doc, '//div[contains(@class, "card_summary") and contains(@class, "no_border")]');
 			let tags = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "kwd-group", " " ))]//p');
 			if (abstract) {
-				item.abstractNote = abstract.replace(/^\s*Abstract/, "").replace(/show (less|more)$/, "").replace(/,\s*$/, "").replace(/,\sAbstract:?,?,?/, "").trim();
+				item.abstractNote = abstract.replace(/^,*\s*Abstract[:,]*/, "").replace(/show (less|more)$/, "").replace(/,\s*$/, "");
 			}
 			if (tags) {
 				item.tags = tags.split(",");
 			}
+			item.notes = [];
 			item.complete();
-			});
-			translator.translate();
 		});
-	}
+		translator.translate();
+	});
 }/** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -142,11 +140,7 @@ var testCases = [
 				"volume": "191",
 				"attachments": [],
 				"tags": [],
-				"notes": [
-					{
-						"note": "<p>Number 191, May 2006</p>"
-					}
-				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
@@ -212,11 +206,7 @@ var testCases = [
 				"volume": "54",
 				"attachments": [],
 				"tags": [],
-				"notes": [
-					{
-						"note": "<p>Volume 54, Number 4, October 2013</p>"
-					}
-				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
@@ -247,11 +237,7 @@ var testCases = [
 				"volume": "49",
 				"attachments": [],
 				"tags": [],
-				"notes": [
-					{
-						"note": "<p>Volume 49, Number 2, 2014</p>"
-					}
-				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
@@ -320,11 +306,7 @@ var testCases = [
 						"tag": "Nostra Aetate"
 					}
 				],
-				"notes": [
-					{
-						"note": "<p>Volume 38, Number 3, Summer 2020</p>"
-					}
-				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
