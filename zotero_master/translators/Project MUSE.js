@@ -111,7 +111,7 @@ function scrape(doc) {
 			}
 			item.notes = [];
 			let reviewTag = ZU.xpathText(doc, '//span[@class="Review"]');
-			if (reviewTag === 'Review') item.tags.push('Book Review');
+			if (reviewTag === 'Review') item.tags.push('RezensionstagPica');
 			item.complete();
 		});
 		translator.translate();
