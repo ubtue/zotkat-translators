@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-12-16 14:23:01"
+	"lastUpdated": "2020-12-16 16:36:04"
 }
 
 /*
@@ -73,15 +73,13 @@ function doWeb(doc, url) {
 }
 
 function scrape(doc, url) {
-	let pid = ZU.xpathText(doc, '//*[@id="ep-view"]//@data-pid');
-	var risURL = "https://www.e-periodica.ch/ris?pid=" + pid;
+	let pid = url.replace('digbib/view', 'ris');
 	var pdfURL = "https://www.e-periodica.ch/cntmng?pid=" + pid;
-	ZU.doGet(risURL, function (text) {
+	ZU.doGet(pid, function (text) {
 		var translator = Zotero.loadTranslator("import");
 		translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
 		translator.setString(text);
 		translator.setHandler("itemDone", function (obj, item) {
-			// TODO tweak some of the output here
 			if (pdfURL) {
 				item.attachments.push({
 					url: pdfURL.href,
@@ -89,12 +87,17 @@ function scrape(doc, url) {
 					mimeType: "application/pdf"
 				});
 			}
-			item.attachments.push({
-				title: "Snapshot",
-				document: doc
+				item.attachments.push({
+					title: "Snapshot",
+					document: doc
 			});
+			item.URL = url;
+			item.libraryCatalog = 'e-periodica';
 			item.complete();
 		});
 		translator.translate();
 	});
 }
+/** BEGIN TEST CASES **/
+var testCases = []
+/** END TEST CASES **/
