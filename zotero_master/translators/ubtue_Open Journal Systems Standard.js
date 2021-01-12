@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-11-18 14:20:39"
+	"lastUpdated": "2021-01-12 15:07:36"
 }
 
 /*
@@ -52,6 +52,9 @@ function invokeEMTranslator(doc) {
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
+		if (doc.querySelector(".subtitle")) {
+ 			i.title = i.title + ' ' + doc.querySelector(".subtitle").textContent.trim();
+ 		}
 		var firstPage = ZU.xpathText(doc, '//meta[@name="citation_firstpage"]/@content');
 		var lastPage = ZU.xpathText(doc, '//meta[@name="citation_lastpage"]/@content');
 		var firstandlastPages = i.pages.split('-');//Z.debug(firstandlastPages)
