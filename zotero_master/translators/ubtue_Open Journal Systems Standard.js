@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-01-12 15:07:36"
+	"lastUpdated": "2021-01-12 15:20:48"
 }
 
 /*
@@ -72,6 +72,9 @@ function invokeEMTranslator(doc) {
 			}
 		}
 		if (i.tags[0] === "book review") i.tags.push('RezensionstagPica') && delete i.tags[0];
+		if (doc.querySelector(".current").textContent.trim()=== "Book Reviews") {
+			i.tags.push('RezensionstagPica') 
+		}
 		i.complete();
 	});
 	translator.translate();
