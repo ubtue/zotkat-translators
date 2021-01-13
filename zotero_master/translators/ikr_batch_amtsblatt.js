@@ -233,7 +233,7 @@ function addLine(itemid, code, value) {
 	//call the function EscapeNonASCIICharacters
 	value = EscapeNonASCIICharacters(value);
     //Zeile zusammensetzen
-    var line = code + " " + value.replace( '|s|#n', '|f|Norm$ADE-Tue135/20-fid1').replace( '|s|#r', '|f|Rechtsprechung$ADE-Tue135/20-fid1').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1');
+    var line = code + " " + value.replace( '|s|#n', '|f|Norm$ADE-Tue135/21-fid1').replace( '|s|#r', '|f|Rechtsprechung$ADE-Tue135/21-fid1').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1');
     itemsOutputCache[itemid].push(line);
 }
 
