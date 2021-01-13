@@ -2,14 +2,14 @@
 	"translatorID": "58fd3287-b8e6-4b5d-8367-0ebbd4598991",
 	"label": "ubtue_cairn",
 	"creator": "Timotheus Kim",
-	"target": "https?://www.cairn.info",
+	"target": "https?://www.cairn(-int)?.info",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 90,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-01-13 13:48:21"
+	"lastUpdated": "2021-01-13 14:04:35"
 }
 
 /*
@@ -111,9 +111,14 @@ function scrape(doc, url) {
 		let abstractFR = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "lang-fr", " " ))]//p');
 		let abstractEN = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "lang-en", " " ))]//p')
 		if (item.abstractNote && abstractEN.length > 100) item.abstractNote = item.abstractNote + '\\n4207 ' + abstractEN;
+		
 		let DOIentry = ZU.xpathText(doc, '//dd');
-		let splitDOIentry = DOIentry.split('\n');//Z.debug(splitDOIentry)
-		if (splitDOIentry) item.DOI = splitDOIentry[1];
+		if (!item.DOI && DOIentry) {
+			let splitDOIentry = DOIentry.split('\n');//Z.debug(splitDOIentry)
+			if (splitDOIentry) {
+				item.DOI = splitDOIentry[1];
+			}
+		}
 		
 		// Cairn.info uses non-standard keywords:
 		// we import them here, as the Embedded Metadata translator
@@ -140,7 +145,7 @@ var testCases = [
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Que fait le genre à l’éthique théologique ?: Éléments d’histoire et problématiques",
+				"title": "Que fait le genre à l’éthique théologique ?: Éléments d’histoire et problématiques: Éléments d’histoire et problématiques",
 				"creators": [
 					{
 						"firstName": "Bruno",
@@ -409,6 +414,46 @@ var testCases = [
 						"tag": "Émotivisme"
 					}
 				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.cairn-int.info/journal-revue-d-ethique-et-de-theologie-morale-2020-3-page-11.htm#",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Between dreams and illusions… the Artificial Intelligence in question",
+				"creators": [
+					{
+						"firstName": "Isabelle",
+						"lastName": "Linden",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020-10-16",
+				"ISSN": "1266-0078",
+				"abstractNote": "The intriguing presence of Artificial Intelligence (AI) in everyday life and in society can be a source of worry. As much as AI is ubiquitous, it at times appears to get out of hand. This article tries to take stock of what AI really is today and to identify some of the questions it raises from a computer scientist&#8217;s point of view. It opens with an introduction to the main AI techniques and an analysis of their technical characteristics. This is followed by a theoretical reflection on what intelligence is, and subsequently on the characteristics of artificial intelligence. Finally, some arguments question the ethics and the project of society integrating AI.\\n4207 \nThe intriguing presence of Artificial Intelligence (AI) in everyday life and in society can be a source of worry. As much as AI is ubiquitous, it at times appears to get out of hand. This article tries to take stock of what AI really is today and to identify some of the questions it raises from a computer scientist’s point of view. It opens with an introduction to the main AI techniques and an analysis of their technical characteristics. This is followed by a theoretical reflection on what intelligence is, and subsequently on the characteristics of artificial intelligence. Finally, some arguments question the ethics and the project of society integrating AI.",
+				"issue": "3",
+				"language": "en",
+				"libraryCatalog": "www.cairn-int.info",
+				"pages": "11-27",
+				"publicationTitle": "Revue dethique et de theologie morale",
+				"url": "https://www.cairn-int.info/journal-revue-d-ethique-et-de-theologie-morale-2020-3-page-11.htm",
+				"volume": "No 307",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
 				"notes": [],
 				"seeAlso": []
 			}
