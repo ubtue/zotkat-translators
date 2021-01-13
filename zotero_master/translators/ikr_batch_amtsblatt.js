@@ -465,7 +465,7 @@ function performExport() {
                 var code = 0;
                 if (i === 0) {
                     code = "\\n3100";
-                    titleStatement += "$h" + (creator.firstName ? creator.firstName + " " : "") + creator.lastName;
+                    titleStatement;
                 } else {
                     code = "\\n3110";
                 }
