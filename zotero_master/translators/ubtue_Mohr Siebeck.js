@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-02 13:25:59"
+	"lastUpdated": "2021-01-13 10:55:19"
 }
 
 /*
@@ -58,6 +58,8 @@ function getSearchResults(doc) {
 }
 
 function postProcess(doc, item) {
+	let subtitle = ZU.xpathText(doc, '//h2[@class="droidserif20 product-detail-h2"]');
+	if (subtitle) item.title = item.title + ': ' + subtitle;
 	if (!item.abstractNote)
 		item.abstractNote = ZU.xpathText(doc, '//div[@id="previewShort"]');
 
@@ -116,13 +118,100 @@ var testCases = [
 				"abstractNote": "Claudia Horst: Marc Aurel. Philosophie und politische Macht zur Zeit der Zweiten Sophistik. Franz Steiner Verlag. Stuttgart 2013. 232 S. Herfried Münkler/Rüdiger Voigt/Ralf Walkenhaus (Hg.): Demaskierung der Macht. Niccolò Machiavellis Staats- und Politikverständnis. Nomos. 2. Auflage. Baden-Baden 2013. 224 S. Dietrich Schotte: Die Entmachtung Gottes durch den Leviathan. Thomas Hobbes über die Religion. Frommann-Holzboog. Stuttgart-Bad Cannstatt 2013. 360 S.",
 				"issue": "3",
 				"language": "de",
-				"libraryCatalog": "Mohr Siebeck",
+				"libraryCatalog": "ubtue_Mohr Siebeck",
 				"pages": "195-206",
 				"publicationTitle": "Philosophische Rundschau (PhR)",
 				"shortTitle": "Machtkonstellationen",
 				"volume": "63",
 				"attachments": [
-					{}
+					{
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.mohrsiebeck.com/artikel/salvaging-the-scriptures-for-us-101628ec-2020-0033?no_cache=1",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Salvaging the Scriptures for Us: The Authoritative Scriptures and Social Identity in the Epistle of Barnabas",
+				"creators": [
+					{
+						"firstName": "Katja",
+						"lastName": "Kujanpää"
+					}
+				],
+				"date": "2020",
+				"DOI": "10.1628/ec-2020-0033",
+				"ISSN": "1868-7032",
+				"abstractNote": "Dieser Artikel betrachtet die Beziehungen zwischen Identitätsbildung und Autorität der jüdischen Schrift im Barnabasbrief. Mit Hilfe sozialpsychologischer Theorien unter dem Sammelbegriff des social identity approach wird beleuchtet, wie der Verfasser des Briefes die Identität seiner Leserschaft in eine solche Richtung gestaltet, dass alles Jüdische unvereinbar mit ihrer »wahren« Identität erscheint. Er versucht, das jüdische Schriftverständnis (und damit die jüdische Lebensweise) als zutiefst fehlerhaft darzustellen, während er Christen als die Erben aller Verheißungen der Schrift bezeichnet. Der Artikel untersucht die verschiedenen Strategien, die der Barnabasbrief bei der Schriftauslegung verwendet, um gleichzeitig zwei Ziele zu erreichen: die Schrift zu »dejudaisieren« und ihre Autorität und Relevanz für die Leserschaft zu bewahren.",
+				"issue": "4",
+				"language": "de",
+				"libraryCatalog": "ubtue_Mohr Siebeck",
+				"pages": "475-495",
+				"publicationTitle": "Early Christianity (EC)",
+				"shortTitle": "Salvaging the Scriptures for Us",
+				"volume": "11",
+				"attachments": [
+					{
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Apostolic Fathers"
+					},
+					{
+						"tag": "Epistle of Barnabas"
+					},
+					{
+						"tag": "Social Identity"
+					},
+					{
+						"tag": "scriptural argumentation"
+					},
+					{
+						"tag": "textual authority"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.mohrsiebeck.com/artikel/der-rechtliche-rahmen-einer-kirche-im-transformationsprozess-101628zevkr-2020-0031?no_cache=1",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Der rechtliche Rahmen einer Kirche im Transformationsprozess: Suchbewegungen und Ideen",
+				"creators": [
+					{
+						"firstName": "Rainer",
+						"lastName": "Mainusch"
+					}
+				],
+				"date": "2020",
+				"DOI": "10.1628/zevkr-2020-0031",
+				"ISSN": "0044-2690",
+				"issue": "4",
+				"language": "de",
+				"libraryCatalog": "ubtue_Mohr Siebeck",
+				"pages": "349-406",
+				"publicationTitle": "Zeitschrift für evangelisches Kirchenrecht (ZevKR)",
+				"shortTitle": "Der rechtliche Rahmen einer Kirche im Transformationsprozess",
+				"volume": "65",
+				"attachments": [
+					{
+						"mimeType": "text/html"
+					}
 				],
 				"tags": [],
 				"notes": [],
