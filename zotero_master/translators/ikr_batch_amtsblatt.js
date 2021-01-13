@@ -666,7 +666,7 @@ function performExport() {
 				}
 			}
 
-			addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzo$amxzk");\napplication.activeWindow.pressButton("Enter");\n\n', "");
+			addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzo$amszk");\napplication.activeWindow.pressButton("Enter");\n\n', "");
 			//K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
         }
     }
