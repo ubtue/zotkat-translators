@@ -248,7 +248,7 @@ function WriteItems() {
         if(index > 0) {
             Zotero.write("\n");
         }
-			Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + element.join("").replace(/(\\n6700) ([^\\nE* l01\\n7100$Jn\\n8012 ixzo$amxzk")])/, "$2 \\nE* l01\\n7100$Jn\\n8012 ixzo$amxzk$1 !").replace('!!', '!') + "\n");
+			Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + element.join("").replace(/(\\n6700) ([^\\nE* l01\\n7100$Jn\\n8012 mszk")])/, "$2 \\nE* l01\\n7100$Jn\\n8012 mszk$1 !").replace('!!', '!') + "\n");
     });
 }
 
@@ -358,6 +358,10 @@ function performExport() {
             default:
                 addLine(currentItemId, "\\n0503", "Online-Ressource$bcr");
         }
+		
+		// 0575 DAKR
+		addLine(currentItemId, "\\n0575", "DAKR");
+		
         //item.date --> 1100
         var date = Zotero.Utilities.strToDate(item.date);
         if (date.year !== undefined) {
