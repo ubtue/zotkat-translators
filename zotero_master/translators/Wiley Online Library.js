@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-01-11 08:35:41"
+	"lastUpdated": "2021-01-18 14:28:55"
 }
 
 /*
@@ -97,6 +97,12 @@ function validatePageCount(item) {
 		item.pages = "";
 }
 
+function deduplicatePages(item) {
+	let pages = item.pages.split('-');
+	if (pages[0] === pages[1]) {
+		item.pages = pages[0];
+	}
+}
 function scrapeBook(doc, url) {
 	var title = doc.getElementById('productTitle');
 	if ( !title ) return false;
@@ -151,6 +157,7 @@ function scrapeBook(doc, url) {
 
 	processSubtitles(doc, newItem);
 	validatePageCount(newItem);
+	deduplicatePages(newItem);
 	newItem.complete();
 }
 
@@ -233,6 +240,7 @@ function scrapeEM(doc, url) {
 
 	addBookReviewTag(doc, item);
 	validatePageCount(item);
+	deduplicatePages(item);
 	item.complete();
 
 	translator.getTranslatorObject(function(em) {
@@ -380,7 +388,7 @@ function scrapeBibTeX(doc, url) {
 
 			processSubtitles(doc, item);
 			validatePageCount(item);
-
+			deduplicatePages(item);
 			//attachments
 			item.attachments = [{
 				title: 'Snapshot',
@@ -458,6 +466,7 @@ function scrapeCochraneTrial(doc, url){
 	processSubtitles(doc, item);
 	addBookReviewTag(doc, item);
 	validatePageCount(item);
+	deduplicatePages(item);
 
 	item.complete();
 }
@@ -1241,16 +1250,17 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "2014-03-01",
-				"DOI": "10.1002/ev.20077",
+				"date": "2014",
+				"DOI": "https://doi.org/10.1002/ev.20077",
 				"ISSN": "1534-875X",
 				"abstractNote": "Research on organizational evaluation capacity building (ECB) has focused very much on the capacity to do evaluation, neglecting organizational demand for evaluation and the capacity to use it. This qualitative multiple case study comprises a systematic examination of organizational capacity within eight distinct organizations guided by a common conceptual framework. Described in this chapter are the rationale and methods for the study and then the sequential presentation of findings for each of the eight case organizations. Data collection and analyses for these studies occurred six years ago; findings are cross-sectional and do not reflect changes in organizations or their capacity for evaluation since that time. The format for presenting the findings was standardized so as to foster cross-case analyses, the focus for the next and final chapter of this volume.",
 				"issue": "141",
-				"itemID": "doi:10.1002/ev.20077",
+				"itemID": "https://doi.org/10.1002/ev.20077",
 				"language": "en",
 				"libraryCatalog": "Wiley Online Library",
 				"pages": "25-99",
 				"publicationTitle": "New Directions for Evaluation",
+				"rights": "© Wiley Periodicals, Inc., and the American Evaluation Association",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/ev.20077",
 				"volume": "2014",
 				"attachments": [
@@ -1271,23 +1281,71 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/teth.12436?af=R",
+		"url": "https://onlinelibrary.wiley.com/doi/full/10.1111/teth.12436?af=R",
 		"items": [
 			{
 				"itemType": "journalArticle",
 				"title": "Book Reviews",
-				"creators": [],
-				"DOI": "10.1111/teth.12436",
-				"date": "2018-04-02",
+				"creators": [
+					{
+						"firstName": "Now available on the Wabash Center",
+						"lastName": "website"
+					}
+				],
+				"date": "2018",
+				"DOI": "https://doi.org/10.1111/teth.12436",
 				"ISSN": "1467-9647",
 				"issue": "2",
-				"itemID": "doi:10.1111/teth.12436",
+				"itemID": "https://doi.org/10.1111/teth.12436",
 				"language": "en",
 				"libraryCatalog": "Wiley Online Library",
-				"pages": "158-158",
+				"pages": "158",
 				"publicationTitle": "Teaching Theology & Religion",
+				"rights": "© 2018 John Wiley & Sons Ltd",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/teth.12436",
 				"volume": "21",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					},
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://onlinelibrary.wiley.com/doi/full/10.1111/rsr.15011",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "THE DAODE JING: A GUIDE. By Livia Kohn. Guides to Sacred Texts. Oxford: Oxford University Press, 2019. Pp.xii+273. Hardback, 99.00$; Paperback, $24.95.",
+				"creators": [
+					{
+						"firstName": "Barbara",
+						"lastName": "Hendrischke"
+					}
+				],
+				"date": "2020",
+				"DOI": "https://doi.org/10.1111/rsr.15011",
+				"ISSN": "1748-0922",
+				"issue": "4",
+				"itemID": "https://doi.org/10.1111/rsr.15011",
+				"language": "en",
+				"libraryCatalog": "Wiley Online Library",
+				"pages": "572",
+				"publicationTitle": "Religious Studies Review",
+				"rights": "© 2021 Rice University",
+				"shortTitle": "THE DAODE JING",
+				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/rsr.15011",
+				"volume": "46",
 				"attachments": [
 					{
 						"title": "Snapshot",
