@@ -232,7 +232,7 @@ function addLine(itemid, code, value) {
 	value = EscapeNonASCIICharacters(value);
 
     //Zeile zusammensetzen
-    var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Reviews');
+    var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Reviews').replace('|f|Book Reviews, Book Review', '|f|Book Reviews');
     itemsOutputCache[itemid].push(line);
 }
 
@@ -385,7 +385,7 @@ function performExport() {
 
         //1131 Art des Inhalts
         for (i=0; i<item.tags.length; i++) {
-			if (item.tags[i].tag.match(/RezensionstagPica/)) {
+			if (item.tags[i].tag.match(/RezensionstagPica|Book\s\Review(s)?,\s?Book\s?Review/gi)) {
 				addLine(currentItemId, "\\n1131", "!106186019!");
 			}
 		}
