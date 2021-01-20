@@ -233,7 +233,7 @@ function addLine(itemid, code, value) {
 	//call the function EscapeNonASCIICharacters
 	value = EscapeNonASCIICharacters(value);
     //Zeile zusammensetzen
-    var line = code + " " + value.replace( '|s|#n', '|f|Norm$ADE-Tue135/20-fid1').replace( '|s|#r', '|f|Rechtsprechung$ADE-Tue135/20-fid1').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1');
+    var line = code + " " + value.replace( '|s|#n', '|f|Norm$ADE-Tue135/21-fid1').replace( '|s|#r', '|f|Rechtsprechung$ADE-Tue135/21-fid1').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1');
     itemsOutputCache[itemid].push(line);
 }
 
@@ -364,7 +364,10 @@ function performExport() {
         if (date.year !== undefined) {
             addLine(currentItemId, "\\n1100", date.year.toString() + "$n[" + date.year.toString() + "]");
         }
-
+		
+		// 0575 DAKR
+ 		addLine(currentItemId, "\\n0575", "DAKR");
+		
         //1130 Datenträger K10Plus:1130 alle Codes entfallen, das Feld wird folglich nicht mehr benötigt
         //http://swbtools.bsz-bw.de/winibwhelp/Liste_1130.htm
 
@@ -466,7 +469,7 @@ function performExport() {
                 var code = 0;
                 if (i === 0) {
                     code = "\\n3000";
-                    titleStatement += "$h" + (creator.firstName ? creator.firstName + " " : "") + creator.lastName;
+                    titleStatement;
                 } else {
                     code = "\\n3010";
                 }
