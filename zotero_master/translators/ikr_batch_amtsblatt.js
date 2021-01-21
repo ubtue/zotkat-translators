@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-01-22 11:00:00"
+	"lastUpdated": "2021-01-22 16:43:00"
 }
 
 
@@ -178,7 +178,7 @@ function populateISSNMaps(mapData, url) {
 
 var runningThreadCount = 1;
 var currentItemId = -1;
-var itemsOutputCache = []
+var itemsOutputCache = [];
 var authorMapping = {};
 
 /**
@@ -248,7 +248,7 @@ function WriteItems() {
         if(index > 0) {
             Zotero.write("\n");
         }
-			Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + element.join("").replace(/(\\n6700) ([^\\nE* l01\\n7100$Jn\\n8012 mszk")])/, "$2 \\nE* l01\\n7100$Jn\\n8012 mszk$1 !").replace('!!', '!').replace('$ADE-Tue135-3/21-fid1-DAKR-MSZK!', '$ADE-Tue135-3/21-fid1-DAKR-MSZK') + "\n");
+			Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + element.join("").replace('\\n6600 ', '\\n') + "\n");
     });
 }
 
@@ -365,7 +365,7 @@ function performExport() {
         //item.date --> 1100
         var date = Zotero.Utilities.strToDate(item.date);
         if (date.year !== undefined) {
-            addLine(currentItemId, "\\n1100", date.year.toString() + "$n[" + date.year.toString() + "]");
+            addLine(currentItemId, "\\n1100", date.year.toString());
         }
 
         //1130 Datenträger K10Plus:1130 alle Codes entfallen, das Feld wird folglich nicht mehr benötigt
@@ -478,7 +478,7 @@ function performExport() {
 
                 //Lookup für Autoren
                 if (authorName[0] != "!") {
-                    var lookupUrl = "http://swb.bsz-bw.de/DB=2.104/SET=70/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=1&TRM0=" + authorName +"&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=(theolog*|neutestament*|alttestament*|kirchenhist*|judais*|Religionswi*|Archäo*|Orient*|altertum*|byzan*)&ACT3=-&IKT3=8991&TRM3=1[0%2C1%2C2%2C3%2C4%2C5%2C6%2C7][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9]"
+                    var lookupUrl = "http://swb.bsz-bw.de/DB=2.104/SET=70/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=1&TRM0=" + authorName +"&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=(theolog*|neutestament*|alttestament*|kirchenhist*|judais*|Religionswi*|Archäo*|Orient*|altertum*)&ACT3=-&IKT3=8991&TRM3=1[0%2C1%2C2%2C3%2C4%2C5%2C6%2C7][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9]"
 
                     /*
                     lookupUrl kann je nach Anforderung noch spezifiziert werden, im obigen Abfragebeispiel:
@@ -652,9 +652,10 @@ function performExport() {
                 }
             }
 			
-			// Urheberkennung 5580
+			// Urheberkennung --> 5580
 			addLine(currentItemId, "\\n5580", "$ADE-Tue135-3/21-fid1-DAKR-MSZK");
 			
+			addLine(currentItemId, '\\n6600', 'E* l01');
 			//notes > IxTheo-Notation K10plus: 6700 wird hochgezählt und nicht wiederholt, inkrementell ab z.B. 6800, 6801, 6802 etc.
 			if (item.notes) {
 				for (i in item.notes) {
@@ -673,9 +674,12 @@ function performExport() {
 					}
 				}
 			}
-
-			addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 mszk");\napplication.activeWindow.pressButton("Enter");\n\n', "");
-			//K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
+			
+			//Signatur --> 7100
+			addLine(currentItemId, '\\n7100', '$Jn');
+			
+			//Vierstellige, recherchierbare Abrufzeichen --> 8012
+			addLine(currentItemId, '\\n8012', 'mszk");\napplication.activeWindow.pressButton("Enter");\n\n'); 
         }
     }
 
