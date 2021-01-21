@@ -1,6 +1,6 @@
 {
-	"translatorID": "2edf7a1b-eded-48d7-ae11-7126fd1c1b01ikrb",
-	"label": "ikr_batch",
+	"translatorID": "b04a8d23-ef88-4dc2-9bb2-19ae5fc350ed",
+	"label": "ikr_artikel",
 	"creator": "Philipp Zumstein, Timotheus Kim, Mario Trojan, Madeeswaran Kannan",
 	"target": "txt",
 	"minVersion": "3.0",
@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2019-03-27 11:00:00"
+	"lastUpdated": "2021-01-22 11:00:00"
 }
 
 
@@ -233,7 +233,7 @@ function addLine(itemid, code, value) {
 	//call the function EscapeNonASCIICharacters
 	value = EscapeNonASCIICharacters(value);
     //Zeile zusammensetzen
-    var line = code + " " + value.replace( '|s|#n', '|f|Norm$ADE-Tue135/21-fid1').replace( '|s|#r', '|f|Rechtsprechung$ADE-Tue135/21-fid1').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1');
+    var line = code + " " + value.replace( '|s|#n', '|f|Norm$ADE-Tue135-3/21-fid1-DAKR-MSZK').replace( '|s|#r', '|f|Rechtsprechung$ADE-Tue135/21-fid1-DAKR-MSZK').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1');
     itemsOutputCache[itemid].push(line);
 }
 
@@ -248,10 +248,9 @@ function WriteItems() {
         if(index > 0) {
             Zotero.write("\n");
         }
-        Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + element.join("") + "\n");
+			Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + element.join("").replace(/(\\n6700) ([^\\nE* l01\\n7100$Jn\\n8012 mszk")])/, "$2 \\nE* l01\\n7100$Jn\\n8012 mszk$1 !").replace('!!', '!').replace('$ADE-Tue135-3/21-fid1-DAKR-MSZK!', '$ADE-Tue135-3/21-fid1-DAKR-MSZK') + "\n");
     });
 }
-
 
 function performExport() {
     Z.debug("Begin exporting item(s)...");
@@ -359,15 +358,16 @@ function performExport() {
             default:
                 addLine(currentItemId, "\\n0503", "Online-Ressource$bcr");
         }
+		
+		// 0575 DAKR
+		addLine(currentItemId, "\\n0575", "DAKR");
+		
         //item.date --> 1100
         var date = Zotero.Utilities.strToDate(item.date);
         if (date.year !== undefined) {
             addLine(currentItemId, "\\n1100", date.year.toString() + "$n[" + date.year.toString() + "]");
         }
-		
-		// 0575 DAKR
- 		addLine(currentItemId, "\\n0575", "DAKR");
-		
+
         //1130 Datenträger K10Plus:1130 alle Codes entfallen, das Feld wird folglich nicht mehr benötigt
         //http://swbtools.bsz-bw.de/winibwhelp/Liste_1130.htm
 
@@ -635,10 +635,10 @@ function performExport() {
 			if (item.extra){
 				var parts = item.extra.replace(/#r\n/, '#r@').replace(/#n\n/, '#n@').replace(/\n|\t/g, '').trim().split("@");
 					for (index in parts){
-					addLine(currentItemId, "\\n5520", "|s|" + parts[index].trim();
+					addLine(currentItemId, "\\n5520", "|s|" + parts[index].trim());
 				}
 			}
-			
+
             // Einzelschlagwörter (Projekte) --> 5580 
             if (issn_to_keyword_field.get(item.ISSN) !== undefined) {
                 var codeBase = issn_to_keyword_field.get(item.ISSN);
@@ -651,6 +651,10 @@ function performExport() {
                     addLine(currentItemId, "\\n5580", "!" + ZU.unescapeHTML(item.tags[i].tag.replace(/\s?--\s?/g, '@ ')) + "!");
                 }
             }
+			
+			// Urheberkennung 5580
+			addLine(currentItemId, "\\n5580", "$ADE-Tue135-3/21-fid1-DAKR-MSZK");
+			
 			//notes > IxTheo-Notation K10plus: 6700 wird hochgezählt und nicht wiederholt, inkrementell ab z.B. 6800, 6801, 6802 etc.
 			if (item.notes) {
 				for (i in item.notes) {
@@ -670,7 +674,8 @@ function performExport() {
 				}
 			}
 
-			addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 mszk");\napplication.activeWindow.pressButton("Enter");\n\n', ""); //K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
+			addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 mszk");\napplication.activeWindow.pressButton("Enter");\n\n', "");
+			//K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
         }
     }
 

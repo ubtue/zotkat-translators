@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2022-01-22 11:00:00"
+	"lastUpdated": "2021-01-22 11:00:00"
 }
 
 
@@ -233,7 +233,7 @@ function addLine(itemid, code, value) {
 	//call the function EscapeNonASCIICharacters
 	value = EscapeNonASCIICharacters(value);
     //Zeile zusammensetzen
-    var line = code + " " + value.replace( '|s|#n', '|f|Norm$ADE-Tue135/21-fid1').replace( '|s|#r', '|f|Rechtsprechung$ADE-Tue135/21-fid1').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1');
+    var line = code + " " + value.replace( '|s|#n', '|f|Norm$ADE-Tue135-3/21-fid1-DAKR-MSZK').replace( '|s|#r', '|f|Rechtsprechung$ADE-Tue135/21-fid1-DAKR-MSZK').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1');
     itemsOutputCache[itemid].push(line);
 }
 
@@ -248,7 +248,7 @@ function WriteItems() {
         if(index > 0) {
             Zotero.write("\n");
         }
-			Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + element.join("").replace(/(\\n6700) ([^\\nE* l01\\n7100$Jn\\n8012 mszk")])/, "$2 \\nE* l01\\n7100$Jn\\n8012 mszk$1 !").replace('!!', '!') + "\n");
+			Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + element.join("").replace(/(\\n6700) ([^\\nE* l01\\n7100$Jn\\n8012 mszk")])/, "$2 \\nE* l01\\n7100$Jn\\n8012 mszk$1 !").replace('!!', '!').replace('$ADE-Tue135-3/21-fid1-DAKR-MSZK!', '$ADE-Tue135-3/21-fid1-DAKR-MSZK') + "\n");
     });
 }
 
@@ -638,7 +638,7 @@ function performExport() {
 					addLine(currentItemId, "\\n5520", "|s|" + parts[index].trim());
 				}
 			}
-			
+
             // Einzelschlagwörter (Projekte) --> 5580 
             if (issn_to_keyword_field.get(item.ISSN) !== undefined) {
                 var codeBase = issn_to_keyword_field.get(item.ISSN);
@@ -651,6 +651,10 @@ function performExport() {
                     addLine(currentItemId, "\\n5580", "!" + ZU.unescapeHTML(item.tags[i].tag.replace(/\s?--\s?/g, '@ ')) + "!");
                 }
             }
+			
+			// Urheberkennung 5580
+			addLine(currentItemId, "\\n5580", "$ADE-Tue135-3/21-fid1-DAKR-MSZK");
+			
 			//notes > IxTheo-Notation K10plus: 6700 wird hochgezählt und nicht wiederholt, inkrementell ab z.B. 6800, 6801, 6802 etc.
 			if (item.notes) {
 				for (i in item.notes) {
