@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-01-22 12:34:00"
+	"lastUpdated": "2021-01-22 14:54:00"
 }
 
 
@@ -654,7 +654,7 @@ function performExport() {
             }
 			
 			// Urheberkennung --> 5580
-			if(item.notes) {
+			if(item.tags.length) {
 				addLine(currentItemId, "\\n5580", "$ADE-Tue135-3/21-fid1-DAKR-MSZK");
 			}
 			
