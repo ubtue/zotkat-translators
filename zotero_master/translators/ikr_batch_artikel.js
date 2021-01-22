@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-01-21 16:34:00"
+	"lastUpdated": "2021-01-22 11:34:00"
 }
 
 
@@ -433,8 +433,9 @@ function performExport() {
                 titleStatement += "$d" + ZU.unescapeHTML(item.title.substr(item.shortTitle.length).replace(/:(?!\d)\s*/,''));
             }
         } else {
-            titleStatement += item.title.replace(/:(?!\d)\s*/,'$d');
+            titleStatement += item.title;//.replace(/:(?!\d)\s*/,'$d');
         }
+		
         //Sortierzeichen hinzufügen, vgl. https://github.com/UB-Mannheim/zotkat/files/137992/ARTIKEL.pdf
         if (item.language == "ger" || !item.language) {
             titleStatement = titleStatement.replace(/^(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/, "$1 @$2");
@@ -620,7 +621,7 @@ function performExport() {
 
             //4261 Themenbeziehungen (Beziehung zu der Veröffentlichung, die beschrieben wird)|case:magazineArticle
             if (item.itemType == "magazineArticle") {
-                addLine(currentItemId, "\\n4261", "Rezension von" + item.publicationTitle); // zwischen den Ausrufezeichen noch die PPN des rezensierten Werkes manuell einfügen.
+                addLine(currentItemId, "\\n4261", "Rezension von" + "!" + item.publicationTitle + "!"); // zwischen den Ausrufezeichen noch die PPN des rezensierten Werkes manuell einfügen.
             }
 
             //SSG bzw. FID-Nummer --> 5056 "0" = Religionwissenschaft | "1" = Theologie | "0; 1" = RW & Theol.
