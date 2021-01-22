@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-01-22 16:43:00"
+	"lastUpdated": "2021-01-22 12:43:00"
 }
 
 
@@ -233,7 +233,7 @@ function addLine(itemid, code, value) {
 	//call the function EscapeNonASCIICharacters
 	value = EscapeNonASCIICharacters(value);
     //Zeile zusammensetzen
-    var line = code + " " + value.replace( '|s|#n', '|f|Norm$ADE-Tue135-3/21-fid1-DAKR-MSZK').replace( '|s|#r', '|f|Rechtsprechung$ADE-Tue135/21-fid1-DAKR-MSZK').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1');
+    var line = code + " " + value.replace( '|s|#n', '|f|Norm$ADE-Tue135-3/21-fid1-DAKR-MSZK').replace( '|s|#r', '|f|Rechtsprechung$ADE-Tue135/21-fid1-DAKR-MSZK').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1').replace('|s|can', '|t|can');
     itemsOutputCache[itemid].push(line);
 }
 
@@ -615,7 +615,7 @@ function performExport() {
             if (superiorPPN.length != 0) {
                 addLine(currentItemId, "\\n4241", "Enthalten in" + superiorPPN);
             } else if (item.publicationTitle) {
-                addLine(currentItemId, "\\n4241", "In!" + item.publicationTitle + "!");
+                addLine(currentItemId, "\\n4241", "Enthalten in!" + item.publicationTitle + "!");
             }
 
             //4261 Themenbeziehungen (Beziehung zu der Veröffentlichung, die beschrieben wird)|case:magazineArticle
@@ -651,9 +651,11 @@ function performExport() {
                     addLine(currentItemId, "\\n5580", "!" + ZU.unescapeHTML(item.tags[i].tag.replace(/\s?--\s?/g, '@ ')) + "!");
                 }
             }
-			
+						
 			// Urheberkennung --> 5580
-			addLine(currentItemId, "\\n5580", "$ADE-Tue135-3/21-fid1-DAKR-MSZK");
+			if(item.notes) {
+				addLine(currentItemId, "\\n5580", "$ADE-Tue135-3/21-fid1-DAKR-MSZK");
+			}
 			
 			addLine(currentItemId, '\\n6600', 'E* l01');
 			//notes > IxTheo-Notation K10plus: 6700 wird hochgezählt und nicht wiederholt, inkrementell ab z.B. 6800, 6801, 6802 etc.
