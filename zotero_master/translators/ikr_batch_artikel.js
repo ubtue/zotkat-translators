@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-01-22 14:54:00"
+	"lastUpdated": "2021-01-22 17:34:00"
 }
 
 
@@ -233,7 +233,7 @@ function addLine(itemid, code, value) {
 	//call the function EscapeNonASCIICharacters
 	value = EscapeNonASCIICharacters(value);
     //Zeile zusammensetzen
-    var line = code + " " + value.replace( '|s|#n', '|f|Norm$ADE-Tue135-3/21-fid1-DAKR-MSZK').replace( '|s|#r', '|f|Rechtsprechung$ADE-Tue135/21-fid1-DAKR-MSZK').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1').replace('|s|can', '|t|can');
+    var line = code + " " + value.replace( '|s|#n', '|f|Norm').replace( '|s|#r', '|f|Rechtsprechung').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1').replace('|s|17can', '|t|Codex Iuris Canonici (1917)').replace('|s|can', '|t|Codex Iuris Canonici (1983)').replace('|s|cceo','|t|Codex canonum ecclesiarum orientalium');
     itemsOutputCache[itemid].push(line);
 }
 
@@ -636,7 +636,7 @@ function performExport() {
 			if (item.extra){
 				var parts = item.extra.replace(/#r\n/, '#r@').replace(/#n\n/, '#n@').replace(/\n|\t/g, '').trim().split("@");
 					for (index in parts){
-					addLine(currentItemId, "\\n5520", "|s|" + parts[index].trim());
+					addLine(currentItemId, "\\n5520", "|s|" + parts[index].trim() + '$ADE-Tue135-3/21-fid1-DAKR-MSZK');
 				}
 			}
 			
