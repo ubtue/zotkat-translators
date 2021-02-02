@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-01-18 11:46:01"
+	"lastUpdated": "2021-01-18 16:23:01"
 }
 
 /*
@@ -124,7 +124,7 @@ function scrape(doc, url) {
 		// we import them here, as the Embedded Metadata translator
 		// cannot catch them.
 		item.tags = [];
-		var keywords = ZU.xpathText(doc, '//meta[@name="article-mot_cle"]/@content | //div[@class="grmotcle lang-en"]//a[@class="btn btn-default btn-xs"]');
+		var keywords = ZU.xpathText(doc, '//meta[@name="article-mot_cle"]/@content | //div[@class="grmotcle lang-en"]//li[@class="motcle"]');
 		if (keywords) {
 			keywords = keywords.split(/\s*[,;]\s*/);
 			for (var i=0; i<keywords.length; i++) {
