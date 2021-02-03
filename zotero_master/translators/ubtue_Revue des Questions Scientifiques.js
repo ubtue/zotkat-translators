@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-11-20 15:28:55"
+	"lastUpdated": "2021-02-03 18:14:28"
 }
 
 /*
@@ -45,10 +45,10 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = doc.querySelectorAll('.w3-padding-32 div:nth-child(1)'); //Z.debug(rows)
+	var rows = doc.querySelectorAll('.w3-padding-32 div:nth-child(1)');
 	for (let i=0; i<rows.length; i++) {
 		let href = i+1;
-		var title = rows[i].innerText.match(/.*n°.*/) + rows[i].innerHTML.match(/data-show-pub=.*/);//Z.debug(title)
+		var title = rows[i].innerText.match(/.*n°.*/) + rows[i].innerHTML.match(/data-show-.*pub=.*/);
 		if (!href || !title) continue;
 		if (checkOnly) return true;
 		found = true;
@@ -87,13 +87,15 @@ function scrape(doc, text) {
 	//Z.debug(titleTrenner)
 	//Element-Array nach erstem Komma als item.title ausgegeben
 	let titleEntry = titleTrenner;
-	let title = titleEntry[0].trim().replace(/^[^,]*,/, '').replace(/,$/, '').replace(/^[^,]*\),/, '');//zweite/r Verfasser aus dem Titel entfernen.
+	let title = titleEntry[0].trim().replace(/.*\D(\))\s?,+/, '').replace(/,$/, '');//Z.debug(title)
+	//let title = titleEntry[0].trim().replace(/^[^,]*,/, '').replace(/,$/, '').replace(/^[^,]*\),/, '');Z.debug(title)//zweite/r Verfasser aus dem Titel entfernen.
 	item.title = title;
 	if (title.match(/compte\s?rendu/i)) item.tags.push('RezensionstagPica');
 	//Element-Array mit "(...)" als item.creators ausgegeben
 	for (let m in authorEntry) {
-		let authors = authorEntry[m].trim();
-		if (authors.match(/[a-zA-Z\u00C0-\u017F]*\s\([a-zA-Z\u00C0-\u017F].*\)/) && authors.length < 25) {
+		let authors = authorEntry[m].trim();//Z.debug(authors)
+		if (authors.match(/[a-zA-Z\u00C0-\u017F]*\s\([a-zA-Z\u00C0-\u017F].*\)$/)) {
+		//if (authors.match(/[a-zA-Z\u00C0-\u017F]*\s\([a-zA-Z\u00C0-\u017F].*\)/) && authors.length < 25) {
 			authors = authors.replace(/\(/, ',').replace(/\),?/, ';');//"(" durch "," ersetzen für die Trennung von Nach- und Vornamen. Bei meheren Verfasser ")" als Trenner ";" für die Funktion ZU.cleanAuthor verwenden.
 			item.creators.push(ZU.cleanAuthor(authors.replace(';', ''), "author", true));
 		}
@@ -101,14 +103,13 @@ function scrape(doc, text) {
 	let cleanMetadata = trenner[0].replace(/(\.[\w].*)/, '').replace(/\.?$/, '');
 	let pages = cleanMetadata.split('p.');
 	item.pages = pages[1];
-	if (trenner[1] && trenner[1] !== 'null') item.abstractNote = trenner[1].replace('Summary', '\\n4207').replace('Détails Auteur(s)PrixGratuitdata-show-pub=', '').replace(/\"\d+\",\d+/, '').replace(/"\d+">$/, '');
+	if (trenner[1] && trenner[1] !== 'null') item.abstractNote = trenner[1].replace('Summary', '\\n4207').replace(/Détails Auteur.*$/, '').replace(/\"\d+\",\d+/, '').replace(/"\d+">$/, '').replace(/data-show-extract-pub=.*/, '');
 	item.volume = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "w3-section", " " )) and (((count(preceding-sibling::*) + 1) = 2) and parent::*)]//*[contains(concat( " ", @class, " " ), concat( " ", "w3-xlarge", " " ))]');
 	item.date = ZU.xpathText(doc, '//*[(((count(preceding-sibling::*) + 1) = 1) and parent::*)]//*[contains(concat( " ", @class, " " ), concat( " ", "w3-xlarge", " " ))]');
 	item.issue = ZU.xpathText(doc,'//*[contains(concat( " ", @class, " " ), concat( " ", "m2", " " )) and (((count(preceding-sibling::*) + 1) = 3) and parent::*)]//*[contains(concat( " ", @class, " " ), concat( " ", "w3-xlarge", " " ))]');
 	item.ISSN = "0035-2160";
 	let url = ZU.xpath(doc, '//*[(@id = "btn-show-num-pdf")] | //*[(@id = "sidebar")]');
-	let markerArray = str.split(',');
-	let marker = markerArray[markerArray.length - 1].match(/"\d+"/);
+	let marker = str.match(/"(\d{4})">$/)[1];
 	if (url) item.url = url[0].baseURI + '&publication=' + marker;
 	item.url = item.url.replace(/"/g, '');
 	item.complete();
