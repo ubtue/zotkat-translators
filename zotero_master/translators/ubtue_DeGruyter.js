@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-08 13:11:36"
+	"lastUpdated": "2021-02-16 10:24:08"
 }
 
 /*
@@ -36,22 +36,22 @@
 */
 
 function detectWeb(doc, url) {
-	if (url.match(/article/)) return "journalArticle";
-		else if (url.match(/issue|latestIssueToc/) && getSearchResults(doc)) return "multiple";
+	if (url.match(/document/)) return "journalArticle";
+		else if (url.match(/journal/) && getSearchResults(doc)) return "multiple";
 	else return false;
 }
 
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = doc.querySelectorAll('.c-Button--link, c-Button--primary');
+	var rows = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "issueContentsArticleLink", " " ))]');
 	for (let row of rows) {
-		var href = row.href.match(/article/); //Z.debug(href)
-		let title = ZU.trimInternal(row.textContent);
+		let href = row.href;
+		let title = ZU.trimInternal(row.text);
 		if (!href || !title) continue;
 		if (checkOnly) return true;
 		found = true;
-		items[href.input] = title;
+		items[href] = title;
 	}
 	return found ? items : false;
 }
@@ -92,7 +92,7 @@ function invokeEMTranslator(doc) {
 var testCases = [
 	{
 		"type": "web",
-		"url": "https://www.degruyter.com/view/journals/arg/110/1/article-p23.xml",
+		"url": "https://www.degruyter.com/document/doi/10.14315/arg-2019-1100103/html",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -107,42 +107,21 @@ var testCases = [
 				"date": "2019/12/01",
 				"DOI": "10.14315/arg-2019-1100103",
 				"ISSN": "2198-0489",
-				"abstractNote": "Der Artikel Zwischen Tradition und Innovation: Lukas von Prag als liturgischer Theologe der Böhmischen Brüder wurde am 01.12.2019 in der Zeitschrift Archiv für Reformationsgeschichte - Archive for Reformation History (Band 110, Heft 1) veröffentlicht.",
 				"issue": "1",
 				"language": "de",
 				"libraryCatalog": "www.degruyter.com",
 				"pages": "23-48",
 				"publicationTitle": "Archiv für Reformationsgeschichte - Archive for Reformation History",
 				"shortTitle": "Zwischen Tradition und Innovation",
-				"url": "https://www.degruyter.com/view/journals/arg/110/1/article-p23.xml",
+				"url": "https://www.degruyter.com/document/doi/10.14315/arg-2019-1100103/html",
 				"volume": "110",
 				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
 					{
 						"title": "Snapshot",
 						"mimeType": "text/html"
 					}
 				],
-				"tags": [
-					{
-						"tag": "Frühe Neuzeit"
-					},
-					{
-						"tag": "Geschichte"
-					},
-					{
-						"tag": "Historische Epochen"
-					},
-					{
-						"tag": "Kirchengeschichte der Reformationszeit"
-					},
-					{
-						"tag": "Theologie und Religion"
-					}
-				],
+				"tags": [],
 				"notes": [],
 				"seeAlso": []
 			}
@@ -150,7 +129,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://www.degruyter.com/view/journals/arg/110/1/article-p200.xml",
+		"url": "https://www.degruyter.com/document/doi/10.14315/arg-2019-1100109/html",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -170,35 +149,15 @@ var testCases = [
 				"libraryCatalog": "www.degruyter.com",
 				"pages": "200-236",
 				"publicationTitle": "Archiv für Reformationsgeschichte - Archive for Reformation History",
-				"url": "https://www.degruyter.com/view/journals/arg/110/1/article-p200.xml",
+				"url": "https://www.degruyter.com/document/doi/10.14315/arg-2019-1100109/html",
 				"volume": "110",
 				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
 					{
 						"title": "Snapshot",
 						"mimeType": "text/html"
 					}
 				],
-				"tags": [
-					{
-						"tag": "Frühe Neuzeit"
-					},
-					{
-						"tag": "Geschichte"
-					},
-					{
-						"tag": "Historische Epochen"
-					},
-					{
-						"tag": "Kirchengeschichte der Reformationszeit"
-					},
-					{
-						"tag": "Theologie und Religion"
-					}
-				],
+				"tags": [],
 				"notes": [],
 				"seeAlso": []
 			}
@@ -206,7 +165,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://www.degruyter.com/view/journals/vf/61/2/article-p127.xml",
+		"url": "https://www.degruyter.com/document/doi/10.14315/vf-2016-0206/html",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -220,20 +179,16 @@ var testCases = [
 				],
 				"date": "2016/08/01",
 				"DOI": "10.14315/vf-2016-0206",
-				"ISSN": "0342-2410, 2198-0454",
+				"ISSN": "2198-0454",
 				"issue": "2",
 				"language": "de",
 				"libraryCatalog": "www.degruyter.com",
 				"pages": "127-134",
 				"publicationTitle": "Verkündigung und Forschung",
 				"shortTitle": "Überlappender Konsens?",
-				"url": "https://www.degruyter.com/view/journals/vf/61/2/article-p127.xml",
+				"url": "https://www.degruyter.com/document/doi/10.14315/vf-2016-0206/html",
 				"volume": "61",
 				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
 					{
 						"title": "Snapshot",
 						"mimeType": "text/html"
@@ -241,16 +196,7 @@ var testCases = [
 				],
 				"tags": [
 					{
-						"tag": "Allgemeines und Rezeptionsgeschichte der Bibel"
-					},
-					{
-						"tag": "Praktische Theologie"
-					},
-					{
-						"tag": "Religions- und Gemeindepädagogik"
-					},
-					{
-						"tag": "Theologie und Religion"
+						"tag": "RezensionstagPica"
 					}
 				],
 				"notes": [],
@@ -260,7 +206,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://www.degruyter.com/view/journals/vf/65/2/article-p98.xml",
+		"url": "https://www.degruyter.com/document/doi/10.14315/vf-2020-650205/html",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -274,13 +220,13 @@ var testCases = [
 				],
 				"date": "2020/08/01",
 				"DOI": "10.14315/vf-2020-650205",
-				"ISSN": "0342-2410, 2198-0454",
+				"ISSN": "2198-0454",
 				"issue": "2",
 				"language": "de",
 				"libraryCatalog": "www.degruyter.com",
 				"pages": "98-104",
 				"publicationTitle": "Verkündigung und Forschung",
-				"url": "https://www.degruyter.com/view/journals/vf/65/2/article-p98.xml",
+				"url": "https://www.degruyter.com/document/doi/10.14315/vf-2020-650205/html",
 				"volume": "65",
 				"attachments": [
 					{
@@ -294,19 +240,7 @@ var testCases = [
 				],
 				"tags": [
 					{
-						"tag": "Allgemeines und Rezeptionsgeschichte der Bibel"
-					},
-					{
-						"tag": "Praktische Theologie"
-					},
-					{
-						"tag": "Religions- und Gemeindepädagogik"
-					},
-					{
 						"tag": "RezensionstagPica"
-					},
-					{
-						"tag": "Theologie und Religion"
 					}
 				],
 				"notes": [],
