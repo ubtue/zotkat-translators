@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-01-22 17:34:00"
+	"lastUpdated": "2021-02-18 15:33:00"
 }
 
 
@@ -430,7 +430,7 @@ function performExport() {
         if (item.shortTitle == "journalArticle") {
             titleStatement += item.shortTitle;
             if (item.title && item.title.length > item.shortTitle.length) {
-                titleStatement += "$d" + ZU.unescapeHTML(item.title.substr(item.shortTitle.length).replace(/:(?!\d)\s*/,''));
+                titleStatement += ZU.unescapeHTML(item.title.substr(item.shortTitle.length));
             }
         } else {
             titleStatement += item.title;//.replace(/:(?!\d)\s*/,'$d');
