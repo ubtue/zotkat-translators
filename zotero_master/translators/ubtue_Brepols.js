@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-11-17 13:29:26"
+	"lastUpdated": "2021-02-24 17:39:00"
 }
 
 /*
@@ -39,17 +39,18 @@ function attr(docOrElem ,selector ,attr ,index){ var elem=index?docOrElem.queryS
 
 function detectWeb(doc, url) {
 	if (url.match(/doi/)) return "journalArticle";
-		else if (url.match(/toc/) && getSearchResults(doc, true)) return "journalArticle";
+		else if (url.includes('toc') && getSearchResults(doc, true)) return "journalArticle";
 	else return false;
 }
 
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = doc.querySelectorAll('.hlFld-Title');
-	for (let row of rows) {
-		let href = row.parentElement;
-		let title = ZU.trimInternal(row.innerHTML);//Z.debug(title)
+	//var rows = ZU.xpath(doc, '//a[@class="ref nowrap"]');Z.debug(rows)
+	var rows = doc.querySelectorAll('a.ref.nowrap');
+	for (var i = 0; i < rows.length; i++) {
+		var href = rows[i].href; Z.debug(href)
+		var title = ZU.trimInternal(rows[i].text); Z.debug(title)
 		if (!href || !title) continue;
 		if (checkOnly) return true;
 		found = true;
@@ -60,9 +61,9 @@ function getSearchResults(doc, checkOnly) {
 
 function doWeb(doc, url) {
 	if (detectWeb(doc, url) === "multiple") {
-		Zotero.selectItems(getSearchResults(doc), function (items) {
+		Zotero.selectItems(getSearchResults(doc, false), function (items) {
 			if (!items) {
-				return true;
+				return;
 			}
 			var articles = [];
 			for (var i in items) {
@@ -70,9 +71,12 @@ function doWeb(doc, url) {
 			}
 			ZU.processDocuments(articles, invokeEMTranslator);
 		});
-	} else
+	}
+	else {
 		invokeEMTranslator(doc, url);
+	}
 }
+
 
 function invokeEMTranslator(doc, url) {
 	var translator = Zotero.loadTranslator('web');
@@ -85,10 +89,10 @@ function invokeEMTranslator(doc, url) {
 			if (abstractsEntry) {
 				var abstractsOneTwoThree = abstractsEntry.split('\n\n'); //Z.debug(abstractsOneTwo)
 				if (abstractsOneTwoThree[3]) {
-					i.abstractNote = abstractsOneTwoThree[1] + ' /n4207 ' + abstractsOneTwoThree[2] + ' /n4207 ' + abstractsOneTwoThree[3];
+					i.abstractNote = abstractsOneTwoThree[1] + ' \n4207' + abstractsOneTwoThree[2] + ' \n4207' + abstractsOneTwoThree[3];
 				}
 				else if (abstractsOneTwoThree[2]) {
-					i.abstractNote = abstractsOneTwoThree[1] + ' /n4207 ' + abstractsOneTwoThree[2];
+					i.abstractNote = abstractsOneTwoThree[1] + ' \n4207' + abstractsOneTwoThree[2];
 				}
 				else if (!abstractsOneTwoThree[2]) {
 					i.abstractNote = abstractsOneTwoThree[1];
@@ -112,10 +116,12 @@ function invokeEMTranslator(doc, url) {
 		if (year.match(/\w+\/\d+/)) i.date = year.split('/')[3];//Z.debug(i.date)
 		let issn = text(doc, '.serialDetailsEissn');
 		if (issn) i.ISSN = issn.replace('Online ISSN:', '');
+		i.itemType = "journalArticle";
 		i.complete();
 	});
 	translator.translate();
 }
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
