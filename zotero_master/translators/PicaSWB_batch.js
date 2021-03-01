@@ -592,16 +592,16 @@ function performExport() {
 				addLine(currentItemId, "\\n4950", item.url + "$xH$3Volltext$4LF$534");//K10Plus:0500 das "l" an der vierten Stelle entfällt, statt dessen wird $4LF in 4950 gebildet
 				break;
 			case item.url && item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "kw":
-				addLine(currentItemId, "\\n4950", item.url + "$xR$4KW");
+				addLine(currentItemId, "\\n4950", item.url + "$xR$3Volltext$4KW");
 				break;
 			case item.url && !item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "kw":
-				addLine(currentItemId, "\\n4950", item.url + "$xH$4KW");
+				addLine(currentItemId, "\\n4950", item.url + "$xH$3Volltext$4KW");
 				break;
 			case item.url && item.url.match(/doi\.org\/10\./) && physicalForm === "O":
-				addLine(currentItemId, "\\n4950", item.url + "$xR");
+				addLine(currentItemId, "\\n4950", item.url + "$xR$3Volltext$4ZZ");
 				break;
 			case item.url && !item.url.match(/doi\.org\/10\./) && physicalForm === "O":
-				addLine(currentItemId, "\\n4950", item.url + "$xH");
+				addLine(currentItemId, "\\n4950", item.url + "$xH$3Volltext$4ZZ");
 				break;
 			case item.url && item.itemType == "magazineArticle":
 				addLine(currentItemId, "\\n4950", item.url + "$xH");
