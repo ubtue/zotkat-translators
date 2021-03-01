@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2022-02-24 17:54:00"
+	"lastUpdated": "2021-03-01 21:11:00"
 }
 
 // Zotero Export Translator für das Pica Intern Format
@@ -232,7 +232,7 @@ function addLine(itemid, code, value) {
 	value = EscapeNonASCIICharacters(value);
 
     //Zeile zusammensetzen
-    var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Reviews').replace('|f|Book Reviews, Book Review', '|f|Book Reviews').replace(' $d', '$d');
+    var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Reviews').replace('|f|Book Reviews, Book Review', '|f|Book Reviews');
     itemsOutputCache[itemid].push(line);
 }
 
@@ -592,21 +592,27 @@ function performExport() {
 				addLine(currentItemId, "\\n4950", item.url + "$xH$3Volltext$4LF$534");//K10Plus:0500 das "l" an der vierten Stelle entfällt, statt dessen wird $4LF in 4950 gebildet
 				break;
 			case item.url && item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "kw":
-				addLine(currentItemId, "\\n4950", item.url + "$xR$3Volltext$4KW");
+				addLine(currentItemId, "\\n4950", item.url + "$xR$3Volltext$4KW$534");
 				break;
 			case item.url && !item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "kw":
-				addLine(currentItemId, "\\n4950", item.url + "$xH$3Volltext$4KW");
+				addLine(currentItemId, "\\n4950", item.url + "$xH$3Volltext$4KW$534");
 				break;
 			case item.url && item.url.match(/doi\.org\/10\./) && physicalForm === "O":
-				addLine(currentItemId, "\\n4950", item.url + "$xR$3Volltext$4ZZ");
+				addLine(currentItemId, "\\n4950", item.url + "$xR$3Volltext$4ZZ$534");
 				break;
 			case item.url && !item.url.match(/doi\.org\/10\./) && physicalForm === "O":
-				addLine(currentItemId, "\\n4950", item.url + "$xH$3Volltext$4ZZ");
+				addLine(currentItemId, "\\n4950", item.url + "$xH$3Volltext$4ZZ$534");
 				break;
 			case item.url && item.itemType == "magazineArticle":
 				addLine(currentItemId, "\\n4950", item.url + "$xH");
 				break;
 			}
+		
+		//DOI --> 4950 DOI in aufgelöster Form
+		if (item.DOI && !item.url.match(/https?:\/\/doi\.org/)) {
+			addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI);
+		}
+		
         //Reihe --> 4110
         if (!article) {
             var seriesStatement = "";
