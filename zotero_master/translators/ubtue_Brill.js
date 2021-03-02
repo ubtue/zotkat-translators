@@ -51,14 +51,14 @@ function getSearchResults(doc) {
 		links = doc.querySelectorAll(".c-Button--link, [target='_self']");
 	}
 	let text = usesTypography ?
-		    doc.querySelectorAll(".c-Typography--title > span") :
-		    doc.querySelectorAll(".c-Button--link, [target='_self']");
+			doc.querySelectorAll(".c-Typography--title > span") :
+			doc.querySelectorAll(".c-Button--link, [target='_self']");
 	for (let i = 0; i < links.length; ++i) {
 		let href = links[i].href;
 		let title = ZU.trimInternal(text[i].textContent);
-        if (!href || !title) continue;
-        if (!href.match(/article-.+\.xml$/))
-            continue;
+		if (!href || !title) continue;
+		if (!href.match(/article-.+\.xml$/))
+			continue;
 
 		found = true;
 		items[href] = title;
@@ -70,19 +70,30 @@ function postProcess(doc, item) {
 	if (!item.abstractNote) {
 	  item.abstractNote = ZU.xpath(doc, '//section[@class="abstract"]//p');
 	  if (item.abstractNote && item.abstractNote.length > 0)
-	     item.abstractNote = item.abstractNote[0].textContent.trim();
+		 item.abstractNote = item.abstractNote[0].textContent.trim();
 	  else
-	     item.abstractNote = '';
-    }
+		 item.abstractNote = '';
+	}
 	item.tags = ZU.xpath(doc, '//dd[contains(@class, "keywords")]//a');
 	if (item.tags)
 		item.tags = item.tags.map(i => i.textContent.trim());
 	let reviewEntry = text(doc, '.articlecategory');
-	if (reviewEntry && reviewEntry.match(/book\sreview/i)) item.tags.push('RezensionstagPica');
-	if (item.issue) item.issue = item.issue.replace('-', '/');
+	if (reviewEntry && reviewEntry.match(/book\sreview/i)) item.tags.push('Book Review');
+	let issue = ZU.xpathText(doc, '//meta[@name="citation_issue"]/@content'); 
+	if (issue) item.issue = issue.replace('-', '/');
+	let volume = ZU.xpathText(doc, '//meta[@name="citation_volume"]/@content');
+	if (volume) item.volume = volume;
+	let pages = ZU.xpathText(doc, '//meta[@name="citation_firstpage"]/@content') + '-' + ZU.xpathText(doc, '//meta[@name="citation_lastpage"]/@content');
+	if (pages) item.pages = pages;
+	let issn = ZU.xpathText(doc, '//meta[@name="citation_issn"]/@content');
+	if (issn) item.ISSN = issn.match(/\d{4}-\d{4}/).toString();
+	let title = ZU.xpathText(doc, '//meta[@name="citation_title"]/@content');
+	if (title) item.title = title;
+	let doi = ZU.xpathText(doc, '//meta[@name="citation_doi"]/@content');
+	if (doi) item.DOI = doi;
 	if (!item.itemType)
-            item.itemType = "journalArticle";
-    
+			item.itemType = "journalArticle";
+	
 	// i set 100 as limit of string length, because usually a string of a pseudoabstract has less then 150 character e.g. "abstractNote": "\"Die Vernünftigkeit des jüdischen Dogmas\" published on 05 Sep 2020 by Brill."
 	if (item.abstractNote.length < 100) delete item.abstractNote;	
 	item.tags = ZU.xpath(doc, '//dd[contains(@class, "keywords")]//a');
