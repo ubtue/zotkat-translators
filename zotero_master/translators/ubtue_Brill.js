@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-02-26 11:24:25"
+	"lastUpdated": "2020-03-03 15:59:25"
 }
 
 /*
@@ -99,6 +99,8 @@ function postProcess(doc, item) {
 	item.tags = ZU.xpath(doc, '//dd[contains(@class, "keywords")]//a');
 	if (item.tags)
 		item.tags = item.tags.map(i => i.textContent.trim());
+	let language = ZU.xpathText(doc, '//meta[@name="citation_language"]/@content');
+	if(language) item.language = language;
 }
 
 function invokeEmbeddedMetadataTranslator(doc, url) {
