@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-03-01 21:11:00"
+	"lastUpdated": "2021-03-03 11:38:00"
 }
 
 
@@ -559,7 +559,7 @@ function performExport() {
 			if (item.issue && item.ISSN !== "2699-5433") { volumeyearissuepage += "$a" + item.issue.replace("-", "/").replace(/^0/, ""); }
 			if (item.issue && item.ISSN === "2699-5433") { volumeyearissuepage += "$m" + item.issue.replace("-", "/").replace(/^0/, ""); } 
 			if (item.pages) { volumeyearissuepage += "$p" + item.pages; }
-
+			if (item.ISSN === "2077-1444" && item.callNumber) {volumeyearissuepage += "$i" + item.callNumber;}
             addLine(currentItemId, "4070", volumeyearissuepage);
         }
 
@@ -593,9 +593,13 @@ function performExport() {
 				break;
 			}
         
-		//DOI --> 4950 DOI in aufgelöster Form
-		if (item.DOI && !item.url.match(/https?:\/\/doi\.org/)) {
-			addLine(currentItemId, "4950", "https://doi.org/" + item.DOI);
+		//DOI --> 4950 DOI in aufgelöster Form mit Lizenzinfo "LF"
+		if (item.DOI && !item.url.match(/https?:\/\/doi\.org/) && licenceField === "l") {
+			addLine(currentItemId, "4950", "https://doi.org/" + item.DOI + "$xH$3Volltext$4LF$534");
+		}
+		//DOI --> 4950 DOI in aufgelöster Form mit Lizenzinfo "ZZ"
+		if (item.DOI && !item.url.match(/https?:\/\/doi\.org/) && !licenceField === "l") {
+			addLine(currentItemId, "4950", "https://doi.org/" + item.DOI + "$xH$3Volltext$4ZZ$534");
 		}
 		
 		//Reihe --> 4110

@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-27 08:10:40"
+	"lastUpdated": "2021-03-03 11:38:40"
 }
 
 /*
@@ -93,9 +93,14 @@ function scrape(doc, url) {
 			}
 		}
 		delete item.extra;
-		let issnEntry = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "journal-info", " " ))]');
-		let issn = issnEntry.split('EISSN')[1].split(',')[0];
-		if (issn.match(/\d{4}-\d{4}/)) item.ISSN = issn;
+		// scrape EISSN
+		let IssnEntry = ZU.xpathText(doc, '//*[contains(@class, "journal-info")]');
+		if (IssnEntry.match(/[0-9][0-9][0-9][0-9][-][0-9][0-9][0-9][X0-9]/)) item.ISSN = IssnEntry.match(/[0-9][0-9][0-9][0-9][-][0-9][0-9][0-9][X0-9]/).toString();
+		// Artikelnummer ins Zotero-Feld "item.callNumber" (=Feld "Signatur") schreiben.
+		if (item.ISSN === '2077-1444') {
+			item.callNumber = item.pages 
+			delete item.pages;
+		}
 		item.complete();
 	});
 	translator.translate();
