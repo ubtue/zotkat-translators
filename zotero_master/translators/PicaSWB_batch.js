@@ -610,12 +610,14 @@ function performExport() {
 		
 		    //DOI --> 4950 DOI in aufgelöster Form mit Lizenzinfo "LF"
 		    if (item.DOI && !item.url.match(/https?:\/\/doi\.org/) && licenceField === "l") {
-			addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xH$3Volltext$4LF$534");
+			addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4LF$534");
 		    }
 		    //DOI --> 4950 DOI in aufgelöster Form mit Lizenzinfo "ZZ"
-		    if (item.DOI && !item.url.match(/https?:\/\/doi\.org/) && !licenceField === "l") {
-			addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xH$3Volltext$4ZZ$534");
+		    if (item.DOI && !item.url.match(/https?:\/\/doi\.org/) && !licenceField) {
+			addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4ZZ$534");
 		    }
+
+			
         //Reihe --> 4110
         if (!article) {
             var seriesStatement = "";
