@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-02-24 17:39:00"
+	"lastUpdated": "2021-03-04 14:34:00"
 }
 
 /*
@@ -89,10 +89,10 @@ function invokeEMTranslator(doc, url) {
 			if (abstractsEntry) {
 				var abstractsOneTwoThree = abstractsEntry.split('\n\n'); //Z.debug(abstractsOneTwo)
 				if (abstractsOneTwoThree[3]) {
-					i.abstractNote = abstractsOneTwoThree[1] + ' \n4207' + abstractsOneTwoThree[2] + ' \n4207' + abstractsOneTwoThree[3];
+					i.abstractNote = abstractsOneTwoThree[1] + '\\n4207' + abstractsOneTwoThree[2] + '\\n4207' + abstractsOneTwoThree[3];
 				}
 				else if (abstractsOneTwoThree[2]) {
-					i.abstractNote = abstractsOneTwoThree[1] + ' \n4207' + abstractsOneTwoThree[2];
+					i.abstractNote = abstractsOneTwoThree[1] + '\\n4207' + abstractsOneTwoThree[2];
 				}
 				else if (!abstractsOneTwoThree[2]) {
 					i.abstractNote = abstractsOneTwoThree[1];
