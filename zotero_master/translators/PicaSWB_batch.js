@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-03-03 11:38:00"
+	"lastUpdated": "2021-03-05 14:38:00"
 }
 
 // Zotero Export Translator für das Pica Intern Format
@@ -609,11 +609,11 @@ function performExport() {
 			}
 		
 		    //DOI --> 4950 DOI in aufgelöster Form mit Lizenzinfo "LF"
-		    if (item.DOI && !item.url.match(/https?:\/\/doi\.org/) && licenceField === "l") {
+		    if (item.DOI && item.url && !item.url.match(/https?:\/\/doi\.org/) && licenceField === "l") {
 			addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4LF$534");
 		    }
 		    //DOI --> 4950 DOI in aufgelöster Form mit Lizenzinfo "ZZ"
-		    if (item.DOI && !item.url.match(/https?:\/\/doi\.org/) && !licenceField) {
+		    if (item.DOI && item.url && !item.url.match(/https?:\/\/doi\.org/) && !licenceField) {
 			addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4ZZ$534");
 		    }
 
