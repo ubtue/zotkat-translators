@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-03-09 13:38:00"
+	"lastUpdated": "2021-03-16 13:38:00"
 }
 
 
@@ -603,9 +603,9 @@ function performExport() {
 		}
 		if (item.DOI && !item.url) {
 			if (licenceField === "l") {
-				addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4LF$534");
+				addLine(currentItemId, "4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4LF$534");
 			} else if (!licenceField) {
-				addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4ZZ$534");
+				addLine(currentItemId, "4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4ZZ$534");
 			}
 		}		
 		//Reihe --> 4110
