@@ -1,22 +1,22 @@
 {
 	"translatorID": "af110456-03a1-4335-9b39-613f2814cdd2",
-	"label": "Sabinet",
+	"label": "ubtue_Sabinet",
 	"creator": "Madeesh Kannan",
-	"target": "^https://journals.co.za/content/journal/",
+	"target": "^https://journals.co.za/[a-zA-Z]+",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 100,
-	"inRepository": false,
+	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2018-11-02 15:40:07"
+	"lastUpdated": "2021-03-17 15:49:09"
 }
 
 /*
 	***** BEGIN LICENSE BLOCK *****
 
 	Copyright © 2018 Universitätsbibliothek Tübingen.  All rights reserved.
-
+	Modified 2021 by Timotheus Kim
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
@@ -33,24 +33,20 @@
 	***** END LICENSE BLOCK *****
 */
 
-
 function detectWeb(doc, url) {
-    // just a placeholder - the actual type is extracted by the Embedded Metadata translator
-    return "journalArticle";
-}
-
-function detectWeb(doc, url) {
-	var bodyId = ZU.xpathText(doc, '//body/@id');
-	if (bodyId == "issue" && getSearchResults(doc))
-		return "multiple";
-	else if (bodyId == "article")
+	if (url.includes('/doi'))
 		return "journalArticle";
+	else if (url.includes('/toc/') && getSearchResults(doc))
+		return "multiple";
+	else 
+		return false
 }
+
 
 function getSearchResults(doc) {
 	var items = {};
 	var found = false;
-	var rows = ZU.xpath(doc, '//span[@class="articleTitle title"]/a')
+	var rows = ZU.xpath(doc, '//*[@class="issue-item__title"]/a')
 	for (let i=0; i<rows.length; i++) {
 		let href = rows[i].href;
 		let title = ZU.trimInternal(rows[i].textContent);
@@ -66,24 +62,24 @@ function invokeEMDTranslator(doc, url) {
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
-        // add keywords
-        i.tags = ZU.xpath(doc, '//li/strong[contains(text(), "Keyword(s)")]/../a').map(n => n.textContent);
+		// add keywords
+		i.tags = ZU.xpath(doc, '//li/strong[contains(text(), "Keyword(s)")]/../a').map(n => n.textContent);
 
-        // add the persistent handle
-        var handleLink = ZU.xpathText(doc, '//a[contains(@href,"hdl.handle.net")]/@href').trim();
-        if (!handleLink || handleLink.length < 24) {
-            Z.debug("invalid handle Id");
-            return;
-        }
+		// add the persistent handle
+		var handleLink = ZU.xpathText(doc, '//a[contains(@href,"hdl.handle.net")]/@href').trim();
+		if (!handleLink || handleLink.length < 24) {
+			Z.debug("invalid handle Id");
+			return;
+		}
 
-        var handle = handleLink.substring(23);   // strip the the domain name
-            i.notes.push({
-                note: "hdl:" + handle,
-            });
-
-        i.complete();
-    });
-    translator.translate();
+		var handle = handleLink.substring(23);   // strip the the domain name
+			i.notes.push({
+				note: "hdl:" + handle,
+			});
+		
+		i.complete();
+	});
+	translator.translate();
 }
 
 function doWeb(doc, url) {
