@@ -1,11 +1,11 @@
 {
 	"translatorID": "58fd3287-b8e6-4b5d-8367-0ebbd4598991",
-	"label": "ubtue_cairn",
+	"label": "ubtue_Cairn.info",
 	"creator": "Timotheus Kim",
 	"target": "https?://www.cairn(-int)?.info",
 	"minVersion": "3.0",
 	"maxVersion": "",
-	"priority": 90,
+	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",

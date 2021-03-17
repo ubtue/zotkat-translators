@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-07-21 15:22:00"
+	"lastUpdated": "2020-02-20 21:11:47"
 }
 
 /*
@@ -135,7 +135,6 @@ function scrape(newDoc, url) {
 				if (item.DOI.match(/^doi:/)) {
 					item.DOI = item.DOI.substr(4);
 				}
-			if (item.publicationTitle === "Trajecta. Religion, Culture and Society in the Low Countries") item.ISSN = "2665-9484";
 			}
 			item.complete();
 		});

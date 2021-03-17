@@ -1,15 +1,15 @@
 {
 	"translatorID": "8e5f8616-05d0-4d33-8554-dad76b20ecbx",
-	"translatorType": 4,
 	"label": "Hanrei Watch RSS service",
 	"creator": "Frank Bennett",
 	"target": "^https?://kanz\\.jp/hanrei/detail/[0-9]+/",
 	"minVersion": "1.0.0b3.r1",
-	"maxVersion": null,
+	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
+	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2012-01-30 23:00:00"
+	"lastUpdated": "2012-01-30 22:49:15"
 }
 
 function detectWeb(doc, url) {

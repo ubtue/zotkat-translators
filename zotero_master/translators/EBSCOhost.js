@@ -1,17 +1,16 @@
 {
 	"translatorID": "d0b1914a-11f1-4dd7-8557-b32fe8a3dd47",
+	"translatorType": 4,
 	"label": "EBSCOhost",
 	"creator": "Simon Kornblith, Michael Berkowitz, Josh Geller",
 	"target": "^https?://[^/]+/(eds|bsi|ehost)/(results|detail|folder|pdfviewer)",
 	"minVersion": "3.0",
-	"maxVersion": "",
+	"maxVersion": null,
 	"priority": 100,
 	"inRepository": true,
-	"translatorType": 4,
 	"browserSupport": "gcsib",
-	"lastUpdated": "2021-03-11 13:47:13"
+	"lastUpdated": "2021-03-11 17:35:00"
 }
-
 
 /*
 	***** BEGIN LICENSE BLOCK *****

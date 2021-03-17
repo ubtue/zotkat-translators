@@ -1,15 +1,15 @@
 {
-	"translatorID": "d6c6210a-297c-4b2c-8c43-48cb503cc49e",
-	"label": "Springer Link",
+	"translatorID": "428c1011-fb8c-437f-8f08-5066cb589ff6",
+	"label": "ubtue_Springer Link",
 	"creator": "Aurimas Vinckevicius",
 	"target": "^https?://link\\.springer\\.com/(search(/page/\\d+)?\\?|(article|chapter|book|referenceworkentry|protocol|journal|referencework)/.+)",
 	"minVersion": "3.0",
 	"maxVersion": "",
-	"priority": 100,
-	"inRepository": true,
+	"priority": 99,
+	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsbv",
-	"lastUpdated": "2020-09-08 02:04:42"
+	"lastUpdated": "2021-03-17 10:10:25"
 }
 
 /*
@@ -75,7 +75,9 @@ function getResultList(doc) {
 	if (!results.length) {
 		results = ZU.xpath(doc, '//div[@class="toc"]/ol//li[contains(@class,"toc-item")]/p[@class="title"]/a');
 	}
-	// https://link.springer.com/journal/10344/volumes-and-issues/66-5
+	if (!results.length) {
+		results = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "c-card__title", " " ))]//a');
+	}
 	if (!results.length) {
 		results = ZU.xpath(doc, '//li[@class="c-list-group__item"]//h3/a');
 	}
@@ -91,7 +93,7 @@ function doWeb(doc, url) {
 			items[list[i].href] = list[i].textContent;
 		}
 		Zotero.selectItems(items, function (selectedItems) {
-			if (!selectedItems) return;
+			if (!selectedItems) return true;
 			for (let i in selectedItems) {
 				ZU.processDocuments(i, scrape);
 			}
@@ -194,17 +196,59 @@ function complementItem(doc, item) {
 		item.volume = "";
 	}
 	// add abstract
-	var abs = ZU.xpathText(doc, '//div[contains(@class,"abstract-content")][1]');
-	if (!abs) {
-		abs = ZU.xpathText(doc, '//section[@class="Abstract" and @lang="en"]');
+	let abstractSections = ZU.xpath(doc, '//section[@class="Abstract"]//div[@class="AbstractSection"]');
+	if (abstractSections && abstractSections.length > 0) {
+		let sectionTitles = ZU.xpath(doc, '//section[@class="Abstract"]//div[@class="AbstractSection"]//h3[@class="Heading"]');
+		let abstract = "";
+		for (let i = 0; i < sectionTitles.length; ++i) {
+			let titleText = sectionTitles[i].textContent.trim();
+			let sectionBody = ZU.xpathText(abstractSections[i], './/p').trim();
+
+			abstract += titleText + ": " + sectionBody + "\n\n";
+		}
+
+		item.abstractNote = abstract.trim();
+		if (item.abstractNote.match(/^null/)) item.abstractNote = '';
+	} else {
+		let absSections = ZU.xpath(doc, '//*[(@id = "Abs2-content")]//p');
+		let sectionTitles = ZU.xpath(doc, '//*[(@id = "Abs2-content")]//*[contains(concat( " ", @class, " " ), concat( " ", "c-article__sub-heading", " " ))]');
+		let titleTextGerman = ZU.xpathText(doc, '//*[(@id = "Abs1-content")]//p');
+		let abs = "";
+		for (let i = 0; i < sectionTitles.length; ++i) {
+			let titleText = sectionTitles[i].textContent.trim();
+			let sectionBody = ZU.xpathText(absSections[i], '//*[(@id = "Abs2-content")]//p').trim();
+			abs += titleText + ": " + sectionBody + "\n\n";
+			item.abstractNote = abs.trim();
+		}
+		item.abstractNote = titleTextGerman + "\n\n" + ZU.trimInternal(abs).replace(/^Abstract[:\s]*/, "");
+		if (item.abstractNote.match(/^null/)) item.abstractNote = '';
 	}
-	if (abs) item.abstractNote = ZU.trimInternal(abs).replace(/^Abstract[:\s]*/, "");
-	// add tags
-	var tags = ZU.xpathText(doc, '//span[@class="Keyword"]');
+
+	let tags = ZU.xpathText(doc, '//span[@class="Keyword"] | //*[contains(concat( " ", @class, " " ), concat( " ", "c-article-subject-list__subject", " " ))]//span');
 	if (tags && (!item.tags || item.tags.length === 0)) {
 		item.tags = tags.split(',');
 	}
+
+	let docType = ZU.xpathText(doc, '//meta[@name="citation_article_type"]/@content | //meta[@name="dc.type"]/@content');
+	if (docType.match(/Book (R|r)eviews?|Review (P|p)aper|BookReview/)) item.tags.push("RezensionstagPica");
 	return item;
+}
+
+function shouldPostprocessWithEmbeddedMetadata(item) {
+	if (!item.pages) return true;
+	return false;
+}
+
+function postprocessWithEmbeddedMetadataTranslator(doc, originalItem) {
+	var translator = Zotero.loadTranslator("web");
+	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
+	translator.setDocument(doc);
+	translator.setHandler("itemDone", function (t, extractedMetadata) {
+		originalItem.pages = extractedMetadata.pages;
+
+		originalItem.complete();
+	});
+	translator.translate();
 }
 
 function scrape(doc, url) {
@@ -226,13 +270,14 @@ function scrape(doc, url) {
 				title: "Springer Full Text PDF",
 				mimeType: "application/pdf"
 			});
-			item.complete();
+
+			if (shouldPostprocessWithEmbeddedMetadata(item)) postprocessWithEmbeddedMetadataTranslator(doc, item);
+			else
+				item.complete();
 		});
 		translator.translate();
 	});
 }
-
-
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -489,7 +534,23 @@ var testCases = [
 						"mimeType": "application/pdf"
 					}
 				],
-				"tags": [],
+				"tags": [
+					{
+						"tag": " Analytical solutions "
+					},
+					{
+						"tag": " Elastic storage "
+					},
+					{
+						"tag": " Submarine outlet-capping "
+					},
+					{
+						"tag": " Tidal loading efficiency "
+					},
+					{
+						"tag": "Coastal aquifers "
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
@@ -571,8 +632,155 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://link.springer.com/journal/10344/volumes-and-issues/66-5",
-		"items": "multiple"
+		"url": "https://link.springer.com/article/10.1007/s11089-020-00907-4",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Metabolizing Death: Re-Thinking Recovery from Substance Use Disorder through the Creative Cartographies of William James and Ernest Becker",
+				"creators": [
+					{
+						"lastName": "Boeving",
+						"firstName": "Nicholas Grant",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020-06-01",
+				"DOI": "10.1007/s11089-020-00907-4",
+				"ISSN": "1573-6679",
+				"abstractNote": "This study is designed to bring together the existential-psychoanalytic psychology of Ernest Becker and the pluralistic transpersonal psychology of William James to bear on how perceptions of death and transformations of death anxiety shape, in subtle and significant ways, the phenomenology of substance use disorder. Specifically, this study examines the ways in which these two divergent sympathies (read: ontologies) are actually two reciprocally-enforcing ends of a continuum of how to think about substance use disorder and, more importantly, how to overcome it. In yoking these oppositional cartographies of consciousness together, this article brings to light the integral role that unconscious death anxiety plays in the formation and sustainment of addictions and explores the mechanics of recovery through the lens of the transformation of death anxiety. In doing so, it demonstrates that recovery from substance use disorder is dependent upon the successful metabolization of death anxiety from both a Jamesian and Beckerian perspective.",
+				"issue": "3",
+				"journalAbbreviation": "Pastoral Psychol",
+				"language": "en",
+				"libraryCatalog": "Springer Link",
+				"pages": "169-186",
+				"publicationTitle": "Pastoral Psychology",
+				"shortTitle": "Metabolizing Death",
+				"url": "https://doi.org/10.1007/s11089-020-00907-4",
+				"volume": "69",
+				"attachments": [
+					{
+						"title": "Springer Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [
+					{
+						"tag": " 12-step movement"
+					},
+					{
+						"tag": " AA"
+					},
+					{
+						"tag": " Addiction"
+					},
+					{
+						"tag": " Ernest Becker"
+					},
+					{
+						"tag": " Existential psychology"
+					},
+					{
+						"tag": " Recovery"
+					},
+					{
+						"tag": " Transpersonal psychology"
+					},
+					{
+						"tag": " William James"
+					},
+					{
+						"tag": "Substance use disorder"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://link.springer.com/article/10.1007/s40839-019-00082-6",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Orlando Nang Kwok Ho: Rethinking the curriculum: the Epistle to the Romans as a pedagogic text",
+				"creators": [
+					{
+						"lastName": "O’Shea",
+						"firstName": "Gerard",
+						"creatorType": "author"
+					}
+				],
+				"date": "2019-07-01",
+				"DOI": "10.1007/s40839-019-00082-6",
+				"ISSN": "2199-4625",
+				"abstractNote": "null",
+				"issue": "2",
+				"journalAbbreviation": "j. relig. educ.",
+				"language": "en",
+				"libraryCatalog": "Springer Link",
+				"pages": "165-166",
+				"publicationTitle": "Journal of Religious Education",
+				"shortTitle": "Orlando Nang Kwok Ho",
+				"url": "https://doi.org/10.1007/s40839-019-00082-6",
+				"volume": "67",
+				"attachments": [
+					{
+						"title": "Springer Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Book Reviews"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://link.springer.com/article/10.1007/s40839-019-00082-6",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Orlando Nang Kwok Ho: Rethinking the curriculum: the Epistle to the Romans as a pedagogic text",
+				"creators": [
+					{
+						"lastName": "O’Shea",
+						"firstName": "Gerard",
+						"creatorType": "author"
+					}
+				],
+				"date": "2019-07-01",
+				"DOI": "10.1007/s40839-019-00082-6",
+				"ISSN": "2199-4625",
+				"issue": "2",
+				"journalAbbreviation": "j. relig. educ.",
+				"language": "en",
+				"libraryCatalog": "Springer Link",
+				"pages": "165-166",
+				"publicationTitle": "Journal of Religious Education",
+				"shortTitle": "Orlando Nang Kwok Ho",
+				"url": "https://doi.org/10.1007/s40839-019-00082-6",
+				"volume": "67",
+				"attachments": [
+					{
+						"title": "Springer Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/

@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-03-03 11:38:40"
+	"lastUpdated": "2018-11-01 20:19:32"
 }
 
 /*
@@ -93,14 +93,6 @@ function scrape(doc, url) {
 			}
 		}
 		delete item.extra;
-		// scrape EISSN
-		let IssnEntry = ZU.xpathText(doc, '//*[contains(@class, "journal-info")]');
-		if (IssnEntry.match(/[0-9][0-9][0-9][0-9][-][0-9][0-9][0-9][X0-9]/)) item.ISSN = IssnEntry.match(/[0-9][0-9][0-9][0-9][-][0-9][0-9][0-9][X0-9]/).toString();
-		// Artikelnummer ins Zotero-Feld "item.callNumber" (=Feld "Signatur") schreiben.
-		if (item.ISSN === '2077-1444') {
-			item.callNumber = item.pages 
-			delete item.pages;
-		}
 		item.complete();
 	});
 	translator.translate();
@@ -271,65 +263,6 @@ var testCases = [
 					},
 					{
 						"tag": "toxic effect"
-					}
-				],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://www.mdpi.com/2077-1444/11/10/543",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Gender Equality in and on Tibetan Buddhist Nuns’ Terms",
-				"creators": [
-					{
-						"lastName": "Padma’tsho (Baimacuo)",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Sarah",
-						"lastName": "Jacoby",
-						"creatorType": "author"
-					}
-				],
-				"date": "2020/10",
-				"DOI": "10.3390/rel11100543",
-				"ISSN": "2077-1444",
-				"abstractNote": "Gender equality and feminism are often cast as concepts foreign to the Tibetan cultural region, even as scholarship exploring alliances between Buddhism and feminism has grown. Critics of this scholarship contend that it superimposes liberal discourses of freedom, egalitarianism, and human rights onto Asian Buddhist women&rsquo;s lives, without regard for whether/how these accord with women&rsquo;s self-understandings. This article aims to serve as a corrective to this omission by engaging transnational feminist approaches to listen carefully to the rhetoric, aims, and interpretations of a group of Tibetan nuns who are redefining women&rsquo;s activism in and on their own terms. We conclude that their terms are not derivative of foreign or secular liberal rights-based theories, but rather outgrowths of Buddhist principles taking on a new shape in modern Tibet.",
-				"issue": "10",
-				"language": "en",
-				"libraryCatalog": "www.mdpi.com",
-				"pages": "543",
-				"publicationTitle": "Religions",
-				"rights": "http://creativecommons.org/licenses/by/3.0/",
-				"url": "https://www.mdpi.com/2077-1444/11/10/543",
-				"volume": "11",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [
-					{
-						"tag": "Tibetan nuns"
-					},
-					{
-						"tag": "gender equality"
-					},
-					{
-						"tag": "liberal rights"
-					},
-					{
-						"tag": "transnational feminism"
 					}
 				],
 				"notes": [],
