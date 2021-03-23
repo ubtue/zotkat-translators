@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-03-18 08:38:00"
+	"lastUpdated": "2021-03-23 09:58:00"
 }
 
 // Zotero Export Translator für das Pica Intern Format
@@ -262,12 +262,6 @@ function performExport() {
 
 		var physicalForm = "";//0500 Position 1
 		var licenceField = ""; // 0500 Position 4 only for Open Access Items; http://swbtools.bsz-bw.de/cgi-bin/help.pl?cmd=kat&val=4085&regelwerk=RDA&verbund=SWB
-		//mark Open Access articles as "LF" in Pica3 field 4950
-		for (i=0; i<item.notes.length; i++) {
-			if (item.notes[i].note.match(/LF:/)) {
-				licenceField = "l";
-			}
-		}
 		var SsgField = "";
 		var superiorPPN = "";
 		var journalTitlePPN = "";
@@ -434,12 +428,7 @@ function performExport() {
                 addLine(currentItemId, "\\n2053", item.DOI.replace('https://doi.org/', ''));
             }
         }
-		//ORCID Number from item.notes --> 8910
-		for (i=0; i<item.notes.length; i++) {
-			if (item.notes[i].note.match(/orcid/gi)) {
-				addLine(currentItemId, "\\n8910", "$aixzom$b" + ZU.unescapeHTML((item.notes[i].note)).trim());
-			}
-		}
+
         //Autoren --> 3000, 3010
         //Titel, erster Autor --> 4000
         var titleStatement = "";
@@ -494,21 +483,31 @@ function performExport() {
 
                 //Lookup für Autoren
                 if (authorName[0] != "!") {
-                    var lookupUrl = "http://swb.bsz-bw.de/DB=2.104/SET=70/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=1&TRM0=" + authorName + "&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=(theolog*|neutestament*|alttestament*|kirchenhist*|judais*|Religionswi*|Archäo*|Orient*|altertum*)&ACT3=-&IKT3=8991&TRM3=1[0%2C1%2C2%2C3%2C4%2C5%2C6%2C7][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9]"
+                    var lookupUrl = "https://swb.bsz-bw.de/DB=2.104/SET=70/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=1&TRM0=" + authorName + "&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=(theolog*|neutestament*|alttestament*|kirchenhist*)&ACT3=-&IKT3=8991&TRM3=1[0%2C1%2C2%2C3%2C4%2C5%2C6%2C7][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9]"
 
                     /*
-                    lookupUrl kann je nach Anforderung noch spezifiziert werden, im obigen Abfragebeispiel:
-                    suchen [und] (Person(Phrase: Nachname, Vorname) [PER]) " authorName "
-                    eingrenzen (Systematiknummer der SWD [SN]) *
-                    eingrenzen (Relationiertes Schlagwort in der GND [RLS]) theolog*
-                    ausgenommen (Relationierte Zeit in der GND [RLZ]) 1[1,2,3,4,5,6,7,8][0,1,2,3,4,5,6,7,8,9][0,1,2,3,4,5,6,7,8,9]
+                    lookupUrl kann je nach Anforderung noch spezifiziert werden.
+					Beispiel mit "Zenger, Erich"
+					https://swb.bsz-bw.de/DB=2.104/SET=70/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=1&TRM0=zenger, erich&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=(theolog*|neutestament*|alttestament*|kirchenhist*)&ACT3=-&IKT3=8991&TRM3=1[0%2C1%2C2%2C3%2C4%2C5%2C6%2C7][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9]"
+					
+					Suchaktion im Katalog sieht wie folgt aus:
+					
+                    suchen [und] (Person(Phrase: Nachname, Vorname) [PER]) zenger, erich
+					eingrenzen (Systematiknummer der SWD [SN]) *
+					eingrenzen (Relationierter Normsatz in der GND [RL]) (theolog*|neutestament*|alttestament*|kirchenhist*)
+					ausgenommen (Relationierter Normsatz in der GND [RL]) 1[0,1,2,3,4,5,6,7][0,1,2,3,4,5,6,7,8,9][0,1,2,3,4,5,6,7,8,9]
 
-                    IKT0=1 TRM0= für Persönlicher Name in Picafeld 100
+                    Aufbau des Lookup-URL:
+					"IKT0=1" Erster Suchaspekt mit Indikatorwert "1" (=Phrasensuche mit Nachname, Vorname)
+					"TRM0=" Nach "=" kommt dann der Suchstring.
+					...
+					
+					IKT0=1 TRM0= für Persönlicher Name in Picafeld 100
                     IKT1=2057 TRM1=3.* für GND-Systematik
                     IKT2=8963 TRM2=theolog*    für Berufsbezeichnung 550
                     IKT3=8991 TRM3=1[1,2,3,4,5,6,7,8][0,1,2,3,4,5,6,7,8,9][0,1,2,3,4,5,6,7,8,9] für Geburts- und Sterbedatum (Bereich)
 
-                    ###OPERATOREN vor "IKT"###
+                    ###OPERATOREN "ACT" vor "IKT"###
                     UND-Verknüpfung "&" | ODER-Verknüpfung "%2B&" | Nicht "-&"
 
                     ###TYP IKT=Indikatoren|Zweite Spalte Schlüssel(IKT)###
