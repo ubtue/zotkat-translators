@@ -1,12 +1,12 @@
 {
-	"translatorID": "a581954e-ea71-453f-a96d-aedee8975d93",
-	"label": "Innsbruck_PicaK10plus_single",
+	"translatorID": "3e7474b7-4960-4627-811f-f2ba2841405a",
+	"label": "Innsbruck_GIRARD_PicaK10plus_single",
 	"creator": "Philipp Zumstein, Timotheus Kim, Mario Trojan, Madeeswaran Kannan",
 	"target": "txt",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 100,
-	"inRepository": true,
+	"inRepository": false,
 	"translatorType": 2,
 	"browserSupport": "gcs",
 	"lastUpdated": "2021-03-23 10:38:00"
@@ -345,6 +345,10 @@ function performExport() {
             default:
                 addLine(currentItemId, "0503", "Online-Ressource$bcr");
         }
+		
+		//item.type --> 0575 code BIIN, KALD, GIRA
+		addLine(currentItemId, "0575", "GIRA");
+		
         //item.date --> 1100
         var date = Zotero.Utilities.strToDate(item.date);
         if (date.year !== undefined) {
