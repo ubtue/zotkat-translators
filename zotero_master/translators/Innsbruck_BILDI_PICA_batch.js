@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-03-23 10:38:00"
+	"lastUpdated": "2021-03-25 07:38:00"
 }
 
 // Zotero Export Translator für das Pica Intern Format
@@ -369,7 +369,7 @@ function performExport() {
 		//item.date --> 1100
         var date = Zotero.Utilities.strToDate(item.date);
         if (date.year !== undefined) {
-            addLine(currentItemId, "\\n1100", date.year.toString() + "$n[" + date.year.toString() + "]");
+            addLine(currentItemId, "\\n1100", date.year.toString();
         }
 
         //1130 Datenträger K10Plus:1130 alle Codes entfallen, das Feld wird folglich nicht mehr benötigt
@@ -438,10 +438,10 @@ function performExport() {
         if (item.shortTitle == "journalArticle") {
             titleStatement += item.shortTitle;
             if (item.title && item.title.length > item.shortTitle.length) {
-                titleStatement += "$d" + ZU.unescapeHTML(item.title.substr(item.shortTitle.length).replace(/:(?!\d)\s*/,''));
+                titleStatement;
             }
         } else {
-            titleStatement += item.title.replace(/:(?!\d)\s*/,'$d');
+            titleStatement;
         }
         //Sortierzeichen hinzufügen, vgl. https://github.com/UB-Mannheim/zotkat/files/137992/ARTIKEL.pdf
         if (item.language == "ger" || !item.language) {
