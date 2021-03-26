@@ -424,10 +424,10 @@ function performExport() {
         if (item.shortTitle == "journalArticle") {
             titleStatement += item.shortTitle;
             if (item.title && item.title.length > item.shortTitle.length) {
-                titleStatement;
+                titleStatement += ZU.unescapeHTML(item.title.substr(item.shortTitle.length));
             }
         } else {
-            titleStatement;
+            titleStatement += item.title;
         }
         //Sortierzeichen hinzufügen, vgl. https://github.com/UB-Mannheim/zotkat/files/137992/ARTIKEL.pdf
         if (item.language == "ger" || !item.language) {
