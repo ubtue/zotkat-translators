@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-03-25 07:38:00"
+	"lastUpdated": "2021-03-23 10:38:00"
 }
 
 // Zotero Export Translator für das Pica Intern Format
@@ -369,7 +369,7 @@ function performExport() {
 		//item.date --> 1100
         var date = Zotero.Utilities.strToDate(item.date);
         if (date.year !== undefined) {
-            addLine(currentItemId, "\\n1100", date.year.toString();
+            addLine(currentItemId, "\\n1100", date.year.toString());
         }
 
         //1130 Datenträger K10Plus:1130 alle Codes entfallen, das Feld wird folglich nicht mehr benötigt

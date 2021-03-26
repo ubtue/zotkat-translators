@@ -6,7 +6,7 @@
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 100,
-	"inRepository": true,
+	"inRepository": false,
 	"translatorType": 2,
 	"browserSupport": "gcs",
 	"lastUpdated": "2021-03-25 07:38:00"
@@ -352,7 +352,7 @@ function performExport() {
         //item.date --> 1100
         var date = Zotero.Utilities.strToDate(item.date);
         if (date.year !== undefined) {
-            addLine(currentItemId, "1100", date.year.toString();
+            addLine(currentItemId, "1100", date.year.toString());
         }
 
         //1130 Datenträger K10Plus:1130 alle Codes entfallen, das Feld wird folglich nicht mehr benötigt
