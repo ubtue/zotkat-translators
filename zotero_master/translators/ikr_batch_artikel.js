@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-02-18 15:33:00"
+	"lastUpdated": "2021-04-08 10:33:00"
 }
 
 
@@ -233,7 +233,7 @@ function addLine(itemid, code, value) {
 	//call the function EscapeNonASCIICharacters
 	value = EscapeNonASCIICharacters(value);
     //Zeile zusammensetzen
-    var line = code + " " + value.replace( '|s|#n', '|f|Norm').replace( '|s|#r', '|f|Rechtsprechung').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1').replace('|s|17can', '|t|Codex Iuris Canonici (1917)').replace('|s|can', '|t|Codex Iuris Canonici (1983)').replace('|s|cceo','|t|Codex canonum ecclesiarum orientalium');
+    var line = code + " " + value.replace( '|s|#n', '|f|Norm').replace( '|s|#r', '|f|Rechtsprechung').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1').replace('|s|17can', '|t|Codex Iuris Canonici (1917)').replace('|s|can', '|t|Codex Iuris Canonici (1983)').replace('|s|cceo','|t|Codex canonum ecclesiarum orientalium').replace('https://doi.org/https://doi.org/', 'https://doi.org/');
     itemsOutputCache[itemid].push(line);
 }
 
@@ -383,9 +383,11 @@ function performExport() {
         }*/
 
         //1131 Art des Inhalts
-        if (item.itemType == "magazineArticle") {
-            addLine(currentItemId, "\\n1131", "!106186019!");
-        }
+        for (i=0; i<item.tags.length; i++) {
+			if (item.tags[i].tag.match(/RezensionstagPica|Book Reviews/)) {
+				addLine(currentItemId, "1131", "!106186019!");
+			}
+		}
 
         // 1140 Veröffentlichungsart und Inhalt http://swbtools.bsz-bw.de/winibwhelp/Liste_1140.htm K10plus:1140 "uwre" entfällt. Das Feld wird folglich auch nicht mehr benötigt. Es sei denn es handelt sich um eines der folgenden Dokumente: http://swbtools.bsz-bw.de/cgi-bin/k10plushelp.pl?cmd=kat&val=1140&kattype=Standard
         /*if (item.itemType == "magazineArticle") {
@@ -418,9 +420,9 @@ function performExport() {
         //item.DOI --> 2051 bei "Oou" bzw. 2053 bei "Aou"
         if (item.DOI) {
             if (physicalForm === "O" || item.DOI) {
-                addLine(currentItemId, "\\n2051", item.DOI);
+                addLine(currentItemId, "\\n2051", item.DOI.replace('https://doi.org/', ''));
             } else if (physicalForm === "A") {
-                addLine(currentItemId, "\\n2053", item.DOI);
+                addLine(currentItemId, "\\n2053", item.DOI.replace('https://doi.org/', ''));
             }
         }
 
@@ -479,7 +481,7 @@ function performExport() {
 
                 //Lookup für Autoren
                 if (authorName[0] != "!") {
-                    var lookupUrl = "http://swb.bsz-bw.de/DB=2.104/SET=70/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=1&TRM0=" + authorName +"&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=(theolog*|neutestament*|alttestament*|kirchenhist*|judais*|Religionswi*|Archäo*|Orient*|altertum*)&ACT3=-&IKT3=8991&TRM3=1[0%2C1%2C2%2C3%2C4%2C5%2C6%2C7][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9]"
+                    var lookupUrl = "https://swb.bsz-bw.de/DB=2.104/SET=70/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=1&TRM0=" + authorName + "&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=(theolog*|neutestament*|alttestament*|kirchenhist*)&ACT3=-&IKT3=8991&TRM3=1[0%2C1%2C2%2C3%2C4%2C5%2C6%2C7][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9]"
 
                     /*
                     lookupUrl kann je nach Anforderung noch spezifiziert werden, im obigen Abfragebeispiel:
@@ -515,7 +517,7 @@ function performExport() {
                         function(doc, url, threadParams){
                             var ppn = Zotero.Utilities.xpathText(doc, '//small[a[img]]');
                             if (ppn) {
-                                var authorValue = "!" + ppn.slice(0,10).trim() + "!" + "$BVerfasserIn$4aut" + "\\n8910 $aixzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet\\n";
+                                var authorValue = "!" + ppn.slice(0,10).trim() + "!" + "$BVerfasserIn$4aut" + "\\n8910 $amxzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet\\n";
                                 addLine(threadParams["currentItemId"], threadParams["code"], authorValue);
                             } else {
                                 addLine(threadParams["currentItemId"], threadParams["code"],  "!" + threadParams["authorName"] + "!$BVerfasserIn$4aut");
@@ -578,21 +580,47 @@ function performExport() {
             addLine(currentItemId, "\\n4950", item.url + "$xR"); //K10Plus:wird die URL aus dem DOI, einem handle oder einem urn gebildet, sollte es $xR heißen und nicht $xH
         }
 
-		//URL --> 4085 nur bei Satztyp "O.." im Feld 0500 K10Plus:aus 4085 wird 4950 
+		//URL --> 4085 nur bei Satztyp "O.." im Feld 0500 K10Plus:aus 4085 wird 4950
 		switch (true) {
-			case item.url && physicalForm === "O" && licenceField === "l": 
-				addLine(currentItemId, "\\n4950", item.url + "$xR$4LF");//K10Plus:0500 das "l" an der vierten Stelle entfällt, statt dessen wird $4LF in 4950 gebildet
+			case item.url && item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "l": 
+				addLine(currentItemId, "\\n4950", item.url + "$xR$3Volltext$4LF$534");//K10Plus:0500 das "l" an der vierten Stelle entfällt, statt dessen wird $4LF in 4950 gebildet
 				break;
-			case item.url && physicalForm === "O" && licenceField === "kw":
-				addLine(currentItemId, "\\n4950", item.url + "$xR$zKW");
+			case item.url && !item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "l": 
+				addLine(currentItemId, "\\n4950", item.url + "$xH$3Volltext$4LF$534");//K10Plus:0500 das "l" an der vierten Stelle entfällt, statt dessen wird $4LF in 4950 gebildet
 				break;
-			case item.url && physicalForm === "O":
-				addLine(currentItemId, "\\n4950", item.url + "$xR");
+			case item.url && item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "kw":
+				addLine(currentItemId, "\\n4950", item.url + "$xR$3Volltext$4KW$534");
+				break;
+			case item.url && !item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "kw":
+				addLine(currentItemId, "\\n4950", item.url + "$xH$3Volltext$4KW$534");
+				break;
+			case item.url && item.url.match(/doi\.org\/10\./) && physicalForm === "O":
+				addLine(currentItemId, "\\n4950", item.url + "$xR$3Volltext$4ZZ$534");
+				break;
+			case item.url && !item.url.match(/doi\.org\/10\./) && physicalForm === "O":
+				addLine(currentItemId, "\\n4950", item.url + "$xH$3Volltext$4ZZ$534");
 				break;
 			case item.url && item.itemType == "magazineArticle":
-				addLine(currentItemId, "\\n4950", item.url + "$xR");
+				addLine(currentItemId, "\\n4950", item.url + "$xH");
 				break;
 			}
+		
+		//DOI --> 4950 DOI in aufgelöster Form mit Lizenzinfo "LF"
+		    if (item.DOI && item.url && !item.url.match(/https?:\/\/doi\.org/) && licenceField === "l") {
+			addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4LF$534");
+		    }
+		    //DOI --> 4950 DOI in aufgelöster Form mit Lizenzinfo "ZZ"
+		    if (item.DOI && item.url && !item.url.match(/https?:\/\/doi\.org/) && !licenceField) {
+			addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4ZZ$534");
+		    }
+			if (item.DOI && !item.url) {
+				if (licenceField === "l") {
+					addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4LF$534");
+				} else if (!licenceField) {
+					addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4ZZ$534");
+				}
+			}
+
         //Reihe --> 4110
         if (!article) {
             var seriesStatement = "";
@@ -608,7 +636,7 @@ function performExport() {
         //Inhaltliche Zusammenfassung --> 4207
         if (item.abstractNote) {
 			item.abstractNote = ZU.unescapeHTML(item.abstractNote);
-            addLine(currentItemId, "\\n4207", item.abstractNote.replace("Zusammenfassung", "").replace(" Summary", "").replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', ''));
+			addLine(currentItemId, "\\n4207", item.abstractNote.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract\s?:?/, '').replace(/Abstract  :/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, ''));
         }
 
         //item.publicationTitle --> 4241 Beziehungen zur größeren Einheit

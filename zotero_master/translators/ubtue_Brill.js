@@ -1,6 +1,6 @@
 {
 	"translatorID": "b2fcf7d9-e023-412e-a2bc-f06d6275da24",
-	"label": "Brill",
+	"label": ubtue_"Brill",
 	"creator": "Madeesh Kannan",
 	"target": "^https?://brill.com/view/journals/",
 	"minVersion": "3.0",
@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-03-03 15:59:25"
+	"lastUpdated": "2020-03-29 15:34:25"
 }
 
 /*
