@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-03-18 09:23:09"
+	"lastUpdated": "2021-04-19 10:43:27"
 }
 
 /*
@@ -116,10 +116,6 @@ function scrape(doc, url) {
 				item.abstractNote = abstract;
 			}
 			
-			/*for (let tag of tags) {
-				item.tags.push(tag.textContent);
-			}*/
-			
 			// Workaround while Sabinet hopefully fixes RIS for authors
 			for (let i = 0; i < item.creators.length; i++) {
 				if (!item.creators[i].firstName) {
@@ -129,25 +125,81 @@ function scrape(doc, url) {
 				}
 			}
 			// mark open access articles as "LF"
-			let accessIcon = ZU.xpathText(doc, '//*[contains(@class, "citation__access__type")]');Z.debug(accessIcon)
+			let accessIcon = ZU.xpathText(doc, '//*[contains(@class, "citation__access__type")]');//Z.debug(accessIcon)
 			if (accessIcon && accessIcon.match(/open\s+access/gi)) item.notes.push({note: 'LF:'});
 			item.language = ZU.xpathText(doc, '//meta[@name="dc.Language"]/@content');
 			//scraping orcid number 
-			let authorSectionEntries = ZU.xpath(doc, '//*[contains(@class, "loa-accordion")]');Z.debug(authorSectionEntries)
+			let authorSectionEntries = ZU.xpath(doc, '//*[contains(@class, "loa-accordion")]');//Z.debug(authorSectionEntries)
 			for (let authorSectionEntry of authorSectionEntries) {
-				let authorInfo = authorSectionEntry.textContent;Z.debug(authorInfo)
+				let authorInfo = authorSectionEntry.textContent;//Z.debug(authorInfo)
 				//let orcidHref = authorSectionEntry.querySelector('.textContent');
 				if (authorInfo) {
-					let author = authorInfo.split("http")[0];Z.debug(author)
+					let author = authorInfo.split("http")[0];//Z.debug(author)
 					let orcid = authorInfo.replace(/.*(\d{4}-\d+-\d+-\d+x?)/i, '$1').replace("Search for more papers by this author", "").trim();
 					item.notes.push({note: "orcid:" + orcid + " | author=" + author + " | taken from website"});
 				}
 			}
 			//deduplicate
 			item.notes = Array.from(new Set(item.notes.map(JSON.stringify))).map(JSON.parse);
-	
-			item.complete();
+						let lookupIssn = doc.querySelectorAll('#menu-item-pub_nav-1 a');
+			if (!item.ISSN) {
+				let post = lookupIssn[0].href;
+				ZU.processDocuments(post, function (scrapeEissn) {
+					var eissn = ZU.xpathText(scrapeEissn, '//*[(@class = "teaser__item")]');//Z.debug(eissn)
+					if (eissn && eissn.match(/\d{4}-?\d{4}/gi)) {
+						item.ISSN = eissn.match(/\d{4}-?\d{4}/gi).toString();
+					}
+					item.complete();
+				});
+			}
 		});
 		translator.translate();
 	});
 }
+/** BEGIN TEST CASES **/
+var testCases = [
+	{
+		"type": "web",
+		"url": "https://journals.co.za/doi/abs/10.17159/2312-3621/2020/v33n1a3",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Reading trauma narratives : insidious trauma in the story of Rachel, Leah, Bilhah and Zilpah (Genesis 29-30) and Margaret Atwood’s The Handmaid’s Tale",
+				"creators": [
+					{
+						"firstName": "Claassens",
+						"lastName": "Juliana",
+						"creatorType": "author"
+					}
+				],
+				"date": "October 1, 2020",
+				"DOI": "10.17159/2312-3621/2020/v33n1a3",
+				"ISSN": "1010-9919",
+				"abstractNote": "This article investigates the notion of insidious trauma as a helpful means of interpreting the story of Rachel, Leah, Bilhah and Zilpah as told in Genesis 29-30 that has found its way into the\n      haunting trauma narrative of Margaret Atwood’s The Handmaid’s Tale. In the first instance, this article outlines the category of insidious trauma as it is situated in terms of the broader field\n      of trauma hermeneutics, as well as the way in which it relates to the related disciplines of feminist and womanist biblical interpretation. This article will then continue to show how insidious\n      trauma features in two very different, though intrinsically connected trauma narratives, i.e., the world imagined by Atwood in The Handmaid’s Tale, and the biblical narrative regarding the four\n      women through whose reproductive efforts the house of Israel had been built that served as the inspiration for Atwood’s novel. This article argues that these trauma narratives, on the one hand,\n      reflect the ongoing effects of systemic violation in terms of gender, race and class, but also how, embedded in these narratives there are signs of resistance that serve as the basis of\n      survival of the self and also of others.",
+				"issue": "1",
+				"journalAbbreviation": "Old Testament Essays",
+				"libraryCatalog": "ubtue_Sabinet",
+				"pages": "10-31",
+				"publicationTitle": "Old Testament Essays",
+				"shortTitle": "Reading trauma narratives",
+				"url": "https://doi.org/10.17159/2312-3621/2020/v33n1a3",
+				"volume": "33",
+				"attachments": [],
+				"tags": [],
+				"notes": [
+					{
+						"note": "<p>doi: 10.17159/2312-3621/2020/v33n1a3</p>"
+					},
+					{
+						"note": "LF:"
+					},
+					{
+						"note": "orcid:Juliana Claassens | author= Juliana Claassens     Search for more papers by this author      | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	}
+]
+/** END TEST CASES **/
