@@ -5,11 +5,11 @@
 	"target": "^https://journals.co.za/[a-zA-Z]+",
 	"minVersion": "3.0",
 	"maxVersion": "",
-	"priority": 100,
+	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-04-19 10:43:27"
+	"lastUpdated": "2021-04-19 14:38:27"
 }
 
 /*
@@ -141,7 +141,16 @@ function scrape(doc, url) {
 			}
 			//deduplicate
 			item.notes = Array.from(new Set(item.notes.map(JSON.stringify))).map(JSON.parse);
-						let lookupIssn = doc.querySelectorAll('#menu-item-pub_nav-1 a');
+			//scraping keywords
+			let keywordsEntry = ZU.xpathText(doc, '//a[starts-with(@href, "/keyword")]');
+			if (keywordsEntry) {
+				let keywords =  keywordsEntry.split(",");
+				for (let keyword in keywords) {
+					item.tags.push(keywords[keyword].replace(/^\w/gi,function(m){ return m.toUpperCase();}));
+				}
+			}
+			//ISSN
+			let lookupIssn = doc.querySelectorAll('#menu-item-pub_nav-1 a');
 			if (!item.ISSN) {
 				let post = lookupIssn[0].href;
 				ZU.processDocuments(post, function (scrapeEissn) {
@@ -185,7 +194,32 @@ var testCases = [
 				"url": "https://doi.org/10.17159/2312-3621/2020/v33n1a3",
 				"volume": "33",
 				"attachments": [],
-				"tags": [],
+				"tags": [
+					{
+						"tag": " Bilhah"
+					},
+					{
+						"tag": " Insiduous Trauma"
+					},
+					{
+						"tag": " Leah"
+					},
+					{
+						"tag": " Rachel"
+					},
+					{
+						"tag": " Reproductive Loss"
+					},
+					{
+						"tag": " The Handmaid’s Tale"
+					},
+					{
+						"tag": " Trauma narratives"
+					},
+					{
+						"tag": "Zilpah"
+					}
+				],
 				"notes": [
 					{
 						"note": "<p>doi: 10.17159/2312-3621/2020/v33n1a3</p>"
