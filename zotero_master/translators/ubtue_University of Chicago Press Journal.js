@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-03-17 15:47:42"
+	"lastUpdated": "2021-04-21 13:12:39"
 }
 
 /*
@@ -30,7 +30,7 @@
 
 function detectWeb(doc, url) {
 	if (url.includes('/doi/')) return "journalArticle";
-		else if (url.includes('/toc/') && getSearchResults(doc)) return "multiple";
+	else if (url.includes('/toc/') && getSearchResults(doc)) return "multiple";
 	else return false;
 }
 
@@ -60,38 +60,33 @@ function doWeb(doc, url) {
 			}
 			ZU.processDocuments(articles, scrape);
 		});
-	} else
-		scrape(doc, url); //Z.debug(url)
+	} else {
+		scrape(doc, url);
+	}
 }
 
 function scrape(doc, url) {
 	var risURL = "https://www.journals.uchicago.edu/action/downloadCitation";
-	var doi = ZU.xpathText(doc, '//meta[@name="dc.Identifier" and @scheme="doi"]/@content'); //Z.debug(doi)
+	var doi = ZU.xpathText(doc, '//meta[@name="dc.Identifier" and @scheme="doi"]/@content');
 	if (!doi) {
 		doi = url.match(/10\.[^?#]+/)[0];
 	}
 	var post = "doi=" + encodeURIComponent(doi) + "&include=abs&format=ris&direct=false&submit=Download+Citation";
-	//Z.debug(risURL)
-	//invoke RIS Translator
+
 	ZU.doPost(risURL, post, function (text) {
 		var translator = Zotero.loadTranslator("import");
 		translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
 		translator.setString(text);
 		translator.setHandler("itemDone", function (obj, item) {
-			//Z.debug(text)
 			var tags = ZU.xpath(doc, '//meta[@name="dc.Subject"]');
-			for (var i in tags){
-					//let tags[0].content = tags[0].content.split(';'))
-					let tagentry = tags[i].content.split(/;/);// Z.debug(tagentry)
-					for (var v in tagentry) {
-						item.tags.push(tagentry[v]);	
-					}
+			for (var i in tags) {
+				let tagentry = tags[i].content.split(/;/);
+				for (var v in tagentry) {
+					item.tags.push(tagentry[v]);
 				}
-			//Z.debug(text)
+			}
 			var abstract = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "abstractInFull", " " ))]//p');
-			if (item.abstractNote) item.abstractNote = abstract; // Z.debug(abstract)
-			let review = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "citation__top__item", " " ))]');//Z.debug(review)
-			if (review.match(/review/i)) item.tags.push('RezensionstagPica');
+			if (item.abstractNote) item.abstractNote = abstract;
 			item.complete();
 		});
 		translator.translate();
@@ -271,93 +266,6 @@ var testCases = [
 				"notes": [
 					{
 						"note": "<p>doi: 10.1086/707583</p>"
-					}
-				],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://www.journals.uchicago.edu/doi/10.5615/neareastarch.81.4.0228",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Reuse and Recycling in the Temple of Millions of Years of Thutmosis III (Luxor, Egypt): Archaeological Evidence of a Pottery Workshop",
-				"creators": [
-					{
-						"lastName": "Fernández",
-						"firstName": "Juan Jesús Padilla",
-						"creatorType": "author"
-					},
-					{
-						"lastName": "Chapon",
-						"firstName": "Linda",
-						"creatorType": "author"
-					},
-					{
-						"lastName": "Cortés",
-						"firstName": "Francisco Contreras",
-						"creatorType": "author"
-					}
-				],
-				"date": "December 1, 2018",
-				"DOI": "10.5615/neareastarch.81.4.0228",
-				"ISSN": "1094-2076",
-				"abstractNote": "Archaeological excavations carried out during seasons 2013 and 2014 in the Temple of Millions of Years of Thutmosis III shed light on a set of material elements linked to the production process of ceramics. Among these elements are a kiln and possible decanting sink structures. Long after the sacred precinct had been abandoned, changes seem to have occurred in the ideological and ritual conceptions of the Theban Mountain situated on the west bank of Luxor. These changes led to the reutilization in more recent times of still-visible mud-brick structures, but with different functions and uses.",
-				"issue": "4",
-				"journalAbbreviation": "Near Eastern Archaeology",
-				"libraryCatalog": "ubtue_University of Chicago Press Journal",
-				"pages": "228-237",
-				"publicationTitle": "Near Eastern Archaeology",
-				"shortTitle": "Reuse and Recycling in the Temple of Millions of Years of Thutmosis III (Luxor, Egypt)",
-				"url": "https://doi.org/10.5615/neareastarch.81.4.0228",
-				"volume": "81",
-				"attachments": [],
-				"tags": [],
-				"notes": [
-					{
-						"note": "<p>doi: 10.5615/neareastarch.81.4.0228</p>"
-					}
-				],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://www.journals.uchicago.edu/doi/10.1086/705471",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "The World Between Empires, Metropolitan Museum of Art, New York",
-				"creators": [
-					{
-						"lastName": "Budin",
-						"firstName": "Stephanie Lynn",
-						"creatorType": "author"
-					}
-				],
-				"date": "September 1, 2019",
-				"DOI": "10.1086/705471",
-				"ISSN": "1094-2076",
-				"abstractNote": "This past March I had the grand opportunity to visit this exhibit curated by Blair Fowlkes-Childs and Michael Seymour, which ran from March through June 2019. The intent of the exhibit was twofold. On the one hand it provided a survey of the various cities, states, and societies that populated the Middle East between the great empires of Rome to the west and Parthia to the east (thus the title of the exhibit), ranging in date from the first century BCE to the mid-third century ce. Of particular interest was how these communities situated between dominant and domineering cultures formed their own identities through the mixture of indigenous and imported traditions, and how these identities were expressed. Thus the placard welcoming visitors to the exhibit reads:, Following a journey along ancient trade routes across the Middle East, the exhibition explores how local life and culture were shaped by diverse cities and communities, and how identities were expressed through art.,",
-				"issue": "3",
-				"journalAbbreviation": "Near Eastern Archaeology",
-				"libraryCatalog": "ubtue_University of Chicago Press Journal",
-				"pages": "179-185",
-				"publicationTitle": "Near Eastern Archaeology",
-				"url": "https://doi.org/10.1086/705471",
-				"volume": "82",
-				"attachments": [],
-				"tags": [
-					{
-						"tag": "RezensionstagPica"
-					}
-				],
-				"notes": [
-					{
-						"note": "<p>doi: 10.1086/705471</p>"
 					}
 				],
 				"seeAlso": []
