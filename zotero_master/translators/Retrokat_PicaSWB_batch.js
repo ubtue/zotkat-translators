@@ -1,5 +1,5 @@
 {
-	"translatorID": "2edf7a1b-eded-48d7-ae11-7126fd1c1b01",
+	"translatorID": "daea8901-f783-406c-9271-7d2f9a7cf4fa",
 	"label": "Retroprojekt_PicaK10plus_batch",
 	"creator": "Philipp Zumstein, Timotheus Kim, Mario Trojan, Madeeswaran Kannan, Johannes Ruscheinski",
 	"target": "txt",
@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-04-23 13:58:00"
+	"lastUpdated": "2021-04-26 13:39:00"
 }
 
 // Zotero Export Translator für das Pica Intern Format
@@ -705,7 +705,7 @@ function performExport() {
 				}
 			}
 
-			addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo$ixrk");\napplication.activeWindow.pressButton("Enter");\n\n', ""); //K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo$ixrk
+			addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo$aixrk");\napplication.activeWindow.pressButton("Enter");\n\n', ""); //K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo$ixrk
         }
     }
 

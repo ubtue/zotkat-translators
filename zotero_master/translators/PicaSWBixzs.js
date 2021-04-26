@@ -1,5 +1,5 @@
 {
-	"translatorID": "2edf7a1b-eded-48d7-ae11-7126fd1c1b07",
+	"translatorID": "19fd7ed0-b853-4165-b1da-f512a3e6c304",
 	"label": "PicaK10plus_single",
 	"creator": "Philipp Zumstein, Timotheus Kim, Mario Trojan, Madeeswaran Kannan",
 	"target": "txt",
@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-03-23 09:58:00"
+	"lastUpdated": "2021-04-26 13:39:00"
 }
 
 
