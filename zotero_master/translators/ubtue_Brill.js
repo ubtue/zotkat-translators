@@ -1,6 +1,6 @@
 {
 	"translatorID": "b2fcf7d9-e023-412e-a2bc-f06d6275da24",
-	"label": ubtue_"Brill",
+	"label": "ubtue_Brill",
 	"creator": "Madeesh Kannan",
 	"target": "^https?://brill.com/view/journals/",
 	"minVersion": "3.0",
