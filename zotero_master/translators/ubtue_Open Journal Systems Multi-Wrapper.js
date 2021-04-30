@@ -67,7 +67,36 @@ function invokeBestTranslator(doc, url) {
 
 		if (item.volume === "0")
 			item.volume = "";
-
+		var creatorsToDelete = []
+		
+		for (i=0; i<item.creators.length; i++) {
+			var creatorString = item.creators[i]["firstName"] + ' ' + item.creators[i]["lastName"];
+			
+			if (creatorString.match("review|Review")) {
+				creatorString = creatorString.substring(0, creatorString.indexOf(" ("));
+				var creatorsNamesList = creatorString.split(' ');
+				item.creators[i]["lastName"] = creatorsNamesList[creatorsNamesList.length - 1];
+				var firstNameList = creatorString.split(' ').slice(0, creatorString.split(' ').length - 1);
+				item.creators[i]["firstName"] = firstNameList.join(' ');
+				item.tags.push('RezensionstagPica');
+			}
+			else if (creatorString.match("author|Author")) {creatorString = creatorString.substring(0, creatorString.indexOf(" ("));
+				var creatorsNamesList = creatorString.split(' ');
+				item.creators[i]["lastName"] = creatorsNamesList[creatorsNamesList.length - 1];
+				var firstNameList = creatorString.split(' ').slice(0, creatorString.split(' ').length - 1);
+				item.creators[i]["firstName"] = firstNameList.join(' ');
+				item.creators[i]["creatorType"] = "reviewedAuthor";
+				
+			}
+			else if (creatorString.match(/\(book/)) {
+			creatorsToDelete.push(i);}
+		}
+		creatorsToDelete.reverse();
+		for (d=0; d<creatorsToDelete.length; d++) {
+			item.creators.splice(creatorsToDelete[d], 1);
+		}
+		
+		
 		item.complete();
 	});
 	translator.getTranslators();
