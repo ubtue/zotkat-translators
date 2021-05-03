@@ -1,5 +1,5 @@
 {
-    "translatorID": "cf2973a7-5804-4e28-a684-04051122fcc0",
+    "translatorID": "cf2973a7-5804-4e28-a684-04051122fcc1",
     "label": "EquinoxPub",
     "creator": "Madeesh Kannan",
     "target": "^https:\/\/(www)|(journals).equinoxpub.com\/",

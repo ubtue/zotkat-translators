@@ -1,5 +1,5 @@
 {
-	"translatorID": "3eabecf9-663a-4774-a3e6-0790d2732eed",
+	"translatorID": "3eabecf9-663a-4774-a3e6-0790d2732eee",
 	"label": "SciELO",
 	"creator": "Sebastian Karcher",
 	"target": "^https?://(www\\.)?(socialscience\\.|proceedings\\.|biodiversidade\\.|caribbean\\.|comciencia\\.|inovacao\\.|search\\.)?(scielo|scielosp)\\.",
