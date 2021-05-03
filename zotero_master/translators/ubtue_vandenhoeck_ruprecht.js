@@ -2,14 +2,14 @@
 	"translatorID": "dc098d90-7a52-4938-89ee-bc027d2f70df",
 	"label": "ubtue_vandenhoeck_ruprecht",
 	"creator": "Timotheus Kim",
-	"target": "https://www.vr-elibrary.de/toc|doi",
+	"target": "https://www.vr-elibrary.de/(toc|doi)",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-04-22 15:06:50"
+	"lastUpdated": "2021-05-03 06:22:29"
 }
 
 /*
@@ -96,16 +96,20 @@ function scrape(doc, url) {
 			translator.setHandler("itemDone", function (obj, item) {
 				//subtitle
 				let subtitle = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "citation__subtitle", " " ))]');
-				if (subtitle) item.title = fixCase(item.title) + ': ' + subtitle;
+				if (subtitle) {
+					item.shortTitle = fixCase(item.title);
+					item.title = fixCase(item.title) + ': ' + subtitle;
+				}
 				else item.title = fixCase(item.title);
-				
 				for (var i=0; i<item.creators.length; i++) {
 					item.creators[i].lastName = fixCase(item.creators[i].lastName, true);
 					if (item.creators[i].firstName) {
 						item.creators[i].firstName = fixCase(item.creators[i].firstName, true);
 					}
 				}
+				
 				item.url = url;
+				
 				//book review
 				let docType = ZU.xpathText(doc, '//meta[@name="dc.Type"]/@content');
 				if (docType === "book-review")
