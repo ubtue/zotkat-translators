@@ -2,7 +2,7 @@
 	"translatorID": "338ea029-1536-4575-ba9b-42094095f65d",
 	"label": "ubtue_University of Chicago Press Journal",
 	"creator": "Timotheus Kim",
-	"target": "https://www\\.journals\\.uchicago\\.edu/doi|toc",
+	"target": "https://www\\.journals\\.uchicago\\.edu/(doi|toc)",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 100,
