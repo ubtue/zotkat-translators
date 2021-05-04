@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-05 12:34:30"
+	"lastUpdated": "2021-05-04 13:06:31"
 }
 
 /*
@@ -27,7 +27,6 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	***** END LICENSE BLOCK *****
 */
-
 
 function detectWeb(doc, url) {
 	if (url.match(/\/issue\/view/) && getSearchResults(doc))
@@ -67,36 +66,20 @@ function invokeBestTranslator(doc, url) {
 
 		if (item.volume === "0")
 			item.volume = "";
-		var creatorsToDelete = []
 		
-		for (i=0; i<item.creators.length; i++) {
-			var creatorString = item.creators[i]["firstName"] + ' ' + item.creators[i]["lastName"];
-			
-			if (creatorString.match("review|Review")) {
-				creatorString = creatorString.substring(0, creatorString.indexOf(" ("));
-				var creatorsNamesList = creatorString.split(' ');
-				item.creators[i]["lastName"] = creatorsNamesList[creatorsNamesList.length - 1];
-				var firstNameList = creatorString.split(' ').slice(0, creatorString.split(' ').length - 1);
-				item.creators[i]["firstName"] = firstNameList.join(' ');
-				item.tags.push('RezensionstagPica');
+		var authorNames = ZU.xpath(doc, '//meta[@name = "DC.Creator.PersonalName"]');
+		item.creators = [];
+		for (let entry in authorNames) {
+			var authorName = authorNames[entry].content;
+			if (authorName.match(/\(review/i)) {
+				authorName = authorName.substring(0, authorName.indexOf(" ("));
+			item.creators.push(ZU.cleanAuthor(authorName, "author")) ;
+			item.tags.push("RezensionstagPica");
 			}
-			else if (creatorString.match("author|Author")) {creatorString = creatorString.substring(0, creatorString.indexOf(" ("));
-				var creatorsNamesList = creatorString.split(' ');
-				item.creators[i]["lastName"] = creatorsNamesList[creatorsNamesList.length - 1];
-				var firstNameList = creatorString.split(' ').slice(0, creatorString.split(' ').length - 1);
-				item.creators[i]["firstName"] = firstNameList.join(' ');
-				item.creators[i]["creatorType"] = "reviewedAuthor";
-				
+			else if (authorName.match(/\(book/i)) {
+				item.title = authorName.substring(0, authorName.indexOf(" (")) + ', ' + item.title;
 			}
-			else if (creatorString.match(/\(book/)) {
-			creatorsToDelete.push(i);}
 		}
-		creatorsToDelete.reverse();
-		for (d=0; d<creatorsToDelete.length; d++) {
-			item.creators.splice(creatorsToDelete[d], 1);
-		}
-		
-		
 		item.complete();
 	});
 	translator.getTranslators();
@@ -126,7 +109,8 @@ function doWeb(doc, url) {
 			}
 		}
 	}
-}/** BEGIN TEST CASES **/
+}
+/** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "web",
