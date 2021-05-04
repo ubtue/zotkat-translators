@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-05-03 06:22:29"
+	"lastUpdated": "2021-05-04 13:34:47"
 }
 
 /*
@@ -94,6 +94,7 @@ function scrape(doc, url) {
 			translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
 			translator.setString(text);
 			translator.setHandler("itemDone", function (obj, item) {
+				
 				//subtitle
 				let subtitle = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "citation__subtitle", " " ))]');
 				if (subtitle) {
