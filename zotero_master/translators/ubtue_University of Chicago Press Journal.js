@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-04-21 13:12:39"
+	"lastUpdated": "2021-04-30 15:00:45"
 }
 
 /*
@@ -92,6 +92,7 @@ function scrape(doc, url) {
 		translator.translate();
 	});
 }
+
 
 
 /** BEGIN TEST CASES **/

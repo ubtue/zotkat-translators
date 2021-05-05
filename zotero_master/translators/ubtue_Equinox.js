@@ -1,6 +1,6 @@
 {
-    "translatorID": "cf2973a7-5804-4e28-a684-04051122fcc0",
-    "label": "EquinoxPub",
+    "translatorID": "5f99bc78-0875-415d-835d-998f7eacbf47",
+    "label": "ubtue_EquinoxPub",
     "creator": "Madeesh Kannan",
     "target": "^https:\/\/(www)|(journals).equinoxpub.com\/",
     "minVersion": "3.0",
