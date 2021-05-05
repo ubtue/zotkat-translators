@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-03-04 16:04:00"
+	"lastUpdated": "2021-05-04 15:50:07"
 }
 
 /*
@@ -39,18 +39,17 @@ function attr(docOrElem ,selector ,attr ,index){ var elem=index?docOrElem.queryS
 
 function detectWeb(doc, url) {
 	if (url.match(/doi/)) return "journalArticle";
-		else if (url.includes('toc') && getSearchResults(doc, true)) return "journalArticle";
+		else if (url.includes('toc') && getSearchResults(doc, true)) return "multiple";
 	else return false;
 }
 
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	//var rows = ZU.xpath(doc, '//a[@class="ref nowrap"]');Z.debug(rows)
 	var rows = doc.querySelectorAll('a.ref.nowrap');
 	for (var i = 0; i < rows.length; i++) {
-		var href = rows[i].href; Z.debug(href)
-		var title = ZU.trimInternal(rows[i].text); Z.debug(title)
+		var href = rows[i].href;
+		var title = ZU.trimInternal(rows[i].text.replace(/pdf|abstract|references|first\s?page|\(\d+\s?kb\)/gi, ''));
 		if (!href || !title) continue;
 		if (checkOnly) return true;
 		found = true;
@@ -77,7 +76,6 @@ function doWeb(doc, url) {
 	}
 }
 
-
 function invokeEMTranslator(doc, url) {
 	var translator = Zotero.loadTranslator('web');
 	translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48');
@@ -85,17 +83,17 @@ function invokeEMTranslator(doc, url) {
 	translator.setHandler('itemDone', function (t, i) {
 		var rows = doc.querySelectorAll('.hlFld-Abstract');//Z.debug(rows)
 		for (let row of rows) {
-			var abstractsEntry = row.innerText; //Z.debug(abstractsEntry)
+			var abstractsEntry = row.innerText;//Z.debug(abstractsEntry)
 			if (abstractsEntry) {
-				var abstractsOneTwoThree = abstractsEntry.split('\n\n'); //Z.debug(abstractsOneTwo)
-				if (abstractsOneTwoThree[3]) {
-					i.abstractNote = abstractsOneTwoThree[1] + '\\n4207 ' + abstractsOneTwoThree[2] + '\\n4207 ' + abstractsOneTwoThree[3];
+				var abstractsOneTwoThree = abstractsEntry.split('\n\n');//Z.debug(abstractsOneTwoThree)
+				if (abstractsOneTwoThree[2]) {
+					i.abstractNote = abstractsOneTwoThree[0] + '\\n4207 ' + abstractsOneTwoThree[1] + '\\n4207 ' + abstractsOneTwoThree[2];
 				}
-				else if (abstractsOneTwoThree[2]) {
-					i.abstractNote = abstractsOneTwoThree[1] + '\\n4207 ' + abstractsOneTwoThree[2];
+				else if (abstractsOneTwoThree[1]) {
+					i.abstractNote = abstractsOneTwoThree[0] + '\\n4207 ' + abstractsOneTwoThree[1];
 				}
-				else if (!abstractsOneTwoThree[2]) {
-					i.abstractNote = abstractsOneTwoThree[1];
+				else if (!abstractsOneTwoThree[1]) {
+					i.abstractNote = abstractsOneTwoThree[0];
 				}
 				
 			} else {
@@ -104,16 +102,16 @@ function invokeEMTranslator(doc, url) {
 			}
 		
 		if (i.reportType === "book-review") i.tags.push('RezensionstagPica') && delete i.abstractNote;	
-		let pages = text(doc, '.publicationContentPages'); //Z.debug(pages)
-		if (pages) i.pages = pages.match(/\s\d+-\d+/)[0]; //Z.debug(i.pages)
-		let volumes = text(doc, '.breadcrumbs'); //Z.debug(volumes)
+		let pagesEntry = text(doc, '.publicationContentPages');
+		i.pages = pagesEntry.match(/\s\d+\w?-\d+/)[0];
+		let volumes = text(doc, '.breadcrumbs');
 		if (volumes) i.volume = volumes.match(/Volume\s?\d+/)[0].replace('Volume', '');
 		let issue = text(doc, '.breadcrumbs');
 		let issueError = issue.toString();
 		i.archive = i.issue;
 		if (issueError) i.issue = issueError.split('>')[3].split('Issue')[1];
-		let year = attr(doc, 'ul.breadcrumbs li:nth-child(4) a', 'href');//Z.debug(year)
-		if (year.match(/\w+\/\d+/)) i.date = year.split('/')[3];//Z.debug(i.date)
+		let year = attr(doc, 'ul.breadcrumbs li:nth-child(4) a', 'href');
+		if (year && year.match(/\w+\/\d+/)) i.date = year.split('/')[3];
 		let issn = text(doc, '.serialDetailsEissn');
 		if (issn) i.ISSN = issn.replace('Online ISSN:', '');
 		i.itemType = "journalArticle";
