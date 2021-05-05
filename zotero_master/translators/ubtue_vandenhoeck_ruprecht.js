@@ -9,7 +9,11 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
+ hnebel
+	"lastUpdated": "2021-05-04 13:34:47"
+
 	"lastUpdated": "2021-05-04 13:26:50"
+ master
 }
 
 /*
@@ -94,18 +98,23 @@ function scrape(doc, url) {
 			translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
 			translator.setString(text);
 			translator.setHandler("itemDone", function (obj, item) {
+				
 				//subtitle
 				let subtitle = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "citation__subtitle", " " ))]');
-				if (subtitle) item.title = fixCase(item.title) + ': ' + subtitle;
+				if (subtitle) {
+					item.shortTitle = fixCase(item.title);
+					item.title = fixCase(item.title) + ': ' + subtitle;
+				}
 				else item.title = fixCase(item.title);
-				
 				for (var i=0; i<item.creators.length; i++) {
 					item.creators[i].lastName = fixCase(item.creators[i].lastName, true);
 					if (item.creators[i].firstName) {
 						item.creators[i].firstName = fixCase(item.creators[i].firstName, true);
 					}
 				}
+				
 				item.url = url;
+				
 				//book review
 				let docType = ZU.xpathText(doc, '//meta[@name="dc.Type"]/@content');
 				if (docType === "book-review")

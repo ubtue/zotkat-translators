@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-05 12:34:30"
+	"lastUpdated": "2021-05-05 08:53:28"
 }
 
 /*
@@ -28,10 +28,25 @@
 	***** END LICENSE BLOCK *****
 */
 
-
 function detectWeb(doc, url) {
 	if (url.match(/\/issue\/view/) && getSearchResults(doc))
 		return "multiple";
+}
+
+function getAuthors(doc, item) {
+	var authorNames = ZU.xpath(doc, '//meta[@name = "DC.Creator.PersonalName"]');
+	item.creators = [];
+	for (let entry in authorNames) {
+		var authorName = authorNames[entry].content;
+		if (authorName.match(/\(review/i)) {
+			authorName = authorName.substring(0, authorName.indexOf(" ("));
+		item.creators.push(ZU.cleanAuthor(authorName, "author")) ;
+		item.tags.push("RezensionstagPica");
+		}
+		else if (authorName.match(/\(book/i)) {
+			item.title = authorName.substring(0, authorName.indexOf(" (")) + ', ' + item.title;
+		}
+	}
 }
 
 function getSearchResults(doc) {
@@ -67,7 +82,9 @@ function invokeBestTranslator(doc, url) {
 
 		if (item.volume === "0")
 			item.volume = "";
-
+		if (item.ISSN == "0034-429X") {
+		getAuthors(doc, item);
+		}
 		item.complete();
 	});
 	translator.getTranslators();
@@ -97,7 +114,8 @@ function doWeb(doc, url) {
 			}
 		}
 	}
-}/** BEGIN TEST CASES **/
+}
+/** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "web",
