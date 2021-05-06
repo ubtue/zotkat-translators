@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-05-05 11:00:23"
+	"lastUpdated": "2021-05-06 15:30:51"
 }
 
 /*
@@ -68,17 +68,20 @@ function invokeBestTranslator(doc, url) {
 			item.volume = "";
 		
 		var authorNames = ZU.xpath(doc, '//meta[@name = "DC.Creator.PersonalName"]');
-		item.creators = [];
+		newCreators = [];
 		for (let entry in authorNames) {
 			var authorName = authorNames[entry].content;
 			if (authorName.match(/\(review/i)) {
 				authorName = authorName.substring(0, authorName.indexOf(" ("));
-			item.creators.push(ZU.cleanAuthor(authorName, "author")) ;
+			newCreators.push(ZU.cleanAuthor(authorName, "author")) ;
 			item.tags.push("RezensionstagPica");
 			}
 			else if (authorName.match(/\(book/i)) {
 				item.title = authorName.substring(0, authorName.indexOf(" (")) + ', ' + item.title;
 			}
+		}
+		if (newCreators.length != 0) {
+			item.creators = newCreators;
 		}
 		item.complete();
 	});
@@ -113,7 +116,7 @@ function doWeb(doc, url) {
 var testCases = [
 	{
 		"type": "web",
-		"url": "http://www.zwingliana.ch/index.php/zwa/article/view/2517",
+		"url": "https://jps.library.utoronto.ca/index.php/renref/issue/view/1976",
 		"items": "multiple"
 	}
 ]
