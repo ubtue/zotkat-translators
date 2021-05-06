@@ -9,11 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
- hnebel
 	"lastUpdated": "2021-05-04 13:34:47"
-
-	"lastUpdated": "2021-05-04 13:26:50"
- master
 }
 
 /*
