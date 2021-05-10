@@ -67,7 +67,7 @@ var journal_title_to_language_code = {
 
 /* =============================================================================================================== */
 // ab hier Programmcode
-var defaultSsgNummer = "1";
+var defaultSsgNummer = "";
 var defaultLanguage = "eng";
 
 //lokaldatensatz z.B. \\n6700 !372049834!\\n6700 !37205241X!\\n6700 !372053025!\\n6700!37205319X!
@@ -668,11 +668,11 @@ function performExport() {
 
 			//SSG bzw. FID-Nummer --> 5056 "0" = Religionwissenschaft | "1" = Theologie | "0; 1" = RW & Theol.
 
-            if (SsgField === "0" || SsgField === "0$a1" || SsgField === "FID-KRIM-DE-21") { 
+           /* if (SsgField === "0" || SsgField === "0$a1" || SsgField === "FID-KRIM-DE-21") { 
                 addLine(currentItemId, "\\n5056", SsgField);
             } else {
                 addLine(currentItemId, "\\n5056", defaultSsgNummer);
-            }
+            }*/
 			
             //Schlagwörter aus einem Thesaurus (Fremddaten) --> 5520 (oder alternativ siehe Mapping)
             if (issn_to_keyword_field.get(item.ISSN) !== undefined) {
