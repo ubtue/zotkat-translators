@@ -2,14 +2,14 @@
 	"translatorID": "56bb8665-5518-4e95-81bd-15129ceb629e",
 	"label": "ubtue_horizonte",
 	"creator": "Timotheus Kim",
-	"target": "https?://periodicos\\.pucminas\\.br/index\\.php/horizonte/issue|article/view",
+	"target": "https?://periodicos\\.pucminas\\.br/index\\.php/horizonte/(issue|article)/view",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-30 11:08:50"
+	"lastUpdated": "2021-05-11 08:34:12"
 }
 
 /*
