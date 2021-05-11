@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-05-11 14:56:22"
+	"lastUpdated": "2021-05-11 15:07:55"
 }
 
 /*
@@ -114,49 +114,8 @@ function scrape(doc, url) {
 var testCases = [
 	{
 		"type": "web",
-		"url": "https://www.ejournals.eu/Studia-Religiologica/2020/Numer-53-4-2020/art/18056/",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "God and Difference",
-				"creators": [
-					{
-						"firstName": "Krzysztof",
-						"lastName": "Mech",
-						"creatorType": "author"
-					}
-				],
-				"date": "2020/12/1",
-				"DOI": "10.4467/20844077SR.20.018.13036",
-				"ISSN": "2084-4077",
-				"abstractNote": "God and Difference",
-				"archiveLocation": "World",
-				"issue": "Tom 53, Numer 4",
-				"language": "en",
-				"libraryCatalog": "www.ejournals.eu",
-				"pages": "255-274",
-				"publicationTitle": "Studia Religiologica",
-				"url": "https://www.ejournals.eu/Studia-Religiologica/2020/Numer-53-4-2020/art/18056/",
-				"volume": "2020",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [
-					{
-						"tag": "Studia Religiologica"
-					}
-				],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
+		"url": "https://www.ejournals.eu/Studia-Religiologica/",
+		"items": "multiple"
 	},
 	{
 		"type": "web",
@@ -180,15 +139,15 @@ var testCases = [
 				"date": "2020/12/1",
 				"DOI": "10.4467/20844077SR.20.019.13037",
 				"ISSN": "2084-4077",
-				"abstractNote": "Postawa męstwa bycia – odpowiedź dana nie tylko Hamletowi",
+				"abstractNote": "The article comprises an analysis of the concept of&nbsp; “courage” as an ontological and ethical principle, constituting the chief category in the philosophical theology of Paul Tillich, called “the philosopher of borderlands,” regarded as the most important thinker in the Protestant, liberal theology of the 20th century. In his philosophical theology or theological philosophy the notion of “courage to be” provides an essential point of reference in the context of spiritual development of the human individual, as well as revealing possibilities of giving sense to being, which appears itself to man as devoid of sense. In the first part, the concept of “courage to be” is itself subjected to analysis as the ontological and the ethical principle. According to Tillich, the existentially (ethically) oriented being constituted a step in the individual’s life, which is already connected with conscious life and self-affirmation. The second part discusses Tillich’s understanding of faith as the “to be or not to be” of human existence. The author of Dynamics of Faith says that the courage to be can be expressed either in individuation, that is, in the personal relationship and encounter with God, which represents the existentialist approach, or by means of participation in God’s power. Tillich proclaims that only the virtue of courage can overcome the anxiety arising from lack of sense and from doubt, which is characteristic of human life.",
 				"archiveLocation": "World",
-				"issue": "Tom 53, Numer 4",
+				"issue": "4",
 				"language": "pl",
 				"libraryCatalog": "www.ejournals.eu",
 				"pages": "275-287",
 				"publicationTitle": "Studia Religiologica",
 				"url": "https://www.ejournals.eu/Studia-Religiologica/2020/Numer-53-4-2020/art/18055/",
-				"volume": "2020",
+				"volume": "53",
 				"attachments": [
 					{
 						"title": "Full Text PDF",
@@ -201,7 +160,52 @@ var testCases = [
 				],
 				"tags": [
 					{
-						"tag": "Studia Religiologica"
+						"tag": "Paul Tillich"
+					},
+					{
+						"tag": "Paul Tillich"
+					},
+					{
+						"tag": "anxiety"
+					},
+					{
+						"tag": "courage"
+					},
+					{
+						"tag": "despair"
+					},
+					{
+						"tag": "egzystencja"
+					},
+					{
+						"tag": "ethical principle"
+					},
+					{
+						"tag": "existence"
+					},
+					{
+						"tag": "faith"
+					},
+					{
+						"tag": "lęk"
+					},
+					{
+						"tag": "męstwo"
+					},
+					{
+						"tag": "ontological principle"
+					},
+					{
+						"tag": "rozpacz"
+					},
+					{
+						"tag": "wiara"
+					},
+					{
+						"tag": "zasada etyczna"
+					},
+					{
+						"tag": "zasada ontologiczna"
 					}
 				],
 				"notes": [],
