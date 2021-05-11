@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-05-06 07:08:09"
+	"lastUpdated": "2021-05-11 14:56:22"
 }
 
 /*
@@ -56,6 +56,27 @@ function getSearchResults(doc, checkOnly) {
   return found ? items : false;
 }
 
+function getAbstractAndKeywords(item) {
+	var keyWords = [];
+	ZU.doGet(item.url,
+		function (text) {
+		var parser = new DOMParser();
+			var html = parser.parseFromString(text, "text/html");
+			var keyWordTag = ZU.xpath(html, '//meta[@name="keywords"]')[0].content;
+			item.tags = keyWordTag.split(/, |; /);
+			let pTags = ZU.xpath(html, '//div[@class="abstract-text"]//div[@class="text input-text"][1]/p');
+			item.abstractNote = ''
+			for (let entry in pTags) {
+				var newAbstract = pTags[entry].innerHTML.trim();
+				if (newAbstract.length > item.abstractNote.length) {
+				item.abstractNote = ZU.cleanTags(newAbstract);
+			}
+			}
+			
+			item.complete();
+		});
+}
+
 function doWeb(doc, url) {
 	if (detectWeb(doc, url) === "multiple") {
 		Zotero.selectItems(getSearchResults(doc), function (items) {
@@ -74,16 +95,20 @@ function doWeb(doc, url) {
 }
 
 function scrape(doc, url) {
+	Z.debug(url);
 	var translator = Zotero.loadTranslator('web');
 	translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48');
 	translator.setDocument(doc);
 	translator.setHandler('itemDone', function (t, item) {
-		let checkLanguage = ZU.xpathText(doc, '(//div[@class="abstract-text"]//div[@class="text input-text"]//p//strong)[1]');	
-		if (checkLanguage === null) item.language = 'en';	
-			item.complete();
+		let checkLanguage = ZU.xpathText(doc, '(//div[@class="abstract-text"]//div[@class="text input-text"]//p//strong)[1]');
+		if (checkLanguage === null) item.language = 'en';
+		item.volume = item.issue.match(/tom\s+(\d+).*numer\s+(\d+)/i)[1];
+		item.issue = item.issue.match(/tom\s+(\d+).*numer\s+(\d+)/i)[2];
+		getAbstractAndKeywords(item);
 		});
 	translator.translate();
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
