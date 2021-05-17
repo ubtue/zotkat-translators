@@ -1,15 +1,15 @@
 {
-    "translatorID": "5f99bc78-0875-415d-835d-998f7eacbf47",
-    "label": "ubtue_Equinox",
-    "creator": "Madeesh Kannan",
-    "target": "^https:\/\/((www)|(journals)).equinoxpub.com\/",
-    "minVersion": "3.0",
-    "maxVersion": "",
-    "priority": 90,
-    "inRepository": false,
-    "translatorType": 4,
-    "browserSupport": "gcsibv",
-    "lastUpdated": "2018-11-09 13:14:00"
+	"translatorID": "5f99bc78-0875-415d-835d-998f7eacbf47",
+	"label": "ubtue_Equinox",
+	"creator": "Madeesh Kannan",
+	"target": "^https://((www)|(journals)).equinoxpub.com/",
+	"minVersion": "3.0",
+	"maxVersion": "",
+	"priority": 90,
+	"inRepository": true,
+	"translatorType": 4,
+	"browserSupport": "gcsibv",
+	"lastUpdated": "2021-05-17 08:15:12"
 }
 
 /*
@@ -35,111 +35,118 @@
 
 
 function detectWeb(doc, url) {
-    // except for "multiple", the return values of this function are placeholders that
-    // will be replaced by the Embedded Metadata translator's results
-    if (/\/article\/view\//.test(url) || /-view-abstract\//.test(url))
-        return "journalArticle";
-    else if (/\/issue\/.+/.test(url) || /-view-issue\//.test(url))
-        return "multiple";
+	// except for "multiple", the return values of this function are placeholders that
+	// will be replaced by the Embedded Metadata translator's results
+	if (/\/article\/view\//.test(url) || /-view-abstract\//.test(url))
+		return "journalArticle";
+	else if (/\/issue\/.+/.test(url) || /-view-issue\//.test(url))
+		return "multiple";
 }
 
 function getSearchResults(doc) {
-    let items = {};
-    let found = false;
-    let rows = ZU.xpath(doc, '//span[@class="chapter-title"]/a');
-    if (!rows || rows.length == 0)
-        rows = ZU.xpath(doc, '//td[@class="tocTitle"]/a');
-    for (let i = 0; i < rows.length; i++) {
-        let href = rows[i].href;
-        let title = ZU.trimInternal(rows[i].textContent);
-        if (!href || !title) continue;
-        found = true;
-        items[href] = title;
-    }
-    return found ? items : false;
+	let items = {};
+	let found = false;
+	let rows = ZU.xpath(doc, '//span[@class="chapter-title"]/a');
+	if (!rows || rows.length == 0)
+		rows = ZU.xpath(doc, '//td[@class="tocTitle"]/a');
+	for (let i = 0; i < rows.length; i++) {
+		let href = rows[i].href;
+		let title = ZU.trimInternal(rows[i].textContent);
+		if (!href || !title) continue;
+		found = true;
+		items[href] = title;
+	}
+	return found ? items : false;
 }
 
-function postProcess(item) {
-    // sanitize page number ranges
-    if (item.pages) {
-        let pages = item.pages.trim();
-        if (pages) {
-            let matched = pages.match(/^([0-9]+-[0-9]+)/);
-            if (matched)
-                item.pages = matched[1];
-        }
-    }
+function postProcess(item, docURL) {
+	// sanitize page number ranges
+	if (item.pages) {
+		let pages = item.pages.trim();
+		if (pages) {
+			let matched = pages.match(/^([0-9]+-[0-9]+)/);
+			if (matched)
+				item.pages = matched[1];
+		}
+	}
+	ZU.doGet(docURL,
+		function (text) {
+		var parser = new DOMParser();
+			var html = parser.parseFromString(text, "text/html");
+			item.abstractNote = ZU.xpathText(html, '//div[@id="articleAbstract"]/div');
+		if (item.abstractNote.startsWith("Editorial"))
+		item.abstractNote = "";
 
-    // and now for something completely Javascript(TM): The "It's freaking there!" problem!
-    // https://stackoverflow.com/questions/17546953/cant-access-object-property-even-though-it-exists-returns-undefined
+		// HTML escape sequences occasionally sneak into the abstract
+		if (item.abstractNote)
+			item.abstractNote = ZU.unescapeHTML(item.abstractNote)
+	
+		item.complete();
+		});
 
-    // we need to clear the abstractNote field in the case of editorials.
-    // ideally, we'd look at the shortTitle field, but thanks to the above problem, the shortTitle field is undefined at this point.
-    // so, we'll just check the abstract itself instead.
-    if (item.abstractNote.startsWith("Editorial"))
-        item.abstractNote = "";
 
-    // HTML escape sequences occasionally sneak into the abstract
-    if (item.abstractNote)
-        item.abstractNote = ZU.unescapeHTML(item.abstractNote)
+	// and now for something completely Javascript(TM): The "It's freaking there!" problem!
+	// https://stackoverflow.com/questions/17546953/cant-access-object-property-even-though-it-exists-returns-undefined
 
-    item.complete();
+	// we need to clear the abstractNote field in the case of editorials.
+	// ideally, we'd look at the shortTitle field, but thanks to the above problem, the shortTitle field is undefined at this point.
+	// so, we'll just check the abstract itself instead.
+	
 }
 
 function invokeEmbeddedMetadataTranslator(doc) {
-    let translator = Zotero.loadTranslator("web");
-    translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
-    translator.setDocument(doc);
-    translator.setHandler("itemDone", function (t, i) {
-        postProcess(i);
-    });
-    translator.translate();
+	let translator = Zotero.loadTranslator("web");
+	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
+	translator.setDocument(doc);
+	translator.setHandler("itemDone", function (t, i) {
+		postProcess(i, doc.URL);
+	});
+	translator.translate();
 }
 
 function scrape(doc, url) {
-    if (/\/article\/view\//.test(url)) {
-        // The page contents are in a seperate HTML document inside an inline frame
-        // The frame source contains the required metadata that can be parsed by the Embedded Metadata translator
-        let iframes = ZU.xpath(doc, '//frame[contains(@src, "viewArticle")]');
-        if (!iframes || iframes.length === 0)
-            throw "missing content frame!"
+	if (/\/article\/view\//.test(url)) {
+		// The page contents are in a seperate HTML document inside an inline frame
+		// The frame source contains the required metadata that can be parsed by the Embedded Metadata translator
+		let iframes = ZU.xpath(doc, '//frame[contains(@src, "viewArticle")]');
+		if (!iframes || iframes.length === 0)
+			throw "missing content frame!"
 
-        let sourceFrame = iframes[0];
-        let content = sourceFrame.contentDocument;
-        if (content && content.documentElement && content.documentElement.namespaceURI)
-            invokeEmbeddedMetadataTranslator(content);
-        else {
-            // attempt to load the frame contents
-            let iframeSource = sourceFrame.getAttribute("src");
-            if (!iframeSource)
-                throw "missing frame source!";
-
-            ZU.processDocuments([iframeSource], invokeEmbeddedMetadataTranslator);
-            Zotero.wait();
-        }
-    } else if (/-view-abstract\//.test(url)) {
-        // find the correct URL and pass that on to the translator
-        let citationText = ZU.xpathText(doc, '//em[preceding-sibling::h4[text()="Citation"]]');
-        if (citationText) {
-            let articleUrlMatch = citationText.match(/(https?:\/\/journals.*?)\.\s/);
-            if (articleUrlMatch)
-                ZU.processDocuments([articleUrlMatch[1]], scrape);
-        }
-    }
+		let sourceFrame = iframes[0];
+		let content = sourceFrame.contentDocument
+		if (content && content.documentElement && content.documentElement.namespaceURI)
+			invokeEmbeddedMetadataTranslator(content);
+		else {
+			// attempt to load the frame contents
+			let iframeSource = sourceFrame.getAttribute("src");
+			if (!iframeSource)
+				throw "missing frame source!";
+			ZU.processDocuments([iframeSource], invokeEmbeddedMetadataTranslator);
+			Zotero.wait();
+		}
+	} else if (/-view-abstract\//.test(url)) {
+		// find the correct URL and pass that on to the translator
+		let citationText = ZU.xpathText(doc, '//em[preceding-sibling::h4[text()="Citation"]]');
+		if (citationText) {
+			let articleUrlMatch = citationText.match(/(https?:\/\/journals.*?)\.\s/);
+			if (articleUrlMatch)
+				ZU.processDocuments([articleUrlMatch[1]], scrape);
+		}
+	}
 }
 
 function doWeb(doc, url) {
-    if (detectWeb(doc, url) === "multiple") {
-        Zotero.selectItems(getSearchResults(doc), function (items) {
-            if (!items) {
-                return true;
-            }
-            let articles = [];
-            for (let i in items) {
-                articles.push(i);
-            }
-            ZU.processDocuments(articles, scrape);
-        });
-    } else
-        scrape(doc, url);
+	if (detectWeb(doc, url) === "multiple") {
+		Zotero.selectItems(getSearchResults(doc), function (items) {
+			if (!items) {
+				return true;
+			}
+			let articles = [];
+			for (let i in items) {
+				articles.push(i);
+			}
+			ZU.processDocuments(articles, scrape);
+		});
+	} else
+		scrape(doc, url);
 }
