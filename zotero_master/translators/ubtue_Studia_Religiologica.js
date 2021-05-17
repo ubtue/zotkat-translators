@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-05-11 15:07:55"
+	"lastUpdated": "2021-05-17 15:42:42"
 }
 
 /*
@@ -56,25 +56,28 @@ function getSearchResults(doc, checkOnly) {
   return found ? items : false;
 }
 
-function getAbstractAndKeywords(item) {
+function extractVolumeIssue(doc, item, volumeIssueEntry) {
+	var issueVolume = volumeIssueEntry.match(/tom\s+(\d+)(?:.*numer\s+(\d+))?/i);
+	item.volume = issueVolume[1];
+	item.issue = '';
+	if (typeof issueVolume[2] != 'undefined') {
+    	item.issue = issueVolume[2];
+	}
+}
+
+function getAbstractAndKeywords(item, doc) {
 	var keyWords = [];
-	ZU.doGet(item.url,
-		function (text) {
-		var parser = new DOMParser();
-			var html = parser.parseFromString(text, "text/html");
-			var keyWordTag = ZU.xpath(html, '//meta[@name="keywords"]')[0].content;
-			item.tags = keyWordTag.split(/, |; /);
-			let pTags = ZU.xpath(html, '//div[@class="abstract-text"]//div[@class="text input-text"][1]/p');
-			item.abstractNote = ''
-			for (let entry in pTags) {
+	var keyWordTag = ZU.xpath(doc, '//meta[@name="keywords"]')[0].content;
+	item.tags = keyWordTag.split(/, |; /);
+	let pTags = ZU.xpath(doc, '//div[@class="abstract-text"]//div[@class="text input-text"][1]/p');
+	item.abstractNote = ''
+	for (let entry in pTags) {
 				var newAbstract = pTags[entry].innerHTML.trim();
 				if (newAbstract.length > item.abstractNote.length) {
 				item.abstractNote = ZU.cleanTags(newAbstract);
 			}
 			}
-			
-			item.complete();
-		});
+	item.complete();
 }
 
 function doWeb(doc, url) {
@@ -102,9 +105,9 @@ function scrape(doc, url) {
 	translator.setHandler('itemDone', function (t, item) {
 		let checkLanguage = ZU.xpathText(doc, '(//div[@class="abstract-text"]//div[@class="text input-text"]//p//strong)[1]');
 		if (checkLanguage === null) item.language = 'en';
-		item.volume = item.issue.match(/tom\s+(\d+).*numer\s+(\d+)/i)[1];
-		item.issue = item.issue.match(/tom\s+(\d+).*numer\s+(\d+)/i)[2];
-		getAbstractAndKeywords(item);
+		let volumeIssueEntry = ZU.xpathText(doc, '//meta[@name="citation_issue"]/@content');
+		extractVolumeIssue(doc, item, volumeIssueEntry);
+		getAbstractAndKeywords(item, doc);
 		});
 	translator.translate();
 }
