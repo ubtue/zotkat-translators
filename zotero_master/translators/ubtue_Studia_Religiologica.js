@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-05-17 15:42:42"
+	"lastUpdated": "2021-05-18 08:33:40"
 }
 
 /*
@@ -57,11 +57,18 @@ function getSearchResults(doc, checkOnly) {
 }
 
 function extractVolumeIssue(doc, item, volumeIssueEntry) {
-	var issueVolume = volumeIssueEntry.match(/tom\s+(\d+)(?:.*numer\s+(\d+))?/i);
-	item.volume = issueVolume[1];
+	var issueVolume = volumeIssueEntry.match(/(?:tom|volume)\s+(\d+)(?:.*(?:numer|issue)\s+(\d+))?/i);
 	item.issue = '';
-	if (typeof issueVolume[2] != 'undefined') {
-    	item.issue = issueVolume[2];
+	if (issueVolume === null) {
+		if (volumeIssueEntry.match(/\d+/)) {
+			item.volume = volumeIssueEntry.match(/\d+/)[0];
+		}
+	}
+	else {
+		item.volume = issueVolume[1];
+		if (typeof issueVolume[2] != 'undefined') {
+			item.issue = issueVolume[2];
+		}
 	}
 }
 
