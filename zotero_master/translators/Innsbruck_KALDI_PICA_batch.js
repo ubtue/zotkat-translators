@@ -453,11 +453,11 @@ function performExport() {
         }
         if (item.language == "fre" || !item.language) {
             titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(Le|La|Les|Des|Un|Une) ([^@])/i, "„$1 @$2");
-            titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?L'\s?([^@])/i, "„L' @$1").replace(/^[\u201e]?[\u201d]?[\u201c]?L’\s?([^@])/i, "„L' @$1");
+            titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?L'\s?([^@])/i, "L' @$1").replace(/^[\u201e]?[\u201d]?[\u201c]?L’\s?([^@])/i, "L' @$1");
         }
 		if (item.language == "ita" || !item.language) {
 			titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "„$1 @$2");
-			titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?L'\s?([^@])/i, "„L' @$1").replace(/^[\u201e]?[\u201d]?[\u201c]?L’\s?([^@])/i, "„L' @$1");
+			titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?L'\s?([^@])/i, "L' @$1").replace(/^[\u201e]?[\u201d]?[\u201c]?L’\s?([^@])/i, "L' @$1");
 		}
 
 		if (item.language == "por" || !item.language) {
@@ -466,7 +466,7 @@ function performExport() {
 		if (item.language == "spa" || !item.language) {
 			titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/i, "„$1 @$2");
 		}
-
+		
         var i = 0;
         var creator;
         while (item.creators.length>0) {
