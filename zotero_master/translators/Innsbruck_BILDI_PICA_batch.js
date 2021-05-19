@@ -445,7 +445,7 @@ function performExport() {
         }
         //Sortierzeichen hinzufügen, vgl. https://github.com/UB-Mannheim/zotkat/files/137992/ARTIKEL.pdf
         if (item.language == "ger" || !item.language) {
-            titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "$1 @$2");
+            titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "„$1 @$2");
         }
         if (item.language == "eng" || !item.language) {
             titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(The|A|An) ([^@])/i, "„$1 @$2");
