@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2020-08-05 12:13:00"
+	"lastUpdated": "2021-05-19 12:17:00"
 }
 
 // Zotero Export Translator für das Pica Intern Format
@@ -232,7 +232,7 @@ function addLine(itemid, code, value) {
 	value = EscapeNonASCIICharacters(value);
 
     //Zeile zusammensetzen
-    var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\|s\|book\s+reviews?)i', '|f|Book Reviews').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed');
+    var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Reviews').replace('|f|Book Reviews, Book Review', '|f|Book Reviews').replace('https://doi.org/https://doi.org/', 'https://doi.org/').replace(/@\s/, '@');
     itemsOutputCache[itemid].push(line);
 }
 
@@ -385,7 +385,7 @@ function performExport() {
 
         //1131 Art des Inhalts
         for (i=0; i<item.tags.length; i++) {
-			if (item.tags[i].tag.match(/RezensionstagPica | Book Reviews/)) {
+			if (item.tags[i].tag.match(/RezensionstagPica|Book\s\Review(s)?,\s?Book\s?Review/gi)) {
 				addLine(currentItemId, "\\n1131", "!106186019!");
 			}
 		}
@@ -423,9 +423,9 @@ function performExport() {
         //item.DOI --> 2051 bei "Oou" bzw. 2053 bei "Aou"
         if (item.DOI) {
             if (physicalForm === "O" || item.DOI) {
-                addLine(currentItemId, "\\n2051", item.DOI);
+                addLine(currentItemId, "\\n2051", item.DOI.replace('https://doi.org/', ''));
             } else if (physicalForm === "A") {
-                addLine(currentItemId, "\\n2053", item.DOI);
+                addLine(currentItemId, "\\n2053", item.DOI.replace('https://doi.org/', ''));
             }
         }
 
@@ -442,25 +442,25 @@ function performExport() {
         }
         //Sortierzeichen hinzufügen, vgl. https://github.com/UB-Mannheim/zotkat/files/137992/ARTIKEL.pdf
         if (item.language == "ger" || !item.language) {
-            titleStatement = titleStatement.replace(/^(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/, "$1 @$2");
+            titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "$1 @$2");
         }
         if (item.language == "eng" || !item.language) {
-            titleStatement = titleStatement.replace(/^(The|A|An) ([^@])/, "$1 @$2");
+            titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(The|A|An) ([^@])/i, "„$1 @$2");
         }
         if (item.language == "fre" || !item.language) {
-            titleStatement = titleStatement.replace(/^(Le|La|Les|Des|Un|Une) ([^@])/, "$1 @$2");
-            titleStatement = titleStatement.replace(/^L'([^@])/, "L' @$1");
+            titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(Le|La|Les|Des|Un|Une) ([^@])/i, "„$1 @$2");
+            titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?L' ([^@])/i, "„L' @$1").replace(/^[\u201e]?[\u201d]?[\u201c]?L’ ([^@])/i, "„L' @$1");
         }
 		if (item.language == "ita" || !item.language) {
-			titleStatement = titleStatement.replace(/^(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/, "$1 @$2");
-			titleStatement = titleStatement.replace(/^L'([^@])/, "L' @$1").replace(/^L’([^@])/, "L' @$1");
+			titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "„$1 @$2");
+			titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?L'([^@])/i, "„L' @$1").replace(/^[\u201e]?[\u201d]?[\u201c]?L’([^@])/i, "„L' @$1");
 		}
 
 		if (item.language == "por" || !item.language) {
-			titleStatement = titleStatement.replace(/^(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/, "$1 @$2");
+			titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/i, "„$1 @$2");
 		}
 		if (item.language == "spa" || !item.language) {
-			titleStatement = titleStatement.replace(/^(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/, "$1 @$2");
+			titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/i, "„$1 @$2");
 		}
 
         var i = 0;
@@ -483,21 +483,31 @@ function performExport() {
 
                 //Lookup für Autoren
                 if (authorName[0] != "!") {
-                    var lookupUrl = "http://swb.bsz-bw.de/DB=2.104/SET=70/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=1&TRM0=" + authorName +"&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=*&ACT3=*&IKT3=8991&TRM3=*"
+                    var lookupUrl = "https://swb.bsz-bw.de/DB=2.104/SET=70/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=3040&TRM0=" + authorName + "&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=*&TRM3=1[0%2C1%2C2%2C3%2C4%2C5%2C6%2C7][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9]"
 
                     /*
-                    lookupUrl kann je nach Anforderung noch spezifiziert werden, im obigen Abfragebeispiel:
-                    suchen [und] (Person(Phrase: Nachname, Vorname) [PER]) " authorName "
-                    eingrenzen (Systematiknummer der SWD [SN]) *
-                    eingrenzen (Relationiertes Schlagwort in der GND [RLS]) theolog*
-                    ausgenommen (Relationierte Zeit in der GND [RLZ]) 1[1,2,3,4,5,6,7,8][0,1,2,3,4,5,6,7,8,9][0,1,2,3,4,5,6,7,8,9]
+                    lookupUrl kann je nach Anforderung noch spezifiziert werden.
+					Beispiel mit "Zenger, Erich"
+					https://swb.bsz-bw.de/DB=2.104/SET=70/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=3040&TRM0=zenger, erich&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=(theolog*|neutestament*|alttestament*|kirchenhist*)&ACT3=-&IKT3=8991&TRM3=1[0%2C1%2C2%2C3%2C4%2C5%2C6%2C7][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9]"
+					
+					Suchaktion im Katalog sieht wie folgt aus:
+					
+                    suchen [und] (Person(Phrase: Nachname, Vorname) [PER]) zenger, erich
+					eingrenzen (Systematiknummer der SWD [SN]) *
+					eingrenzen (Relationierter Normsatz in der GND [RL]) (theolog*|neutestament*|alttestament*|kirchenhist*)
+					ausgenommen (Relationierter Normsatz in der GND [RL]) 1[0,1,2,3,4,5,6,7][0,1,2,3,4,5,6,7,8,9][0,1,2,3,4,5,6,7,8,9]
 
-                    IKT0=1 TRM0= für Persönlicher Name in Picafeld 100
+                    Aufbau des Lookup-URL:
+					"IKT0=3040" Erster Suchaspekt mit Indikatorwert "1" (=Phrasensuche mit Nachname, Vorname)
+					"TRM0=" Nach "=" kommt dann der Suchstring.
+					...
+					
+					IKT0=3040 TRM0= für Persönlicher Name in Picafeld 100
                     IKT1=2057 TRM1=3.* für GND-Systematik
                     IKT2=8963 TRM2=theolog*    für Berufsbezeichnung 550
                     IKT3=8991 TRM3=1[1,2,3,4,5,6,7,8][0,1,2,3,4,5,6,7,8,9][0,1,2,3,4,5,6,7,8,9] für Geburts- und Sterbedatum (Bereich)
 
-                    ###OPERATOREN vor "IKT"###
+                    ###OPERATOREN "ACT" vor "IKT"###
                     UND-Verknüpfung "&" | ODER-Verknüpfung "%2B&" | Nicht "-&"
 
                     ###TYP IKT=Indikatoren|Zweite Spalte Schlüssel(IKT)###
@@ -517,10 +527,9 @@ function performExport() {
                     processDocumentsCustom(lookupUrl,
                         // processing callback function
                         function(doc, url, threadParams){
-                            var ppn = Zotero.Utilities.xpathText(doc, '//tr[(((count(preceding-sibling::*) + 1) = 5) and parent::*)]//*[contains(concat( " ", @class, " " ), concat( " ", "presvalue", " " ))]//div');
-                            var ppnDigits = ppn.match(/\d+X?/);
+                            var ppn = Zotero.Utilities.xpathText(doc, '//div[a[img]]');
 							if (ppn) {
-                                var authorValue = "!" + ppnDigits + "!" + "$BVerfasserIn$4aut" + "\\n8910 $aixzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet\\n";
+                                var authorValue = "!" + ppn.match(/^\d+X?/) + "!" + "$BVerfasserIn$4aut" + "\\n8910 $aixzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet\\n";
                                 addLine(threadParams["currentItemId"], threadParams["code"], authorValue);
                             } else {
                                 addLine(threadParams["currentItemId"], threadParams["code"], threadParams["authorName"]  + "$BVerfasserIn$4aut");
@@ -575,7 +584,7 @@ function performExport() {
 			if (item.issue && item.ISSN !== "2699-5433") { volumeyearissuepage += "$a" + item.issue.replace("-", "/").replace(/^0/, ""); }
 			if (item.issue && item.ISSN === "2699-5433") { volumeyearissuepage += "$m" + item.issue.replace("-", "/").replace(/^0/, ""); }
 			if (item.pages) { volumeyearissuepage += "$p" + item.pages; }
-
+			if (item.ISSN === "2077-1444" && item.callNumber) {volumeyearissuepage += "$i" + item.callNumber;}
             addLine(currentItemId, "\\n4070", volumeyearissuepage);
         }
 
@@ -593,21 +602,39 @@ function performExport() {
 				addLine(currentItemId, "\\n4950", item.url + "$xH$3Volltext$4LF$534");//K10Plus:0500 das "l" an der vierten Stelle entfällt, statt dessen wird $4LF in 4950 gebildet
 				break;
 			case item.url && item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "kw":
-				addLine(currentItemId, "\\n4950", item.url + "$xR$4KW");
+				addLine(currentItemId, "\\n4950", item.url + "$xR$3Volltext$4KW$534");
 				break;
 			case item.url && !item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "kw":
-				addLine(currentItemId, "\\n4950", item.url + "$xH$4KW");
+				addLine(currentItemId, "\\n4950", item.url + "$xH$3Volltext$4KW$534");
 				break;
 			case item.url && item.url.match(/doi\.org\/10\./) && physicalForm === "O":
-				addLine(currentItemId, "\\n4950", item.url + "$xR");
+				addLine(currentItemId, "\\n4950", item.url + "$xR$3Volltext$4ZZ$534");
 				break;
 			case item.url && !item.url.match(/doi\.org\/10\./) && physicalForm === "O":
-				addLine(currentItemId, "\\n4950", item.url + "$xH");
+				addLine(currentItemId, "\\n4950", item.url + "$xH$3Volltext$4ZZ$534");
 				break;
 			case item.url && item.itemType == "magazineArticle":
 				addLine(currentItemId, "\\n4950", item.url + "$xH");
 				break;
 			}
+		
+		    //DOI --> 4950 DOI in aufgelöster Form mit Lizenzinfo "LF"
+		    if (item.DOI && item.url && !item.url.match(/https?:\/\/doi\.org/) && licenceField === "l") {
+			addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4LF$534");
+		    }
+		    //DOI --> 4950 DOI in aufgelöster Form mit Lizenzinfo "ZZ"
+		    if (item.DOI && item.url && !item.url.match(/https?:\/\/doi\.org/) && !licenceField) {
+			addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4ZZ$534");
+		    }
+			if (item.DOI && !item.url) {
+				if (licenceField === "l") {
+					addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4LF$534");
+				} else if (!licenceField) {
+					addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4ZZ$534");
+				}
+			}
+
+			
         //Reihe --> 4110
         if (!article) {
             var seriesStatement = "";
@@ -623,7 +650,7 @@ function performExport() {
         //Inhaltliche Zusammenfassung --> 4207
         if (item.abstractNote) {
 			item.abstractNote = ZU.unescapeHTML(item.abstractNote);
-			addLine(currentItemId, "\\n4207", item.abstractNote.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, ''));
+			addLine(currentItemId, "\\n4207", item.abstractNote.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract\s?:?/, '').replace(/Abstract  :/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, ''));
         }
 
         //item.publicationTitle --> 4241 Beziehungen zur größeren Einheit
