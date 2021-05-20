@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-04-08 10:33:00"
+	"lastUpdated": "2021-05-20 10:33:00"
 }
 
 
@@ -233,7 +233,7 @@ function addLine(itemid, code, value) {
 	//call the function EscapeNonASCIICharacters
 	value = EscapeNonASCIICharacters(value);
     //Zeile zusammensetzen
-    var line = code + " " + value.replace( '|s|#n', '|f|Norm').replace( '|s|#r', '|f|Rechtsprechung').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1').replace('|s|17can', '|t|Codex Iuris Canonici (1917)').replace('|s|can', '|t|Codex Iuris Canonici (1983)').replace('|s|cceo','|t|Codex canonum ecclesiarum orientalium').replace('https://doi.org/https://doi.org/', 'https://doi.org/');
+    var line = code + " " + value.replace( '|s|#n', '|f|Norm').replace( '|s|#r', '|f|Rechtsprechung').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1').replace('|s|17can', '|t|Codex Iuris Canonici (1917)').replace('|s|can', '|t|Codex Iuris Canonici (1983)').replace('|s|cceo','|t|Codex canonum ecclesiarum orientalium').replace('https://doi.org/https://doi.org/', 'https://doi.org/').replace(/@\s/, '@');
     itemsOutputCache[itemid].push(line);
 }
 
@@ -439,25 +439,25 @@ function performExport() {
         }
         //Sortierzeichen hinzufügen, vgl. https://github.com/UB-Mannheim/zotkat/files/137992/ARTIKEL.pdf
         if (item.language == "ger" || !item.language) {
-            titleStatement = titleStatement.replace(/^(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/, "$1 @$2");
+            titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "„$1 @$2");
         }
         if (item.language == "eng" || !item.language) {
-            titleStatement = titleStatement.replace(/^(The|A|An) ([^@])/, "$1 @$2");
+            titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(The|A|An) ([^@])/i, "„$1 @$2");
         }
         if (item.language == "fre" || !item.language) {
-            titleStatement = titleStatement.replace(/^(Le|La|Les|Des|Un|Une) ([^@])/, "$1 @$2");
-            titleStatement = titleStatement.replace(/^L'([^@])/, "L' @$1");
+            titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(Le|La|Les|Des|Un|Une) ([^@])/i, "„$1 @$2");
+            titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?L'\s?([^@])/i, "L' @$1").replace(/^[\u201e]?[\u201d]?[\u201c]?L’\s?([^@])/i, "L' @$1");
         }
 		if (item.language == "ita" || !item.language) {
-			titleStatement = titleStatement.replace(/^(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/, "$1 @$2");
-			titleStatement = titleStatement.replace(/^L'([^@])/, "L' @$1").replace(/^L’([^@])/, "L' @$1");
+			titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "„$1 @$2");
+			titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?L'\s?([^@])/i, "L' @$1").replace(/^[\u201e]?[\u201d]?[\u201c]?L’\s?([^@])/i, "L' @$1");
 		}
 
 		if (item.language == "por" || !item.language) {
-			titleStatement = titleStatement.replace(/^(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/, "$1 @$2");
+			titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/i, "„$1 @$2");
 		}
 		if (item.language == "spa" || !item.language) {
-			titleStatement = titleStatement.replace(/^(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/, "$1 @$2");
+			titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/i, "„$1 @$2");
 		}
 
         var i = 0;
