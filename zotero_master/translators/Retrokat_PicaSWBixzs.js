@@ -348,7 +348,7 @@ function performExport() {
         //item.date --> 1100
         var date = Zotero.Utilities.strToDate(item.date);
         if (date.year !== undefined) {
-            addLine(currentItemId, "1100", date.year.toString() + "$n[" + date.year.toString() + "]");
+            addLine(currentItemId, "1100", date.year.toString());
         }
 
         //1130 Datenträger K10Plus:1130 alle Codes entfallen, das Feld wird folglich nicht mehr benötigt
