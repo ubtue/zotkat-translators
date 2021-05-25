@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-05-19 12:17:00"
+	"lastUpdated": "2021-05-25 17:48:00"
 }
 
 // Zotero Export Translator für das Pica Intern Format
@@ -580,7 +580,25 @@ function performExport() {
         }
 
         addLine(currentItemId, "\\n4000", ZU.unescapeHTML(titleStatement));
-
+		//Paralleltitel --> 4002
+		if (item.language == "ger" || !item.language) {
+			addLine(currentItemId, "4002", item.extra.replace(/^(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "„$2 @$3"));
+		}
+		if (item.language == "eng" || !item.language) {
+			addLine(currentItemId, "4002", item.extra.replace(/^(The|A|An) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(The|A|An) ([^@])/i, "„$2 @$3"));
+		}
+		if (item.language == "fre" || !item.language) {
+			addLine(currentItemId, "4002", item.extra.replace(/^(Le|La|Les|Des|Un|Une) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(Le|La|Les|Des|Un|Une) ([^@])/i, "„$2 @$3").replace(/^L'\s?([^@])/i, "L' @$1").replace(/^([\u201e]|[\u201d]|[\u201c])L'\s?([^@])/i, "„L' @$2"));
+		}
+		if (item.language == "ita" || !item.language) {
+			addLine(currentItemId, "4002", item.extra.replace(/^(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "„$2 @$3").replace(/^L'\s?([^@])/i, "L' @$1").replace(/^([\u201e]|[\u201d]|[\u201c])L'\s?([^@])/i, "„L' @$2"));
+		}
+		if (item.language == "por" || !item.language) { 
+			addLine(currentItemId, "4002", item.extra.replace(/^(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/i, "„$2 @$3"));
+		}
+		if ( item.language == "spa" || !item.language) {
+		addLine(currentItemId, "4002", item.extra.replace(/^(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/i, "„$2 @$3"));
+		}
         //Ausgabe --> 4020
         if (item.edition) {
             addLine(currentItemId, "\\n4020", item.edition);
@@ -723,7 +741,10 @@ function performExport() {
 					}
 				}
 			}
-
+			//ORCID und Autorennamen --> 8910
+			if (item.callNumber) {
+				addLine(currentItemId, "\\n8910", item.callNumber);
+			}
 			addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo");\napplication.activeWindow.pressButton("Enter");\n\n', ""); //K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
         }
     }
