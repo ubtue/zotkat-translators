@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-05-19 12:17:00"
+	"lastUpdated": "2021-05-26 11:19:00"
 }
 
 // Zotero Export Translator für das Pica Intern Format
@@ -366,7 +366,7 @@ function performExport() {
         //item.date --> 1100
         var date = Zotero.Utilities.strToDate(item.date);
         if (date.year !== undefined) {
-            addLine(currentItemId, "\\n1100", date.year.toString() + "$n[" + date.year.toString() + "]");
+            addLine(currentItemId, "\\n1100", date.year.toString());
         }
 
         //1130 Datenträger K10Plus:1130 alle Codes entfallen, das Feld wird folglich nicht mehr benötigt
@@ -442,25 +442,44 @@ function performExport() {
         }
         //Sortierzeichen hinzufügen, vgl. https://github.com/UB-Mannheim/zotkat/files/137992/ARTIKEL.pdf
         if (item.language == "ger" || !item.language) {
-            titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "„$1 @$2");
+            titleStatement = titleStatement.replace(/^(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "$1 @$2");
+        }
+		if (item.language == "ger" || !item.language) {
+            titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "„$2 @$3");
+        }
+		if (item.language == "eng" || !item.language) {
+            titleStatement = titleStatement.replace(/^(The|A|An) ([^@])/i, "$1 @$2");
         }
         if (item.language == "eng" || !item.language) {
-            titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(The|A|An) ([^@])/i, "„$1 @$2");
+            titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])(The|A|An) ([^@])/i, "„$2 @$3");
         }
         if (item.language == "fre" || !item.language) {
-            titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(Le|La|Les|Des|Un|Une) ([^@])/i, "„$1 @$2");
-            titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?L'\s?([^@])/i, "L' @$1").replace(/^[\u201e]?[\u201d]?[\u201c]?L’\s?([^@])/i, "L' @$1");
+            titleStatement = titleStatement.replace(/^(Le|La|Les|Des|Un|Une) ([^@])/i, "$1 @$2");
+            titleStatement = titleStatement.replace(/^L'\s?([^@])/i, "L' @$1").replace(/^L’\s?([^@])/i, "L' @$1");
+        }
+		if (item.language == "fre" || !item.language) {
+            titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])(Le|La|Les|Des|Un|Une) ([^@])/i, "„$2 @$3");
+            titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])L'\s?([^@])/i, "„L' @$2").replace(/^([\u201e]|[\u201d]|[\u201c])L’\s?([^@])/i, "„L' @$2");
         }
 		if (item.language == "ita" || !item.language) {
-			titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "„$1 @$2");
-			titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?L'\s?([^@])/i, "L' @$1").replace(/^[\u201e]?[\u201d]?[\u201c]?L’\s?([^@])/i, "L' @$1");
+			titleStatement = titleStatement.replace(/^(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "$1 @$2");
+			titleStatement = titleStatement.replace(/^L'\s?([^@])/i, "L' @$1").replace(/^L’\s?([^@])/i, "L' @$1");
 		}
-
+		if (item.language == "ita" || !item.language) {
+			titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "„$2 @$3");
+			titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])L'\s?([^@])/i, "„L' @$2").replace(/^([\u201e]|[\u201d]|[\u201c])L’\s?([^@])/i, "„L' @$2");
+		}
 		if (item.language == "por" || !item.language) {
-			titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/i, "„$1 @$2");
+			titleStatement = titleStatement.replace(/^(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/i, "$1 @$2");
+		}
+		if (item.language == "por" || !item.language) {
+			titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/i, "„$2 @$3");
 		}
 		if (item.language == "spa" || !item.language) {
-			titleStatement = titleStatement.replace(/^[\u201e]?[\u201d]?[\u201c]?(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/i, "„$1 @$2");
+			titleStatement = titleStatement.replace(/^(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/i, "$1 @$2");
+		}
+		if (item.language == "spa" || !item.language) {
+			titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/i, "„$2 @$3");
 		}
 
         var i = 0;
@@ -561,7 +580,29 @@ function performExport() {
         }
 
         addLine(currentItemId, "\\n4000", ZU.unescapeHTML(titleStatement));
-
+		//Paralleltitel --> 4002
+		if (item.archiveLocation) {
+			switch (true) {
+				case item.language == "ger" || !item.language && item.archiveLocation:
+				addLine(currentItemId, "\\n4002", item.archiveLocation.replace(/^(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "„$2 @$3"));
+					break;
+				case item.language == "eng" || !item.language && item.archiveLocation:
+				addLine(currentItemId, "\\n4002", item.archiveLocation.replace(/^(The|A|An) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(The|A|An) ([^@])/i, "„$2 @$3"));
+					break;
+				case item.language == "fre" || !item.language && item.archiveLocation:
+				addLine(currentItemId, "\\n4002", item.archiveLocation.replace(/^(Le|La|Les|Des|Un|Une) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(Le|La|Les|Des|Un|Une) ([^@])/i, "„$2 @$3").replace(/^L'\s?([^@])/i, "L' @$1").replace(/^([\u201e]|[\u201d]|[\u201c])L'\s?([^@])/i, "„L' @$2"));
+					break;
+				case item.language == "ita" || !item.language && item.archiveLocation:
+				addLine(currentItemId, "\\n4002", item.archiveLocation.replace(/^(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "„$2 @$3").replace(/^L'\s?([^@])/i, "L' @$1").replace(/^([\u201e]|[\u201d]|[\u201c])L'\s?([^@])/i, "„L' @$2"));
+					break;
+				case item.language == "por" || !item.language && item.archiveLocation:
+				addLine(currentItemId, "\\n4002", item.archiveLocation.replace(/^(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/i, "„$2 @$3"));
+					break;
+				case item.language == "spa" || !item.language && item.archiveLocation:
+				addLine(currentItemId, "\\n4002", item.archiveLocation.replace(/^(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/i, "„$2 @$3"));
+					break;
+			}
+		}
         //Ausgabe --> 4020
         if (item.edition) {
             addLine(currentItemId, "\\n4020", item.edition);
@@ -704,7 +745,10 @@ function performExport() {
 					}
 				}
 			}
-
+			//ORCID und Autorennamen --> 8910
+			if (item.callNumber && item.callNumber.match(/^orcid/i)) {
+				addLine(currentItemId, "\\n8910", item.callNumber);
+			}
 			addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo");\napplication.activeWindow.pressButton("Enter");\n\n', ""); //K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
         }
     }
