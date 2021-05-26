@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-01-12 15:20:48"
+	"lastUpdated": "2021-05-26 11:15:24"
 }
 
 /*
@@ -47,6 +47,8 @@ function getSearchResults(doc) {
 	return found ? items : false;
 }
 
+
+
 function invokeEMTranslator(doc) {
 	var translator = Zotero.loadTranslator("web");
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
@@ -55,6 +57,25 @@ function invokeEMTranslator(doc) {
 		if (doc.querySelector(".subtitle")) {
  			i.title = i.title + ' ' + doc.querySelector(".subtitle").textContent.trim();
  		}
+ 		//title in other language for pica-field 4002
+ 		var articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
+ 		if (articleType === "Artículos") {
+ 			let dcAlternativeTitle = ZU.xpathText(doc, '//meta[@name="DC.Title.Alternative"]/@content').trim();
+ 			i.archiveLocation = dcAlternativeTitle;
+ 			if (i.archiveLocation == i.title) {
+ 				delete i.archiveLocation;
+ 			}
+ 		}
+ 		//orcid for pica-field 8910
+ 		
+ 		let checkOrcid = doc.querySelector(".orcid a");
+ 		if (checkOrcid) {
+ 			let orcidEntry = ZU.trimInternal(doc.querySelector(".authors").textContent);Z.debug(orcidEntry)
+ 			let author = orcidEntry.split("https")[0];
+ 			let orcid = orcidEntry.replace(/.*(\d{4}-\d+-\d+-\d+x?)/i, '$1');
+ 			i.callNumber = "orcid:" + orcid + " | author=" + author + " | taken from website";
+ 		}
+ 		//fix pages
 		var firstPage = ZU.xpathText(doc, '//meta[@name="citation_firstpage"]/@content');
 		var lastPage = ZU.xpathText(doc, '//meta[@name="citation_lastpage"]/@content');
 		var firstandlastPages = i.pages.split('-');//Z.debug(firstandlastPages)
@@ -71,11 +92,32 @@ function invokeEMTranslator(doc) {
 				i.tags.push(tag[t].capitalizeFirstLetter()) //alternativ .replace(/^\w/, function($0) { return $0.toUpperCase(); }))
 			}
 		}
+		
 		if (i.tags[0] === "book review") i.tags.push('RezensionstagPica') && delete i.tags[0];
-		if (doc.querySelector(".current").textContent.trim()=== "Book Reviews") {
+		if (doc.querySelector(".current").textContent.trim() === "Book Reviews" || articleType === "Recensiones") {
 			i.tags.push('RezensionstagPica') 
 		}
-		i.complete();
+		//multi language abstract e.g. https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/147
+		if (articleType === "Artículos") {
+			let abstractEN = ZU.xpathText(doc, '//meta[@name="DC.Description"][1]/@content').trim();
+			let abstractES = ZU.xpathText(doc, '//meta[@name="DC.Description"][2]/@content').trim();
+			i.abstractNote = abstractEN + '\\n4207 ' + abstractES;
+		}
+		//english keywords e.g. https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/147
+		let dcSourceURI = ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content');
+		let dcArticleURI = ZU.xpathText(doc, '//meta[@name="DC.Identifier.URI"]/@content');
+		let switchLanguageURL = dcSourceURI + '/user/setLocale/en_US?source=/publicaciones/index.php/' + dcArticleURI.split('index.php')[1];
+		ZU.processDocuments(switchLanguageURL, function (scrapeTags) {
+		var tagentry = ZU.xpathText(scrapeTags, '//meta[@name="citation_keywords"]/@content');
+			if (tagentry) {
+				let tags = tagentry.split(/\s*,|;\s*/);
+				for (let t in tags) {
+				i.tags.push(tags[t]);
+				}
+			}
+			i.complete();
+		});
+		//i.complete();
 	});
 	translator.translate();
 }
@@ -531,6 +573,126 @@ var testCases = [
 					},
 					{
 						"tag": "Ultimate"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.sanisidoro.net/publicaciones/index.php/isidorianum/issue/view/11",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/147",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "“Battle is over, raise we the cry of victory”. Study of Revelation 19:11-21",
+				"creators": [
+					{
+						"firstName": "Francisco Javier",
+						"lastName": "Ruiz-Ortiz",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020/11/20",
+				"DOI": "10.46543/ISID.2029.1054",
+				"ISSN": "2660-7743",
+				"abstractNote": "Using some of the tools of narrative criticism, this article studies the final battle and victory which is achieved by God’s envoy. By unpacking the network of relationship in the text the envoy is identified with the Christ of God, who has been present in the book from the beginning. The article shows how the Rider on the white horse summarises what the book of Revelation has said about Jesus.\\n4207 Usando elementos del análisis narrativo, este artículo examina la batalla final y la victoria que se consigue a través del enviado de Dios, un jinete en un caballo blanco. Desenredando la red de relaciones en el texto, el jinete en el caballo blanco se identifica con el Cristo de Dios, que ha estado presente en el libro desde el inicio. El artículo muestra como el Jinete en el caballo blanco resume en sí mismo todo lo que el Apocalipsis dice sobre Jesús.",
+				"callNumber": "orcid:0000-0001-6251-0506 | author=Francisco Javier Ruiz-Ortiz Mater Ecclesiae College, St Mary’s University (Twickenham, UK) .st0{fill:#A6CE39;} .st1{fill:#FFFFFF;}  | taken from website",
+				"issue": "2",
+				"journalAbbreviation": "1",
+				"language": "es-ES",
+				"libraryCatalog": "www.sanisidoro.net",
+				"pages": "37-60",
+				"publicationTitle": "Isidorianum",
+				"shortTitle": "“Battle is over, raise we the cry of victory”. Study of Revelation 19",
+				"url": "https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/147",
+				"volume": "29",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": " Christology"
+					},
+					{
+						"tag": " Rev 19"
+					},
+					{
+						"tag": " final judgment"
+					},
+					{
+						"tag": "Ap 19"
+					},
+					{
+						"tag": "Apocalipsis"
+					},
+					{
+						"tag": "Revelation"
+					},
+					{
+						"tag": "cristología"
+					},
+					{
+						"tag": "juicio final"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/157",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Ben HOLLAND, Self and City in the thought of Saint Augustine. Switzerland, Palgrave Macmillan, 2020, 162 pp., 52,10 €. ISBN 978-3-030-19332-4.",
+				"creators": [
+					{
+						"firstName": "Pablo Antonio Morillo",
+						"lastName": "Rey",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020/11/20",
+				"DOI": "10.46543/ISID.2029.1062",
+				"ISSN": "2660-7743",
+				"callNumber": "orcid:0000-0001-7277-9058 | author=Authors Pablo Antonio Morillo Rey Facultad de Teología San Isidoro de Sevilla .st0{fill:#A6CE39;} .st1{fill:#FFFFFF;}  | taken from website",
+				"issue": "2",
+				"journalAbbreviation": "1",
+				"language": "en-US",
+				"libraryCatalog": "www.sanisidoro.net",
+				"pages": "161-163",
+				"publicationTitle": "Isidorianum",
+				"url": "https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/157",
+				"volume": "29",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
 					}
 				],
 				"notes": [],
