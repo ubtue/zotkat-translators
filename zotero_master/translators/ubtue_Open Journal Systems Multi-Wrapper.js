@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-05-06 15:30:51"
+	"lastUpdated": "2021-06-02 09:53:22"
 }
 
 /*
@@ -83,6 +83,17 @@ function invokeBestTranslator(doc, url) {
 		if (newCreators.length != 0) {
 			item.creators = newCreators;
 		}
+		
+		if (item.ISSN === "1893-4773") {
+			var articleType = ZU.xpath(doc, '//meta[@name = "DC.Type.articleType"]');
+			if (articleType) {
+				if (articleType[0]['content'] == "Bokanmeldelser"){
+					item.tags.push("RezensionstagPica");
+				}
+			}
+			
+		}
+		
 		item.complete();
 	});
 	translator.getTranslators();
