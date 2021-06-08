@@ -7,9 +7,9 @@
 	"maxVersion": "",
 	"priority": 99,
 	"inRepository": true,
-	"translatorType": 12,
+	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-06-08 15:39:33"
+	"lastUpdated": "2021-06-08 15:46:42"
 }
 
 /*
