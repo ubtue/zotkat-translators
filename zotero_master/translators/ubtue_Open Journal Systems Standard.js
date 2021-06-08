@@ -5,11 +5,11 @@
 	"target": "/(article|issue)/(view)?",
 	"minVersion": "3.0",
 	"maxVersion": "",
-	"priority": 100,
+	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-05-26 11:15:24"
+	"lastUpdated": "2021-06-08 11:36:14"
 }
 
 /*
@@ -81,8 +81,12 @@ function invokeEMTranslator(doc) {
 		var firstandlastPages = i.pages.split('-');//Z.debug(firstandlastPages)
 		if (firstandlastPages[0] === firstandlastPages[1]) i.pages = firstandlastPages[0];
 		if (i.issue === "0") delete i.issue;
+		if (i.abstractNote == undefined) {
+			i.abstractNote = ZU.xpathText(doc, '//meta[@name="DC.Description"]/@content');
+		}
 		if (i.abstractNote !== undefined) {
 			if (i.abstractNote.match(/No abstract available/)) delete i.abstractNote;
+			if (i.abstractNote.match(/^.$/)) delete i.abstractNote;
 		}
 		if (i.tags[1] === undefined) delete i.tags[0];
 		let tagsEntry = ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content');
@@ -97,6 +101,7 @@ function invokeEMTranslator(doc) {
 		if (doc.querySelector(".current").textContent.trim() === "Book Reviews" || articleType === "Recensiones") {
 			i.tags.push('RezensionstagPica') 
 		}
+		if (ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content').match(/isidorianum\/article\/view/)) {
 		//multi language abstract e.g. https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/147
 		if (articleType === "Artículos") {
 			let abstractEN = ZU.xpathText(doc, '//meta[@name="DC.Description"][1]/@content').trim();
@@ -117,7 +122,9 @@ function invokeEMTranslator(doc) {
 			}
 			i.complete();
 		});
-		//i.complete();
+		}
+		else
+		i.complete();
 	});
 	translator.translate();
 }
@@ -141,6 +148,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEMTranslator(doc, url);
 }
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -693,6 +701,73 @@ var testCases = [
 				"tags": [
 					{
 						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://journal.equinoxpub.com/JSRNC/issue/view/1967",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://journal.equinoxpub.com/JSRNC/article/view/19598",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Sustaining Abundance: The Role of the Divine River in the Economy of Ancient Persia The Role of the Divine River in the Economy of Ancient Persia",
+				"creators": [
+					{
+						"firstName": "Tobin Montgomery",
+						"lastName": "Hartnell",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020",
+				"DOI": "10.1558/jsrnc.39772",
+				"ISSN": "1749-4915",
+				"abstractNote": "A comparison of archaeological survey and ethnography with the Zoroastrian textual corpus reveals the cultural and economic dimensions of an ancient water management system in northern Persia (southern Iran). The results highlight how humanity’s destructive impact on nature is ubiquitous, yet not all impacts are equivalent. The explanation is partly cultural, as Sasanian (r. 208–641 CE) notions of the Divine River promoted particular types of engagements with local rivers that respected their innate character. For believers, Zoroastrian water rituals promoted material abundance, just as ancient irrigation systems prioritized smaller barrages that allowed the river to mow. In contrast, modern dams severely restrict the water’s mow, which degrades the quality of the water. Even though ancient irrigation systems achieved a similar scale to modern ones, they were ultimately more sustainable because they respected the river as an important entity in its own right.",
+				"issue": "4",
+				"journalAbbreviation": "JSRNC",
+				"language": "en",
+				"libraryCatalog": "journal.equinoxpub.com",
+				"pages": "450-479",
+				"publicationTitle": "Journal for the Study of Religion, Nature and Culture",
+				"shortTitle": "Sustaining Abundance",
+				"url": "https://journal.equinoxpub.com/JSRNC/article/view/19598",
+				"volume": "14",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Zoroastrianism"
+					},
+					{
+						"tag": "ancient Persia"
+					},
+					{
+						"tag": "divine river"
+					},
+					{
+						"tag": "political economy"
+					},
+					{
+						"tag": "sustainability"
+					},
+					{
+						"tag": "water rituals"
 					}
 				],
 				"notes": [],
