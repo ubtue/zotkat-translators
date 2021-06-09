@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-06-09 14:36:21"
+	"lastUpdated": "2021-06-09 16:36:39"
 }
 
 /*
@@ -67,14 +67,13 @@ function invokeEMTranslator(doc) {
  		//title in other language for pica-field 4002
  		var articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
  		if (articleType === "Artículos") {
- 			let dcAlternativeTitle = ZU.xpathText(doc, '//meta[@name="DC.Title.Alternative"]/@content').trim();
+ 			let dcAlternativeTitle = ZU.xpathText(doc, '//meta[@name="DC.Title.Alternative"]/@content');
  			i.archiveLocation = dcAlternativeTitle;
  			if (i.archiveLocation == i.title) {
  				delete i.archiveLocation;
  			}
  		}
  		//orcid for pica-field 8910
- 		
  		let checkOrcid = doc.querySelector(".orcid a");
  		if (checkOrcid) {
  			let orcidEntry = ZU.trimInternal(doc.querySelector(".authors").textContent);
@@ -862,6 +861,48 @@ var testCases = [
 				"rights": "Copyright (c) 2020 Editorial Office",
 				"url": "https://verbumetecclesia.org.za/index.php/ve/article/view/2076",
 				"volume": "40",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://revistas.agustinosvalladolid.es/index.php/estudio/article/view/8",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "La persona humana, relación religada en san Agustín",
+				"creators": [
+					{
+						"firstName": "Tarsicio Jáñez",
+						"lastName": "Barrio",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/05/25",
+				"ISSN": "2792-260X",
+				"abstractNote": "Agustín de Hipona nació en el norte de África dotado de una gran sensibilidad y amor al estudio. Enamorado en su juventud de la retórica, la investigó con denuedo para brillar, al término de la misma, ganando la cátedra de Retórica de la Casa Imperial de Milán. La conversión al cristianismo le trastorna la vida y la Gracia divina hace de su esfuerzo un faro de sabiduría; de su sacerdocio y aceptación de la mitra un polemista y un apologeta incansable; de su fe en Cristo y en la Iglesia un gran intérprete de la Biblia, un valiente teólogo y un audaz buscador de Dios. Todo ello en el contexto del colapso del Imperio romano. No por azar, en su voz se ve un antecedente inspirador de la actitud moderna con que el yo se autocomprende y valora su misión en el mundo.\nPero de la misma manera que él bebe y reinterpreta fuentes previas, otros, posteriormente, beberán y reinterpretarán su palabra. Así, después de Kant, la filosofía idealista trató de acostumbrarnos a pensar que el contacto con la realidad, los hechos decisivos de la historia y la construcción del destino personal dependen solo o primero de un Yo (‘sujeto’ o ‘subjetividad’) que explora, sueña, selecciona, planifica, decide e interpreta, a solas, el sentido del mundo. Pensadores como Descartes o Hegel, tratarán de reinterpretar la experiencia cristiana y agustiniana.\nAsí las cosas, y dada la vigencia de san Agustín, conviene releer sus escritos para escuchar directamente de su palabra el fundamento de su experiencia, la razón de sus opciones y la articulación de su hermenéutica. Interesa, por ejemplo, ver cómo leyó a Platón y Aristóteles, cómo glosó sus conceptos y qué encontró Agustín que no estaba en el ‘logos’ griego. En este texto nos centramos en el concepto de “substancia” y “persona” en san Agustín, en el marco de su reflexión sobre el misterio trinitario del Dios cristiano, resaltando el influjo que va a tener en la construcción de una antropología que quiere sobrepasar la metafísica griega. Su posición marcará una singular relación con la filosofía y abrirá caminos ricos y exigentes a la teología. Desde aquí, se tocan y reivindican algunas cosas que san Agustín plantea tanto a la teología escolástica como a la filosofía moderna de X. Zubiri.",
+				"issue": "1",
+				"journalAbbreviation": "EstAgus",
+				"language": "es",
+				"libraryCatalog": "revistas.agustinosvalladolid.es",
+				"pages": "5-36",
+				"publicationTitle": "Estudio Agustiniano",
+				"rights": "Derechos de autor 2021",
+				"url": "https://revistas.agustinosvalladolid.es/index.php/estudio/article/view/8",
+				"volume": "56",
 				"attachments": [
 					{
 						"title": "Full Text PDF",
