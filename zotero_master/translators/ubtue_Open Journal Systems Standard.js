@@ -5,11 +5,11 @@
 	"target": "/(article|issue)/(view)?",
 	"minVersion": "3.0",
 	"maxVersion": "",
-	"priority": 100,
+	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-05-26 11:15:24"
+	"lastUpdated": "2021-06-08 15:46:42"
 }
 
 /*
@@ -30,16 +30,23 @@
 
 function detectWeb(doc, url) {
 	if (url.match(/\/article\/view/)) return "journalArticle"
-	else if (url.match(/\/issue\/view/) && getSearchResults(doc)) return "multiple";
+	else if (url.match(/\/issue\/view/) && getSearchResults(doc, url)) return "multiple";
 }
 
-function getSearchResults(doc) {
+function getSearchResults(doc, url) {
 	var items = {};
 	var found = false;
 	var rows = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "media-heading", " " ))]//a | //*[contains(concat( " ", @class, " " ), concat( " ", "title", " " ))]//a | //*[(@id = "content")]//a');
 	for (let row of rows) {
 		let href = row.href;
 		let title = ZU.trimInternal(row.textContent).replace(/pdf/i, '');
+		let exclude = ['HTML', 'XML', 'EPUB', 'PDF'];
+		if (url.match(/verbumetecclesia\.org/)) {
+			if (title == "Browse Archives") continue;
+			else if (exclude.includes(title)) continue;
+			else if (title.match(/^Table of Contents/)) continue;
+		}
+		
 		if (!href || !title) continue;
 		found = true;
 		items[href] = title;
@@ -81,8 +88,13 @@ function invokeEMTranslator(doc) {
 		var firstandlastPages = i.pages.split('-');//Z.debug(firstandlastPages)
 		if (firstandlastPages[0] === firstandlastPages[1]) i.pages = firstandlastPages[0];
 		if (i.issue === "0") delete i.issue;
+		if (i.abstractNote == undefined) {
+			i.abstractNote = ZU.xpathText(doc, '//meta[@name="DC.Description"]/@content');
+		}
+		if (i.abstractNote == null) {i.abstractNote = undefined}
 		if (i.abstractNote !== undefined) {
 			if (i.abstractNote.match(/No abstract available/)) delete i.abstractNote;
+			else if (i.abstractNote.match(/^.$/)) delete i.abstractNote;
 		}
 		if (i.tags[1] === undefined) delete i.tags[0];
 		let tagsEntry = ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content');
@@ -97,6 +109,7 @@ function invokeEMTranslator(doc) {
 		if (doc.querySelector(".current").textContent.trim() === "Book Reviews" || articleType === "Recensiones") {
 			i.tags.push('RezensionstagPica') 
 		}
+		if (ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content').match(/isidorianum\/article\/view/)) {
 		//multi language abstract e.g. https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/147
 		if (articleType === "Artículos") {
 			let abstractEN = ZU.xpathText(doc, '//meta[@name="DC.Description"][1]/@content').trim();
@@ -117,7 +130,9 @@ function invokeEMTranslator(doc) {
 			}
 			i.complete();
 		});
-		//i.complete();
+		}
+		else
+		i.complete();
 	});
 	translator.translate();
 }
@@ -128,7 +143,7 @@ String.prototype.capitalizeFirstLetter = function() {
 
 function doWeb(doc, url) {
 	if (detectWeb(doc, url) === "multiple") {
-		Zotero.selectItems(getSearchResults(doc), function (items) {
+		Zotero.selectItems(getSearchResults(doc, url), function (items) {
 			if (!items) {
 				return true;
 			}
@@ -141,6 +156,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEMTranslator(doc, url);
 }
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -149,7 +165,7 @@ var testCases = [
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "“The message to the people of South Africa” in contemporary context: The question of Palestine and the challenge to the church",
+				"title": "“The message to the people of South Africa” in contemporary context: The question of Palestine and the challenge to the church The question of Palestine and the challenge to the church",
 				"creators": [
 					{
 						"firstName": "Mark",
@@ -602,8 +618,8 @@ var testCases = [
 				"date": "2020/11/20",
 				"DOI": "10.46543/ISID.2029.1054",
 				"ISSN": "2660-7743",
-				"abstractNote": "Using some of the tools of narrative criticism, this article studies the final battle and victory which is achieved by God’s envoy. By unpacking the network of relationship in the text the envoy is identified with the Christ of God, who has been present in the book from the beginning. The article shows how the Rider on the white horse summarises what the book of Revelation has said about Jesus.\\n4207 Usando elementos del análisis narrativo, este artículo examina la batalla final y la victoria que se consigue a través del enviado de Dios, un jinete en un caballo blanco. Desenredando la red de relaciones en el texto, el jinete en el caballo blanco se identifica con el Cristo de Dios, que ha estado presente en el libro desde el inicio. El artículo muestra como el Jinete en el caballo blanco resume en sí mismo todo lo que el Apocalipsis dice sobre Jesús.",
-				"callNumber": "orcid:0000-0001-6251-0506 | author=Francisco Javier Ruiz-Ortiz Mater Ecclesiae College, St Mary’s University (Twickenham, UK) .st0{fill:#A6CE39;} .st1{fill:#FFFFFF;}  | taken from website",
+				"abstractNote": "Using some of the tools of narrative criticism, this article studies the final battle and victory which is achieved by God’s envoy. By unpacking the network of relationship in the text the envoy is identified with the Christ of God, who has been present in the book from the beginning. The article shows how the Rider on the white horse summarises what the book of Revelation has said about Jesus., Usando elementos del análisis narrativo, este artículo examina la batalla final y la victoria que se consigue a través del enviado de Dios, un jinete en un caballo blanco. Desenredando la red de relaciones en el texto, el jinete en el caballo blanco se identifica con el Cristo de Dios, que ha estado presente en el libro desde el inicio. El artículo muestra como el Jinete en el caballo blanco resume en sí mismo todo lo que el Apocalipsis dice sobre Jesús.",
+				"callNumber": "orcid:0000-0001-6251-0506 | author=Autores/as Francisco Javier Ruiz-Ortiz Mater Ecclesiae College, St Mary’s University (Twickenham, UK) .st0{fill:#A6CE39;} .st1{fill:#FFFFFF;}  | taken from website",
 				"issue": "2",
 				"journalAbbreviation": "1",
 				"language": "es-ES",
@@ -625,22 +641,10 @@ var testCases = [
 				],
 				"tags": [
 					{
-						"tag": " Christology"
-					},
-					{
-						"tag": " Rev 19"
-					},
-					{
-						"tag": " final judgment"
-					},
-					{
 						"tag": "Ap 19"
 					},
 					{
 						"tag": "Apocalipsis"
-					},
-					{
-						"tag": "Revelation"
 					},
 					{
 						"tag": "cristología"
@@ -671,10 +675,10 @@ var testCases = [
 				"date": "2020/11/20",
 				"DOI": "10.46543/ISID.2029.1062",
 				"ISSN": "2660-7743",
-				"callNumber": "orcid:0000-0001-7277-9058 | author=Authors Pablo Antonio Morillo Rey Facultad de Teología San Isidoro de Sevilla .st0{fill:#A6CE39;} .st1{fill:#FFFFFF;}  | taken from website",
+				"callNumber": "orcid:0000-0001-7277-9058 | author=Autores/as Pablo Antonio Morillo Rey Facultad de Teología San Isidoro de Sevilla .st0{fill:#A6CE39;} .st1{fill:#FFFFFF;}  | taken from website",
 				"issue": "2",
 				"journalAbbreviation": "1",
-				"language": "en-US",
+				"language": "es-ES",
 				"libraryCatalog": "www.sanisidoro.net",
 				"pages": "161-163",
 				"publicationTitle": "Isidorianum",
@@ -699,6 +703,83 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://journal.equinoxpub.com/JSRNC/article/view/19598",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Sustaining Abundance: The Role of the Divine River in the Economy of Ancient Persia The Role of the Divine River in the Economy of Ancient Persia",
+				"creators": [
+					{
+						"firstName": "Tobin Montgomery",
+						"lastName": "Hartnell",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020",
+				"DOI": "10.1558/jsrnc.39772",
+				"ISSN": "1749-4915",
+				"abstractNote": "A comparison of archaeological survey and ethnography with the Zoroastrian textual corpus reveals the cultural and economic dimensions of an ancient water management system in northern Persia (southern Iran). The results highlight how humanity’s destructive impact on nature is ubiquitous, yet not all impacts are equivalent. The explanation is partly cultural, as Sasanian (r. 208–641 CE) notions of the Divine River promoted particular types of engagements with local rivers that respected their innate character. For believers, Zoroastrian water rituals promoted material abundance, just as ancient irrigation systems prioritized smaller barrages that allowed the river to mow. In contrast, modern dams severely restrict the water’s mow, which degrades the quality of the water. Even though ancient irrigation systems achieved a similar scale to modern ones, they were ultimately more sustainable because they respected the river as an important entity in its own right.",
+				"issue": "4",
+				"journalAbbreviation": "JSRNC",
+				"language": "en",
+				"libraryCatalog": "journal.equinoxpub.com",
+				"pages": "450-479",
+				"publicationTitle": "Journal for the Study of Religion, Nature and Culture",
+				"shortTitle": "Sustaining Abundance",
+				"url": "https://journal.equinoxpub.com/JSRNC/article/view/19598",
+				"volume": "14",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Zoroastrianism"
+					},
+					{
+						"tag": "ancient Persia"
+					},
+					{
+						"tag": "divine river"
+					},
+					{
+						"tag": "political economy"
+					},
+					{
+						"tag": "sustainability"
+					},
+					{
+						"tag": "water rituals"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://verbumetecclesia.org.za/index.php/ve/issue/view/97",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://verbumetecclesia.org.za/index.php/ve/issue/view/12",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://journal.equinoxpub.com/JSRNC/issue/view/1967",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
