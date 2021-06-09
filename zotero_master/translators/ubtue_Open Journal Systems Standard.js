@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-06-08 15:46:42"
+	"lastUpdated": "2021-06-09 14:36:21"
 }
 
 /*
@@ -77,16 +77,20 @@ function invokeEMTranslator(doc) {
  		
  		let checkOrcid = doc.querySelector(".orcid a");
  		if (checkOrcid) {
- 			let orcidEntry = ZU.trimInternal(doc.querySelector(".authors").textContent);Z.debug(orcidEntry)
+ 			let orcidEntry = ZU.trimInternal(doc.querySelector(".authors").textContent);
  			let author = orcidEntry.split("https")[0];
  			let orcid = orcidEntry.replace(/.*(\d{4}-\d+-\d+-\d+x?)/i, '$1');
  			i.callNumber = "orcid:" + orcid + " | author=" + author + " | taken from website";
  		}
- 		//fix pages
-		var firstPage = ZU.xpathText(doc, '//meta[@name="citation_firstpage"]/@content');
-		var lastPage = ZU.xpathText(doc, '//meta[@name="citation_lastpage"]/@content');
-		var firstandlastPages = i.pages.split('-');//Z.debug(firstandlastPages)
-		if (firstandlastPages[0] === firstandlastPages[1]) i.pages = firstandlastPages[0];
+ 		 //fix pages
+		let firstPage = ZU.xpathText(doc, '//meta[@name="citation_firstpage"]/@content');
+		let lastPage = ZU.xpathText(doc, '//meta[@name="citation_lastpage"]/@content');
+		if (i.pages) {
+			let firstandlastPages = i.pages.split('-');//Z.debug(firstandlastPages)
+			if (firstandlastPages[0] === firstandlastPages[1]) {
+				i.pages = firstandlastPages[0];
+			}
+		}
 		if (i.issue === "0") delete i.issue;
 		if (i.abstractNote == undefined) {
 			i.abstractNote = ZU.xpathText(doc, '//meta[@name="DC.Description"]/@content');
@@ -780,6 +784,99 @@ var testCases = [
 		"type": "web",
 		"url": "https://journal.equinoxpub.com/JSRNC/issue/view/1967",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://journal.equinoxpub.com/JSRNC/article/view/19606",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Dark Green Religion: A Decade Later A Decade Later",
+				"creators": [
+					{
+						"firstName": "Bron",
+						"lastName": "Taylor",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020",
+				"DOI": "10.1558/jsrnc.34630",
+				"ISSN": "1749-4915",
+				"abstractNote": "I wrote the following remections in the hope they will encourage further research and debate about the phenomena I explored in Dark Green Religion: Nature Spiritualty and the Planetary Future. These remections are adapted from the ‘Vorwort zur deutschen Neuausgabe: Dunkelgrüne Religion—Zehn Jahre danach’, with which I introduced the German edition.",
+				"issue": "4",
+				"journalAbbreviation": "JSRNC",
+				"language": "en",
+				"libraryCatalog": "journal.equinoxpub.com",
+				"pages": "496-510",
+				"publicationTitle": "Journal for the Study of Religion, Nature and Culture",
+				"shortTitle": "Dark Green Religion",
+				"url": "https://journal.equinoxpub.com/JSRNC/article/view/19606",
+				"volume": "14",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Avatar"
+					},
+					{
+						"tag": "Dark Green Religion"
+					},
+					{
+						"tag": "nature spirituality"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://verbumetecclesia.org.za/index.php/ve/article/view/2076",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Table of Contents Vol 40, No 1 (2019)",
+				"creators": [
+					{
+						"firstName": "Editorial",
+						"lastName": "Office",
+						"creatorType": "author"
+					}
+				],
+				"date": "2019/12/19",
+				"DOI": "10.4102/ve.v40i1.2076",
+				"ISSN": "2074-7705",
+				"issue": "1",
+				"language": "en-US",
+				"libraryCatalog": "verbumetecclesia.org.za",
+				"publicationTitle": "Verbum et Ecclesia",
+				"rights": "Copyright (c) 2020 Editorial Office",
+				"url": "https://verbumetecclesia.org.za/index.php/ve/article/view/2076",
+				"volume": "40",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
