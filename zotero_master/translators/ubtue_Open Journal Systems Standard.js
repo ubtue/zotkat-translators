@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-06-18 08:21:18"
+	"lastUpdated": "2021-06-18 12:05:30"
 }
 
 /*
@@ -791,6 +791,118 @@ var testCases = [
 		"type": "web",
 		"url": "https://periodicos.uem.br/ojs/index.php/RbhrAnpuh/issue/view/1635",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://periodicos.uem.br/ojs/index.php/RbhrAnpuh/article/view/54840",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Razões para peregrinar: experiências devocionais no santuário do Sagrado Coração de Jesus da Gruta da Mangabeira (Ituaçu - BA, 1900-1950)",
+				"creators": [
+					{
+						"firstName": "Edilece Souza",
+						"lastName": "Couto",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Tânia Maria Meira",
+						"lastName": "Mota",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020",
+				"DOI": "10.4025/rbhranpuh.v13i38.54840",
+				"ISSN": "1983-2850",
+				"abstractNote": "O artigo trata da vivência religiosa em Ituaçu – BA, cidade da Chapada Diamantina, na primeira metade do século XX. Por meio dos relatos orais, da documentação eclesiástica e das crônicas, apresentamos as narrativas, sobre a origem e o desenvolvimento das devoções, elaboradas pelos agentes religiosos: devotos, romeiros, peregrinos, promesseiros e clérigos, que fazem do ato de peregrinar a própria vida como viagem. Anualmente, entre os meses de agosto e setembro, os devotos e romeiros ocupam a Gruta da Mangabeira com seus cantos, benditos, rezas, ladainhas, novenas e procissões. A pesquisa demonstrou que, naquele espaço sacralizado, os fiéis rendem graça, renovam seus votos e promessas e re-atualizam seus mitos, sua fé e suas crenças.",
+				"callNumber": "orcid:0000-0003-3618-7455 | author=Edilece Souza Couto Universidade Federal da Bahia - UFBA Tânia Maria Meira Mota Rede Pública Estadual de Ensino da Bahia .st0{fill:#A6CE39;} .st1{fill:#FFFFFF;}  | taken from website",
+				"issue": "38",
+				"journalAbbreviation": "1",
+				"language": "pt",
+				"libraryCatalog": "periodicos.uem.br",
+				"publicationTitle": "Revista Brasileira de História das Religiões",
+				"rights": "Copyright (c) 2020 Edilece Souza Couto, Tânia Maria Meira Mota (Autor)",
+				"shortTitle": "Razões para peregrinar",
+				"url": "https://periodicos.uem.br/ojs/index.php/RbhrAnpuh/article/view/54840",
+				"volume": "13",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Catolicismo"
+					},
+					{
+						"tag": "Peregrinação"
+					},
+					{
+						"tag": "Romaria"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://journal.equinoxpub.com/JSRNC/article/view/19606",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Dark Green Religion: A Decade Later A Decade Later",
+				"creators": [
+					{
+						"firstName": "Bron",
+						"lastName": "Taylor",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020",
+				"DOI": "10.1558/jsrnc.34630",
+				"ISSN": "1749-4915",
+				"abstractNote": "I wrote the following remections in the hope they will encourage further research and debate about the phenomena I explored in Dark Green Religion: Nature Spiritualty and the Planetary Future. These remections are adapted from the ‘Vorwort zur deutschen Neuausgabe: Dunkelgrüne Religion—Zehn Jahre danach’, with which I introduced the German edition.",
+				"issue": "4",
+				"journalAbbreviation": "JSRNC",
+				"language": "en",
+				"libraryCatalog": "journal.equinoxpub.com",
+				"pages": "496-510",
+				"publicationTitle": "Journal for the Study of Religion, Nature and Culture",
+				"shortTitle": "Dark Green Religion",
+				"url": "https://journal.equinoxpub.com/JSRNC/article/view/19606",
+				"volume": "14",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Avatar"
+					},
+					{
+						"tag": "Dark Green Religion"
+					},
+					{
+						"tag": "nature spirituality"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
