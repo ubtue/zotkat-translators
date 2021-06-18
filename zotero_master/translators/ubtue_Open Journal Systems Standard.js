@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-06-08 16:02:08"
+	"lastUpdated": "2021-06-18 08:21:18"
 }
 
 /*
@@ -88,6 +88,9 @@ function invokeEMTranslator(doc) {
 		var firstandlastPages = i.pages.split('-');
 		if (firstandlastPages[0] === firstandlastPages[1]) i.pages = firstandlastPages[0];
  		}
+ 		if (ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content') && i.date.length !== 4 && i.ISSN == '1983-2850') {
+			i.date = ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content').substr(0, 4);
+		}
 
 		if (i.issue === "0") delete i.issue;
 		if (i.abstractNote == undefined) {
@@ -158,6 +161,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEMTranslator(doc, url);
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
@@ -787,7 +791,6 @@ var testCases = [
 		"type": "web",
 		"url": "https://periodicos.uem.br/ojs/index.php/RbhrAnpuh/issue/view/1635",
 		"items": "multiple"
-
 	}
 ]
 /** END TEST CASES **/
