@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-06-09 16:36:39"
+	"lastUpdated": "2021-06-18 08:21:18"
 }
 
 /*
@@ -81,15 +81,17 @@ function invokeEMTranslator(doc) {
  			let orcid = orcidEntry.replace(/.*(\d{4}-\d+-\d+-\d+x?)/i, '$1');
  			i.callNumber = "orcid:" + orcid + " | author=" + author + " | taken from website";
  		}
- 		 //fix pages
-		let firstPage = ZU.xpathText(doc, '//meta[@name="citation_firstpage"]/@content');
-		let lastPage = ZU.xpathText(doc, '//meta[@name="citation_lastpage"]/@content');
-		if (i.pages) {
-			let firstandlastPages = i.pages.split('-');//Z.debug(firstandlastPages)
-			if (firstandlastPages[0] === firstandlastPages[1]) {
-				i.pages = firstandlastPages[0];
-			}
+
+ 		if (i.pages !== undefined) {
+		var firstPage = ZU.xpathText(doc, '//meta[@name="citation_firstpage"]/@content');
+		var lastPage = ZU.xpathText(doc, '//meta[@name="citation_lastpage"]/@content');
+		var firstandlastPages = i.pages.split('-');
+		if (firstandlastPages[0] === firstandlastPages[1]) i.pages = firstandlastPages[0];
+ 		}
+ 		if (ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content') && i.date.length !== 4 && i.ISSN == '1983-2850') {
+			i.date = ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content').substr(0, 4);
 		}
+
 		if (i.issue === "0") delete i.issue;
 		if (i.abstractNote == undefined) {
 			i.abstractNote = ZU.xpathText(doc, '//meta[@name="DC.Description"]/@content');
@@ -159,6 +161,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEMTranslator(doc, url);
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
@@ -786,138 +789,8 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://journal.equinoxpub.com/JSRNC/article/view/19606",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Dark Green Religion: A Decade Later A Decade Later",
-				"creators": [
-					{
-						"firstName": "Bron",
-						"lastName": "Taylor",
-						"creatorType": "author"
-					}
-				],
-				"date": "2020",
-				"DOI": "10.1558/jsrnc.34630",
-				"ISSN": "1749-4915",
-				"abstractNote": "I wrote the following remections in the hope they will encourage further research and debate about the phenomena I explored in Dark Green Religion: Nature Spiritualty and the Planetary Future. These remections are adapted from the ‘Vorwort zur deutschen Neuausgabe: Dunkelgrüne Religion—Zehn Jahre danach’, with which I introduced the German edition.",
-				"issue": "4",
-				"journalAbbreviation": "JSRNC",
-				"language": "en",
-				"libraryCatalog": "journal.equinoxpub.com",
-				"pages": "496-510",
-				"publicationTitle": "Journal for the Study of Religion, Nature and Culture",
-				"shortTitle": "Dark Green Religion",
-				"url": "https://journal.equinoxpub.com/JSRNC/article/view/19606",
-				"volume": "14",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [
-					{
-						"tag": "Avatar"
-					},
-					{
-						"tag": "Dark Green Religion"
-					},
-					{
-						"tag": "nature spirituality"
-					}
-				],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://verbumetecclesia.org.za/index.php/ve/article/view/2076",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Table of Contents Vol 40, No 1 (2019)",
-				"creators": [
-					{
-						"firstName": "Editorial",
-						"lastName": "Office",
-						"creatorType": "author"
-					}
-				],
-				"date": "2019/12/19",
-				"DOI": "10.4102/ve.v40i1.2076",
-				"ISSN": "2074-7705",
-				"issue": "1",
-				"language": "en-US",
-				"libraryCatalog": "verbumetecclesia.org.za",
-				"publicationTitle": "Verbum et Ecclesia",
-				"rights": "Copyright (c) 2020 Editorial Office",
-				"url": "https://verbumetecclesia.org.za/index.php/ve/article/view/2076",
-				"volume": "40",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://revistas.agustinosvalladolid.es/index.php/estudio/article/view/8",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "La persona humana, relación religada en san Agustín",
-				"creators": [
-					{
-						"firstName": "Tarsicio Jáñez",
-						"lastName": "Barrio",
-						"creatorType": "author"
-					}
-				],
-				"date": "2021/05/25",
-				"ISSN": "2792-260X",
-				"abstractNote": "Agustín de Hipona nació en el norte de África dotado de una gran sensibilidad y amor al estudio. Enamorado en su juventud de la retórica, la investigó con denuedo para brillar, al término de la misma, ganando la cátedra de Retórica de la Casa Imperial de Milán. La conversión al cristianismo le trastorna la vida y la Gracia divina hace de su esfuerzo un faro de sabiduría; de su sacerdocio y aceptación de la mitra un polemista y un apologeta incansable; de su fe en Cristo y en la Iglesia un gran intérprete de la Biblia, un valiente teólogo y un audaz buscador de Dios. Todo ello en el contexto del colapso del Imperio romano. No por azar, en su voz se ve un antecedente inspirador de la actitud moderna con que el yo se autocomprende y valora su misión en el mundo.\nPero de la misma manera que él bebe y reinterpreta fuentes previas, otros, posteriormente, beberán y reinterpretarán su palabra. Así, después de Kant, la filosofía idealista trató de acostumbrarnos a pensar que el contacto con la realidad, los hechos decisivos de la historia y la construcción del destino personal dependen solo o primero de un Yo (‘sujeto’ o ‘subjetividad’) que explora, sueña, selecciona, planifica, decide e interpreta, a solas, el sentido del mundo. Pensadores como Descartes o Hegel, tratarán de reinterpretar la experiencia cristiana y agustiniana.\nAsí las cosas, y dada la vigencia de san Agustín, conviene releer sus escritos para escuchar directamente de su palabra el fundamento de su experiencia, la razón de sus opciones y la articulación de su hermenéutica. Interesa, por ejemplo, ver cómo leyó a Platón y Aristóteles, cómo glosó sus conceptos y qué encontró Agustín que no estaba en el ‘logos’ griego. En este texto nos centramos en el concepto de “substancia” y “persona” en san Agustín, en el marco de su reflexión sobre el misterio trinitario del Dios cristiano, resaltando el influjo que va a tener en la construcción de una antropología que quiere sobrepasar la metafísica griega. Su posición marcará una singular relación con la filosofía y abrirá caminos ricos y exigentes a la teología. Desde aquí, se tocan y reivindican algunas cosas que san Agustín plantea tanto a la teología escolástica como a la filosofía moderna de X. Zubiri.",
-				"issue": "1",
-				"journalAbbreviation": "EstAgus",
-				"language": "es",
-				"libraryCatalog": "revistas.agustinosvalladolid.es",
-				"pages": "5-36",
-				"publicationTitle": "Estudio Agustiniano",
-				"rights": "Derechos de autor 2021",
-				"url": "https://revistas.agustinosvalladolid.es/index.php/estudio/article/view/8",
-				"volume": "56",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
+		"url": "https://periodicos.uem.br/ojs/index.php/RbhrAnpuh/issue/view/1635",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
