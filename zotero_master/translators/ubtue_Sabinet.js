@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-04-19 14:38:27"
+	"lastUpdated": "2021-06-09 15:43:41"
 }
 
 /*
@@ -45,7 +45,7 @@ function detectWeb(doc, url) {
 function getSearchResults(doc) {
 	var items = {};
 	var found = false;
-	var rows = ZU.xpath(doc, '//*[@class="issue-item__title"]/a')
+	var rows = ZU.xpath(doc, '//*[@class="issue-item__title"]/a');
 	for (let i=0; i<rows.length; i++) {
 		let href = rows[i].href;
 		let title = ZU.trimInternal(rows[i].textContent);
@@ -150,13 +150,13 @@ function scrape(doc, url) {
 				}
 			}
 			//ISSN
-			let lookupIssn = doc.querySelectorAll('#menu-item-pub_nav-1 a');
+			let lookupIssn = doc.querySelectorAll('#menu-item-pub_nav-1 a');//Z.debug(lookupIssn)
 			if (!item.ISSN) {
-				let post = lookupIssn[0].href;
-				ZU.processDocuments(post, function (scrapeEissn) {
-					var eissn = ZU.xpathText(scrapeEissn, '//*[(@class = "teaser__item")]');//Z.debug(eissn)
-					if (eissn && eissn.match(/\d{4}-?\d{4}/gi)) {
-						item.ISSN = eissn.match(/\d{4}-?\d{4}/gi).toString();
+				let post = lookupIssn[0].href.replace(/toc/, 'journal').replace(/current/, '');//Z.debug(post)
+				ZU.processDocuments(post, function (scrapeIssn) {
+					var issn = ZU.xpathText(scrapeIssn, '//*[(@class = "teaser__row")]');//Z.debug(eissn)
+					if (issn && issn.match(/\d{4}-?\d{4}/gi)) {
+						item.ISSN = issn.match(/\d{4}-?\d{4}/gi).toString();
 					}
 					item.complete();
 				});
@@ -214,10 +214,78 @@ var testCases = [
 						"tag": " The Handmaid’s Tale"
 					},
 					{
+						"tag": " Zilpah"
+					},
+					{
+						"tag": "Trauma narratives"
+					}
+				],
+				"notes": [
+					{
+						"note": "<p>doi: 10.17159/2312-3621/2020/v33n1a3</p>"
+					},
+					{
+						"note": "LF:"
+					},
+					{
+						"note": "orcid:Juliana Claassens | author= Juliana Claassens     Search for more papers by this author      | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://journals.co.za/doi/abs/10.17159/2312-3621/2020/v33n1a3",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Reading trauma narratives : insidious trauma in the story of Rachel, Leah, Bilhah and Zilpah (Genesis 29-30) and Margaret Atwood’s The Handmaid’s Tale",
+				"creators": [
+					{
+						"firstName": "Claassens",
+						"lastName": "Juliana",
+						"creatorType": "author"
+					}
+				],
+				"date": "October 1, 2020",
+				"DOI": "10.17159/2312-3621/2020/v33n1a3",
+				"ISSN": "1010-9919",
+				"abstractNote": "This article investigates the notion of insidious trauma as a helpful means of interpreting the story of Rachel, Leah, Bilhah and Zilpah as told in Genesis 29-30 that has found its way into the\n      haunting trauma narrative of Margaret Atwood’s The Handmaid’s Tale. In the first instance, this article outlines the category of insidious trauma as it is situated in terms of the broader field\n      of trauma hermeneutics, as well as the way in which it relates to the related disciplines of feminist and womanist biblical interpretation. This article will then continue to show how insidious\n      trauma features in two very different, though intrinsically connected trauma narratives, i.e., the world imagined by Atwood in The Handmaid’s Tale, and the biblical narrative regarding the four\n      women through whose reproductive efforts the house of Israel had been built that served as the inspiration for Atwood’s novel. This article argues that these trauma narratives, on the one hand,\n      reflect the ongoing effects of systemic violation in terms of gender, race and class, but also how, embedded in these narratives there are signs of resistance that serve as the basis of\n      survival of the self and also of others.",
+				"issue": "1",
+				"journalAbbreviation": "Old Testament Essays",
+				"libraryCatalog": "ubtue_Sabinet",
+				"pages": "10-31",
+				"publicationTitle": "Old Testament Essays",
+				"shortTitle": "Reading trauma narratives",
+				"url": "https://doi.org/10.17159/2312-3621/2020/v33n1a3",
+				"volume": "33",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": " Insiduous Trauma"
+					},
+					{
+						"tag": " Leah"
+					},
+					{
+						"tag": " Rachel"
+					},
+					{
+						"tag": " Reproductive Loss"
+					},
+					{
+						"tag": " The Handmaid’s Tale"
+					},
+					{
 						"tag": " Trauma narratives"
 					},
 					{
-						"tag": "Zilpah"
+						"tag": " Zilpah"
+					},
+					{
+						"tag": "Bilhah"
 					}
 				],
 				"notes": [

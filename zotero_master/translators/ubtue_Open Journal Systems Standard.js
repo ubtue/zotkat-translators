@@ -67,14 +67,13 @@ function invokeEMTranslator(doc) {
  		//title in other language for pica-field 4002
  		var articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
  		if (articleType === "Artículos") {
- 			let dcAlternativeTitle = ZU.xpathText(doc, '//meta[@name="DC.Title.Alternative"]/@content').trim();
+ 			let dcAlternativeTitle = ZU.xpathText(doc, '//meta[@name="DC.Title.Alternative"]/@content');
  			i.archiveLocation = dcAlternativeTitle;
  			if (i.archiveLocation == i.title) {
  				delete i.archiveLocation;
  			}
  		}
  		//orcid for pica-field 8910
- 		
  		let checkOrcid = doc.querySelector(".orcid a");
  		if (checkOrcid) {
  			let orcidEntry = ZU.trimInternal(doc.querySelector(".authors").textContent);
@@ -82,13 +81,14 @@ function invokeEMTranslator(doc) {
  			let orcid = orcidEntry.replace(/.*(\d{4}-\d+-\d+-\d+x?)/i, '$1');
  			i.callNumber = "orcid:" + orcid + " | author=" + author + " | taken from website";
  		}
- 		//fix pages
+
  		if (i.pages !== undefined) {
 		var firstPage = ZU.xpathText(doc, '//meta[@name="citation_firstpage"]/@content');
 		var lastPage = ZU.xpathText(doc, '//meta[@name="citation_lastpage"]/@content');
 		var firstandlastPages = i.pages.split('-');
 		if (firstandlastPages[0] === firstandlastPages[1]) i.pages = firstandlastPages[0];
  		}
+
 		if (i.issue === "0") delete i.issue;
 		if (i.abstractNote == undefined) {
 			i.abstractNote = ZU.xpathText(doc, '//meta[@name="DC.Description"]/@content');
@@ -787,6 +787,7 @@ var testCases = [
 		"type": "web",
 		"url": "https://periodicos.uem.br/ojs/index.php/RbhrAnpuh/issue/view/1635",
 		"items": "multiple"
+
 	}
 ]
 /** END TEST CASES **/
