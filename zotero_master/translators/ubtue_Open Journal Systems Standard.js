@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-06-18 12:02:08"
+	"lastUpdated": "2021-06-18 12:05:30"
 }
 
 /*
@@ -844,6 +844,59 @@ var testCases = [
 					},
 					{
 						"tag": "Romaria"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://journal.equinoxpub.com/JSRNC/article/view/19606",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Dark Green Religion: A Decade Later A Decade Later",
+				"creators": [
+					{
+						"firstName": "Bron",
+						"lastName": "Taylor",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020",
+				"DOI": "10.1558/jsrnc.34630",
+				"ISSN": "1749-4915",
+				"abstractNote": "I wrote the following remections in the hope they will encourage further research and debate about the phenomena I explored in Dark Green Religion: Nature Spiritualty and the Planetary Future. These remections are adapted from the ‘Vorwort zur deutschen Neuausgabe: Dunkelgrüne Religion—Zehn Jahre danach’, with which I introduced the German edition.",
+				"issue": "4",
+				"journalAbbreviation": "JSRNC",
+				"language": "en",
+				"libraryCatalog": "journal.equinoxpub.com",
+				"pages": "496-510",
+				"publicationTitle": "Journal for the Study of Religion, Nature and Culture",
+				"shortTitle": "Dark Green Religion",
+				"url": "https://journal.equinoxpub.com/JSRNC/article/view/19606",
+				"volume": "14",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Avatar"
+					},
+					{
+						"tag": "Dark Green Religion"
+					},
+					{
+						"tag": "nature spirituality"
 					}
 				],
 				"notes": [],
