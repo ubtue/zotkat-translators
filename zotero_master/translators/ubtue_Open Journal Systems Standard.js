@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-06-21 13:22:20"
+	"lastUpdated": "2021-06-21 14:40:55"
 }
 
 /*
@@ -101,6 +101,7 @@ function invokeEMTranslator(doc) {
 			if (i.abstractNote.match(/No abstract available/)) delete i.abstractNote;
 			else if (i.abstractNote.match(/^.$/)) delete i.abstractNote;
 		}
+		
 		if (i.tags[1] === undefined) delete i.tags[0];
 		let tagsEntry = ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content');
 		if (i.ISSN === "2413-9467" && tagsEntry) {
@@ -122,9 +123,16 @@ function invokeEMTranslator(doc) {
 					i.tags.push("RezensionstagPica");
 				}
 			}
+		}
+		if (i.ISSN == '2660-4418') {
+			if (i.abstractNote.indexOf("\nReferences\n") !== -1) {
+			i.abstractNote = i.abstractNote.substring(0, i.abstractNote.indexOf("\nReferences\n"));
+		}
+		}
+		if (['2617-3697', '2660-4418'].includes(i.ISSN)) {
 			let subtitle = ZU.xpathText(doc, '//h1/small');
 			if (subtitle) {
-				subtitle = subtitle.replace(/(\n*\t*)/, '')
+				subtitle = subtitle.replace(/(\n*\t*)/, '');
 				if (!i.title.match(subtitle)) {
 					i.title = i.title + ': ' + subtitle;
 			}
@@ -893,6 +901,71 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://revistasfranciscanas.org/index.php/ArchivoIberoAmericano/article/view/117",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "La Orden Tercera Franciscana en la península ibérica: De sus orígenes medievales a su eclosión en la Edad Moderna",
+				"creators": [
+					{
+						"firstName": "Alfredo Martín",
+						"lastName": "García",
+						"creatorType": "author"
+					}
+				],
+				"date": "2017",
+				"ISSN": "2660-4418",
+				"abstractNote": "After examining the state of the question regarding the Third Order of Saint Francis in Spain and Portugal, the present study analyses the medieval origins of this secular Franciscan order in the Iberian Peninsula. Subsequently, it examines the reasons for its decline in the late Middle Ages and beginning of the Early Modern Period, relating this to questions of a political nature, including pressure from the crown, ideology, the influence of heretical movements, and the internal organization of the Franciscans. This is followed by an analysis of the Order’s subsequent recovery in the early 17th century, which was closely linked to the reforms of the Council of Trent, in which secular religious associations played a major role. Lastly, the main reasons for the success of a secular order among various sectors of Old Regime society are explored, underlining the need to move away from earlier accusations that in the Early Modern Period, the Third Order had lost its original religious purity.",
+				"callNumber": "orcid:0000-0001-6906-0210 | author=Alfredo Martín García Universidad de León .st0{fill:#A6CE39;} .st1{fill:#FFFFFF;}  | taken from website",
+				"issue": "284",
+				"journalAbbreviation": "1",
+				"language": "es",
+				"libraryCatalog": "revistasfranciscanas.org",
+				"pages": "69-97",
+				"publicationTitle": "Archivo Ibero-Americano",
+				"rights": "Derechos de autor 2017 Archivo Ibero-Americano",
+				"shortTitle": "La Orden Tercera Franciscana en la península ibérica",
+				"url": "https://revistasfranciscanas.org/index.php/ArchivoIberoAmericano/article/view/117",
+				"volume": "77",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Edad Media"
+					},
+					{
+						"tag": "Edad Moderna"
+					},
+					{
+						"tag": "Orden Tercera Franciscana"
+					},
+					{
+						"tag": "asociacionismo religioso secular"
+					},
+					{
+						"tag": "península ibérica"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://revistasfranciscanas.org/index.php/ArchivoIberoAmericano/issue/view/16",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
