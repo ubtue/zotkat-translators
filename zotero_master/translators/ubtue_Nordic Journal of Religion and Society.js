@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-06-02 11:07:50"
+	"lastUpdated": "2021-06-21 10:14:19"
 }
 
 /*
@@ -33,6 +33,7 @@
 	***** END LICENSE BLOCK *****
 */
 
+var reviewURLs = [];
 
 function detectWeb(doc, url) {
 	// except for "multiple", the return values of this function are placeholders that
@@ -54,6 +55,13 @@ function getSearchResults(doc) {
 		found = true;
 		items[href] = title;
 	}
+	let sections = ZU.xpath(doc, '//div[@class="block"][contains(./div[@class="sectionHeading"], "review")]');
+	for (let i = 0; i < sections.length; i++) {
+		let rows = ZU.xpath(sections[i], './div[@class="element"]/div[@class="artTitle"]/a');
+		for (let i = 0; i < rows.length; i++) {
+			reviewURLs.push(rows[i].href);
+		}
+		}
 	return found ? items : false;
 }
 
@@ -65,13 +73,24 @@ function postProcess(item, doc) {
 			let matched = pages.match(/^([0-9]+-[0-9]+)/);
 			if (matched)
 				item.pages = matched[1];
+			}
 		}
-	}
 	if (typeof item.abstractNote == 'undefined') {
 		item.abstractNote = ZU.xpathText(doc, '//p[@class="first"]');
 			}
-		item.complete();
-		}
+	if (item.publicationTitle == 'Nordic Journal of Religion and Society') {
+	if (reviewURLs.includes(item.url)) {
+		item.tags.push('RezensionstagPica');
+		item.abstractNote = '';
+			}
+	//on the website, a note says "The journal only publishes articles in English"
+	item.language = 'en';
+	}
+	if (item.issue[0] == '0') {
+		item.issue = item.issue.substring(1, item.issue.length);
+	}
+	item.complete();
+	}
 
 function invokeEmbeddedMetadataTranslator(doc) {
 	let translator = Zotero.loadTranslator("web");
@@ -102,7 +121,8 @@ function doWeb(doc, url) {
 		});
 	} else
 		scrape(doc, url);
-}/** BEGIN TEST CASES **/
+}
+/** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "web",
@@ -137,8 +157,8 @@ var testCases = [
 				"DOI": "10.18261/issn.1890-7008-2020-02-01",
 				"ISSN": "1890-7008, 0809-7291",
 				"abstractNote": "In less than 15 years, child baptism has gone from being a mainstream tradition to a minority practice. This decline is a result of both high unaffiliation, especially with the Church of Sweden, and a more diversified religious society due to migration. Using microdata from parents of children born in 2005 and 2015, we were able to discern that differences in the practice of child baptism in the Church of Sweden are positively associated with the parents’ relation to the church, residence in rural areas, and income. Our LPM analysis shows that the probability of a child being baptized are mainly determined by the parents’ relation to the church when controlling for all the other variables. The most influential factors are the mother’s affiliation and an urban lifestyle. Parents’ marital status and socioeconomic circumstances have a strong effect on the decision to baptize a child, therefore affecting who becomes a future member of the church., Number of baptized and not-baptized children born in Sweden 2005–2016, Baptism rate in the Nordic majority churches, in percent 2008–2018, Baptism rate in rural municipalities and big cities, in percent 1995–2017., Table 1. Definition of variables, Table 2. Output of linear probability model of child baptism with the full sample., Table 3. Output of linear probability model of child baptism with children where at least one parent is affiliated to the Church of Sweden.",
-				"issue": "02",
-				"language": "no-NO",
+				"issue": "2",
+				"language": "en",
 				"libraryCatalog": "www.idunn.no",
 				"pages": "72-86",
 				"publicationTitle": "Nordic Journal of Religion and Society",
