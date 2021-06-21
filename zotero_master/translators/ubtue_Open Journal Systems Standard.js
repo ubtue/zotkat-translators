@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-06-21 14:40:55"
+	"lastUpdated": "2021-06-21 15:10:30"
 }
 
 /*
@@ -117,9 +117,9 @@ function invokeEMTranslator(doc) {
 			i.tags.push('RezensionstagPica');
 		}
 		}
-		if (i.ISSN == '2617-3697') {
+		if (i.ISSN == '2617-3697' || i.ISSN == '2627-6062') {
 			if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')) {
-				if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')[0].content.match(/Media reviews/i)) {
+				if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')[0].content.match(/(Media reviews)|(Rezensionen)/i)) {
 					i.tags.push("RezensionstagPica");
 				}
 			}
@@ -965,6 +965,85 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://revistasfranciscanas.org/index.php/ArchivoIberoAmericano/issue/view/16",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://jeac.de/ojs/index.php/jeac/article/view/297",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Review of: Martha C. Nussbaum, The Monarchy of Fear. A Philosopher looks at our Political Crisis",
+				"creators": [
+					{
+						"firstName": "Tanja",
+						"lastName": "Smailus",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020/10/31",
+				"DOI": "10.25784/jeac.v2i0.297",
+				"ISSN": "2627-6062",
+				"abstractNote": ",",
+				"journalAbbreviation": "1",
+				"language": "en",
+				"libraryCatalog": "jeac.de",
+				"pages": "86-87",
+				"publicationTitle": "Journal of Ethics in Antiquity and Christianity",
+				"rights": "Copyright (c) 2020 Journal of Ethics in Antiquity and Christianity",
+				"shortTitle": "Review of",
+				"url": "https://jeac.de/ojs/index.php/jeac/article/view/297",
+				"volume": "2",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Angst"
+					},
+					{
+						"tag": "Emotionen"
+					},
+					{
+						"tag": "Ethik"
+					},
+					{
+						"tag": "Ethik in Antike und Christentum"
+					},
+					{
+						"tag": "Gesellschaft"
+					},
+					{
+						"tag": "Martha Nussbaum"
+					},
+					{
+						"tag": "Philosophie"
+					},
+					{
+						"tag": "Politik"
+					},
+					{
+						"tag": "Psychologie"
+					},
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://jeac.de/ojs/index.php/jeac/issue/view/16",
 		"items": "multiple"
 	}
 ]
