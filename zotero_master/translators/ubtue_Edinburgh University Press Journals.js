@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-05-14 11:54:44"
+	"lastUpdated": "2021-06-21 15:10:35"
 }
 
 /*
@@ -99,7 +99,7 @@ function scrape(doc, url) {
 			item.abstractNote = ZU.xpathText(doc, '//meta[@name="dc.Description"]/@content');
 			let abstractFromDOM = ZU.xpathText(doc, '//div[contains(@class, "abstractInFull")]//p[not(@class="summary-title")]');
 			if (abstractFromDOM && item.abstractNote.length < abstractFromDOM.length)
-				item.abstractNote = abstractFromDOM.replace(/^Abstract/,'');
+				item.abstractNote = abstractFromDOM.replace(/^Abstract/,'').replace(/\w\.,\s/, '.\\n4207 ');
 
 			item.attachments = [{
 				document: doc,
