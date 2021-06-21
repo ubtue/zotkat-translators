@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-06-21 12:21:16"
+	"lastUpdated": "2021-06-21 12:29:12"
 }
 
 /*
@@ -113,50 +113,36 @@ function doWeb(doc, url) {
 var testCases = [
 	{
 		"type": "web",
-		"url": "https://www.idunn.no/nordic_journal_of_religion_and_society/2020/02",
+		"url": "https://www.aup-online.com/content/journals/07788304/29/2",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
-		"url": "https://www.idunn.no/nordic_journal_of_religion_and_society/2020/02/who_is_baptized_a_study_of_socioeconomic_regional_and_gen",
+		"url": "https://www.aup-online.com/content/journals/10.5117/TRA2020.2.002.SCHL",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Who is Baptized? A Study of Socioeconomic, Regional and Gender Differences in Child Baptism in the Church of Sweden, 2005 and 2015",
+				"title": "Decentering the Status Quo: The Rhetorically Sanctioned Political Engagement of Groen van Prinsterer",
 				"creators": [
 					{
-						"firstName": "Pernilla",
-						"lastName": "Jonsson",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Patrik",
-						"lastName": "Svensson",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Andreas",
-						"lastName": "Sandberg",
+						"firstName": "Jan Adriaan",
+						"lastName": "Schlebusch",
 						"creatorType": "author"
 					}
 				],
-				"date": "2020",
-				"DOI": "10.18261/issn.1890-7008-2020-02-01",
-				"ISSN": "1890-7008, 0809-7291",
-				"abstractNote": "In less than 15 years, child baptism has gone from being a mainstream tradition to a minority practice. This decline is a result of both high unaffiliation, especially with the Church of Sweden, and a more diversified religious society due to migration. Using microdata from parents of children born in 2005 and 2015, we were able to discern that differences in the practice of child baptism in the Church of Sweden are positively associated with the parents’ relation to the church, residence in rural areas, and income. Our LPM analysis shows that the probability of a child being baptized are mainly determined by the parents’ relation to the church when controlling for all the other variables. The most influential factors are the mother’s affiliation and an urban lifestyle. Parents’ marital status and socioeconomic circumstances have a strong effect on the decision to baptize a child, therefore affecting who becomes a future member of the church., Number of baptized and not-baptized children born in Sweden 2005–2016, Baptism rate in the Nordic majority churches, in percent 2008–2018, Baptism rate in rural municipalities and big cities, in percent 1995–2017., Table 1. Definition of variables, Table 2. Output of linear probability model of child baptism with the full sample., Table 3. Output of linear probability model of child baptism with children where at least one parent is affiliated to the Church of Sweden.",
+				"date": "2020/12/01",
+				"DOI": "10.5117/TRA2020.2.002.SCHL",
+				"ISSN": "0778-8304, 2665-9484",
+				"abstractNote": "In his strategic political positioning and engagement in the nineteenth century, Groen van Prinsterer looked towards both the past and the future. Rhetorically, he appealed to the past as a vindication of the truth and practicality of his anti-revolutionary position. He also expressed optimism for the success of his convictions and political goals in the future. This optimism was reflected in the confidence with which he engaged politically, despite experiencing numerous setbacks in his career. Relying on the phenomenological-narrative approach of David Carr, I highlight the motives and strategies behind Groen’s political activity, and reveal that the past and the future in Groen’s narrative provide the strategic framework for his rhetoric, and the basis for his activism. I accentuate how the emphasis of his narrative shifts away from the status quo and thus enables a type of political engagement that proved historically significant for the early consolidation of the Dutch constitutional democracy.",
 				"issue": "2",
 				"language": "en",
-				"libraryCatalog": "www.idunn.no",
-				"pages": "72-86",
-				"publicationTitle": "Nordic Journal of Religion and Society",
-				"shortTitle": "Who is Baptized?",
-				"url": "https://www.idunn.no/nordic_journal_of_religion_and_society/2020/02/who_is_baptized_a_study_of_socioeconomic_regional_and_gen",
-				"volume": "33",
+				"libraryCatalog": "www.aup-online.com",
+				"pages": "141-159",
+				"publicationTitle": "Trajecta",
+				"shortTitle": "Decentering the Status Quo",
+				"url": "https://www.aup-online.com/content/journals/10.5117/TRA2020.2.002.SCHL",
+				"volume": "29",
 				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
 					{
 						"title": "Snapshot",
 						"mimeType": "text/html"
@@ -164,30 +150,25 @@ var testCases = [
 				],
 				"tags": [
 					{
-						"tag": "Baptism"
+						"tag": "David Carr"
 					},
 					{
-						"tag": "Sweden"
+						"tag": "Groen van Prinsterer"
 					},
 					{
-						"tag": "religious ceremonies"
+						"tag": "anti-revolutionary"
 					},
 					{
-						"tag": "religious practice"
+						"tag": "constitutional democracy"
 					},
 					{
-						"tag": "secularization"
+						"tag": "narrative"
 					}
 				],
 				"notes": [],
 				"seeAlso": []
 			}
 		]
-	},
-	{
-		"type": "web",
-		"url": "https://www.idunn.no/nordic_journal_of_religion_and_society/2007/01",
-		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
