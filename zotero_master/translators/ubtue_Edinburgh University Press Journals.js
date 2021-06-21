@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-06-21 15:10:35"
+	"lastUpdated": "2021-06-21 15:14:55"
 }
 
 /*
@@ -129,7 +129,7 @@ function scrape(doc, url) {
 var testCases = [
 	{
 		"type": "web",
-		"url": "https://www.euppublishing.com/doi/abs/10.3366/sch.2020.0019",
+		"url": "https://www.euppublishing.com/doi/full/10.3366/sch.2020.0019",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -141,16 +141,16 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "März 24, 2020",
+				"date": "March 24, 2020",
 				"DOI": "10.3366/sch.2020.0019",
 				"ISSN": "2516-6298",
 				"abstractNote": "The 1843 Disruption of the Church of Scotland, which split the national church in two, was one of the most important events in Victorian Britain. The evangelical ministers who seceded from the Kirk to form the Free Church of Scotland did so in protest against the British state's intrusion in the church's affairs. The anti-English and patriotic rhetoric of the Disruption has led historians such as David Bebbington to argue that it represented something close to a nationalist movement. This paper questions this claim by assessing the nationalist characteristics of the Disruption and their role in shaping the political ‘unionist-nationalism’ of the mid-nineteenth century. It examines the kind of nationalist sentiment, if any, evident at the Disruption, the role of Free Church members in the National Association for the Vindication of Scottish Rights, the short-lived proto-nationalist pressure group, and the nationalism of the Free Church minister James Begg, who called for Home Rule for Scotland in 1850. By assessing the influence of the Disruption's constructionist critique of the union on political nationalism, the paper argues that the religious nationalism evident in 1843 failed to translate to a political context in the mid-nineteenth century. The new religiously pluralist environment of the post-Disruption period saw the Free Church turn inwards and begin to focus upon its own denominational fortunes as a single Scottish national identity was replaced by a variety of competing confessional identities, each with their own claim to nationhood.",
 				"issue": "1",
-				"libraryCatalog": "Edinburgh University Press Journals",
+				"libraryCatalog": "ubtue_Edinburgh University Press Journals",
 				"pages": "1-24",
 				"publicationTitle": "Scottish Church History",
 				"shortTitle": "A Church for Scotland?",
-				"url": "https://www.euppublishing.com/doi/abs/10.3366/sch.2020.0019",
+				"url": "https://www.euppublishing.com/doi/full/10.3366/sch.2020.0019",
 				"volume": "49",
 				"attachments": [
 					{
@@ -182,7 +182,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://www.euppublishing.com/doi/abs/10.3366/sch.2020.0020",
+		"url": "https://www.euppublishing.com/doi/full/10.3366/sch.2020.0020",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -194,15 +194,15 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "März 24, 2020",
+				"date": "March 24, 2020",
 				"DOI": "10.3366/sch.2020.0020",
 				"ISSN": "2516-6298",
 				"abstractNote": "In 1755, William Robertson delivered a sermon before the Society in Scotland for Propagating Christian Knowledge, entitled The Situation of the World at the Time of Christ's Appearance…. He addresses British imperial expansion and its prospects for civil and moral improvement, while denouncing the moral decay manifest in the growth of slavery and exploitation of natives. Through advocating a considered balance between submission to revealed religious principles and the exercise of reason, Robertson stresses the necessity of both for promoting virtue and preventing vice. The SSPCK, an organisation dedicated to spreading ‘reformed Christianity’ as a catalyst of cultural progress (and thus the growth of virtue) among rural Scots and Natives in North America, was responding to a perceived lack of government commitment to this very task. Empire provided the framework for mission, yet the government's secular agenda often outweighed religious commitments. This article makes use of SSPCK sermons from the eighteenth century to trace the attitudes of Scottish churchmen and missionaries towards the institutions and motives driving empire, in a period when they too were among its most prominent agents. This will shed light on the Scottish church's developing views on empire, evangelism, race, improvability and the role of government.",
 				"issue": "1",
-				"libraryCatalog": "Edinburgh University Press Journals",
+				"libraryCatalog": "ubtue_Edinburgh University Press Journals",
 				"pages": "25-37",
 				"publicationTitle": "Scottish Church History",
-				"url": "https://www.euppublishing.com/doi/abs/10.3366/sch.2020.0020",
+				"url": "https://www.euppublishing.com/doi/full/10.3366/sch.2020.0020",
 				"volume": "49",
 				"attachments": [
 					{
@@ -237,7 +237,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://www.euppublishing.com/doi/abs/10.3366/sch.2020.0021",
+		"url": "https://www.euppublishing.com/doi/full/10.3366/sch.2020.0021",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -249,15 +249,15 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "März 24, 2020",
+				"date": "March 24, 2020",
 				"DOI": "10.3366/sch.2020.0021",
 				"ISSN": "2516-6298",
 				"abstractNote": "It has been widely assumed that academic education lay at the heart of nineteenth century Scottish missions in Africa. This article will argue that a particular form of education that included artisan skills-based, commercial and industrial training was the basis of the Livingstonia expedition led by Robert Laws in Nyasaland from 1875. Inspired by Dr James Stewart of Lovedale, financed by Free Church businessmen from Glasgow and led by teams of tradesmen, the aim of this mission was to establish small settlements that would create a network of trading centres from which commerce, civilisation and Christianity would spread across Africa. The ambitions and character of these first missionaries, not least Laws, exercised a fundamental influence upon the nature and purpose of this enterprise. Livingstonia was the most industrial mission of the modern era in Africa. A practical skills-based education was central to the gospel according to Robert Laws.",
 				"issue": "1",
-				"libraryCatalog": "Edinburgh University Press Journals",
+				"libraryCatalog": "ubtue_Edinburgh University Press Journals",
 				"pages": "38-50",
 				"publicationTitle": "Scottish Church History",
-				"url": "https://www.euppublishing.com/doi/abs/10.3366/sch.2020.0021",
+				"url": "https://www.euppublishing.com/doi/full/10.3366/sch.2020.0021",
 				"volume": "49",
 				"attachments": [
 					{
@@ -295,7 +295,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://www.euppublishing.com/doi/abs/10.3366/sch.2020.0022",
+		"url": "https://www.euppublishing.com/doi/full/10.3366/sch.2020.0022",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -307,14 +307,14 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "März 24, 2020",
+				"date": "March 24, 2020",
 				"DOI": "10.3366/sch.2020.0022",
 				"ISSN": "2516-6298",
 				"issue": "1",
-				"libraryCatalog": "Edinburgh University Press Journals",
+				"libraryCatalog": "ubtue_Edinburgh University Press Journals",
 				"pages": "51-53",
 				"publicationTitle": "Scottish Church History",
-				"url": "https://www.euppublishing.com/doi/abs/10.3366/sch.2020.0022",
+				"url": "https://www.euppublishing.com/doi/full/10.3366/sch.2020.0022",
 				"volume": "49",
 				"attachments": [
 					{
@@ -324,7 +324,7 @@ var testCases = [
 				],
 				"tags": [
 					{
-						"tag": "Book Reviews"
+						"tag": "RezensionstagPica"
 					}
 				],
 				"notes": [],
@@ -334,7 +334,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://www.euppublishing.com/doi/abs/10.3366/sch.2020.0023",
+		"url": "https://www.euppublishing.com/doi/full/10.3366/sch.2020.0023",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -346,15 +346,15 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "März 24, 2020",
+				"date": "March 24, 2020",
 				"DOI": "10.3366/sch.2020.0023",
 				"ISSN": "2516-6298",
 				"issue": "1",
-				"libraryCatalog": "Edinburgh University Press Journals",
+				"libraryCatalog": "ubtue_Edinburgh University Press Journals",
 				"pages": "53-55",
 				"publicationTitle": "Scottish Church History",
 				"shortTitle": "Alexander D. Campbell, The Life and Works of Robert Baillie (1602–1662)",
-				"url": "https://www.euppublishing.com/doi/abs/10.3366/sch.2020.0023",
+				"url": "https://www.euppublishing.com/doi/full/10.3366/sch.2020.0023",
 				"volume": "49",
 				"attachments": [
 					{
@@ -364,7 +364,7 @@ var testCases = [
 				],
 				"tags": [
 					{
-						"tag": "Book Reviews"
+						"tag": "RezensionstagPica"
 					}
 				],
 				"notes": [],
@@ -374,7 +374,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://www.euppublishing.com/doi/abs/10.3366/sch.2020.0024",
+		"url": "https://www.euppublishing.com/doi/full/10.3366/sch.2020.0024",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -386,14 +386,14 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "März 24, 2020",
+				"date": "March 24, 2020",
 				"DOI": "10.3366/sch.2020.0024",
 				"ISSN": "2516-6298",
 				"issue": "1",
-				"libraryCatalog": "Edinburgh University Press Journals",
+				"libraryCatalog": "ubtue_Edinburgh University Press Journals",
 				"pages": "55-57",
 				"publicationTitle": "Scottish Church History",
-				"url": "https://www.euppublishing.com/doi/abs/10.3366/sch.2020.0024",
+				"url": "https://www.euppublishing.com/doi/full/10.3366/sch.2020.0024",
 				"volume": "49",
 				"attachments": [
 					{
@@ -403,7 +403,93 @@ var testCases = [
 				],
 				"tags": [
 					{
-						"tag": "Book Reviews"
+						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.euppublishing.com/doi/abs/10.3366/more.2021.0092",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "An Exemplary Defense: Livy's Illustrative Exemplum in Thomas More's Apology",
+				"creators": [
+					{
+						"lastName": "Dion",
+						"firstName": "Noah M.",
+						"creatorType": "author"
+					}
+				],
+				"date": "May 26, 2021",
+				"DOI": "10.3366/more.2021.0092",
+				"ISSN": "0047-8105",
+				"abstractNote": "In this article, I intend to show how Thomas More's use of a seemingly obscure episode from Livy's Ab Urbe Condita in his Apology provides important insights into the major themes of the polemical project that was to consume his final years. More's adaptation of the episode situates him among other Renaissance luminaries who saw in it a means to explore how group dynamics affect individual judgement and shape common opinion. The adaptation also serves to provide thematic cohesion in a polemic long considered excessively excursive and without merit, literary or otherwise. This exploration will further shed light upon the ways in which Renaissance authors appropriated classical histories to address contemporary concern.\\n4207 Dans cet article, je souhaite montrer comment l'usage par Thomas More dans son Apologie d'un épisode apparemment obscur du Ab Urbe Condita de Tite-Live fournit un éclairage important sur les thèmes majeurs du projet polémique qui allait accaparer les ultimes années de sa vie. L'adaptation que fait More de cet épisode le place au rang d'autres penseurs de la Renaissance qui y ont vu un moyen d’étudier comment la dynamique de groupe affecte le jugement individuel et façonne l'opinion générale. Cette adaptation sert également à fournir une cohésion thématique dans une polémique considérée depuis longtemps excessivement digressive et sans mérite, littéraire ou autre. Cette exploration s'intéressera en outre à la façon dont les auteurs de la Renaissance se sont appropriés les histoires de l'Antiquité pour traiter leurs problèmes contemporains.",
+				"issue": "1",
+				"libraryCatalog": "ubtue_Edinburgh University Press Journals",
+				"pages": "53-74",
+				"publicationTitle": "Moreana",
+				"shortTitle": "An Exemplary Defense",
+				"url": "https://www.euppublishing.com/doi/abs/10.3366/more.2021.0092",
+				"volume": "58",
+				"attachments": [
+					{
+						"title": "EUP Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Collective judgement"
+					},
+					{
+						"tag": "Deliberative rhetoric"
+					},
+					{
+						"tag": "Heresy"
+					},
+					{
+						"tag": "Historiographie"
+					},
+					{
+						"tag": "Historiography"
+					},
+					{
+						"tag": "Hérésie"
+					},
+					{
+						"tag": "Jugement collectif"
+					},
+					{
+						"tag": "Livy"
+					},
+					{
+						"tag": "Polemics"
+					},
+					{
+						"tag": "Polémique"
+					},
+					{
+						"tag": "Renaissance reception"
+					},
+					{
+						"tag": "Rhétorique délibérative"
+					},
+					{
+						"tag": "Réception à la Renaissance"
+					},
+					{
+						"tag": "Thomas More"
+					},
+					{
+						"tag": "Thomas More"
+					},
+					{
+						"tag": "Tite-Live"
 					}
 				],
 				"notes": [],
