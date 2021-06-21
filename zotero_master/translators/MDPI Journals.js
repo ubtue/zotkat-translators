@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2018-11-01 20:19:32"
+	"lastUpdated": "2021-06-21 10:45:02"
 }
 
 /*
@@ -92,6 +92,8 @@ function scrape(doc, url) {
 				i++;
 			}
 		}
+		//all mdpi url include issn
+		if (!item.ISSN) item.ISSN = item.url.match(/\d{4}-\d{3}(\d|x)/i)[0];
 		delete item.extra;
 		item.complete();
 	});
@@ -263,6 +265,64 @@ var testCases = [
 					},
 					{
 						"tag": "toxic effect"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.mdpi.com/2077-1444/12/5/368",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Sex Manuals in Malay Manuscripts as Another Transcript of Gender Relations",
+				"creators": [
+					{
+						"firstName": "Maznah",
+						"lastName": "Mohamad",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/5",
+				"DOI": "10.3390/rel12050368",
+				"ISSN": "2077-1444",
+				"abstractNote": "This article interprets the narratives of sex manuals produced within the Malay-Indonesian archipelago before the coming of Western colonialism and the dawn of postcolonial Islamic resurgence. In the collection of Malaysian libraries and museums, these manuscripts are largely classified as Kitab Jimak and Kitab Tib. They are all written in the Malay language with indigenous references, though the contents are likely derived from a common genre of texts transmitted from an early Arab-Islamic world and circulated within the region before the coming of European colonialism. The corpora of sexual knowledge in these texts emphasises the valorisation of sexual pleasure in conjugal relationships. Through an extensive list of prescriptions—from sexual techniques to diet, food taboos, medicine, pharmacopoeia, mantras, charms, and astrological knowledge—a near-sacral sexual experience is aspired. Couples are guided in their attainment of pleasure (nikmat) through the adherence of Islamic ethics (akhlak), rules (hukum), and etiquette (tertib). The fulfilment of women’s desire in the process is central in these observances. Nevertheless, despite placing much emphasis on mutual pleasure, these texts also contain ambiguous and paradoxical pronouncements on the position of women, wavering from veneration to misogyny. The article also highlights how intertextual studies of similar texts throughout the Islamic world can be a new focus of studies on the early history of gender and sexuality in Islam.",
+				"issue": "5",
+				"language": "en",
+				"libraryCatalog": "www.mdpi.com",
+				"pages": "368",
+				"publicationTitle": "Religions",
+				"rights": "http://creativecommons.org/licenses/by/3.0/",
+				"url": "https://www.mdpi.com/2077-1444/12/5/368",
+				"volume": "12",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Islam"
+					},
+					{
+						"tag": "pleasure"
+					},
+					{
+						"tag": "sexual ethics"
+					},
+					{
+						"tag": "sexuality"
+					},
+					{
+						"tag": "spirituality"
 					}
 				],
 				"notes": [],
