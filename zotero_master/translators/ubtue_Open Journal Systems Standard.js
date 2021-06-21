@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-06-18 12:05:30"
+	"lastUpdated": "2021-06-21 15:10:30"
 }
 
 /*
@@ -29,7 +29,7 @@
 */
 
 function detectWeb(doc, url) {
-	if (url.match(/\/article\/view/)) return "journalArticle"
+	if (url.match(/\/article\/view/)) return "journalArticle";
 	else if (url.match(/\/issue\/view/) && getSearchResults(doc, url)) return "multiple";
 }
 
@@ -101,18 +101,42 @@ function invokeEMTranslator(doc) {
 			if (i.abstractNote.match(/No abstract available/)) delete i.abstractNote;
 			else if (i.abstractNote.match(/^.$/)) delete i.abstractNote;
 		}
+		
 		if (i.tags[1] === undefined) delete i.tags[0];
 		let tagsEntry = ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content');
 		if (i.ISSN === "2413-9467" && tagsEntry) {
 			tag = tagsEntry.split(/\s*,\s/);
 			for (let t in tag) {
-				i.tags.push(tag[t].capitalizeFirstLetter()) //alternativ .replace(/^\w/, function($0) { return $0.toUpperCase(); }))
+				i.tags.push(tag[t].capitalizeFirstLetter()); //alternativ .replace(/^\w/, function($0) { return $0.toUpperCase(); }))
 			}
 		}
 		
 		if (i.tags[0] === "book review") i.tags.push('RezensionstagPica') && delete i.tags[0];
+		if (doc.querySelector(".current")) {
 		if (doc.querySelector(".current").textContent.trim() === "Book Reviews" || articleType === "Recensiones") {
-			i.tags.push('RezensionstagPica') 
+			i.tags.push('RezensionstagPica');
+		}
+		}
+		if (i.ISSN == '2617-3697' || i.ISSN == '2627-6062') {
+			if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')) {
+				if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')[0].content.match(/(Media reviews)|(Rezensionen)/i)) {
+					i.tags.push("RezensionstagPica");
+				}
+			}
+		}
+		if (i.ISSN == '2660-4418') {
+			if (i.abstractNote.indexOf("\nReferences\n") !== -1) {
+			i.abstractNote = i.abstractNote.substring(0, i.abstractNote.indexOf("\nReferences\n"));
+		}
+		}
+		if (['2617-3697', '2660-4418'].includes(i.ISSN)) {
+			let subtitle = ZU.xpathText(doc, '//h1/small');
+			if (subtitle) {
+				subtitle = subtitle.replace(/(\n*\t*)/, '');
+				if (!i.title.match(subtitle)) {
+					i.title = i.title + ': ' + subtitle;
+			}
+			}
 		}
 		if (ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content').match(/isidorianum\/article\/view/)) {
 		//multi language abstract e.g. https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/147
@@ -136,15 +160,14 @@ function invokeEMTranslator(doc) {
 			i.complete();
 		});
 		}
-		else
-		i.complete();
+		else i.complete();
 	});
 	translator.translate();
 }
 
 String.prototype.capitalizeFirstLetter = function() {
 	return this.charAt(0).toUpperCase() + this.slice(1);
-}
+};
 
 function doWeb(doc, url) {
 	if (detectWeb(doc, url) === "multiple") {
@@ -161,6 +184,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEMTranslator(doc, url);
 }
+
 
 
 /** BEGIN TEST CASES **/
@@ -233,50 +257,6 @@ var testCases = [
 				"url": "http://www.zwingliana.ch/index.php/zwa/article/view/2516",
 				"volume": "45",
 				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://jps.library.utoronto.ca/index.php/renref/article/view/34078",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Becoming “Indians”: The Jesuit Missionary Path from Italy to Asia",
-				"creators": [
-					{
-						"firstName": "Camilla",
-						"lastName": "Russell",
-						"creatorType": "author"
-					}
-				],
-				"date": "2020/04/30",
-				"DOI": "10.33137/rr.v43i1.34078",
-				"ISSN": "2293-7374",
-				"abstractNote": "The Jesuit missions in Asia were among the most audacious undertakings by Europeans in the early modern period. This article focuses on a still relatively little understood aspect of the enterprise: its appointment process. It draws together disparate archival documents to recreate the steps to becoming a Jesuit missionary, specifically the Litterae indipetae (petitions for the “Indies”), provincial reports about missionary candidates, and replies to applicants from the Jesuit superior general. Focusing on candidates from the Italian provinces of the Society of Jesus, the article outlines not just how Jesuit missionaries were appointed but also the priorities, motivations, and attitudes that informed their assessment and selection. Missionaries were made, the study shows, through a specific “way of proceeding” that was negotiated between all parties and seen in both organizational and spiritual terms, beginning with the vocation itself, which, whether the applicant departed or not, earned him the name indiano.",
-				"issue": "1",
-				"journalAbbreviation": "1",
-				"language": "en",
-				"libraryCatalog": "jps.library.utoronto.ca",
-				"pages": "9-50",
-				"publicationTitle": "Renaissance and Reformation",
-				"rights": "Copyright (c)",
-				"shortTitle": "Becoming “Indians”",
-				"url": "https://jps.library.utoronto.ca/index.php/renref/article/view/34078",
-				"volume": "43",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
 					{
 						"title": "Snapshot",
 						"mimeType": "text/html"
@@ -666,52 +646,6 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/157",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Ben HOLLAND, Self and City in the thought of Saint Augustine. Switzerland, Palgrave Macmillan, 2020, 162 pp., 52,10 €. ISBN 978-3-030-19332-4.",
-				"creators": [
-					{
-						"firstName": "Pablo Antonio Morillo",
-						"lastName": "Rey",
-						"creatorType": "author"
-					}
-				],
-				"date": "2020/11/20",
-				"DOI": "10.46543/ISID.2029.1062",
-				"ISSN": "2660-7743",
-				"callNumber": "orcid:0000-0001-7277-9058 | author=Autores/as Pablo Antonio Morillo Rey Facultad de Teología San Isidoro de Sevilla .st0{fill:#A6CE39;} .st1{fill:#FFFFFF;}  | taken from website",
-				"issue": "2",
-				"journalAbbreviation": "1",
-				"language": "es-ES",
-				"libraryCatalog": "www.sanisidoro.net",
-				"pages": "161-163",
-				"publicationTitle": "Isidorianum",
-				"url": "https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/157",
-				"volume": "29",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [
-					{
-						"tag": "RezensionstagPica"
-					}
-				],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
 		"url": "https://journal.equinoxpub.com/JSRNC/article/view/19598",
 		"items": [
 			{
@@ -903,6 +837,214 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://jrfm.eu/index.php/ojs_jrfm/issue/view/13",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://jrfm.eu/index.php/ojs_jrfm/article/view/256",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Book Review. Christopher Ocker / Susanne Elm (eds.), Material Christianity: Western Religion and the Agency of Things",
+				"creators": [
+					{
+						"firstName": "Daria",
+						"lastName": "Pezzoli-Olgiati",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/05/10",
+				"DOI": "10.25364/05.7:2021.1.11",
+				"ISSN": "2617-3697",
+				"issue": "1",
+				"journalAbbreviation": "1",
+				"language": "en",
+				"libraryCatalog": "jrfm.eu",
+				"pages": "197–199",
+				"publicationTitle": "Journal for Religion, Film and Media (JRFM)",
+				"rights": "Copyright (c) 2021 Daria Pezzoli-Olgiati",
+				"shortTitle": "Book Review. Christopher Ocker / Susanne Elm (eds.), Material Christianity",
+				"url": "https://jrfm.eu/index.php/ojs_jrfm/article/view/256",
+				"volume": "7",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					},
+					{
+						"tag": "materiality and its impact"
+					},
+					{
+						"tag": "religious  thinking"
+					},
+					{
+						"tag": "religious identities"
+					},
+					{
+						"tag": "religious practices"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://revistasfranciscanas.org/index.php/ArchivoIberoAmericano/article/view/117",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "La Orden Tercera Franciscana en la península ibérica: De sus orígenes medievales a su eclosión en la Edad Moderna",
+				"creators": [
+					{
+						"firstName": "Alfredo Martín",
+						"lastName": "García",
+						"creatorType": "author"
+					}
+				],
+				"date": "2017",
+				"ISSN": "2660-4418",
+				"abstractNote": "After examining the state of the question regarding the Third Order of Saint Francis in Spain and Portugal, the present study analyses the medieval origins of this secular Franciscan order in the Iberian Peninsula. Subsequently, it examines the reasons for its decline in the late Middle Ages and beginning of the Early Modern Period, relating this to questions of a political nature, including pressure from the crown, ideology, the influence of heretical movements, and the internal organization of the Franciscans. This is followed by an analysis of the Order’s subsequent recovery in the early 17th century, which was closely linked to the reforms of the Council of Trent, in which secular religious associations played a major role. Lastly, the main reasons for the success of a secular order among various sectors of Old Regime society are explored, underlining the need to move away from earlier accusations that in the Early Modern Period, the Third Order had lost its original religious purity.",
+				"callNumber": "orcid:0000-0001-6906-0210 | author=Alfredo Martín García Universidad de León .st0{fill:#A6CE39;} .st1{fill:#FFFFFF;}  | taken from website",
+				"issue": "284",
+				"journalAbbreviation": "1",
+				"language": "es",
+				"libraryCatalog": "revistasfranciscanas.org",
+				"pages": "69-97",
+				"publicationTitle": "Archivo Ibero-Americano",
+				"rights": "Derechos de autor 2017 Archivo Ibero-Americano",
+				"shortTitle": "La Orden Tercera Franciscana en la península ibérica",
+				"url": "https://revistasfranciscanas.org/index.php/ArchivoIberoAmericano/article/view/117",
+				"volume": "77",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Edad Media"
+					},
+					{
+						"tag": "Edad Moderna"
+					},
+					{
+						"tag": "Orden Tercera Franciscana"
+					},
+					{
+						"tag": "asociacionismo religioso secular"
+					},
+					{
+						"tag": "península ibérica"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://revistasfranciscanas.org/index.php/ArchivoIberoAmericano/issue/view/16",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://jeac.de/ojs/index.php/jeac/article/view/297",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Review of: Martha C. Nussbaum, The Monarchy of Fear. A Philosopher looks at our Political Crisis",
+				"creators": [
+					{
+						"firstName": "Tanja",
+						"lastName": "Smailus",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020/10/31",
+				"DOI": "10.25784/jeac.v2i0.297",
+				"ISSN": "2627-6062",
+				"abstractNote": ",",
+				"journalAbbreviation": "1",
+				"language": "en",
+				"libraryCatalog": "jeac.de",
+				"pages": "86-87",
+				"publicationTitle": "Journal of Ethics in Antiquity and Christianity",
+				"rights": "Copyright (c) 2020 Journal of Ethics in Antiquity and Christianity",
+				"shortTitle": "Review of",
+				"url": "https://jeac.de/ojs/index.php/jeac/article/view/297",
+				"volume": "2",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Angst"
+					},
+					{
+						"tag": "Emotionen"
+					},
+					{
+						"tag": "Ethik"
+					},
+					{
+						"tag": "Ethik in Antike und Christentum"
+					},
+					{
+						"tag": "Gesellschaft"
+					},
+					{
+						"tag": "Martha Nussbaum"
+					},
+					{
+						"tag": "Philosophie"
+					},
+					{
+						"tag": "Politik"
+					},
+					{
+						"tag": "Psychologie"
+					},
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://jeac.de/ojs/index.php/jeac/issue/view/16",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
