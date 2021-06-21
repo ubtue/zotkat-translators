@@ -1,15 +1,15 @@
 {
 	"translatorID": "5e3f67c9-f4e5-4dc6-ad9a-93bf263a585a",
-	"label": "Philosophy Documentation Center",
+	"label": "ubtue_Philosophy Documentation Center",
 	"creator": "Madeesh Kannan",
 	"target": "^https://www.pdcnet.org/",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 100,
-	"inRepository": false,
+	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-10-20 17:26:12"
+	"lastUpdated": "2021-06-21 15:46:21"
 }
 
 /*
@@ -75,21 +75,13 @@ function scrape(doc) {
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
 		i.itemType = "journalArticle";
-		if (i.publicationTitle = 'Philotheos') i.ISSN = '2620-0163';
+		//scrape ISSN
+		let issnEntry = ZU.xpathText(doc, '//script[@type="text/javascript"]');
+		if(issnEntry && issnEntry.match(/Online_ISSN/i)) i.ISSN = issnEntry.match(/Online_ISSN=\d{4}-\d{3}(\d|x)/i)[0].match(/\d{4}-\d{3}(\d|x)/i)[0];
 		i.complete();
-		//postProcess(doc, i);
 	});
 	translator.translate();
 }
-
-/*function postProcess(doc, item) {
-	let tagentry = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "toggleAbstract", " " ))]')
-	if (tagentry) {
-		item.tags.push("Book Reviews");
-		
-	}
-		item.complete();
-}*/
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -110,13 +102,54 @@ var testCases = [
 				"DOI": "10.5840/philotheos20191928",
 				"ISSN": "2620-0163",
 				"abstractNote": "In this article, following the introductory chapters of the Platonic dialogue Charmides (153a1-154b7), we attempt to investigate the terms of transition from a simple dialogue to dialectics. Interpreting the expressive means used, we attempt to explain how Plato goes from historicity to systematicity, in order to create the appropriate conditions to build a definition about a fundamental virtue as well as to set the criteria to be followed in a philosophical debate. Our study is divided in two sections, each of which is also divided in two subsections. In the first section, we investigate the historical context of the dialogue and the terms of transition from a single dialogue to dialectics. In the second section, we attempt to define according to Socrates’ judgments the mental and moral quality of the young men as well as the terms and conditions of the right interlocutor. At the end of each section, we present a table of concepts to bring to light the conceptual structures that Plato builds, which reveal the philosophical development in this dialogue.",
-				"extra": "DOI: 10.5840/philotheos20191928",
 				"issue": "2",
+				"language": "en",
 				"libraryCatalog": "www.pdcnet.org",
 				"pages": "149-165",
 				"publicationTitle": "Philotheos",
 				"url": "https://www.pdcnet.org/pdc/bvdb.nsf/purchase?openform&fp=philotheos&id=philotheos_2019_0019_0002_0149_0165",
 				"volume": "19",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.pdcnet.org/acpq/content/acpq_2021_0095_0002_0165_0194",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Individuation, Identity, and Resurrection in Thomas Jackson and John Locke",
+				"creators": [
+					{
+						"firstName": "Jon W.",
+						"lastName": "Thompson",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/04/30",
+				"DOI": "10.5840/acpq202147222",
+				"ISSN": "2153-8441",
+				"abstractNote": "This paper outlines the views of two 17th century thinkers (Thomas Jackson and John Locke) on the question of the metaphysics of resurrection. I show that Jackson and Locke each depart from central 17th century Scholastic convictions regarding resurrection and philosophical anthropology (convictions laid out in section II). Each holds that matter or material continuity is not a plausible principle of diachronic individuation for living bodies such as human beings. Despite their rejection of the traditional view, they each provide a defence of the possibility of a personal afterlife. I outline these (quite different) defences in sections III–IV. I then argue (section V) that it is likely either that Locke had read Jackson on the issue of resurrection or that the two were influenced by a common source. I argue that matter might provide a suitable principle of diachronic individuation in both everyday cases of living bodies and in the case of resurrection.",
+				"issue": "2",
+				"language": "en",
+				"libraryCatalog": "www.pdcnet.org",
+				"pages": "165-194",
+				"publicationTitle": "American Catholic Philosophical Quarterly",
+				"url": "https://www.pdcnet.org/pdc/bvdb.nsf/purchase?openform&fp=acpq&id=acpq_2021_0095_0002_0165_0194",
+				"volume": "95",
 				"attachments": [
 					{
 						"title": "Full Text PDF",
