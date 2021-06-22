@@ -1,11 +1,11 @@
 {
 	"translatorID": "55275811-58f4-4f5e-b711-a043f1fc50da",
-	"label": "OpenEdition Journals",
+	"label": "ubtue_OpenEdition Journals",
 	"creator": "Madeesh Kannan",
 	"target": "https?://journals.openedition.org",
 	"minVersion": "3.0",
 	"maxVersion": "",
-	"priority": 100,
+	"priority": 99,
 	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
