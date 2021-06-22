@@ -6,10 +6,10 @@
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 99,
-	"inRepository": false,
+	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-05-26 14:31:26"
+	"lastUpdated": "2021-06-22 14:53:35"
 }
 
 /*
@@ -80,7 +80,16 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 				item.issue = issueAndVol[2];
 			}
 		}
-
+		if (item.ISSN == '0335-5985') {
+				item.abstractNote == '';
+			let abstractTags = ZU.xpath(doc, '//meta[@name="description"]');
+			for (let i in abstractTags) {
+				if (i!=0) {
+					item.abstractNote += "\n4207 ";
+				}
+				item.abstractNote += abstractTags[i].content;
+			}
+			}
 		let section = ZU.xpathText(doc, '//div[contains(@class, "souspartie")]//span[@class="title"]');
 		if (section && section.match(/Recensions/))
 			item.tags.push("Book Review");
@@ -105,3 +114,102 @@ function doWeb(doc, url) {
 	} else
 		invokeEmbeddedMetadataTranslator(doc, url);
 }
+/** BEGIN TEST CASES **/
+var testCases = [
+	{
+		"type": "web",
+		"url": "https://journals.openedition.org/assr/51741",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Du pain et du blé à crédit. Les monts-de-piété frumentaires dans les communautés rurales de la Sierra de Alcaraz (Nouvelle-Castille, xviie-xviiie siècles)",
+				"creators": [
+					{
+						"firstName": "Marie-Lucie",
+						"lastName": "Copete",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020/10/22",
+				"DOI": "10.4000/assr.51741",
+				"ISSN": "0335-5985",
+				"abstractNote": "Les monts-de-piété frumentaires sont des protobanques de l’époque moderne qui octroient des prêts en céréales, en semences et en pain aux paysans castillans contre un intérêt modéré de 3 à 4 %. Leurs comptabilités ont été conservées pour la région de la Sierra de Alcaraz en Nouvelle-Castille, espace qui se caractérise par une forte polarisation sociale et la présence massive de journaliers et de serviteurs agricoles en raison d’une répartition très inégalitaire de la terre. Les documents montrent que les monts fonctionnent comme des organismes collectifs dans le cadre d’une économie morale dans laquelle le microcrédit fait partie des multiples recours qui permettent de souder la communauté et de compenser les inégalités sociales et les liens de dépendance. Leurs patrons sont des curés de paroisse qui participent à leur gestion aux côtés de la bourgeoisie agraire qui monopolise les charges municipales. Les uns et les autres ne contrôlent pas seulement le crédit mais aussi le marché des céréales.Les monts-de-piété frumentaires sont des protobanques de l’époque moderne qui octroient des prêts en céréales, en semences et en pain aux paysans castillans contre un intérêt modéré de 3 à 4 %. Leurs comptabilités ont été conservées pour la région de la Sierra de Alcaraz en Nouvelle-Castille, espace qui se caractérise par une forte polarisation sociale et la présence massive de journaliers et de serviteurs agricoles en raison d’une répartition très inégalitaire de la terre. Les documents montrent que les monts fonctionnent comme des organismes collectifs dans le cadre d’une économie morale dans laquelle le microcrédit fait partie des multiples recours qui permettent de souder la communauté et de compenser les inégalités sociales et les liens de dépendance. Leurs patrons sont des curés de paroisse qui participent à leur gestion aux côtés de la bourgeoisie agraire qui monopolise les charges municipales. Les uns et les autres ne contrôlent pas seulement le crédit mais aussi le marché des céréales. \n4207 In early modern Europe, food pawnshops were protobanks that lent cereals, seeds and bread to Castilian peasants for a moderate rate of interest of three or four per cent. The accounts of these institutions are available from the Sierra de Alcaraz, in New-Castile, a zone characterized by sharp social polarization and the massive presence of agricultural day-labourers and servants due to a very inegalitarian land distribution. These documents show that the pawnshops acted as collective organisms in the framework of a moral economy in which microcredit was one of various solutions meant to consolidate the community and compensate for social inequalities and ties of dependency. The pawnshops were in the hands of parish priests, who shared their management with the agrarian elite that monopolized the municipal administrations. Both controlled not only the credit but also the cereal market. \n4207 Los montes de piedad frumentarios - pósitos o alhoríes - de la edad moderna son protobancos que prestaban cereales, simiente y pan a los campesinos castellanos a cambio de un interés moderado del 3 o 4 %. Se conservan las contabilidades de esos organismos para la región de la Sierra de Alcaraz en Castilla-La Nueva. Ese territorio se caracteriza por una fuerte polarización social y una gran cantidad de jornaleros y mozos sirvientes, lo que se explica por el reparto muy desigual de la tierra. Los documentos indican que esos pósitos funcionaban como órganos colectivos en el marco de una economía moral en la que el microcrédito era uno de los múltiples recursos que cohesionaban a la comunidad y compensaban las desigualdades sociales y la dependencia. Sus patronos eran los curas de las parroquias que gestionaban dichos pósitos junto a miembros de la burguesía agraria que también monopolizaba los cargos municipales. Unos y otros controlaban no sólo el mercado crediticio sino también el de cereales.",
+				"issue": "191",
+				"language": "fr",
+				"libraryCatalog": "journals.openedition.org",
+				"pages": "67-87",
+				"publicationTitle": "Archives de sciences sociales des religions",
+				"rights": "© Archives de sciences sociales des religions",
+				"url": "http://journals.openedition.org/assr/51741",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Castilla-la-Nueva"
+					},
+					{
+						"tag": "New Castile"
+					},
+					{
+						"tag": "Nouvelle-Castille"
+					},
+					{
+						"tag": "economía moral"
+					},
+					{
+						"tag": "microcredit"
+					},
+					{
+						"tag": "microcrédit"
+					},
+					{
+						"tag": "microcrédito"
+					},
+					{
+						"tag": "montes de piedad/pósitos"
+					},
+					{
+						"tag": "monts-de-piété"
+					},
+					{
+						"tag": "moral economy"
+					},
+					{
+						"tag": "pauvreté"
+					},
+					{
+						"tag": "pawnshop"
+					},
+					{
+						"tag": "pobreza"
+					},
+					{
+						"tag": "poverty"
+					},
+					{
+						"tag": "économie morale"
+					}
+				],
+				"notes": [
+					{
+						"note": "abs:In early modern Europe, food pawnshops were protobanks that lent cereals, seeds and bread to Castilian peasants for a moderate rate of interest of three or four per cent. The accounts of these institutions are available from the Sierra de Alcaraz, in New-Castile, a zone characterized by sharp social polarization and the massive presence of agricultural day-labourers and servants due to a very inegalitarian land distribution. These documents show that the pawnshops acted as collective organisms in the framework of a moral economy in which microcredit was one of various solutions meant to consolidate the community and compensate for social inequalities and ties of dependency. The pawnshops were in the hands of parish priests, who shared their management with the agrarian elite that monopolized the municipal administrations. Both controlled not only the credit but also the cereal market."
+					},
+					{
+						"note": "abs:Los montes de piedad frumentarios - pósitos o alhoríes - de la edad moderna son protobancos que prestaban cereales, simiente y pan a los campesinos castellanos a cambio de un interés moderado del 3 o 4 %. Se conservan las contabilidades de esos organismos para la región de la Sierra de Alcaraz en Castilla-La Nueva. Ese territorio se caracteriza por una fuerte polarización social y una gran cantidad de jornaleros y mozos sirvientes, lo que se explica por el reparto muy desigual de la tierra. Los documentos indican que esos pósitos funcionaban como órganos colectivos en el marco de una economía moral en la que el microcrédito era uno de los múltiples recursos que cohesionaban a la comunidad y compensaban las desigualdades sociales y la dependencia. Sus patronos eran los curas de las parroquias que gestionaban dichos pósitos junto a miembros de la burguesía agraria que también monopolizaba los cargos municipales. Unos y otros controlaban no sólo el mercado crediticio sino también el de cereales."
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://journals.openedition.org/assr/51596",
+		"items": "multiple"
+	}
+]
+/** END TEST CASES **/
