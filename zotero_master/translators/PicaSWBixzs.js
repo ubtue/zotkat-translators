@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-05-26 11:19:00"
+	"lastUpdated": "2021-06-23 09:56:00"
 }
 
 
@@ -566,7 +566,7 @@ function performExport() {
 
         addLine(currentItemId, "4000", ZU.unescapeHTML(titleStatement));
 		//Paralleltitel --> 4002
-		if (item.archiveLocation) {
+		if (item.archiveLocation && item.ISSN == '2660-7743') {
 			switch (true) {
 				case item.language == "ger" || !item.language && item.archiveLocation:
 				addLine(currentItemId, "4002", item.archiveLocation.replace(/^(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "„$2 @$3"));
@@ -730,7 +730,7 @@ function performExport() {
 				}
 			}
 			//ORCID und Autorennamen --> 8910
-			if (item.callNumber.match(/^orcid/i)) {
+			if (item.callNumber && item.callNumber.match(/^orcid/i)) {
 				addLine(currentItemId, "8910", item.callNumber);
 			}
 			addLine(currentItemId, "E* l01" + "\n" + "7100 $Jn" + "\n8012 ixzs$aixzo" + "\n" + "\n", ""); //K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
