@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-05-17 15:54:20"
+	"lastUpdated": "2021-06-24 14:26:47"
 }
 
 /*
@@ -62,9 +62,7 @@ function addCreators(item, creatorType, creators) {
 function getAuthorName(text) {
 	// lower case words at the end of a name are probably not part of a name
 	text = text.replace(/(\s+[a-z]+)+\s*$/, '');
-
-	text = text.replace(/(^|[\s,])(PhD|MA|Prof|Dr)(\.?|(?=\s|$))/gi, '');	// remove salutations
-
+	text = text.replace(/(^|[\s,])(PhD|MA|Prof|Dr)\b(\.?|(?=\s|$))/gi, '');	// remove salutations
 	return fixCase(text.trim());
 }
 
@@ -187,7 +185,7 @@ function scrapeEM(doc, url) {
 		var pdfURL = attr(doc, 'meta[name="citation_pdf_url"]', "content");
 		if (pdfURL) {
 			pdfURL = pdfURL.replace('/pdf/', '/pdfdirect/');
-			Z.debug("PDF URL: " + pdfURL);
+			//Z.debug("PDF URL: " + pdfURL);
 			item.attachments.push({
 				url: pdfURL,
 				title: 'Full Text PDF',
@@ -250,7 +248,7 @@ function scrapeBibTeX(doc, url) {
 			// BibTeX throws the last names and first names together
 			// Therefore, we prefer creators names from EM (if available)
 			var primaryHeading = ZU.xpathText(doc, '//span[@class="primary-heading"]');
-			if (primaryHeading.match(/book\sreview/i)) {
+			if (primaryHeading.match(/((book|short)\sreview)|(review\sessays?)/i)) {
 				item.tags.push("RezensionstagPica");
 			}
 			if (item.pages.match('-')) {
@@ -364,6 +362,24 @@ function scrapeBibTeX(doc, url) {
 					mimeType: 'application/pdf'
 				});
 			}
+			if (!item.date) {
+				let date = attr(doc, 'meta[name="citation_online_date"]', "content");
+				if (date) {
+					item.date = date.substring(0, 4);
+				}
+			}
+			if (!item.creators[0]) {
+				let author = ZU.xpathText(doc, '//section[@class="article-section__content"]/p[last()-1]/i');
+				if (author) {
+					item.creators.push(ZU.cleanAuthor(getAuthorName(author), 'author', false));
+				}
+			}
+			if (item.DOI) {
+			if (item.DOI.match('https') && ZU.xpathText(doc, '//meta[@name="citation_doi"]/@content')) {
+				item.DOI = ZU.xpathText(doc, '//meta[@name="citation_doi"]/@content');
+			}
+			}
+			
 			item.complete();
 		});
 
@@ -503,6 +519,7 @@ function doWeb(doc, url) {
 		scrape(doc, url);
 	}
 }
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -971,7 +988,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1468-5930.2011.00548.x",
+		"url": "https://onlinelibrary.wiley.com/doi/full/10.1111/j.1468-5930.2011.00548.x",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -988,16 +1005,17 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "2012-02-01",
+				"date": "2012",
 				"DOI": "10.1111/j.1468-5930.2011.00548.x",
 				"ISSN": "1468-5930",
 				"abstractNote": "The possibility of using private military and security companies to bolster the capacity to undertake intervention for human rights purposes (humanitarian intervention and peacekeeping) has been increasingly debated. The focus of such discussions has, however, largely been on practical issues and the contingent problems posed by private force. By contrast, this article considers the principled case for privatising humanitarian intervention. It focuses on two central issues. First, does outsourcing humanitarian intervention to private military and security companies pose some fundamental, deeper problems in this context, such as an abdication of a state's duties? Second, on the other hand, is there a case for preferring these firms to other, state-based agents of humanitarian intervention? For instance, given a state's duties to their own military personnel, should the use of private military and security contractors be preferred to regular soldiers for humanitarian intervention?",
 				"issue": "1",
-				"itemID": "doi:10.1111/j.1468-5930.2011.00548.x",
+				"itemID": "https://doi.org/10.1111/j.1468-5930.2011.00548.x",
 				"language": "en",
-				"libraryCatalog": "Wiley Online Library",
+				"libraryCatalog": "ubtue_Wiley Online Library",
 				"pages": "1-18",
 				"publicationTitle": "Journal of Applied Philosophy",
+				"rights": "Published 2011. This article is a U.S. Government work and is in the public domain in the USA.",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1468-5930.2011.00548.x",
 				"volume": "29",
 				"attachments": [
@@ -1035,16 +1053,17 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "1986-09-01",
+				"date": "1986",
 				"DOI": "10.1111/j.1540-6261.1986.tb04559.x",
 				"ISSN": "1540-6261",
 				"abstractNote": "Capital gains taxes create incentives to trade. Our major finding is that turnover is higher for winners (stocks, the prices of which have increased) than for losers, which is not consistent with the tax prediction. However, the turnover in December and January is evidence of tax-motivated trading; there is a relatively high turnover for losers in December and for winners in January. We conclude that taxes influence turnover, but other motives for trading are more important. We were unable to find evidence that changing the length of the holding period required to qualify for long-term capital gains treatment affected turnover.",
 				"issue": "4",
-				"itemID": "doi:10.1111/j.1540-6261.1986.tb04559.x",
+				"itemID": "https://doi.org/10.1111/j.1540-6261.1986.tb04559.x",
 				"language": "en",
-				"libraryCatalog": "Wiley Online Library",
+				"libraryCatalog": "ubtue_Wiley Online Library",
 				"pages": "951-974",
 				"publicationTitle": "The Journal of Finance",
+				"rights": "© 1986 the American Finance Association",
 				"shortTitle": "Volume for Winners and Losers",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-6261.1986.tb04559.x",
 				"volume": "41",
@@ -1066,7 +1085,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/%28SICI%291521-3773%2820000103%2939%3A1%3C165%3A%3AAID-ANIE165%3E3.0.CO%3B2-B",
+		"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/(SICI)1521-3773(20000103)39:1%3C165::AID-ANIE165%3E3.0.CO;2-B",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1083,16 +1102,17 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "2000-01-03",
+				"date": "2000",
 				"DOI": "10.1002/(SICI)1521-3773(20000103)39:1<165::AID-ANIE165>3.0.CO;2-B",
 				"ISSN": "1521-3773",
 				"abstractNote": "Nanosized palladium colloids, generated in situ by reduction of PdII to Pd0 [Eq. (a)], are involved in the catalysis of phosphane-free Heck and Suzuki reactions with simple palladium salts such as PdCl2 or Pd(OAc)2, as demonstrated by transmission electron microscopic investigations.",
 				"issue": "1",
-				"itemID": "doi:10.1002/(SICI)1521-3773(20000103)39:1<165::AID-ANIE165>3.0.CO;2-B",
+				"itemID": "https://doi.org/10.1002/(SICI)1521-3773(20000103)39:1<165::AID-ANIE165>3.0.CO;2-B",
 				"language": "en",
-				"libraryCatalog": "Wiley Online Library",
+				"libraryCatalog": "ubtue_Wiley Online Library",
 				"pages": "165-168",
 				"publicationTitle": "Angewandte Chemie International Edition",
+				"rights": "© 2000 WILEY-VCH Verlag GmbH, Weinheim, Fed. Rep. of Germany",
 				"shortTitle": "Phosphane-Free Palladium-Catalyzed Coupling Reactions",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/%28SICI%291521-3773%2820000103%2939%3A1%3C165%3A%3AAID-ANIE165%3E3.0.CO%3B2-B",
 				"volume": "39",
@@ -1144,16 +1164,17 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "1983-07-01",
+				"date": "1983",
 				"DOI": "10.1002/jhet.5570200408",
 				"ISSN": "1943-5193",
 				"abstractNote": "The representative mono- and dialkyl-substituted derivatives of 4-carbamoylimidazolium-5-olate (1) were synthesized unequivocally. On the basis of their spectral data for ultraviolet absorption spectra in acidic, basic and neutral solutions, we have found some spectral characteristics which make it facile to clarify the position of substituents.",
 				"issue": "4",
-				"itemID": "doi:10.1002/jhet.5570200408",
+				"itemID": "https://doi.org/10.1002/jhet.5570200408",
 				"language": "en",
-				"libraryCatalog": "Wiley Online Library",
+				"libraryCatalog": "ubtue_Wiley Online Library",
 				"pages": "875-885",
 				"publicationTitle": "Journal of Heterocyclic Chemistry",
+				"rights": "Copyright © 1983 Journal of Heterocyclic Chemistry",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/jhet.5570200408",
 				"volume": "20",
 				"attachments": [
@@ -1191,18 +1212,67 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "2014-03-01",
+				"date": "2014",
 				"DOI": "10.1002/ev.20077",
 				"ISSN": "1534-875X",
 				"abstractNote": "Research on organizational evaluation capacity building (ECB) has focused very much on the capacity to do evaluation, neglecting organizational demand for evaluation and the capacity to use it. This qualitative multiple case study comprises a systematic examination of organizational capacity within eight distinct organizations guided by a common conceptual framework. Described in this chapter are the rationale and methods for the study and then the sequential presentation of findings for each of the eight case organizations. Data collection and analyses for these studies occurred six years ago; findings are cross-sectional and do not reflect changes in organizations or their capacity for evaluation since that time. The format for presenting the findings was standardized so as to foster cross-case analyses, the focus for the next and final chapter of this volume.",
 				"issue": "141",
-				"itemID": "doi:10.1002/ev.20077",
+				"itemID": "https://doi.org/10.1002/ev.20077",
 				"language": "en",
-				"libraryCatalog": "Wiley Online Library",
+				"libraryCatalog": "ubtue_Wiley Online Library",
 				"pages": "25-99",
 				"publicationTitle": "New Directions for Evaluation",
+				"rights": "© Wiley Periodicals, Inc., and the American Evaluation Association",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/ev.20077",
 				"volume": "2014",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					},
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://onlinelibrary.wiley.com/toc/17480922/2020/46/3",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://onlinelibrary.wiley.com/doi/10.1111/rsr.14681",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "SACRED MISINTERPRETATION: REACHING ACROSS THE CHRISTIAN-MUSLIM DIVIDE. By Martin Accad. Grand Rapids, MI: Eerdmans, 2019. Pp. xxx + 366. Paper, $38.00.",
+				"creators": [
+					{
+						"firstName": "tthew",
+						"lastName": "Friedman",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020",
+				"DOI": "10.1111/rsr.14681",
+				"ISSN": "1748-0922",
+				"issue": "3",
+				"itemID": "https://doi.org/10.1111/rsr.14681",
+				"language": "en",
+				"libraryCatalog": "ubtue_Wiley Online Library",
+				"pages": "378",
+				"publicationTitle": "Religious Studies Review",
+				"rights": "© 2020 Rice University",
+				"shortTitle": "SACRED MISINTERPRETATION",
+				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/rsr.14681",
+				"volume": "46",
 				"attachments": [
 					{
 						"title": "Snapshot",
