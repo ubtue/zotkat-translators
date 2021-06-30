@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-05-20 10:33:00"
+	"lastUpdated": "2021-06-30 11:10:00"
 }
 
 
@@ -536,7 +536,7 @@ function performExport() {
                         function(doc, url, threadParams){
                             var ppn = Zotero.Utilities.xpathText(doc, '//small[a[img]]');
                             if (ppn) {
-                                var authorValue = "!" + ppn.slice(0,10).trim() + "!" + "$BVerfasserIn$4aut" + "\\n8910 $amxzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet\\n";
+                                var authorValue = "!" + ppn.match(/^\d+X?/) + "!" + "$BVerfasserIn$4aut" + "\\n8910 $aixzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet\\n";
                                 addLine(threadParams["currentItemId"], threadParams["code"], authorValue);
                             } else {
                                 addLine(threadParams["currentItemId"], threadParams["code"],  "!" + threadParams["authorName"] + "!$BVerfasserIn$4aut");
@@ -730,7 +730,7 @@ function performExport() {
 			addLine(currentItemId, '\\n7100', '$Jn');
 			
 			//Vierstellige, recherchierbare Abrufzeichen --> 8012
-			addLine(currentItemId, '\\n8012', 'mszk");\napplication.activeWindow.pressButton("Enter");\n\n'); 
+			addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 mszk");\napplication.activeWindow.pressButton("Enter");\n\n', "");
         }
     }
 
