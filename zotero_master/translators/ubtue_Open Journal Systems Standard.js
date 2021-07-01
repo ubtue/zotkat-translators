@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-06-30 13:02:20"
+	"lastUpdated": "2021-07-01 09:07:14"
 }
 
 /*
@@ -76,12 +76,20 @@ function invokeEMTranslator(doc) {
  		//orcid for pica-field 8910
  		let checkOrcid = doc.querySelector(".orcid a");
  		if (checkOrcid) {
- 			let authorEntry = ZU.xpath(doc, '//div[@class="authors"]');
- 			for (let v in authorEntry) {
- 				let author = authorEntry[v].innerText;Z.debug(author)
- 				i.callNumber = ZU.trimInternal("$aixzom" + "$borcid: " + checkOrcid.href.replace(/.*(\d{4}-\d+-\d+-\d+x?)/i, '$1') + " | " + "author=" + author.replace(/https?:\/\/orcid\.org\/\d{4}-\d+-\d+-\d+x?/i, '') + " | " + "taken from website");
+ 			let orcidEntry = ZU.xpath(doc, '//div[@class="authors"]');//Z.debug(orcidEntry)
+ 			for (let v in orcidEntry) {
+ 				let authorsEntry = orcidEntry[v].textContent;Z.debug(authorsEntry)
+ 				let re = authorsEntry.split(/\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t/i);Z.debug(re)
+ 				for (let n in re) {
+ 					i.notes.push(ZU.trimInternal(re[n].replace('.st0{fill:#A6CE39;}', '').replace('.st1{fill:#FFFFFF;}', '')));
+ 					}
+				}
  			}
- 		}
+ 		
+ 		//let notesEntry = ZU.trimInternal(checkOrcid.href);//.replace(/.*(\d{4}-\d+-\d+-\d+x?)/gi, '$1') + " | " + "author=" + author.replace(/https?:\/\/orcid\.org\/\d{4}-\d+-\d+-\d+x?/i, '') + " | " + "taken from website");
+ 		//note = notesEntry.split(/\s*https?:\/\/orcid\.org\//\s/);
+		//for (let n in notesEntry) {
+		//i.tags.push(note[n]); //alternativ .replace(/^\w/, function($0) { return $0.toUpperCase(); }))	
 
  		if (i.pages !== undefined) {
 		var firstPage = ZU.xpathText(doc, '//meta[@name="citation_firstpage"]/@content');
@@ -918,7 +926,6 @@ var testCases = [
 				"date": "2017",
 				"ISSN": "2660-4418",
 				"abstractNote": "After examining the state of the question regarding the Third Order of Saint Francis in Spain and Portugal, the present study analyses the medieval origins of this secular Franciscan order in the Iberian Peninsula. Subsequently, it examines the reasons for its decline in the late Middle Ages and beginning of the Early Modern Period, relating this to questions of a political nature, including pressure from the crown, ideology, the influence of heretical movements, and the internal organization of the Franciscans. This is followed by an analysis of the Order’s subsequent recovery in the early 17th century, which was closely linked to the reforms of the Council of Trent, in which secular religious associations played a major role. Lastly, the main reasons for the success of a secular order among various sectors of Old Regime society are explored, underlining the need to move away from earlier accusations that in the Early Modern Period, the Third Order had lost its original religious purity.",
-				"callNumber": "$aixzom$borcid: 0000-0001-6906-0210 | author=Alfredo Martín García Universidad de León | taken from website",
 				"issue": "284",
 				"journalAbbreviation": "1",
 				"language": "es",
@@ -956,7 +963,9 @@ var testCases = [
 						"tag": "península ibérica"
 					}
 				],
-				"notes": [],
+				"notes": [
+					"Alfredo Martín García Universidad de León https://orcid.org/0000-0001-6906-0210"
+				],
 				"seeAlso": []
 			}
 		]
@@ -1068,7 +1077,6 @@ var testCases = [
 				"DOI": "10.35068/aabner.v1i1.785",
 				"ISSN": "2748-6419",
 				"abstractNote": "Der hier vorliegende Artikel untersucht das Konzept eines göttlichen&nbsp;(Entscheidungs-)Tages, speziell des „Sturm-Tages“, in der sumerischen und akkadischen Literatur des ersten und zweiten Jahrtausends und vergleicht dieses&nbsp;mit dem „Tag Jahwehs“ im Alten Testament.",
-				"callNumber": "$aixzom$borcid: 0000-0002-6270-8368 | author=Sebastian Fink Universität Innsbruck Mark S. Smith Princeton Theological Seminary | taken from website",
 				"issue": "1",
 				"journalAbbreviation": "1",
 				"language": "en",
@@ -1107,7 +1115,86 @@ var testCases = [
 						"tag": "divine wrath"
 					}
 				],
-				"notes": [],
+				"notes": [
+					"Sebastian Fink Universität Innsbruck http://orcid.org/0000-0002-6270-8368",
+					"Mark S. Smith Princeton Theological Seminary"
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://aabner.org/ojs/index.php/beabs/article/view/781",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "AABNER Forum Peer Review System",
+				"creators": [
+					{
+						"firstName": "Izaak Jozias de",
+						"lastName": "Hulster",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Valérie",
+						"lastName": "Nicolet",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Ronit",
+						"lastName": "Nikolsky",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Jason M.",
+						"lastName": "Silverman",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/06/18",
+				"DOI": "10.35068/aabner.v1i1.781",
+				"ISSN": "2748-6419",
+				"abstractNote": "Die Chefredaktion von AABNER beschreibt die Schwächen und Probleme des&nbsp;traditionellen ‚Double-Blind-Peer-Review‘ und bietet eine innovative Lösung:&nbsp;den von uns weiterentwickelten ‚Forum-Peer-Review‘.",
+				"issue": "1",
+				"journalAbbreviation": "1",
+				"language": "en",
+				"libraryCatalog": "aabner.org",
+				"pages": "13-22",
+				"publicationTitle": "Advances in Ancient, Biblical, and Near Eastern Research",
+				"rights": "Copyright (c) 2021 Izaak J. de Hulster, Valérie Nicolet, Ronit Nikolsky, Jason M. Silverman",
+				"url": "https://aabner.org/ojs/index.php/beabs/article/view/781",
+				"volume": "1",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Peer review"
+					},
+					{
+						"tag": "academic publishing"
+					},
+					{
+						"tag": "ethics"
+					},
+					{
+						"tag": "forum review"
+					}
+				],
+				"notes": [
+					"Izaak Jozias de Hulster http://orcid.org/0000-0003-0706-4480",
+					"Valérie Nicolet Institut Protestant de Théologie http://orcid.org/0000-0001-9070-0585",
+					"Ronit Nikolsky University of Groningen http://orcid.org/0000-0002-3771-8062",
+					"Jason M. Silverman University of Helsinki http://orcid.org/0000-0002-0240-9219"
+				],
 				"seeAlso": []
 			}
 		]
