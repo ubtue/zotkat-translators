@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-05-20 10:33:00"
+	"lastUpdated": "2021-06-30 11:10:00"
 }
 
 
@@ -233,7 +233,7 @@ function addLine(itemid, code, value) {
 	//call the function EscapeNonASCIICharacters
 	value = EscapeNonASCIICharacters(value);
     //Zeile zusammensetzen
-    var line = code + " " + value.replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Reviews').replace('|f|Book Reviews, Book Review', '|f|Book Reviews').replace( '|s|#n', '|f|Norm').replace( '|s|#r', '|f|Rechtsprechung').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1').replace('|s|17can', '|t|Codex Iuris Canonici (1917)').replace('|s|can', '|t|Codex Iuris Canonici (1983)').replace('|s|cceo','|t|Codex canonum ecclesiarum orientalium').replace('https://doi.org/https://doi.org/', 'https://doi.org/').replace(/@\s/, '@');
+    var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Reviews').replace('|f|Book Reviews, Book Review', '|f|Book Reviews').replace( '|s|#n', '|f|Norm').replace( '|s|#r', '|f|Rechtsprechung').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1').replace('|s|17can', '|t|Codex Iuris Canonici (1917)').replace('|s|can', '|t|Codex Iuris Canonici (1983)').replace('|s|cceo','|t|Codex canonum ecclesiarum orientalium').replace('https://doi.org/https://doi.org/', 'https://doi.org/').replace(/@\s/, '@');
     itemsOutputCache[itemid].push(line);
 }
 
@@ -535,7 +535,7 @@ function performExport() {
                         function(doc, url, threadParams){
                             var ppn = Zotero.Utilities.xpathText(doc, '//small[a[img]]');
                             if (ppn) {
-                                var authorValue = "!" + ppn.slice(0,10).trim() + "!" + "$BVerfasserIn$4aut" + "\\n8910 $mxzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet\\n";
+                                var authorValue = "!" + ppn.match(/^\d+X?/) + "!" + "$BVerfasserIn$4aut" + "\\n8910 $aixzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet\\n";
                                 addLine(threadParams["currentItemId"], threadParams["code"], authorValue);
                             } else {
                                 addLine(threadParams["currentItemId"], threadParams["code"],  "!" + threadParams["authorName"] + "!$BVerfasserIn$4aut");
@@ -728,7 +728,7 @@ function performExport() {
 			addLine(currentItemId, '\\n7100', '$Jn');
 			
 			//Vierstellige, recherchierbare Abrufzeichen --> 8012
-			addLine(currentItemId, '\\n8012', 'mszk");\napplication.activeWindow.pressButton("Enter");\n\n'); 
+			addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 mszk");\napplication.activeWindow.pressButton("Enter");\n\n', "");
         }
     }
 

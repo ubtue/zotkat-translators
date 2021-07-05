@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-06-23 09:56:00"
+	"lastUpdated": "2021-07-01 11:30:00"
 }
 
 
@@ -730,9 +730,13 @@ function performExport() {
 				}
 			}
 			//ORCID und Autorennamen --> 8910
-			if (item.callNumber && item.callNumber.match(/^orcid/i)) {
-				addLine(currentItemId, "8910", item.callNumber);
+			if (item.notes) {
+				for (let i in item.notes) {
+				let cleanNote
+				addLine(currentItemId, "8910", '$aixzom$b'+item.notes[i].note);
+				}
 			}
+			
 			addLine(currentItemId, "E* l01" + "\n" + "7100 $Jn" + "\n8012 ixzs$aixzo" + "\n" + "\n", ""); //K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
         }
     }

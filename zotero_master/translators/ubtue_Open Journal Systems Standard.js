@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-06-21 15:10:30"
+	"lastUpdated": "2021-07-05 08:00:54"
 }
 
 /*
@@ -76,11 +76,20 @@ function invokeEMTranslator(doc) {
  		//orcid for pica-field 8910
  		let checkOrcid = doc.querySelector(".orcid a");
  		if (checkOrcid) {
- 			let orcidEntry = ZU.trimInternal(doc.querySelector(".authors").textContent);
- 			let author = orcidEntry.split("https")[0];
- 			let orcid = orcidEntry.replace(/.*(\d{4}-\d+-\d+-\d+x?)/i, '$1');
- 			i.callNumber = "orcid:" + orcid + " | author=" + author + " | taken from website";
- 		}
+ 			let orcidEntry = ZU.xpath(doc, '//div[@class="authors"]');
+ 			for (let v in orcidEntry) {
+ 				let authorsEntry = orcidEntry[v].textContent;
+ 				let re = authorsEntry.split(/\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t/i);
+ 				for (let n in re) {
+ 					i.notes.push(ZU.trimInternal(re[n].replace('.st0{fill:#A6CE39;}', '').replace('.st1{fill:#FFFFFF;}', '')));
+ 					}
+				}
+ 			}
+ 		
+ 		//let notesEntry = ZU.trimInternal(checkOrcid.href);//.replace(/.*(\d{4}-\d+-\d+-\d+x?)/gi, '$1') + " | " + "author=" + author.replace(/https?:\/\/orcid\.org\/\d{4}-\d+-\d+-\d+x?/i, '') + " | " + "taken from website");
+ 		//note = notesEntry.split(/\s*https?:\/\/orcid\.org\//\s/);
+		//for (let n in notesEntry) {
+		//i.tags.push(note[n]); //alternativ .replace(/^\w/, function($0) { return $0.toUpperCase(); }))	
 
  		if (i.pages !== undefined) {
 		var firstPage = ZU.xpathText(doc, '//meta[@name="citation_firstpage"]/@content');
@@ -117,7 +126,7 @@ function invokeEMTranslator(doc) {
 			i.tags.push('RezensionstagPica');
 		}
 		}
-		if (i.ISSN == '2617-3697' || i.ISSN == '2627-6062') {
+		if (['2617-3697', '2660-4418', '2748-6419'].includes(i.ISSN)) {
 			if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')) {
 				if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')[0].content.match(/(Media reviews)|(Rezensionen)/i)) {
 					i.tags.push("RezensionstagPica");
@@ -129,7 +138,7 @@ function invokeEMTranslator(doc) {
 			i.abstractNote = i.abstractNote.substring(0, i.abstractNote.indexOf("\nReferences\n"));
 		}
 		}
-		if (['2617-3697', '2660-4418'].includes(i.ISSN)) {
+		if (['2617-3697', '2660-4418', '2748-6419'].includes(i.ISSN)) {
 			let subtitle = ZU.xpathText(doc, '//h1/small');
 			if (subtitle) {
 				subtitle = subtitle.replace(/(\n*\t*)/, '');
@@ -235,7 +244,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://www.zwingliana.ch/index.php/zwa/article/view/2516",
+		"url": "https://www.zwingliana.ch/index.php/zwa/article/view/2516",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -249,13 +258,13 @@ var testCases = [
 				],
 				"date": "2018",
 				"ISSN": "0254-4407",
+				"journalAbbreviation": "Zwa",
 				"language": "en",
 				"libraryCatalog": "www.zwingliana.ch",
 				"pages": "VII-IX",
 				"publicationTitle": "Zwingliana",
-				"rights": "Authors who are published in this journal agree to the following conditions:  a) The authors retain the copyright and allow the journal to print the first publication in print as well as to make it electronically available at the end of three years.  b) The author may allot distribution of their first version of the article with additional contracts for non-exclusive publications by naming the first publication in this Journal in said publication (i.e. publishing the article in a book or other publications).",
-				"url": "http://www.zwingliana.ch/index.php/zwa/article/view/2516",
-				"volume": "45",
+				"rights": "Copyright (c)",
+				"url": "https://www.zwingliana.ch/index.php/zwa/article/view/2516",
 				"attachments": [
 					{
 						"title": "Snapshot",
@@ -605,7 +614,6 @@ var testCases = [
 				"DOI": "10.46543/ISID.2029.1054",
 				"ISSN": "2660-7743",
 				"abstractNote": "Using some of the tools of narrative criticism, this article studies the final battle and victory which is achieved by God’s envoy. By unpacking the network of relationship in the text the envoy is identified with the Christ of God, who has been present in the book from the beginning. The article shows how the Rider on the white horse summarises what the book of Revelation has said about Jesus., Usando elementos del análisis narrativo, este artículo examina la batalla final y la victoria que se consigue a través del enviado de Dios, un jinete en un caballo blanco. Desenredando la red de relaciones en el texto, el jinete en el caballo blanco se identifica con el Cristo de Dios, que ha estado presente en el libro desde el inicio. El artículo muestra como el Jinete en el caballo blanco resume en sí mismo todo lo que el Apocalipsis dice sobre Jesús.",
-				"callNumber": "orcid:0000-0001-6251-0506 | author=Autores/as Francisco Javier Ruiz-Ortiz Mater Ecclesiae College, St Mary’s University (Twickenham, UK) .st0{fill:#A6CE39;} .st1{fill:#FFFFFF;}  | taken from website",
 				"issue": "2",
 				"journalAbbreviation": "1",
 				"language": "es-ES",
@@ -749,7 +757,6 @@ var testCases = [
 				"DOI": "10.4025/rbhranpuh.v13i38.54840",
 				"ISSN": "1983-2850",
 				"abstractNote": "O artigo trata da vivência religiosa em Ituaçu – BA, cidade da Chapada Diamantina, na primeira metade do século XX. Por meio dos relatos orais, da documentação eclesiástica e das crônicas, apresentamos as narrativas, sobre a origem e o desenvolvimento das devoções, elaboradas pelos agentes religiosos: devotos, romeiros, peregrinos, promesseiros e clérigos, que fazem do ato de peregrinar a própria vida como viagem. Anualmente, entre os meses de agosto e setembro, os devotos e romeiros ocupam a Gruta da Mangabeira com seus cantos, benditos, rezas, ladainhas, novenas e procissões. A pesquisa demonstrou que, naquele espaço sacralizado, os fiéis rendem graça, renovam seus votos e promessas e re-atualizam seus mitos, sua fé e suas crenças.",
-				"callNumber": "orcid:0000-0003-3618-7455 | author=Edilece Souza Couto Universidade Federal da Bahia - UFBA Tânia Maria Meira Mota Rede Pública Estadual de Ensino da Bahia .st0{fill:#A6CE39;} .st1{fill:#FFFFFF;}  | taken from website",
 				"issue": "38",
 				"journalAbbreviation": "1",
 				"language": "pt",
@@ -919,7 +926,6 @@ var testCases = [
 				"date": "2017",
 				"ISSN": "2660-4418",
 				"abstractNote": "After examining the state of the question regarding the Third Order of Saint Francis in Spain and Portugal, the present study analyses the medieval origins of this secular Franciscan order in the Iberian Peninsula. Subsequently, it examines the reasons for its decline in the late Middle Ages and beginning of the Early Modern Period, relating this to questions of a political nature, including pressure from the crown, ideology, the influence of heretical movements, and the internal organization of the Franciscans. This is followed by an analysis of the Order’s subsequent recovery in the early 17th century, which was closely linked to the reforms of the Council of Trent, in which secular religious associations played a major role. Lastly, the main reasons for the success of a secular order among various sectors of Old Regime society are explored, underlining the need to move away from earlier accusations that in the Early Modern Period, the Third Order had lost its original religious purity.",
-				"callNumber": "orcid:0000-0001-6906-0210 | author=Alfredo Martín García Universidad de León .st0{fill:#A6CE39;} .st1{fill:#FFFFFF;}  | taken from website",
 				"issue": "284",
 				"journalAbbreviation": "1",
 				"language": "es",
@@ -957,7 +963,9 @@ var testCases = [
 						"tag": "península ibérica"
 					}
 				],
-				"notes": [],
+				"notes": [
+					"Alfredo Martín García Universidad de León https://orcid.org/0000-0001-6906-0210"
+				],
 				"seeAlso": []
 			}
 		]
@@ -1031,9 +1039,6 @@ var testCases = [
 					},
 					{
 						"tag": "Psychologie"
-					},
-					{
-						"tag": "RezensionstagPica"
 					}
 				],
 				"notes": [],
@@ -1045,6 +1050,156 @@ var testCases = [
 		"type": "web",
 		"url": "https://jeac.de/ojs/index.php/jeac/issue/view/16",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/785",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "The Day Storm in Mesopotamian Literature: A Background to the Biblical Day of Yahweh?",
+				"creators": [
+					{
+						"firstName": "Sebastian",
+						"lastName": "Fink",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Mark S.",
+						"lastName": "Smith",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/06/29",
+				"DOI": "10.35068/aabner.v1i1.785",
+				"ISSN": "2748-6419",
+				"abstractNote": "Der hier vorliegende Artikel untersucht das Konzept eines göttlichen&nbsp;(Entscheidungs-)Tages, speziell des „Sturm-Tages“, in der sumerischen und akkadischen Literatur des ersten und zweiten Jahrtausends und vergleicht dieses&nbsp;mit dem „Tag Jahwehs“ im Alten Testament.",
+				"issue": "1",
+				"journalAbbreviation": "1",
+				"language": "en",
+				"libraryCatalog": "ojs3.uni-tuebingen.de",
+				"pages": "29-63",
+				"publicationTitle": "Advances in Ancient, Biblical, and Near Eastern Research",
+				"rights": "Copyright (c) 2021 Sebastian Fink, Mark S. Smith",
+				"shortTitle": "The Day Storm in Mesopotamian Literature",
+				"url": "https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/785",
+				"volume": "1",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Akkadian literature"
+					},
+					{
+						"tag": "Day of the Lord"
+					},
+					{
+						"tag": "Mesopotamian Lamentations"
+					},
+					{
+						"tag": "Sumerian literature"
+					},
+					{
+						"tag": "day-storm"
+					},
+					{
+						"tag": "divine agency"
+					},
+					{
+						"tag": "divine wrath"
+					}
+				],
+				"notes": [
+					"Sebastian Fink Universität Innsbruck http://orcid.org/0000-0002-6270-8368",
+					"Mark S. Smith Princeton Theological Seminary"
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://aabner.org/ojs/index.php/beabs/article/view/781",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "AABNER Forum Peer Review System",
+				"creators": [
+					{
+						"firstName": "Izaak Jozias de",
+						"lastName": "Hulster",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Valérie",
+						"lastName": "Nicolet",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Ronit",
+						"lastName": "Nikolsky",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Jason M.",
+						"lastName": "Silverman",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/06/18",
+				"DOI": "10.35068/aabner.v1i1.781",
+				"ISSN": "2748-6419",
+				"abstractNote": "Die Chefredaktion von AABNER beschreibt die Schwächen und Probleme des&nbsp;traditionellen ‚Double-Blind-Peer-Review‘ und bietet eine innovative Lösung:&nbsp;den von uns weiterentwickelten ‚Forum-Peer-Review‘.",
+				"issue": "1",
+				"journalAbbreviation": "1",
+				"language": "en",
+				"libraryCatalog": "aabner.org",
+				"pages": "13-22",
+				"publicationTitle": "Advances in Ancient, Biblical, and Near Eastern Research",
+				"rights": "Copyright (c) 2021 Izaak J. de Hulster, Valérie Nicolet, Ronit Nikolsky, Jason M. Silverman",
+				"url": "https://aabner.org/ojs/index.php/beabs/article/view/781",
+				"volume": "1",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Peer review"
+					},
+					{
+						"tag": "academic publishing"
+					},
+					{
+						"tag": "ethics"
+					},
+					{
+						"tag": "forum review"
+					}
+				],
+				"notes": [
+					"Izaak Jozias de Hulster http://orcid.org/0000-0003-0706-4480",
+					"Valérie Nicolet Institut Protestant de Théologie http://orcid.org/0000-0001-9070-0585",
+					"Ronit Nikolsky University of Groningen http://orcid.org/0000-0002-3771-8062",
+					"Jason M. Silverman University of Helsinki http://orcid.org/0000-0002-0240-9219"
+				],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
