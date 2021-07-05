@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-07-05 07:03:58"
+	"lastUpdated": "2021-07-05 08:00:54"
 }
 
 /*
@@ -126,7 +126,7 @@ function invokeEMTranslator(doc) {
 			i.tags.push('RezensionstagPica');
 		}
 		}
-		if (i.ISSN == '2617-3697' || i.ISSN == '2627-6062') {
+		if (['2617-3697', '2660-4418', '2748-6419'].includes(i.ISSN)) {
 			if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')) {
 				if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')[0].content.match(/(Media reviews)|(Rezensionen)/i)) {
 					i.tags.push("RezensionstagPica");
@@ -1039,9 +1039,6 @@ var testCases = [
 					},
 					{
 						"tag": "Psychologie"
-					},
-					{
-						"tag": "RezensionstagPica"
 					}
 				],
 				"notes": [],
