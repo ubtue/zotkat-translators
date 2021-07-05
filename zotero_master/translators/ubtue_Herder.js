@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-04-23 13:28:43"
+	"lastUpdated": "2021-07-05 15:35:26"
 }
 
 /*
@@ -63,16 +63,12 @@ function extractAuthors(doc) {
 	return false;
 }
 
-function extractIssue(doc, item, issueAndYear) {
-	let issueNumber = issueAndYear.match(/\d+/g);
-	if (issueNumber)
-		item.issue = issueNumber[0];
-}
-
-function extractYear(doc, item, issueAndYear) {
-	let year = issueAndYear.match(/\d{4}/g);
-	if (year)
-		item.date = year[0];
+function extractIssueAndYearFromURL(item, url) {
+	if (url.match(/\/(\d+)-\d{4}\//)) {
+	item.issue = url.match(/\/(\d+)-\d{4}\//)[1];
+	item.date = url.match(/\/\d+-(\d{4})\//)[1];
+	}
+	else item.date = url.match(/(\d{4})\//)[0];
 }
 
 function extractPages(doc) {
@@ -106,21 +102,19 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			for (let author of extractAuthors(doc))
 				item.creators.push(ZU.cleanAuthor(author.replace(/prof|dr/gi, ''), "authors"));
 		}
-		let extractionPath = doc.querySelectorAll('span.headline');
-		for (let extract of extractionPath) {
-			let testString = extract.textContent;
-			if (testString.match(/\d{4}/g)) {
-				let issueAndYear = extract.textContent;
-				extractIssue(doc, item, issueAndYear);
-				extractYear(doc, item, issueAndYear);
-				break;
-			}
-		}
+		extractIssueAndYearFromURL(item, url);
 		let itemAbstract = doc.querySelector('#base_0_area1main_0_aZusammenfassung');
 		if(itemAbstract) item.abstractNote = itemAbstract.textContent;
 		item.pages = extractPages(doc);
 		let publicationTitle = ZU.xpathText(doc, '//*[(@id = "ctl02_imgLogo")]/@alt');
 		if (publicationTitle) item.publicationTitle = publicationTitle;
+		let pageTitle = ZU.xpathText(doc, '//title').trim();
+		if (pageTitle.match(/^Buchrezension/))
+			item.tags.push('RezensionstagPica');
+		if (pageTitle.trim().match(item.title + ': ')) {
+			item.title += pageTitle.split(item.title)[1];
+		}
+		Z.debug(item.title);
 		item.complete();
 	});
 	translator.translate();
@@ -139,7 +133,8 @@ function doWeb(doc, url) {
 			ZU.processDocuments(articles, invokeEmbeddedMetadataTranslator);
 		});
 	} else invokeEmbeddedMetadataTranslator(doc, url);
-}/** BEGIN TEST CASES **/
+}
+/** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "web",
@@ -147,11 +142,12 @@ var testCases = [
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "„Und es waren Hirten in demselben Land...“",
+				"title": "„Und es waren Hirten in demselben Land...“: Vom Verständnis der Hirten zu einer neuen Hermeneutik der lukanischen Weihnachtsgeschichte – Teil 2",
 				"creators": [
 					{
 						"firstName": "Cornelius",
-						"lastName": "Vollmer"
+						"lastName": "Vollmer",
+						"creatorType": "authors"
 					}
 				],
 				"date": "2021",
@@ -160,6 +156,8 @@ var testCases = [
 				"language": "de",
 				"libraryCatalog": "www.herder.de",
 				"pages": "3-26",
+				"publicationTitle": "Biblische Notizen",
+				"shortTitle": "„Und es waren Hirten in demselben Land...“",
 				"url": "https://www.herder.de/bn-nf/hefte/archiv/2021/188-2021/und-es-waren-hirten-in-demselben-land-vom-verstaendnis-der-hirten-zu-einer-neuen-hermeneutik-der-lukanischen-weihnachtsgeschichte-teil-2/",
 				"attachments": [
 					{
@@ -172,6 +170,11 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.herder.de/gd/hefte/archiv/2021/13-2021/",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
