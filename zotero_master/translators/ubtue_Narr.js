@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-07-05 08:42:12"
+	"lastUpdated": "2021-07-05 09:17:19"
 }
 
 /*
@@ -93,6 +93,9 @@ function postProcess(item, doc) {
 				}
 			}
 		}
+		if (ZU.xpathText(doc, '//h2[@class="subtitle"]')) {
+			item.title = item.title + ': ' + ZU.xpathText(doc, '//h2[@class="subtitle"]').trim();
+		}
 	item.complete();
 	}
 
@@ -140,7 +143,7 @@ var testCases = [
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Wie lehrende und lernende Historikerinnen und Historiker zusammenarbeiten",
+				"title": "Wie lehrende und lernende Historikerinnen und Historiker zusammenarbeiten: Die Tutorien im Rahmen des Integrierten Proseminars am Historischen Institut der Ruhr-Universität Bochum",
 				"creators": [
 					{
 						"firstName": "Sebastian",
@@ -168,6 +171,7 @@ var testCases = [
 				"libraryCatalog": "elibrary.narr.digital",
 				"pages": "74-107",
 				"publicationTitle": "Forum Exegese und Hochschuldidaktik: Verstehen von Anfang an (VvAa)",
+				"shortTitle": "Wie lehrende und lernende Historikerinnen und Historiker zusammenarbeiten",
 				"url": "https://elibrary.narr.digital/article/10.2357/VvAa-2020-0004",
 				"volume": "5",
 				"attachments": [
