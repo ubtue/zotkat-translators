@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-07-01 09:07:14"
+	"lastUpdated": "2021-07-05 06:56:34"
 }
 
 /*
@@ -76,10 +76,10 @@ function invokeEMTranslator(doc) {
  		//orcid for pica-field 8910
  		let checkOrcid = doc.querySelector(".orcid a");
  		if (checkOrcid) {
- 			let orcidEntry = ZU.xpath(doc, '//div[@class="authors"]');//Z.debug(orcidEntry)
+ 			let orcidEntry = ZU.xpath(doc, '//div[@class="authors"]');
  			for (let v in orcidEntry) {
- 				let authorsEntry = orcidEntry[v].textContent;Z.debug(authorsEntry)
- 				let re = authorsEntry.split(/\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t/i);Z.debug(re)
+ 				let authorsEntry = orcidEntry[v].textContent;
+ 				let re = authorsEntry.split(/\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t/i);
  				for (let n in re) {
  					i.notes.push(ZU.trimInternal(re[n].replace('.st0{fill:#A6CE39;}', '').replace('.st1{fill:#FFFFFF;}', '')));
  					}
@@ -138,7 +138,7 @@ function invokeEMTranslator(doc) {
 			i.abstractNote = i.abstractNote.substring(0, i.abstractNote.indexOf("\nReferences\n"));
 		}
 		}
-		if (['2617-3697', '2660-4418'].includes(i.ISSN)) {
+		if (['2617-3697', '2660-4418', '2748-6419'].includes(i.ISSN)) {
 			let subtitle = ZU.xpathText(doc, '//h1/small');
 			if (subtitle) {
 				subtitle = subtitle.replace(/(\n*\t*)/, '');
@@ -1060,7 +1060,7 @@ var testCases = [
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "The Day Storm in Mesopotamian Literature",
+				"title": "The Day Storm in Mesopotamian Literature: A Background to the Biblical Day of Yahweh?",
 				"creators": [
 					{
 						"firstName": "Sebastian",
@@ -1081,12 +1081,17 @@ var testCases = [
 				"journalAbbreviation": "1",
 				"language": "en",
 				"libraryCatalog": "ojs3.uni-tuebingen.de",
-				"pages": "29-65",
+				"pages": "29-63",
 				"publicationTitle": "Advances in Ancient, Biblical, and Near Eastern Research",
 				"rights": "Copyright (c) 2021 Sebastian Fink, Mark S. Smith",
+				"shortTitle": "The Day Storm in Mesopotamian Literature",
 				"url": "https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/785",
 				"volume": "1",
 				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
 					{
 						"title": "Snapshot",
 						"mimeType": "text/html"
