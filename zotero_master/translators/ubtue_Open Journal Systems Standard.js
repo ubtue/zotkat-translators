@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-07-05 09:51:26"
+	"lastUpdated": "2021-07-05 12:04:41"
 }
 
 /*
@@ -37,6 +37,9 @@ function getSearchResults(doc, url) {
 	var items = {};
 	var found = false;
 	var rows = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "media-heading", " " ))]//a | //*[contains(concat( " ", @class, " " ), concat( " ", "title", " " ))]//a | //*[(@id = "content")]//a');
+	if (rows.length == 0 && url.match(/otwsa-otssa/)) {
+		rows = ZU.xpath(doc, '//div[@class="article-summary-title"]//a');
+	}
 	for (let row of rows) {
 		let href = row.href;
 		let title = ZU.trimInternal(row.textContent).replace(/pdf/i, '');
@@ -87,7 +90,21 @@ function invokeEMTranslator(doc) {
  				}
 			}
  		}
- 		
+ 		else {
+ 			let orcidEntries = ZU.xpath(doc, '//div[@class="article-details-authors"]/div[@class="article-details-author hideAuthor"]');
+ 			for (let orcidEntry in orcidEntries) {
+ 				let newORCID = '';
+ 				if (ZU.xpathText(orcidEntries[orcidEntry], './div[@class="article-details-author-orcid"]/a/@href')) {
+ 					newORCID += ZU.xpathText(orcidEntries[orcidEntry], './div[@class="article-details-author-orcid"]/a/@href').trim();
+ 				if (ZU.xpathText(orcidEntries[orcidEntry], './div[@class="article-details-author-affiliation"]'))
+ 					newORCID = ZU.xpathText(orcidEntries[orcidEntry], './div[@class="article-details-author-affiliation"]').trim() + ' | ' + newORCID;
+ 				if (ZU.xpathText(orcidEntries[orcidEntry], './div[@class="article-details-author-name small-screen"]')) {
+ 					newORCID = ZU.xpathText(orcidEntries[orcidEntry], './div[@class="article-details-author-name small-screen"]').trim() + ' | ' + newORCID;
+ 				i.notes.push(newORCID);
+ 				}
+ 				}
+ 			}
+ 		}
  		//let notesEntry = ZU.trimInternal(checkOrcid.href);//.replace(/.*(\d{4}-\d+-\d+-\d+x?)/gi, '$1') + " | " + "author=" + author.replace(/https?:\/\/orcid\.org\/\d{4}-\d+-\d+-\d+x?/i, '') + " | " + "taken from website");
  		//note = notesEntry.split(/\s*https?:\/\/orcid\.org\//\s/);
 		//for (let n in notesEntry) {
@@ -149,6 +166,12 @@ function invokeEMTranslator(doc) {
 			}
 			}
 		}
+		if (i.tags == undefined) {
+			let tags = ZU.xpath(doc, '//meta[@name="citation_keywords"]');
+			for (let t in tags) {
+				i.tags.push(tags[t].content);
+			}
+		}
 		if (ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content').match(/isidorianum\/article\/view/)) {
 		//multi language abstract e.g. https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/147
 		if (articleType === "Artículos") {
@@ -195,6 +218,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEMTranslator(doc, url);
 }
+
 
 
 
@@ -1197,6 +1221,56 @@ var testCases = [
 					"Valérie Nicolet Institut Protestant de Théologie http://orcid.org/0000-0001-9070-0585 | taken from website",
 					"Ronit Nikolsky University of Groningen http://orcid.org/0000-0002-3771-8062 | taken from website",
 					"Jason M. Silverman University of Helsinki http://orcid.org/0000-0002-0240-9219 | taken from website"
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://ote-journal.otwsa-otssa.org.za/index.php/journal/issue/view/22",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://ote-journal.otwsa-otssa.org.za/index.php/journal/article/view/433",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Homosexuality and Liminality in Sodom: THE Quests for Home, Fun, and Justice (Gen 19:1-29)",
+				"creators": [
+					{
+						"firstName": "Cephas",
+						"lastName": "Tushima",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/05/30",
+				"ISSN": "2312-3621",
+				"abstractNote": "This essay explores the first segment of the Lot sub-narrative of the Abraham cycle (Gen 11:27–25:10). The study adopts a narrative close reading approach and canonical theological hermeneutical framework in its reading strategies (with the canon’s reception history undergirding its plausibility structures), aiming ultimately at unfolding the world of possibilities of being-in-the-world in the text, particularly from an ethical standpoint. The study shows Lot, enmeshed in his sense of marginality from YHWH’s repeated covenantal promises of progeny to Abraham, ditch time-tested tradition and embark on a quest for freedom and a home of his own, consequently, assuming significance and security in Sodom (where he sat on the city council at the gate). His initial assumed marginality in Abraham’s home attains reality in Sodom, where the Sodomites desirous of ‘having fun’ with Lot’s angelic guests (who were on a search for justice) reprimands Lot, a mere immigrant—in their view—for his audacity to rebuke them. The visitation of YHWH’s justice on Sodom renders the self-serving Lot homeless, driving him to ultimate marginality, as he inhabits the liminal space of an incestuous cave dweller. A theologico-ethical appropriation of the narrative draws attention, first, to the temptation often to be so caring to outsiders and yet be so unkind to those closest to us (like Lot). Second, tradition is a stabilising force in society and jettisoning it unnecessarily creates cascading disequilibria. Third, alienation from God is the grand source of all liminality. Fourth, inordinate desires lead to choices that bring about a breakdown in the social order. Fifth, like Lot, we need to catch heaven’s heartbeat for the oppressed and become voices for their justice in our time.\nhttps://doi.org/10.17159/2312–3621/2021/v34n1a6",
+				"issue": "1",
+				"journalAbbreviation": "OTE",
+				"language": "en",
+				"libraryCatalog": "ote-journal.otwsa-otssa.org.za",
+				"pages": "68-88",
+				"publicationTitle": "Old Testament Essays",
+				"rights": "Copyright (c) 2021 Cephas Tushima",
+				"shortTitle": "Homosexuality and Liminality in Sodom",
+				"url": "https://ote-journal.otwsa-otssa.org.za/index.php/journal/article/view/433",
+				"volume": "34",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [
+					"Cephas Tushima | https://orcid.org/0000-0003-0923-1350"
 				],
 				"seeAlso": []
 			}
