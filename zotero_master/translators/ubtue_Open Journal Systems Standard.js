@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-07-05 08:00:54"
+	"lastUpdated": "2021-07-05 09:51:26"
 }
 
 /*
@@ -81,10 +81,12 @@ function invokeEMTranslator(doc) {
  				let authorsEntry = orcidEntry[v].textContent;
  				let re = authorsEntry.split(/\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t/i);
  				for (let n in re) {
- 					i.notes.push(ZU.trimInternal(re[n].replace('.st0{fill:#A6CE39;}', '').replace('.st1{fill:#FFFFFF;}', '')));
+ 					if (re[n].includes('orcid')) {
+ 						i.notes.push(ZU.trimInternal(re[n].replace('.st0{fill:#A6CE39;}', '').replace('.st1{fill:#FFFFFF;}', '')) +  ' | taken from website');
  					}
-				}
- 			}
+ 				}
+			}
+ 		}
  		
  		//let notesEntry = ZU.trimInternal(checkOrcid.href);//.replace(/.*(\d{4}-\d+-\d+-\d+x?)/gi, '$1') + " | " + "author=" + author.replace(/https?:\/\/orcid\.org\/\d{4}-\d+-\d+-\d+x?/i, '') + " | " + "taken from website");
  		//note = notesEntry.split(/\s*https?:\/\/orcid\.org\//\s/);
@@ -964,7 +966,7 @@ var testCases = [
 					}
 				],
 				"notes": [
-					"Alfredo Martín García Universidad de León https://orcid.org/0000-0001-6906-0210"
+					"Alfredo Martín García Universidad de León https://orcid.org/0000-0001-6906-0210 | taken from website"
 				],
 				"seeAlso": []
 			}
@@ -1118,8 +1120,7 @@ var testCases = [
 					}
 				],
 				"notes": [
-					"Sebastian Fink Universität Innsbruck http://orcid.org/0000-0002-6270-8368",
-					"Mark S. Smith Princeton Theological Seminary"
+					"Sebastian Fink Universität Innsbruck http://orcid.org/0000-0002-6270-8368 | taken from website"
 				],
 				"seeAlso": []
 			}
@@ -1192,10 +1193,10 @@ var testCases = [
 					}
 				],
 				"notes": [
-					"Izaak Jozias de Hulster http://orcid.org/0000-0003-0706-4480",
-					"Valérie Nicolet Institut Protestant de Théologie http://orcid.org/0000-0001-9070-0585",
-					"Ronit Nikolsky University of Groningen http://orcid.org/0000-0002-3771-8062",
-					"Jason M. Silverman University of Helsinki http://orcid.org/0000-0002-0240-9219"
+					"Izaak Jozias de Hulster http://orcid.org/0000-0003-0706-4480 | taken from website",
+					"Valérie Nicolet Institut Protestant de Théologie http://orcid.org/0000-0001-9070-0585 | taken from website",
+					"Ronit Nikolsky University of Groningen http://orcid.org/0000-0002-3771-8062 | taken from website",
+					"Jason M. Silverman University of Helsinki http://orcid.org/0000-0002-0240-9219 | taken from website"
 				],
 				"seeAlso": []
 			}
