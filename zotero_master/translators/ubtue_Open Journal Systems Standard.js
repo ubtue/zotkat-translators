@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-07-05 12:04:41"
+	"lastUpdated": "2021-07-06 10:21:48"
 }
 
 /*
@@ -138,7 +138,6 @@ function invokeEMTranslator(doc) {
 				i.tags.push(tag[t].capitalizeFirstLetter()); //alternativ .replace(/^\w/, function($0) { return $0.toUpperCase(); }))
 			}
 		}
-		
 		if (i.tags[0] === "book review") i.tags.push('RezensionstagPica') && delete i.tags[0];
 		if (doc.querySelector(".current")) {
 		if (doc.querySelector(".current").textContent.trim() === "Book Reviews" || articleType === "Recensiones") {
@@ -166,10 +165,15 @@ function invokeEMTranslator(doc) {
 			}
 			}
 		}
-		if (i.tags == undefined) {
+		if (i.tags[0] == undefined) {
 			let tags = ZU.xpath(doc, '//meta[@name="citation_keywords"]');
 			for (let t in tags) {
 				i.tags.push(tags[t].content);
+			}
+		}
+		if (i.ISSN === '2312-3621' && i.abstractNote) {
+			if (i.abstractNote.match(/https:\/\/doi\.org\/\d{2}\.\d+\/.*$/)) {
+				i.DOI = i.abstractNote.substring(i.abstractNote.indexOf('https:\/\/doi\.org'), i.abstractNote.length).replace('https://doi.org/', '');
 			}
 		}
 		if (ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content').match(/isidorianum\/article\/view/)) {
