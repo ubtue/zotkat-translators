@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-07-06 10:21:48"
+	"lastUpdated": "2021-07-06 11:44:08"
 }
 
 /*
@@ -168,6 +168,8 @@ function invokeEMTranslator(doc) {
 		if (i.tags[0] == undefined) {
 			let tags = ZU.xpath(doc, '//meta[@name="citation_keywords"]');
 			for (let t in tags) {
+				if (!i.tags.includes(tags[t].content) 
+				&& !i.tags.includes(tags[t].content[0].toUpperCase() + tags[t].content.substring(1)))
 				i.tags.push(tags[t].content);
 			}
 		}
@@ -1250,6 +1252,7 @@ var testCases = [
 					}
 				],
 				"date": "2021/05/30",
+				"DOI": "10.17159/2312–3621/2021/v34n1a6",
 				"ISSN": "2312-3621",
 				"abstractNote": "This essay explores the first segment of the Lot sub-narrative of the Abraham cycle (Gen 11:27–25:10). The study adopts a narrative close reading approach and canonical theological hermeneutical framework in its reading strategies (with the canon’s reception history undergirding its plausibility structures), aiming ultimately at unfolding the world of possibilities of being-in-the-world in the text, particularly from an ethical standpoint. The study shows Lot, enmeshed in his sense of marginality from YHWH’s repeated covenantal promises of progeny to Abraham, ditch time-tested tradition and embark on a quest for freedom and a home of his own, consequently, assuming significance and security in Sodom (where he sat on the city council at the gate). His initial assumed marginality in Abraham’s home attains reality in Sodom, where the Sodomites desirous of ‘having fun’ with Lot’s angelic guests (who were on a search for justice) reprimands Lot, a mere immigrant—in their view—for his audacity to rebuke them. The visitation of YHWH’s justice on Sodom renders the self-serving Lot homeless, driving him to ultimate marginality, as he inhabits the liminal space of an incestuous cave dweller. A theologico-ethical appropriation of the narrative draws attention, first, to the temptation often to be so caring to outsiders and yet be so unkind to those closest to us (like Lot). Second, tradition is a stabilising force in society and jettisoning it unnecessarily creates cascading disequilibria. Third, alienation from God is the grand source of all liminality. Fourth, inordinate desires lead to choices that bring about a breakdown in the social order. Fifth, like Lot, we need to catch heaven’s heartbeat for the oppressed and become voices for their justice in our time.\nhttps://doi.org/10.17159/2312–3621/2021/v34n1a6",
 				"issue": "1",
@@ -1272,10 +1275,118 @@ var testCases = [
 						"mimeType": "text/html"
 					}
 				],
-				"tags": [],
+				"tags": [
+					{
+						"tag": "Abraham"
+					},
+					{
+						"tag": "Biblical Ethics"
+					},
+					{
+						"tag": "Genesis"
+					},
+					{
+						"tag": "Homosexuality"
+					},
+					{
+						"tag": "Immigrants"
+					},
+					{
+						"tag": "Intertextuality"
+					},
+					{
+						"tag": "Justice"
+					},
+					{
+						"tag": "Lot"
+					},
+					{
+						"tag": "Narrative Criticism"
+					},
+					{
+						"tag": "Sodom"
+					}
+				],
 				"notes": [
 					"Cephas Tushima | https://orcid.org/0000-0003-0923-1350"
 				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://ojs.reformedjournals.co.za/stj/article/view/1731",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Renewal, Renaissance, Reformation, or Revolution? Guiding concepts for social transformation in South Africa in the light of 16th century ecclesial reform and deform movements in Europe",
+				"creators": [
+					{
+						"firstName": "Ernst M.",
+						"lastName": "Conradie",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Teddy C.",
+						"lastName": "Sakupapa",
+						"creatorType": "author"
+					}
+				],
+				"date": "2017/12/31",
+				"DOI": "10.17570/stj.2017.v3n2.a01",
+				"ISSN": "2413-9467",
+				"abstractNote": "This contribution is based on what may be called a pedagogical experiment in a postgraduate course on the 16th century European Reformations that was offered at the University of the Western Cape in the first semester of 2017. On the basis of a close reading of selected literature on the reformation, this contribution highlights the legacy of 16th century ecclesial movements for Southern Africa. The point of departure is located in the context of a discussion on a range of guiding concepts for social transformation in the contemporary (South) African context. It is argued that the deepest diagnosis of current (South) African discourse may well point to a view that none of the options for a category that may be regarded as more ultimate than justice (as a ‘remedy’) is attractive enough to muster sufficient moral energy without endless further contestations. Without necessarily suggesting what that ultimate maybe, it is suggested that a lack of an appealing notion of what is truly ultimate can undermine any attempts to address inequality (as our diagnosis) in current discourse. This necessarily calls attention to the relationship between the penultimate and the ultimate, and indeed between justification and justice.",
+				"issue": "2",
+				"journalAbbreviation": "STJ",
+				"language": "en",
+				"libraryCatalog": "ojs.reformedjournals.co.za",
+				"pages": "11–40",
+				"publicationTitle": "STJ | Stellenbosch Theological Journal",
+				"rights": "Copyright (c) 2017 Pieter de Waal Neethling Trust, Stellenbosch",
+				"shortTitle": "Renewal, Renaissance, Reformation, or Revolution?",
+				"url": "https://ojs.reformedjournals.co.za/stj/article/view/1731",
+				"volume": "3",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Diagnostics"
+					},
+					{
+						"tag": "Inequality"
+					},
+					{
+						"tag": "Justice"
+					},
+					{
+						"tag": "Justification"
+					},
+					{
+						"tag": "Penultimate"
+					},
+					{
+						"tag": "Reformation"
+					},
+					{
+						"tag": "Sin"
+					},
+					{
+						"tag": "Social transformation"
+					},
+					{
+						"tag": "Ultimate"
+					}
+				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
