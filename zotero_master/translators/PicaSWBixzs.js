@@ -732,8 +732,7 @@ function performExport() {
 			//ORCID und Autorennamen --> 8910
 			if (item.notes) {
 				for (let i in item.notes) {
-				let cleanNote
-				addLine(currentItemId, "8910", '$aixzom$b'+item.notes[i].note);
+					if (item.notes[i].note.includes('orcid')) addLine(currentItemId, "8910", '$aixzom$b'+item.notes[i].note);
 				}
 			}
 			

@@ -748,8 +748,7 @@ function performExport() {
 			//ORCID und Autorennamen --> 8910
 			if (item.notes) {
 				for (let i in item.notes) {
-				let cleanNote
-				addLine(currentItemId, "\\n8910", '$aixzom$b'+item.notes[i].note);
+					if (item.notes[i].note.includes('orcid')) addLine(currentItemId, "\\n8910", '$aixzom$b'+item.notes[i].note);
 				}
 			}
 			addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo");\napplication.activeWindow.pressButton("Enter");\n\n', ""); //K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
