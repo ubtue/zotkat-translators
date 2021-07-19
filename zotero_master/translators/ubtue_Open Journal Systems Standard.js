@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-07-19 14:11:21"
+	"lastUpdated": "2021-07-19 14:41:12"
 }
 
 /*
@@ -71,8 +71,12 @@ function invokeEMTranslator(doc) {
  			let subTitle = ZU.xpathText(doc, '//article[@class="article-details"]//h1[@class="page-header"]/small');
  			if (subTitle) {
  				i.title += ': ' + subTitle.trim();
- 				Z.debug(i.title);
  			}
+ 			var articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
+ 				Z.debug(articleType);
+ 				if (articleType == 'Book Reviews') {
+ 					i.tags.push('RezensionstagPica');
+ 				}
  		}
  		//title in other language for pica-field 4002
  		var articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
@@ -136,8 +140,7 @@ function invokeEMTranslator(doc) {
 			if (i.abstractNote.match(/No abstract available/)) delete i.abstractNote;
 			else if (i.abstractNote.match(/^.$/)) delete i.abstractNote;
 		}
-		
-		if (i.tags[1] === undefined) delete i.tags[0];
+		if (i.tags[1] === undefined && i.tags[0] !='RezensionstagPica') delete i.tags[0];
 		let tagsEntry = ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content');
 		if (i.ISSN === "2413-9467" && tagsEntry) {
 			tag = tagsEntry.split(/\s*,\s/);
