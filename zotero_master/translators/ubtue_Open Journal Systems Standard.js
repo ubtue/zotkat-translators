@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-07-06 11:44:08"
+	"lastUpdated": "2021-07-19 14:11:21"
 }
 
 /*
@@ -66,6 +66,13 @@ function invokeEMTranslator(doc) {
 	translator.setHandler("itemDone", function (t, i) {
 		if (doc.querySelector(".subtitle")) {
  			i.title = i.title + ' ' + doc.querySelector(".subtitle").textContent.trim();
+ 		}
+ 		if (i.ISSN=='1804-6444') {
+ 			let subTitle = ZU.xpathText(doc, '//article[@class="article-details"]//h1[@class="page-header"]/small');
+ 			if (subTitle) {
+ 				i.title += ': ' + subTitle.trim();
+ 				Z.debug(i.title);
+ 			}
  		}
  		//title in other language for pica-field 4002
  		var articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
