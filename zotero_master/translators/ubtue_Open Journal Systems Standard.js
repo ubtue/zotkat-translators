@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-07-06 11:44:08"
+	"lastUpdated": "2021-07-19 14:45:39"
 }
 
 /*
@@ -66,6 +66,16 @@ function invokeEMTranslator(doc) {
 	translator.setHandler("itemDone", function (t, i) {
 		if (doc.querySelector(".subtitle")) {
  			i.title = i.title + ' ' + doc.querySelector(".subtitle").textContent.trim();
+ 		}
+ 		if (i.ISSN=='1804-6444') {
+ 			let subTitle = ZU.xpathText(doc, '//article[@class="article-details"]//h1[@class="page-header"]/small');
+ 			if (subTitle) {
+ 				i.title += ': ' + subTitle.trim();
+ 			}
+ 			var articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
+ 				if (articleType == 'Book Reviews') {
+ 					i.tags.push('RezensionstagPica');
+ 				}
  		}
  		//title in other language for pica-field 4002
  		var articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
@@ -129,8 +139,7 @@ function invokeEMTranslator(doc) {
 			if (i.abstractNote.match(/No abstract available/)) delete i.abstractNote;
 			else if (i.abstractNote.match(/^.$/)) delete i.abstractNote;
 		}
-		
-		if (i.tags[1] === undefined) delete i.tags[0];
+		if (i.tags[1] === undefined && i.tags[0] !='RezensionstagPica') delete i.tags[0];
 		let tagsEntry = ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content');
 		if (i.ISSN === "2413-9467" && tagsEntry) {
 			tag = tagsEntry.split(/\s*,\s/);
@@ -1384,6 +1393,71 @@ var testCases = [
 					},
 					{
 						"tag": "Ultimate"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://jebs.eu/ojs/index.php/jebs/issue/view/75",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://jebs.eu/ojs/index.php/jebs/article/view/697",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Teaching Preaching: As Practical Theology",
+				"creators": [
+					{
+						"firstName": "Stuart",
+						"lastName": "Blythe",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/05/20",
+				"DOI": "10.25782/jebs.v21i1.697",
+				"ISSN": "1804-6444",
+				"abstractNote": "This article explores the teaching of preaching as practical theology through a number of discussions concerning practical theology and theological education. According to Miller-McLemore’s definition, both preaching, and the teaching of preaching are expressions of practical theology. One is located in the life of the church. The other in the curriculum of theological education. The purpose of Christian practical theology is to serve the life of the church. The teaching of preaching as practical theology should support the practice of preaching in the church. This means that theological educators need to pay attention to the types of knowledge students actually need for congregational practice. This requires knowledge that goes beyond cognitive understanding (episteme) to include practical wisdom (phronesis) and skill (techne). Since preaching teaching involves both wisdom and skill, there are limitations to what can be taught and learned in the classroom. Be this as it may, conceptualising the teaching of preaching as practical theology has implications for the classroom.",
+				"issue": "1",
+				"journalAbbreviation": "1",
+				"language": "en",
+				"libraryCatalog": "jebs.eu",
+				"pages": "45-66",
+				"publicationTitle": "Journal of European Baptist Studies",
+				"rights": "Copyright (c) 2021 Stuart Blythe",
+				"shortTitle": "Teaching Preaching",
+				"url": "https://jebs.eu/ojs/index.php/jebs/article/view/697",
+				"volume": "21",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "practical theology"
+					},
+					{
+						"tag": "preaching"
+					},
+					{
+						"tag": "skill"
+					},
+					{
+						"tag": "teaching preaching"
+					},
+					{
+						"tag": "wisdom"
 					}
 				],
 				"notes": [],
