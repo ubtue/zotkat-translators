@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-04-30 15:00:45"
+	"lastUpdated": "2021-07-21 15:02:38"
 }
 
 /*
@@ -87,11 +87,18 @@ function scrape(doc, url) {
 			}
 			var abstract = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "abstractInFull", " " ))]//p');
 			if (item.abstractNote) item.abstractNote = abstract;
+			for (let n in item.notes) {
+				if (item.notes[n].note.match('doi: ')) {
+					item.notes.splice(n, 1);
+					break;
+				}
+			}
 			item.complete();
 		});
 		translator.translate();
 	});
 }
+
 
 
 
