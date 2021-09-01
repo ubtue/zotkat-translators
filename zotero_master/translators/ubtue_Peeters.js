@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-09-01 08:21:36"
+	"lastUpdated": "2021-09-01 08:26:59"
 }
 
 /*
@@ -139,8 +139,9 @@ function scrape(doc, url) {
 	let urlLink = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "whitecell", " " ))]');
 	if(urlLink[2]) item.url = urlLink[2].baseURI;
 	let abstract = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "whitecell", " " ))]');//Z.debug(abstracts[2].textContent)
-	if (abstract[2]) item.abstractNote = abstract[2].innerHTML.replace(/(\r\n|\n|\r)/gm,"").match(/Abstract.*/g).toString().replace(/<hr>/g, '\\n4207 ');
+	if (abstract[2]) item.abstractNote = abstract[2].innerHTML.replace(/(\r\n|\n|\r)/gm,"").match(/Abstract.*/g).toString().replace(/<hr>/g, '\\n4207 ').replace('Abstract :', '');
 	item.abstractNote = ZU.unescapeHTML(item.abstractNote);
+	if (item.abstractNote.match(/not\s?available+/)) delete item.abstractNote;
 	//scrape e-issn from the journal site
 	let lookupIssn = doc.querySelectorAll('.whitecell');
 	if (lookupIssn && lookupIssn[0]) {
@@ -183,7 +184,7 @@ var testCases = [
 				"date": "2017",
 				"DOI": "10.2143/EP.24.4.3269042",
 				"ISSN": "1783-1431",
-				"abstractNote": "Abstract :How should one decide whether to undergo an experience that changes who one is? In her discussion of ‘transformative experiences’, L.A. Paul argues that to choose rationally when deliberating first-personally, one should base one’s decision on ‘revelation’, i.e. to discover out what the experience will be like. If this solution is taken as the sole means by which a transformative choice is made, then I argue it is problematic. This is because (i) it overlooks the role that one’s practical identity ought to play when making a major life decision; and (ii) it ignores morally relevant reasons for action. Even if we retain the revelation approach as only part of the means through which a transformative choice is made, I argue that revelation should frequently carry little weight in our decision-making. Rather than focusing on the subjective quality of future experiences, it is often preferable to reflect on who one is and what one’s endorsed practical identity commits one to.",
+				"abstractNote": "How should one decide whether to undergo an experience that changes who one is? In her discussion of ‘transformative experiences’, L.A. Paul argues that to choose rationally when deliberating first-personally, one should base one’s decision on ‘revelation’, i.e. to discover out what the experience will be like. If this solution is taken as the sole means by which a transformative choice is made, then I argue it is problematic. This is because (i) it overlooks the role that one’s practical identity ought to play when making a major life decision; and (ii) it ignores morally relevant reasons for action. Even if we retain the revelation approach as only part of the means through which a transformative choice is made, I argue that revelation should frequently carry little weight in our decision-making. Rather than focusing on the subjective quality of future experiences, it is often preferable to reflect on who one is and what one’s endorsed practical identity commits one to.",
 				"issue": "4",
 				"libraryCatalog": "ubtue_Peeters",
 				"pages": "545-568",
@@ -220,7 +221,7 @@ var testCases = [
 				"date": "2017",
 				"DOI": "10.2143/EP.24.4.3269043",
 				"ISSN": "1783-1431",
-				"abstractNote": "Abstract :In the present contribution I explore what is involved in recognizing and emulating exemplars, and I do so by critically engaging with the view – recently forwarded by Linda T. Zagzebski – that admiration is the key to understanding these issues. While I believe that recognizing exemplars typically involves admiration, I do not think it is sufficient. Instead, I suggest, understanding what is involved in the recognition and emulation of exemplars requires a richer account. I develop my argument in three steps. First, I engage with Zagzebski’s exemplarist moral theory and elaborate her understanding of the relationship between admiration and exemplarity on the basis of her recent work on the topic. Second, I argue why I believe that we cannot understand the recognition and emulation of exemplars by reference to admiration alone. Third, I elaborate my own account of what is involved in recognizing and emulating exemplars, which involves self-awareness, the possibility of identifying with the exemplar, and what I call ‘motivational continuity’.",
+				"abstractNote": "In the present contribution I explore what is involved in recognizing and emulating exemplars, and I do so by critically engaging with the view – recently forwarded by Linda T. Zagzebski – that admiration is the key to understanding these issues. While I believe that recognizing exemplars typically involves admiration, I do not think it is sufficient. Instead, I suggest, understanding what is involved in the recognition and emulation of exemplars requires a richer account. I develop my argument in three steps. First, I engage with Zagzebski’s exemplarist moral theory and elaborate her understanding of the relationship between admiration and exemplarity on the basis of her recent work on the topic. Second, I argue why I believe that we cannot understand the recognition and emulation of exemplars by reference to admiration alone. Third, I elaborate my own account of what is involved in recognizing and emulating exemplars, which involves self-awareness, the possibility of identifying with the exemplar, and what I call ‘motivational continuity’.",
 				"issue": "4",
 				"libraryCatalog": "ubtue_Peeters",
 				"pages": "569-593",
@@ -256,7 +257,7 @@ var testCases = [
 				"date": "2017",
 				"DOI": "10.2143/EP.24.4.3269044",
 				"ISSN": "1783-1431",
-				"abstractNote": "Abstract :Metaethical cognitivism allegedly has trouble explaining how moral judgments are practical, because it claims that moral thoughts are beliefs that need not involve motivation. But motivation is not necessary to meet the practicality criterion on theories of moral thought and talk. A cognitivist about moral thought can adopt a prescriptivist account of moral talk, in a hybrid theory that supplements descriptive moral meanings in order to achieve interesting advantages over traditional descriptivist and expressivist theories as well as over other hybrid theories. This hybrid cognitivist-prescriptivist theory makes sense of amoralists who have moral judgments but no motivation, and offers a new diagnosis of why their use of moral language is infelicitous.",
+				"abstractNote": "Metaethical cognitivism allegedly has trouble explaining how moral judgments are practical, because it claims that moral thoughts are beliefs that need not involve motivation. But motivation is not necessary to meet the practicality criterion on theories of moral thought and talk. A cognitivist about moral thought can adopt a prescriptivist account of moral talk, in a hybrid theory that supplements descriptive moral meanings in order to achieve interesting advantages over traditional descriptivist and expressivist theories as well as over other hybrid theories. This hybrid cognitivist-prescriptivist theory makes sense of amoralists who have moral judgments but no motivation, and offers a new diagnosis of why their use of moral language is infelicitous.",
 				"issue": "4",
 				"libraryCatalog": "ubtue_Peeters",
 				"pages": "595-623",
@@ -292,7 +293,7 @@ var testCases = [
 				"date": "2015",
 				"DOI": "10.2143/EP.22.4.3127266",
 				"ISSN": "1783-1431",
-				"abstractNote": "Abstract :Peter Winch writes: 'One who fails in his attempt to commit a murder and who undergoes a change of heart might subsequently come to thank God that he failed. It is pertinent for us to ask what precisely he has to thank God for' (1971, 144). The first answer to this question is that the thwarted attempter is relieved not to have become a murderer. In exploring the nature of this becoming, I consider and reject a ‘subjectivist’ account, according to which the attempter has already ‘become’ a murderer in virtue of his or her sincerely murderous intentions and plans. And yet clearly the attempter has lost something of the innocence that would make murder morally unthinkable. He or she thereby inhabits a curious kind of metaphysical limbo between innocence and guilt, between transformation and self-discovery, between ignorance and knowledge.",
+				"abstractNote": "Peter Winch writes: 'One who fails in his attempt to commit a murder and who undergoes a change of heart might subsequently come to thank God that he failed. It is pertinent for us to ask what precisely he has to thank God for' (1971, 144). The first answer to this question is that the thwarted attempter is relieved not to have become a murderer. In exploring the nature of this becoming, I consider and reject a ‘subjectivist’ account, according to which the attempter has already ‘become’ a murderer in virtue of his or her sincerely murderous intentions and plans. And yet clearly the attempter has lost something of the innocence that would make murder morally unthinkable. He or she thereby inhabits a curious kind of metaphysical limbo between innocence and guilt, between transformation and self-discovery, between ignorance and knowledge.",
 				"issue": "4",
 				"libraryCatalog": "ubtue_Peeters",
 				"pages": "523-545",
@@ -334,7 +335,7 @@ var testCases = [
 				"date": "March 1994",
 				"DOI": "10.2143/EP.1.1.630100",
 				"ISSN": "1783-1431",
-				"abstractNote": "Abstract :Today, applied ethics confronts many problems: technological and biomedical innovations, crisis of the welfare state, rising unemployment, migration and xenophobia. These and the changes accompanying them are, in themselves, important objects of study. An investigation on the level of the differentiated disciplines of practical ethics is insufficient. In as far as practical ethics also serves to disclose reality, it shows that modern problems can only be understood in the light of the general cultural crisis of which they are, at the very least, symptoms. In the first part of this article, we will try to clarify this byanalyzing the crisis in the ethos of modern secularized society. The second part will try to show that Christian ethics can offer a meaningful answer to this cultural crisis, and how it can do so.",
+				"abstractNote": "Today, applied ethics confronts many problems: technological and biomedical innovations, crisis of the welfare state, rising unemployment, migration and xenophobia. These and the changes accompanying them are, in themselves, important objects of study. An investigation on the level of the differentiated disciplines of practical ethics is insufficient. In as far as practical ethics also serves to disclose reality, it shows that modern problems can only be understood in the light of the general cultural crisis of which they are, at the very least, symptoms. In the first part of this article, we will try to clarify this byanalyzing the crisis in the ethos of modern secularized society. The second part will try to show that Christian ethics can offer a meaningful answer to this cultural crisis, and how it can do so.",
 				"issue": "1",
 				"libraryCatalog": "ubtue_Peeters",
 				"pages": "3-12",
@@ -375,7 +376,7 @@ var testCases = [
 				],
 				"date": "2018",
 				"DOI": "10.2143/LV.73.1.3281475",
-				"abstractNote": "Abstract :À Medellín, les raisons qui ont conduit à solliciter un renouveau de la catéchèse restent actuelles. Outre les profondes transformations sociales, culturelles et religieuses qui remettent en question le rôle du christianisme en Amérique latine, il existe la nécessité de ré-évangéliser les baptisés de tous les âges. Ceci demande un nouveau paradigme pour la catéchèse sur le continent qui doit être en rapport avec l’initiation chrétienne, le catéchuménat et l’inspiration catéchuménale de la catéchèse. La dimension sociale du kérygme et l’initiation chrétienne mettent bien en évidence la concordance entre Medellín, la Conférence d’Aparecida et le Magistère du pape François.",
+				"abstractNote": "À Medellín, les raisons qui ont conduit à solliciter un renouveau de la catéchèse restent actuelles. Outre les profondes transformations sociales, culturelles et religieuses qui remettent en question le rôle du christianisme en Amérique latine, il existe la nécessité de ré-évangéliser les baptisés de tous les âges. Ceci demande un nouveau paradigme pour la catéchèse sur le continent qui doit être en rapport avec l’initiation chrétienne, le catéchuménat et l’inspiration catéchuménale de la catéchèse. La dimension sociale du kérygme et l’initiation chrétienne mettent bien en évidence la concordance entre Medellín, la Conférence d’Aparecida et le Magistère du pape François.",
 				"issue": "1",
 				"libraryCatalog": "ubtue_Peeters",
 				"pages": "33-41",
@@ -411,7 +412,7 @@ var testCases = [
 				],
 				"date": "2017",
 				"DOI": "10.2143/LV.72.4.3251316",
-				"abstractNote": "Abstract :Trop souvent, on parle indistinctement de Bible et de Parole de Dieu. Or, la Bible n’est pas spontanément Parole de Dieu: elle le devient. L’enjeu est important. Dieu se révèle comme Parole incarnée, comme Parole adressée, comme une Bonne Nouvelle qui nous concerne et nous implique. Mais hélas certains textes bibliques ne nous parlent pas. Ils sont trop difficiles, ou trop violents, ou trop rabâchés pour être relus, ou pas lus du tout… Et pourtant, ils font partie de la Bible, dont l’inerrance et la canonicité sont incontestables. Nous trouverons ici quelques pistes pour que, de ces textes, émerge une Parole quand même. En tout état de cause, quel que soit le passage biblique lu et étudié, le lecteur qui s’astreint à une lecture attentive et à un travail sur le texte est assuré que Dieu ne restera pas sans lui parler.",
+				"abstractNote": "Trop souvent, on parle indistinctement de Bible et de Parole de Dieu. Or, la Bible n’est pas spontanément Parole de Dieu: elle le devient. L’enjeu est important. Dieu se révèle comme Parole incarnée, comme Parole adressée, comme une Bonne Nouvelle qui nous concerne et nous implique. Mais hélas certains textes bibliques ne nous parlent pas. Ils sont trop difficiles, ou trop violents, ou trop rabâchés pour être relus, ou pas lus du tout… Et pourtant, ils font partie de la Bible, dont l’inerrance et la canonicité sont incontestables. Nous trouverons ici quelques pistes pour que, de ces textes, émerge une Parole quand même. En tout état de cause, quel que soit le passage biblique lu et étudié, le lecteur qui s’astreint à une lecture attentive et à un travail sur le texte est assuré que Dieu ne restera pas sans lui parler.",
 				"issue": "4",
 				"libraryCatalog": "ubtue_Peeters",
 				"pages": "371-382",
@@ -447,7 +448,6 @@ var testCases = [
 				],
 				"date": "2018",
 				"DOI": "10.2143/LV.73.1.3281483",
-				"abstractNote": "Abstract :not available",
 				"issue": "1",
 				"libraryCatalog": "ubtue_Peeters",
 				"pages": "109-113",
@@ -514,7 +514,7 @@ var testCases = [
 				"date": "2017",
 				"DOI": "10.2143/EP.24.3.3248537",
 				"ISSN": "1783-1431",
-				"abstractNote": "Abstract :This article identifies 14 contentious issues faced by Human Research Ethics Committees (HRECs). The authors argue that HREC members will respond variably to these issues based on their own fundamental values and worldview. In particular, we propose that personal interpretations of current ethics regulations and HREC members’ attitudes to consequentialism, Kantianism, and utilitarianism in some cases affect their responses to contentious research issues. We seek to promote understanding of how personal and professional backgrounds of HREC reviewers influence their approaches to value-laden issues embedded in ethics applications. Taking the form of a literature review, our contribution highlights the need for further exploration of how HREC members make decisions, and what factors influence the outcomes of ethics applications.",
+				"abstractNote": "This article identifies 14 contentious issues faced by Human Research Ethics Committees (HRECs). The authors argue that HREC members will respond variably to these issues based on their own fundamental values and worldview. In particular, we propose that personal interpretations of current ethics regulations and HREC members’ attitudes to consequentialism, Kantianism, and utilitarianism in some cases affect their responses to contentious research issues. We seek to promote understanding of how personal and professional backgrounds of HREC reviewers influence their approaches to value-laden issues embedded in ethics applications. Taking the form of a literature review, our contribution highlights the need for further exploration of how HREC members make decisions, and what factors influence the outcomes of ethics applications.",
 				"issue": "3",
 				"libraryCatalog": "ubtue_Peeters",
 				"pages": "405-439",
@@ -555,7 +555,7 @@ var testCases = [
 				"date": "July 1996",
 				"DOI": "10.2143/EP.3.2.563038",
 				"ISSN": "1783-1431",
-				"abstractNote": "Abstract :Umuntu ngumuntu ngabantu is the Zulu version of a traditional African aphorism. Although with considerable loss of culture-specific meaning, it can be translated as: 'A human being is a human being through (the otherness of) other human beings.' Still, its meaning can be interpreted in various ways of which I would like to highlight only two, in accordance with the grammar of the central concept 'Ubuntu' which denotes both a state of being and one of becoming.",
+				"abstractNote": "Umuntu ngumuntu ngabantu is the Zulu version of a traditional African aphorism. Although with considerable loss of culture-specific meaning, it can be translated as: 'A human being is a human being through (the otherness of) other human beings.' Still, its meaning can be interpreted in various ways of which I would like to highlight only two, in accordance with the grammar of the central concept 'Ubuntu' which denotes both a state of being and one of becoming.",
 				"issue": "2",
 				"libraryCatalog": "ubtue_Peeters",
 				"pages": "76-90",
@@ -591,7 +591,7 @@ var testCases = [
 				"date": "2017",
 				"DOI": "10.2143/BYZ.87.0.3256900",
 				"ISSN": "2294-6209",
-				"abstractNote": "Abstract :The paper presents the first ever edition of the first half (chapters 1-28) of the long Life of St John Chrysostom by Nicetas David the Paphlagonian, composed in all probability in the second quarter of the tenth century. This is an important text for a number of reasons, as explained in detail in my introduction to the Life published in Byz, 86 (2016), pp. 1-51. The critical edition is preceded by a study of the unique manuscript and an exposition of the peculiarities of the author’s language as well as of the editorial principles.",
+				"abstractNote": "The paper presents the first ever edition of the first half (chapters 1-28) of the long Life of St John Chrysostom by Nicetas David the Paphlagonian, composed in all probability in the second quarter of the tenth century. This is an important text for a number of reasons, as explained in detail in my introduction to the Life published in Byz, 86 (2016), pp. 1-51. The critical edition is preceded by a study of the unique manuscript and an exposition of the peculiarities of the author’s language as well as of the editorial principles.",
 				"libraryCatalog": "ubtue_Peeters",
 				"pages": "1-67",
 				"publicationTitle": "Byzantion",
