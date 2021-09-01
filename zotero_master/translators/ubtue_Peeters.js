@@ -1,31 +1,37 @@
 {
-	"translatorID": "799f1ddc-1823-44a5-aac3-acf8b9bd16e2",
+	"translatorID": "c216ae06-da95-4fd0-bce8-38de1f6cf17c",
 	"label": "ubtue_Peeters",
 	"creator": "Timotheus Kim",
 	"target": "^https?://(www\\.)?poj\\.peeters-leuven\\.be/content\\.php",
 	"minVersion": "3.0",
 	"maxVersion": "",
-	"priority": 99,
+	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-03-29 13:50:14"
+	"lastUpdated": "2021-09-01 07:29:58"
 }
 
 /*
 	***** BEGIN LICENSE BLOCK *****
+
 	Copyright © 2018 Timotheus Chang-Whae Kim, Johannes Ruscheinski, Philipp Zumstein
+	
 	This file is part of Zotero.
+
 	Zotero is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
+
 	Zotero is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	GNU Affero General Public License for more details.
+
 	You should have received a copy of the GNU Affero General Public License
 	along with Zotero. If not, see <http://www.gnu.org/licenses/>.
+
 	***** END LICENSE BLOCK *****
 */
 
@@ -136,42 +142,31 @@ function scrape(doc, url) {
 	item.date = ZU.xpathText(doc, '//b[contains(text(), "Date:")]/following-sibling::text()[1]');
 	item.pages = ZU.xpathText(doc, '//b[contains(text(), "Pages:")]/following-sibling::text()[1]');
 	item.DOI = ZU.xpathText(doc, '//b[contains(text(), "DOI:")]/following-sibling::text()[1]');
-	let urlLink = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "whitecell", " " ))]');
-	if(urlLink[2]) item.url = urlLink[2].baseURI;
-	let abstract = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "whitecell", " " ))]');
-	if (abstract[2]) item.abstractNote = abstract[2].textContent.replace(/(\r\n|\n|\r)/gm,"").match(/Abstract.*/g).toString();
-	//scrape e-issn from the journal site
-	let lookupIssn = doc.querySelectorAll('.whitecell');
-	if (lookupIssn && lookupIssn[0]) {
-		let post = 'https://poj.peeters-leuven.be/content.php?url=journal.php&journal_code=' + lookupIssn[0].baseURI.split('&journal_code=')[1];
-		ZU.processDocuments(post, function (scrapeEissn) {
-			var eissn = ZU.xpathText(scrapeEissn, '//td[@class="b2"]');
-			if (eissn && eissn.match(/e-issn\s+:?\s+\d{4}-?\d{4}/gi)) {
-				item.ISSN = eissn.match(/e-issn\s+:?\s+\d{4}-?\d{4}/gi).toString().trim().replace(/e-issn\s+:?\s/i, '');
-			}
-			item.complete();
-		});
-	}
-
+	item.abstractNote = ZU.xpathText(doc, '//b[contains(text(), "Abstract :")]/following-sibling::text() | //b[contains(text(), "Abstract :")]/following-sibling::i');
+	item.abstractNote = ZU.trimInternal(item.abstractNote).replace(/,\s{1},/g, '\\n4207 ').replace(/\\n4207 $/, '');
+	if (item.abstractNote.match(/^not\s?available+/)) delete item.abstractNote;
 	item.attachments.push({
 		url: url,
 		title: "Snapshot",
 		mimeType: "text/html"
 	});
-}/** BEGIN TEST CASES **/
+	item.complete();
+}
+
+/** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "web",
-		"url": "http://poj.peeters-leuven.be/content.php?url=issue&journal_code=EP&issue=3&vol=24",
+		"url": "https://poj.peeters-leuven.be/content.php?url=issue&journal_code=EP&issue=3&vol=24",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
-		"url": "http://poj.peeters-leuven.be/content.php?url=article&id=3269042&journal_code=EP",
+		"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3269042&journal_code=EP",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Choosing to be Changed: Revelation, Identity and the Ethics of Self-Transformation",
+				"title": "Choosing to be Changed:  Revelation, Identity and the Ethics of Self-Transformation",
 				"creators": [
 					{
 						"creatorType": "author",
@@ -202,7 +197,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://poj.peeters-leuven.be/content.php?url=article.php&id=3269043&journal_code=EP",
+		"url": "https://poj.peeters-leuven.be/content.php?url=article.php&id=3269043&journal_code=EP",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -236,7 +231,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://poj.peeters-leuven.be/content.php?url=article.php&id=3269044&journal_code=EP",
+		"url": "https://poj.peeters-leuven.be/content.php?url=article.php&id=3269044&journal_code=EP",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -270,11 +265,11 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://poj.peeters-leuven.be/content.php?url=article&id=3127266&journal_code=EP",
+		"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3127266&journal_code=EP",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "'Thank God I Failed': How Much Does a Failed Murder Attempt Transform the Agent?",
+				"title": "'Thank God I Failed':  How Much Does a Failed Murder Attempt Transform the Agent?",
 				"creators": [
 					{
 						"creatorType": "author",
@@ -305,16 +300,16 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://poj.peeters-leuven.be/content.php?url=issue&journal_code=EP&issue=1&vol=1",
+		"url": "https://poj.peeters-leuven.be/content.php?url=issue&journal_code=EP&issue=1&vol=1",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
-		"url": "http://poj.peeters-leuven.be/content.php?url=article&id=630100&journal_code=EP",
+		"url": "https://poj.peeters-leuven.be/content.php?url=article&id=630100&journal_code=EP",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "An Ethical Agenda for Europe: Fundamental Problems on Practical Ethics in a Christian Perspective",
+				"title": "An Ethical Agenda for Europe:  Fundamental Problems on Practical Ethics in a Christian Perspective",
 				"creators": [
 					{
 						"creatorType": "author",
@@ -324,7 +319,7 @@ var testCases = [
 				],
 				"date": "March 1994",
 				"DOI": "10.2143/EP.1.1.630100",
-				"abstractNote": "Today, applied ethics confronts many problems: technological and biomedical innovations, crisis of the welfare state, rising unemployment, migration and xenophobia. These and the changes accompanying them are, in themselves, important objects of study.",
+				"abstractNote": "Today, applied ethics confronts many problems: technological and biomedical innovations, crisis of the welfare state, rising unemployment, migration and xenophobia. These and the changes accompanying them are, in themselves, important objects of study. \\n4207  An investigation on the level of the differentiated disciplines of practical ethics is insufficient. In as far as practical ethics also serves to disclose reality, it shows that modern problems can only be understood in the light of the general cultural crisis of which they are, at the very least, symptoms. In the first part of this article, we will try to clarify this byanalyzing the crisis in the ethos of modern secularized society. The second part will try to show that Christian ethics can offer a meaningful answer to this cultural crisis, and how it can do so.",
 				"issue": "1",
 				"libraryCatalog": "Peeters",
 				"pages": "3-12",
@@ -345,16 +340,16 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://poj.peeters-leuven.be/content.php?url=issue&journal_code=LV&issue=1&vol=73",
+		"url": "https://poj.peeters-leuven.be/content.php?url=issue&journal_code=LV&issue=1&vol=73",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
-		"url": "http://poj.peeters-leuven.be/content.php?url=article&id=3281475&journal_code=LV",
+		"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3281475&journal_code=LV",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "De Medellín à nos jours: Quelle place pour la catéchèse en Amérique latine?",
+				"title": "De Medellín à nos jours:  Quelle place pour la catéchèse en Amérique latine?",
 				"creators": [
 					{
 						"creatorType": "author",
@@ -364,7 +359,7 @@ var testCases = [
 				],
 				"date": "2018",
 				"DOI": "10.2143/LV.73.1.3281475",
-				"abstractNote": "currently not available",
+				"abstractNote": "À Medellín, les raisons qui ont conduit à solliciter un renouveau de la catéchèse restent actuelles. Outre les profondes transformations sociales, culturelles et religieuses qui remettent en question le rôle du christianisme en Amérique latine, il existe la nécessité de ré-évangéliser les baptisés de tous les âges. Ceci demande un nouveau paradigme pour la catéchèse sur le continent qui doit être en rapport avec l’initiation chrétienne, le catéchuménat et l’inspiration catéchuménale de la catéchèse. La dimension sociale du kérygme et l’initiation chrétienne mettent bien en évidence la concordance entre Medellín, la Conférence d’Aparecida et le Magistère du pape François.",
 				"issue": "1",
 				"libraryCatalog": "Peeters",
 				"pages": "33-41",
@@ -385,11 +380,11 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://poj.peeters-leuven.be/content.php?url=article&id=3251316&journal_code=LV",
+		"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3251316&journal_code=LV",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Laisser la Parole de Dieu faire son travail: Un défi pour le lecteur des Écritures",
+				"title": "Laisser la Parole de Dieu faire son travail:  Un défi pour le lecteur des Écritures",
 				"creators": [
 					{
 						"creatorType": "author",
@@ -420,11 +415,11 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://poj.peeters-leuven.be/content.php?url=article&id=3281483&journal_code=LV",
+		"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3281483&journal_code=LV",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Mission et œcuménisme: de la concurrence à la collaboration?: 9e Forum bilingue «Fribourg Église dans le monde», Université de Fribourg, les 12-13 octobre 2017",
+				"title": "Mission et œcuménisme: de la concurrence à la collaboration?:  9e Forum bilingue «Fribourg Église dans le monde», Université de Fribourg, les 12-13 octobre 2017",
 				"creators": [
 					{
 						"creatorType": "author",
@@ -434,7 +429,6 @@ var testCases = [
 				],
 				"date": "2018",
 				"DOI": "10.2143/LV.73.1.3281483",
-				"abstractNote": "currently not available",
 				"issue": "1",
 				"libraryCatalog": "Peeters",
 				"pages": "109-113",
@@ -455,7 +449,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://poj.peeters-leuven.be/content.php?url=article&id=3248537&journal_code=EP",
+		"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3248537&journal_code=EP",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -519,12 +513,12 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://poj.peeters-leuven.be/content.php?url=issue&journal_code=EP&issue=3&vol=24",
+		"url": "https://poj.peeters-leuven.be/content.php?url=issue&journal_code=EP&issue=3&vol=24",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
-		"url": "http://poj.peeters-leuven.be/content.php?url=article&id=563038&journal_code=EP",
+		"url": "https://poj.peeters-leuven.be/content.php?url=article&id=563038&journal_code=EP",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -538,6 +532,7 @@ var testCases = [
 				],
 				"date": "July 1996",
 				"DOI": "10.2143/EP.3.2.563038",
+				"abstractNote": ", Umuntu ngumuntu ngabantu, is the Zulu version of a traditional African aphorism. Although with considerable loss of culture-specific meaning, it can be translated as: 'A human being is a human being through (the otherness of) other human beings.' Still, its meaning can be interpreted in various ways of which I would like to highlight only two, in accordance with the grammar of the central concept 'Ubuntu' which denotes both a state of being and one of becoming.",
 				"issue": "2",
 				"libraryCatalog": "Peeters",
 				"pages": "76-90",
@@ -557,7 +552,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://poj.peeters-leuven.be/content.php?url=article&id=3256900&journal_code=BYZ",
+		"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3256900&journal_code=BYZ",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -571,12 +566,47 @@ var testCases = [
 				],
 				"date": "2017",
 				"DOI": "10.2143/BYZ.87.0.3256900",
-				"abstractNote": "The paper presents the first ever edition of the first half (chapters 1-28) of the long",
+				"abstractNote": "The paper presents the first ever edition of the first half (chapters 1-28) of the long , Life, of St John Chrysostom by Nicetas David the Paphlagonian, composed in all probability in the second quarter of the tenth century. This is an important text for a number of reasons, as explained in detail in my introduction to the , Life, published in , Byz\\n4207  86 (2016), pp. 1-51. The critical edition is preceded by a study of the unique manuscript and an exposition of the peculiarities of the author’s language as well as of the editorial principles.",
 				"libraryCatalog": "Peeters",
 				"pages": "1-67",
 				"publicationTitle": "Byzantion",
 				"shortTitle": "The Unedited <i>Life</i> of St John Chrysostom by Nicetas David the Paphlagonian",
 				"volume": "87",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3288572&journal_code=ETS",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Humility and 'Slavery':  Paul's Theology of the Christian Life",
+				"creators": [
+					{
+						"creatorType": "author",
+						"lastName": "Turner",
+						"firstName": " Geoffrey"
+					}
+				],
+				"date": "2020",
+				"DOI": "10.2143/ETS.11.2.3288572",
+				"abstractNote": "A brief account of slavery in the Roman world serves as background for understanding Paul’s metaphor of 'slavery' when he says that his readers must cease to be slaves of sin and become slaves of Christ. To be a slave in that world meant having no rights and the lowest status in society. This is closely related to what Paul also means in Philippians by being 'humble'. All Christians must have the mindset of humility (, tapeinophrosunē, ), giving up claims to status in society and the church, and treating others as having more importance than oneself. Such a mindset is reflected in other parts of the NT. It is a lack of such humble-mindedness among some clergy and bishops that allowed the possibility of sexual abuse and its cover-up.\\n4207  Ein kurzer Abriss über die Sklaverei in der römischen Welt dient als Hintergrund, um Paulus‘ Metapher der 'Sklaverei' zu verstehen, wenn er sagt, dass seine Leser aufhören müssen, Sklaven der Sünde zu sein, und Sklaven Christi werden müssen. Ein Sklave in jener Welt zu sein bedeutete, keine Rechte und den niedrigsten Status in der Gesellschaft zu haben. Dies steht in engem Zusammenhang mit dem, was Paulus auch im Philipperbrief mit 'demütig' meint. Alle Christen müssen eine Haltung der Demut haben (, tapeinophrosunē, ), indem sie ihren Statusanspruch in der Gesellschaft und in der Kirche aufgeben und andere so behandeln, als hätten diese mehr Bedeutung als sie selbst. Eine solche Denkweise spiegelt sich in anderen Teilen des NT wider. Es ist ein Mangel an solcher Demut unter einigen Klerikern und Bischöfen, der die Möglichkeit des sexuellen Missbrauchs und seiner Vertuschung zulässt.\\n4207  Un bref compte-rendu de l’esclavage dans le monde romain sert de toile de fond à la compréhension de la métaphore de l’esclavage, lorsque Paul dit que ses lecteurs doivent cesser d’être esclaves du péché et devenir esclaves du Christ. Être esclave dans ce monde signifiait l’absence de droits et le statut social le plus bas. Cela est étroitement lié à ce que Paul entend par être «humble» en Philippiens. Tous les chrétiens doivent avoir l’esprit d’humilité (, tapeinophrosunē, ), en renonçant à revendiquer un statut dans la société et dans l’Église, et en accordant aux autres plus d’importance qu’à soi-même. Un tel état d’esprit transparaît dans d’autres parties du NT. C’est le manque d’un tel esprit d’humilité chez certains membres du clergé et certains évêques qui a permis des abus sexuels et leur dissimulation.",
+				"issue": "2",
+				"libraryCatalog": "Peeters",
+				"pages": "167-183",
+				"publicationTitle": "ET-Studies",
+				"shortTitle": "Humility and 'Slavery'",
+				"volume": "11",
 				"attachments": [
 					{
 						"title": "Snapshot",
