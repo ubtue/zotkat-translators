@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-09-01 08:26:59"
+	"lastUpdated": "2021-09-01 08:35:59"
 }
 
 /*
@@ -598,6 +598,43 @@ var testCases = [
 				"shortTitle": "The Unedited <i>Life</i> of St John Chrysostom by Nicetas David the Paphlagonian",
 				"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3256900&journal_code=BYZ",
 				"volume": "87",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3288572&journal_code=ETS",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Humility and 'Slavery':  Paul's Theology of the Christian Life",
+				"creators": [
+					{
+						"creatorType": "author",
+						"lastName": "Turner",
+						"firstName": " Geoffrey"
+					}
+				],
+				"date": "2020",
+				"DOI": "10.2143/ETS.11.2.3288572",
+				"ISSN": "2033-4273",
+				"abstractNote": "A brief account of slavery in the Roman world serves as background for understanding Paul’s metaphor of 'slavery' when he says that his readers must cease to be slaves of sin and become slaves of Christ. To be a slave in that world meant having no rights and the lowest status in society. This is closely related to what Paul also means in Philippians by being 'humble'. All Christians must have the mindset of humility (tapeinophrosunē), giving up claims to status in society and the church, and treating others as having more importance than oneself. Such a mindset is reflected in other parts of the NT. It is a lack of such humble-mindedness among some clergy and bishops that allowed the possibility of sexual abuse and its cover-up.\\n4207 Ein kurzer Abriss über die Sklaverei in der römischen Welt dient als Hintergrund, um Paulus‘ Metapher der 'Sklaverei' zu verstehen, wenn er sagt, dass seine Leser aufhören müssen, Sklaven der Sünde zu sein, und Sklaven Christi werden müssen. Ein Sklave in jener Welt zu sein bedeutete, keine Rechte und den niedrigsten Status in der Gesellschaft zu haben. Dies steht in engem Zusammenhang mit dem, was Paulus auch im Philipperbrief mit 'demütig' meint. Alle Christen müssen eine Haltung der Demut haben (tapeinophrosunē), indem sie ihren Statusanspruch in der Gesellschaft und in der Kirche aufgeben und andere so behandeln, als hätten diese mehr Bedeutung als sie selbst. Eine solche Denkweise spiegelt sich in anderen Teilen des NT wider. Es ist ein Mangel an solcher Demut unter einigen Klerikern und Bischöfen, der die Möglichkeit des sexuellen Missbrauchs und seiner Vertuschung zulässt.\\n4207 Un bref compte-rendu de l’esclavage dans le monde romain sert de toile de fond à la compréhension de la métaphore de l’esclavage, lorsque Paul dit que ses lecteurs doivent cesser d’être esclaves du péché et devenir esclaves du Christ. Être esclave dans ce monde signifiait l’absence de droits et le statut social le plus bas. Cela est étroitement lié à ce que Paul entend par être «humble» en Philippiens. Tous les chrétiens doivent avoir l’esprit d’humilité (tapeinophrosunē), en renonçant à revendiquer un statut dans la société et dans l’Église, et en accordant aux autres plus d’importance qu’à soi-même. Un tel état d’esprit transparaît dans d’autres parties du NT. C’est le manque d’un tel esprit d’humilité chez certains membres du clergé et certains évêques qui a permis des abus sexuels et leur dissimulation.",
+				"issue": "2",
+				"libraryCatalog": "ubtue_Peeters",
+				"pages": "167-183",
+				"publicationTitle": "ET-Studies",
+				"shortTitle": "Humility and 'Slavery'",
+				"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3288572&journal_code=ETS",
+				"volume": "11",
 				"attachments": [
 					{
 						"title": "Snapshot",
