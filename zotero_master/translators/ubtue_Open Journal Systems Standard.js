@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-09-08 09:16:39"
+	"lastUpdated": "2021-09-08 13:29:36"
 }
 
 /*
@@ -1526,6 +1526,80 @@ var testCases = [
 					},
 					{
 						"tag": "rechtsextreme Einstellungen"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://revistas.agustinosvalladolid.es/index.php/estudio/article/view/9",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Spirituality as relationality of reasonability: Critical challenge of human reason to ontology from the viewpoint of metaphysics",
+				"creators": [
+					{
+						"firstName": "Macario Ofilada",
+						"lastName": "Mina",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/04/01",
+				"ISSN": "2792-260X",
+				"abstractNote": "Este ensayo es un acercamiento a la fundamentación de la noción de la espiritualidad desde la metafísica, es decir, la primera filosofía. La filosofía solo puede ser espiritual, es construir caminos hacia lo originario. El alma de la espiritualidad, que se hace concreta en la mediación de la espiritualidad (camino de la realidad experienciada como real o lo real experienciado como realidad), es la conciencia de la presencia de lo Trascendente en la inmanencia de la historia, contenida en el cosmos, que es la totalidad de todo lo real como realidad o de la realidad como real. Pero esta historia está ligada a categorías ontológicas. La verdadera espiritualidad se logra solo mediante la metafísica. Sin lo espiritual, que es el camino de la espiritualidad, la espiritualidad se reduciría en mera espiritualidad o en ontología del espíritu.&nbsp;",
+				"issue": "1",
+				"journalAbbreviation": "EstAgus",
+				"language": "es",
+				"libraryCatalog": "revistas.agustinosvalladolid.es",
+				"pages": "37-63",
+				"publicationTitle": "Estudio Agustiniano",
+				"rights": "Derechos de autor 2021",
+				"shortTitle": "Spirituality as relationality of reasonability",
+				"url": "https://revistas.agustinosvalladolid.es/index.php/estudio/article/view/9",
+				"volume": "56",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Absoluto"
+					},
+					{
+						"tag": "Comunión"
+					},
+					{
+						"tag": "Contemplación"
+					},
+					{
+						"tag": "Escatología"
+					},
+					{
+						"tag": "Esperanza"
+					},
+					{
+						"tag": "Espiritualidad"
+					},
+					{
+						"tag": "Historia"
+					},
+					{
+						"tag": "Metafísica"
+					},
+					{
+						"tag": "Ontología"
+					},
+					{
+						"tag": "Relacionalidad"
 					}
 				],
 				"notes": [],
