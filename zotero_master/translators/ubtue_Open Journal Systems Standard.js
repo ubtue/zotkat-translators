@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-07-19 14:45:39"
+	"lastUpdated": "2021-09-08 09:16:39"
 }
 
 /*
@@ -163,9 +163,9 @@ function invokeEMTranslator(doc) {
 		if (i.ISSN == '2660-4418') {
 			if (i.abstractNote.indexOf("\nReferences\n") !== -1) {
 			i.abstractNote = i.abstractNote.substring(0, i.abstractNote.indexOf("\nReferences\n"));
+			}
 		}
-		}
-		if (['2617-3697', '2660-4418', '2748-6419'].includes(i.ISSN)) {
+		if (['2617-3697', '2660-4418', '2748-6419', '2617-1953'].includes(i.ISSN)) {
 			let subtitle = ZU.xpathText(doc, '//h1/small');
 			if (subtitle) {
 				subtitle = subtitle.replace(/(\n*\t*)/, '');
@@ -1197,7 +1197,7 @@ var testCases = [
 				"date": "2021/06/18",
 				"DOI": "10.35068/aabner.v1i1.781",
 				"ISSN": "2748-6419",
-				"abstractNote": "Die Chefredaktion von AABNER beschreibt die Schwächen und Probleme des&nbsp;traditionellen ‚Double-Blind-Peer-Review‘ und bietet eine innovative Lösung:&nbsp;den von uns weiterentwickelten ‚Forum-Peer-Review‘.",
+				"abstractNote": "The AABNER founding editors-in-chief describe some of the problems with traditional double-blind peer review and describe our solution for them, forum peer&nbsp;review, which we have developed for use within AABNER.",
 				"issue": "1",
 				"journalAbbreviation": "1",
 				"language": "en",
@@ -1458,6 +1458,74 @@ var testCases = [
 					},
 					{
 						"tag": "wisdom"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://limina-graz.eu/index.php/limina/article/view/103",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Antimodernismus als Autoritarismus?: Zum Mehrwert sozialpsychologischer Analysekategorien im Kontext theologischer Fundamentalismusforschung",
+				"creators": [
+					{
+						"firstName": "Sonja Angelika",
+						"lastName": "Strube",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/05/12",
+				"ISSN": "2617-1953",
+				"abstractNote": "Fundamentalistische religiöse Stile, im katholischen Glaubensspektrum durch vorkonziliar-antimodernistische und traditionalismusaffine Frömmigkeitsformen geprägt, gehen auffallend oft mit expliziter Gruppenbezogener Menschenfeindlichkeit und sogar extrem rechten politischen Einstellungen einher. Diese Beobachtung legt nicht nur nahe, nach möglichen gemeinsamen psychischen Prädispositionen für politische wie religiöse autoritäre Einstellungen zu fragen, sondern ermutigt auch die Integration sozialpsychologischer Analysekategorien in die theologische Fundamentalismusforschung.\nDer vorliegende Beitrag stellt zunächst zentrale (schwerpunktmäßig sozialpsychologische) Forschungen zur Ambivalenz von Religiosität und zu Zusammenhängen zwischen religiösen Stilen und Vorurteilen sowie Autoritarismus vor. In einem zweiten Schritt wendet er deren sozialpsychologische Kategorien auf die Analyse rechtskatholischer Proteste gegen die Einbeziehung indigener Figuren in die Eröffnungszeremonie der Amazonassynode 2019 an. Dies ermöglicht die Offenlegung autoritärer und ethnozentrischer Haltungen, die durch religiösen Exklusivismus, strafende Gottesbilder sowie entsprechende eschatologische Vorstellungen gerechtfertigt werden. Aus sozialpsychologischer Perspektive lässt sich der innerkirchliche Konflikt um die Reformen des Zweiten Vatikanischen Konzils als ein ,Clash‘ unterschiedlicher – reiferer bzw. wenig komplexer – religiöser Stile beschreiben.",
+				"issue": "1",
+				"journalAbbreviation": "1",
+				"language": "de",
+				"libraryCatalog": "limina-graz.eu",
+				"pages": "16-40",
+				"publicationTitle": "LIMINA - Grazer theologische Perspektiven",
+				"rights": "Copyright (c) 2021 Sonja Angelika Strube",
+				"shortTitle": "Antimodernismus als Autoritarismus?",
+				"url": "https://limina-graz.eu/index.php/limina/article/view/103",
+				"volume": "4",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "(katholischer) Fundamentalismus"
+					},
+					{
+						"tag": "Antimodernismus"
+					},
+					{
+						"tag": "Autoritarismus / autoritäre Persönlichkeit"
+					},
+					{
+						"tag": "Gruppenbezogene Menschenfeindlichkeit"
+					},
+					{
+						"tag": "Religion und Vorurteil"
+					},
+					{
+						"tag": "Traditionalismus"
+					},
+					{
+						"tag": "Zweites Vatikanisches Konzil"
+					},
+					{
+						"tag": "rechtsextreme Einstellungen"
 					}
 				],
 				"notes": [],
