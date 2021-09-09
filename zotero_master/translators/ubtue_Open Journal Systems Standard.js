@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-09-08 13:29:36"
+	"lastUpdated": "2021-09-09 10:00:49"
 }
 
 /*
@@ -115,17 +115,13 @@ function invokeEMTranslator(doc) {
  				}
  			}
  		}
- 		//let notesEntry = ZU.trimInternal(checkOrcid.href);//.replace(/.*(\d{4}-\d+-\d+-\d+x?)/gi, '$1') + " | " + "author=" + author.replace(/https?:\/\/orcid\.org\/\d{4}-\d+-\d+-\d+x?/i, '') + " | " + "taken from website");
- 		//note = notesEntry.split(/\s*https?:\/\/orcid\.org\//\s/);
-		//for (let n in notesEntry) {
-		//i.tags.push(note[n]); //alternativ .replace(/^\w/, function($0) { return $0.toUpperCase(); }))	
-
  		if (i.pages !== undefined) {
-		var firstPage = ZU.xpathText(doc, '//meta[@name="citation_firstpage"]/@content');
-		var lastPage = ZU.xpathText(doc, '//meta[@name="citation_lastpage"]/@content');
-		var firstandlastPages = i.pages.split('-');
-		if (firstandlastPages[0] === firstandlastPages[1]) i.pages = firstandlastPages[0];
+			let pageNumberFromDC = ZU.xpathText(doc, '//meta[@name="DC.Identifier.pageNumber"]/@content');
+			//if the first page number matches the results of second page number (see regex "\1") e.g. 3-3,
+			//then replace the range with a first page number e.g 3 
+			i.pages = pageNumberFromDC.trim().replace(/^([^-]+)-\1$/, '$1');
  		}
+ 		
  		if (ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content') && i.date.length !== 4 && i.ISSN == '1983-2850') {
 			i.date = ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content').substr(0, 4);
 		}
