@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-09-09 14:56:38"
+	"lastUpdated": "2021-09-10 14:32:13"
 }
 
 /*
@@ -86,19 +86,33 @@ function invokeEMTranslator(doc) {
  				delete i.archiveLocation;
  			}
  		}
+ 		/*let orcidAuthors = ZU.xpath(doc, '//*[@class="authors"]/strong');//Z.debug(orcidAuthors)
+ 		let orcidEntry = ZU.xpath(doc, '//a[contains(@href, "orcid")]');//Z.debug(orcidEntry)
+ 		for (let o of orcidAuthors) {
+ 			let author = o.innerText; //Z.debug(author)
+ 			for (let v of orcidEntry) {
+ 				let orcid = v.href; 
+ 				i.notes.push({note: "orcid:" + orcid + ' ' + author});
+ 			}
+ 		}*/
  		//orcid for pica-field 8910
  		let checkOrcid = doc.querySelector(".orcid a");
  		if (checkOrcid) {
- 			let orcidEntry = ZU.xpath(doc, '//div[@class="authors"]');Z.debug(orcidEntry)
- 			for (let v in orcidEntry) {
- 				let authorsEntry = orcidEntry[v].innerText;Z.debug(authorsEntry)
- 				let re = authorsEntry.split(/\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t/i);
- 				for (let n in re) {
- 					if (re[n].includes('orcid')) {
- 						i.notes.push(ZU.trimInternal(re[n].replace('.st0{fill:#A6CE39;}', '').replace('.st1{fill:#FFFFFF;}', '')) +  ' | taken from website');
- 					}
- 				}
-			}
+ 			//let authorEntry = ZU.xpath(doc, '//div[@class="authors"]/span');Z.debug(authorEntry)
+ 			let authorOrcidEntry = doc.querySelectorAll('.authors');//Z.debug(authorOrcidEntry)
+ 			//let orcidEntry = ZU.xpath(doc, '//span[@class="orcid"]');//Z.debug(orcidEntry)
+
+ 			for (let part of authorOrcidEntry) {
+ 				//Z.debug(part)
+ 				let authorEntry = part.querySelector('.authors, strong');//Z.debug(authorEntry)
+ 				let orcidEntry = part.querySelector('a[href*="orcid"]');//Z.debug(orcidEntry)
+ 				if (authorEntry && orcidEntry) {
+						let author = authorEntry.innerText;//Z.debug(author)
+						let orcid = orcidEntry.pathname.match(/\d+-\d+-\d+-\d+x?/i)[0];//Z.debug(orcid)
+						i.notes.push({note: "orcid:" + orcid + ' ' + author});
+						//i.notes = Array.from(new Set(i.notes.map(JSON.stringify))).map(JSON.parse);
+				}
+ 			}
  		}
  		else {
  			let orcidEntries = ZU.xpath(doc, '//div[@class="article-details-authors"]/div[@class="article-details-author hideAuthor"]');
@@ -229,9 +243,6 @@ function doWeb(doc, url) {
 	} else
 		invokeEMTranslator(doc, url);
 }
-
-
-
 
 /** BEGIN TEST CASES **/
 var testCases = [
@@ -684,7 +695,11 @@ var testCases = [
 						"tag": "juicio final"
 					}
 				],
-				"notes": [],
+				"notes": [
+					{
+						"note": "orcid:0000-0001-6251-0506 Francisco Javier Ruiz-Ortiz\nMater Ecclesiae College, St Mary’s University (Twickenham, UK)\n https://orcid.org/0000-0001-6251-0506"
+					}
+				],
 				"seeAlso": []
 			}
 		]
@@ -1001,7 +1016,9 @@ var testCases = [
 					}
 				],
 				"notes": [
-					"Alfredo Martín García Universidad de León https://orcid.org/0000-0001-6906-0210 | taken from website"
+					{
+						"note": "orcid:0000-0001-6906-0210 Alfredo Martín García"
+					}
 				],
 				"seeAlso": []
 			}
@@ -1155,7 +1172,9 @@ var testCases = [
 					}
 				],
 				"notes": [
-					"Sebastian Fink Universität Innsbruck http://orcid.org/0000-0002-6270-8368 | taken from website"
+					{
+						"note": "orcid:0000-0002-6270-8368 Sebastian Fink"
+					}
 				],
 				"seeAlso": []
 			}
@@ -1228,10 +1247,9 @@ var testCases = [
 					}
 				],
 				"notes": [
-					"Izaak Jozias de Hulster http://orcid.org/0000-0003-0706-4480 | taken from website",
-					"Valérie Nicolet Institut Protestant de Théologie http://orcid.org/0000-0001-9070-0585 | taken from website",
-					"Ronit Nikolsky University of Groningen http://orcid.org/0000-0002-3771-8062 | taken from website",
-					"Jason M. Silverman University of Helsinki http://orcid.org/0000-0002-0240-9219 | taken from website"
+					{
+						"note": "orcid:0000-0003-0706-4480 Izaak Jozias de Hulster"
+					}
 				],
 				"seeAlso": []
 			}
