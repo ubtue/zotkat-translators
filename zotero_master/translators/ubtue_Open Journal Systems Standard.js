@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-09-09 10:00:49"
+	"lastUpdated": "2021-09-09 14:56:38"
 }
 
 /*
@@ -89,9 +89,9 @@ function invokeEMTranslator(doc) {
  		//orcid for pica-field 8910
  		let checkOrcid = doc.querySelector(".orcid a");
  		if (checkOrcid) {
- 			let orcidEntry = ZU.xpath(doc, '//div[@class="authors"]');
+ 			let orcidEntry = ZU.xpath(doc, '//div[@class="authors"]');Z.debug(orcidEntry)
  			for (let v in orcidEntry) {
- 				let authorsEntry = orcidEntry[v].textContent;
+ 				let authorsEntry = orcidEntry[v].innerText;Z.debug(authorsEntry)
  				let re = authorsEntry.split(/\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t/i);
  				for (let n in re) {
  					if (re[n].includes('orcid')) {
