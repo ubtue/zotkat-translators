@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-09-10 14:32:13"
+	"lastUpdated": "2021-09-10 14:41:18"
 }
 
 /*
@@ -98,19 +98,14 @@ function invokeEMTranslator(doc) {
  		//orcid for pica-field 8910
  		let checkOrcid = doc.querySelector(".orcid a");
  		if (checkOrcid) {
- 			//let authorEntry = ZU.xpath(doc, '//div[@class="authors"]/span');Z.debug(authorEntry)
- 			let authorOrcidEntry = doc.querySelectorAll('.authors');//Z.debug(authorOrcidEntry)
- 			//let orcidEntry = ZU.xpath(doc, '//span[@class="orcid"]');//Z.debug(orcidEntry)
-
+ 			let authorOrcidEntry = doc.querySelectorAll('.authors');
  			for (let part of authorOrcidEntry) {
- 				//Z.debug(part)
- 				let authorEntry = part.querySelector('.authors, strong');//Z.debug(authorEntry)
- 				let orcidEntry = part.querySelector('a[href*="orcid"]');//Z.debug(orcidEntry)
+ 				let authorEntry = part.querySelector('.authors, strong');
+ 				let orcidEntry = part.querySelector('a[href*="orcid"]');
  				if (authorEntry && orcidEntry) {
 						let author = authorEntry.innerText;//Z.debug(author)
-						let orcid = orcidEntry.pathname.match(/\d+-\d+-\d+-\d+x?/i)[0];//Z.debug(orcid)
-						i.notes.push({note: "orcid:" + orcid + ' ' + author});
-						//i.notes = Array.from(new Set(i.notes.map(JSON.stringify))).map(JSON.parse);
+						let orcid = orcidEntry.pathname.match(/\d+-\d+-\d+-\d+x?/i)[0];
+						i.notes.push({note: "orcid:" + orcid + ' | ' + author + ' | ' + 'taken from website'});
 				}
  			}
  		}
@@ -697,7 +692,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "orcid:0000-0001-6251-0506 Francisco Javier Ruiz-Ortiz\nMater Ecclesiae College, St Mary’s University (Twickenham, UK)\n https://orcid.org/0000-0001-6251-0506"
+						"note": "orcid:0000-0001-6251-0506 | Francisco Javier Ruiz-Ortiz\nMater Ecclesiae College, St Mary’s University (Twickenham, UK)\n https://orcid.org/0000-0001-6251-0506 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -1017,7 +1012,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "orcid:0000-0001-6906-0210 Alfredo Martín García"
+						"note": "orcid:0000-0001-6906-0210 | Alfredo Martín García | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -1173,7 +1168,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "orcid:0000-0002-6270-8368 Sebastian Fink"
+						"note": "orcid:0000-0002-6270-8368 | Sebastian Fink | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -1248,7 +1243,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "orcid:0000-0003-0706-4480 Izaak Jozias de Hulster"
+						"note": "orcid:0000-0003-0706-4480 | Izaak Jozias de Hulster | taken from website"
 					}
 				],
 				"seeAlso": []
