@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-09-14 13:28:37"
+	"lastUpdated": "2021-09-14 15:03:38"
 }
 
 /*
@@ -89,18 +89,27 @@ function invokeEMTranslator(doc) {
 
  		//orcid for pica-field 8910
  		var authorEntry = doc.querySelectorAll("meta[name*='DC.Creator.PersonalName']");
- 		if (authorEntry) {
+ 		if (['2748-6419', '2660-7743'].includes(i.ISSN) && authorEntry) {
  			for (let v of authorEntry) {
  				var author = ZU.xpathText(v, '//meta[@name="DC.Creator.PersonalName"]/@content').split(',');
  			}
- 			var orcidEntry = doc.querySelectorAll('.orcid');
+ 			var orcidEntry = doc.querySelectorAll('.orcid, .orcidImage');
  			for (let o of orcidEntry) {
- 				let orcid = attr(o, 'a[href*="/orcid.org/"]', 'href');
+ 				let orcid = attr(o, '*[href*="/orcid.org/"]', 'href');
  				if (authorEntry && orcidEntry) {
 						i.notes.push({note: "orcid:" + orcid + ' | ' + author.shift(function(author) {return author[0]}) + ' | ' + 'taken from website'});
 				}
  			}
  		}
+  		/*let checkOrcid = doc.querySelector(".orcid a");Z.debug(checkOrcid)
+ 		if (checkOrcid) {
+ 			let authorEntry = ZU.xpath(doc, '//*[@class="item authors"]');//Z.debug(authorEntry)
+ 			for (let v in authorEntry) {
+ 				let author = authorEntry[v].innerText;//Z.debug(author)
+ 				let orcid = attr(v, '*[href*="/orcid.org/"]', 'href');
+ 				i.notes.push({note: "orcid:" + orcid + ' | ' + author + ' | ' + 'taken from website'});
+ 			}
+ 		}*/
  		else {
  			let orcidEntries = ZU.xpath(doc, '//div[@class="article-details-authors"]/div[@class="article-details-author hideAuthor"]');
  			for (let orcidEntry in orcidEntries) {
@@ -116,6 +125,9 @@ function invokeEMTranslator(doc) {
  				}
  			}
  		}
+ 		
+ 		//i.notes.push(getOrcids(doc))
+ 		
  		if (i.pages !== undefined) {
 			let pageNumberFromDC = ZU.xpathText(doc, '//meta[@name="DC.Identifier.pageNumber"]/@content');
 			//if the first page number matches the results of second page number (see regex "\1") e.g. 3-3,
@@ -215,6 +227,24 @@ String.prototype.capitalizeFirstLetter = function() {
 	return this.charAt(0).toUpperCase() + this.slice(1);
 };
 
+/*
+//should link with the second author https://periodicos.uem.br/ojs/index.php/RbhrAnpuh/article/view/54840
+function getOrcids(doc) {
+ 	let authorSections = ZU.xpath(doc, '//*[@class="item authors"]/li');
+ 	for (let authorSection of authorSections) {
+ 		//Z.debug(authorSection);
+ 		let authorLink = ZU.xpath(authorSection, '//*[@class="name"]');Z.debug(authorLink)
+ 		let orcidLink = ZU.xpath(authorSection, '//a[starts-with(@href, "https://orcid.org")]/@href');
+ 		if (authorLink && orcidLink) {
+ 		    let author = authorLink[0].innerText;
+ 		    let orcid = orcidLink[0].value.match(/\d+-\d+-\d+-\d+x?/i);
+ 		    return {note: "orcid:" + orcid + ' | ' + author + ' | ' + 'taken from website'};
+ 		}
+ 	}
+ 	return null;
+ }
+ */
+ 
 function doWeb(doc, url) {
 	if (detectWeb(doc, url) === "multiple") {
 		Zotero.selectItems(getSearchResults(doc, url), function (items) {
@@ -826,11 +856,7 @@ var testCases = [
 						"tag": "Romaria"
 					}
 				],
-				"notes": [
-					{
-						"note": "orcid:https://orcid.org/0000-0003-3618-7455 | Edilece Souza Couto | taken from website"
-					}
-				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
@@ -1006,11 +1032,7 @@ var testCases = [
 						"tag": "península ibérica"
 					}
 				],
-				"notes": [
-					{
-						"note": "orcid:https://orcid.org/0000-0001-6906-0210 | Alfredo Martín García | taken from website"
-					}
-				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
@@ -1330,7 +1352,9 @@ var testCases = [
 						"tag": "Sodom"
 					}
 				],
-				"notes": [],
+				"notes": [
+					"Cephas Tushima | https://orcid.org/0000-0003-0923-1350"
+				],
 				"seeAlso": []
 			}
 		]
