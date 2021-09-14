@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-09-10 14:41:18"
+	"lastUpdated": "2021-09-14 13:28:37"
 }
 
 /*
@@ -86,26 +86,18 @@ function invokeEMTranslator(doc) {
  				delete i.archiveLocation;
  			}
  		}
- 		/*let orcidAuthors = ZU.xpath(doc, '//*[@class="authors"]/strong');//Z.debug(orcidAuthors)
- 		let orcidEntry = ZU.xpath(doc, '//a[contains(@href, "orcid")]');//Z.debug(orcidEntry)
- 		for (let o of orcidAuthors) {
- 			let author = o.innerText; //Z.debug(author)
- 			for (let v of orcidEntry) {
- 				let orcid = v.href; 
- 				i.notes.push({note: "orcid:" + orcid + ' ' + author});
- 			}
- 		}*/
+
  		//orcid for pica-field 8910
- 		let checkOrcid = doc.querySelector(".orcid a");
- 		if (checkOrcid) {
- 			let authorOrcidEntry = doc.querySelectorAll('.authors');
- 			for (let part of authorOrcidEntry) {
- 				let authorEntry = part.querySelector('.authors, strong');
- 				let orcidEntry = part.querySelector('a[href*="orcid"]');
+ 		var authorEntry = doc.querySelectorAll("meta[name*='DC.Creator.PersonalName']");
+ 		if (authorEntry) {
+ 			for (let v of authorEntry) {
+ 				var author = ZU.xpathText(v, '//meta[@name="DC.Creator.PersonalName"]/@content').split(',');
+ 			}
+ 			var orcidEntry = doc.querySelectorAll('.orcid');
+ 			for (let o of orcidEntry) {
+ 				let orcid = attr(o, 'a[href*="/orcid.org/"]', 'href');
  				if (authorEntry && orcidEntry) {
-						let author = authorEntry.innerText;//Z.debug(author)
-						let orcid = orcidEntry.pathname.match(/\d+-\d+-\d+-\d+x?/i)[0];
-						i.notes.push({note: "orcid:" + orcid + ' | ' + author + ' | ' + 'taken from website'});
+						i.notes.push({note: "orcid:" + orcid + ' | ' + author.shift(function(author) {return author[0]}) + ' | ' + 'taken from website'});
 				}
  			}
  		}
@@ -692,7 +684,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "orcid:0000-0001-6251-0506 | Francisco Javier Ruiz-Ortiz\nMater Ecclesiae College, St Mary’s University (Twickenham, UK)\n https://orcid.org/0000-0001-6251-0506 | taken from website"
+						"note": "orcid:https://orcid.org/0000-0001-6251-0506 | Francisco Javier Ruiz-Ortiz | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -834,7 +826,11 @@ var testCases = [
 						"tag": "Romaria"
 					}
 				],
-				"notes": [],
+				"notes": [
+					{
+						"note": "orcid:https://orcid.org/0000-0003-3618-7455 | Edilece Souza Couto | taken from website"
+					}
+				],
 				"seeAlso": []
 			}
 		]
@@ -1012,7 +1008,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "orcid:0000-0001-6906-0210 | Alfredo Martín García | taken from website"
+						"note": "orcid:https://orcid.org/0000-0001-6906-0210 | Alfredo Martín García | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -1168,7 +1164,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "orcid:0000-0002-6270-8368 | Sebastian Fink | taken from website"
+						"note": "orcid:http://orcid.org/0000-0002-6270-8368 | Sebastian Fink | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -1243,7 +1239,16 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "orcid:0000-0003-0706-4480 | Izaak Jozias de Hulster | taken from website"
+						"note": "orcid:http://orcid.org/0000-0003-0706-4480 | Izaak Jozias de Hulster | taken from website"
+					},
+					{
+						"note": "orcid:http://orcid.org/0000-0001-9070-0585 |  Valérie Nicolet | taken from website"
+					},
+					{
+						"note": "orcid:http://orcid.org/0000-0002-3771-8062 |  Ronit Nikolsky | taken from website"
+					},
+					{
+						"note": "orcid:http://orcid.org/0000-0002-0240-9219 |  Jason M. Silverman | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -1325,9 +1330,7 @@ var testCases = [
 						"tag": "Sodom"
 					}
 				],
-				"notes": [
-					"Cephas Tushima | https://orcid.org/0000-0003-0923-1350"
-				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
@@ -1612,6 +1615,238 @@ var testCases = [
 					}
 				],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/781",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "AABNER Forum Peer Review System",
+				"creators": [
+					{
+						"firstName": "Izaak Jozias de",
+						"lastName": "Hulster",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Valérie",
+						"lastName": "Nicolet",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Ronit",
+						"lastName": "Nikolsky",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Jason M.",
+						"lastName": "Silverman",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/06/18",
+				"DOI": "10.35068/aabner.v1i1.781",
+				"ISSN": "2748-6419",
+				"abstractNote": "The AABNER founding editors-in-chief describe some of the problems with traditional double-blind peer review and describe our solution for them, forum peer&nbsp;review, which we have developed for use within AABNER.",
+				"issue": "1",
+				"journalAbbreviation": "1",
+				"language": "en",
+				"libraryCatalog": "ojs3.uni-tuebingen.de",
+				"pages": "13-22",
+				"publicationTitle": "Advances in Ancient, Biblical, and Near Eastern Research",
+				"rights": "Copyright (c) 2021 Izaak J. de Hulster, Valérie Nicolet, Ronit Nikolsky, Jason M. Silverman",
+				"url": "https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/781",
+				"volume": "1",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Peer review"
+					},
+					{
+						"tag": "academic publishing"
+					},
+					{
+						"tag": "ethics"
+					},
+					{
+						"tag": "forum review"
+					}
+				],
+				"notes": [
+					{
+						"note": "orcid:http://orcid.org/0000-0003-0706-4480 | Izaak Jozias de Hulster | taken from website"
+					},
+					{
+						"note": "orcid:http://orcid.org/0000-0001-9070-0585 |  Valérie Nicolet | taken from website"
+					},
+					{
+						"note": "orcid:http://orcid.org/0000-0002-3771-8062 |  Ronit Nikolsky | taken from website"
+					},
+					{
+						"note": "orcid:http://orcid.org/0000-0002-0240-9219 |  Jason M. Silverman | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/785",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "The Day Storm in Mesopotamian Literature: A Background to the Biblical Day of Yahweh?",
+				"creators": [
+					{
+						"firstName": "Sebastian",
+						"lastName": "Fink",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Mark S.",
+						"lastName": "Smith",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/06/29",
+				"DOI": "10.35068/aabner.v1i1.785",
+				"ISSN": "2748-6419",
+				"abstractNote": "Der hier vorliegende Artikel untersucht das Konzept eines göttlichen&nbsp;(Entscheidungs-)Tages, speziell des „Sturm-Tages“, in der sumerischen und akkadischen Literatur des ersten und zweiten Jahrtausends und vergleicht dieses&nbsp;mit dem „Tag Jahwehs“ im Alten Testament.",
+				"issue": "1",
+				"journalAbbreviation": "1",
+				"language": "en",
+				"libraryCatalog": "ojs3.uni-tuebingen.de",
+				"pages": "29-63",
+				"publicationTitle": "Advances in Ancient, Biblical, and Near Eastern Research",
+				"rights": "Copyright (c) 2021 Sebastian Fink, Mark S. Smith",
+				"shortTitle": "The Day Storm in Mesopotamian Literature",
+				"url": "https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/785",
+				"volume": "1",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Akkadian literature"
+					},
+					{
+						"tag": "Day of the Lord"
+					},
+					{
+						"tag": "Mesopotamian Lamentations"
+					},
+					{
+						"tag": "Sumerian literature"
+					},
+					{
+						"tag": "day-storm"
+					},
+					{
+						"tag": "divine agency"
+					},
+					{
+						"tag": "divine wrath"
+					}
+				],
+				"notes": [
+					{
+						"note": "orcid:http://orcid.org/0000-0002-6270-8368 | Sebastian Fink | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/787",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Wings, Weapons, and the Horned Tiara: Iconographic Representation of the Deity of the Mediterranean Sea in the Bronze Age",
+				"creators": [
+					{
+						"firstName": "Joanna",
+						"lastName": "Töyräänvuori",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/06/29",
+				"DOI": "10.35068/aabner.v1i1.787",
+				"ISSN": "2748-6419",
+				"abstractNote": "Dieser Aufsatz bespricht die Ikonographie des vergöttlichten Mittelmeers&nbsp;in der syrischen Glyptik der mittleren und späten Bronzezeit im Lichte der&nbsp;textlichen Zeugnisse aus der Stadt Ugarit (Ras Shamra). Die Arbeit von&nbsp;Paolo Matthiae zur Erkennung des visuellen Vokabulars der Darstellung der&nbsp;Gottheit weiterführend, argumentiert der Aufsatz, dass der Grund für die&nbsp;Darstellung des Meeresgottes als geflügelte Gottheit in der antiken semitischen&nbsp;Vorstellung lag, wo er ein Rolle als Vermittler zwischen dem himmlischen und dem irdischen Ozean hat. Der Artikel liefert auch eine Heuristik für&nbsp;die Unterscheidung von Darstellungen des geflügelten Meeresgottes von den&nbsp;Darstellungen der geflügelten Göttin die zusammen mit Wasservögeln und&nbsp;Fischen abgebildet wird.",
+				"issue": "1",
+				"journalAbbreviation": "1",
+				"language": "en",
+				"libraryCatalog": "ojs3.uni-tuebingen.de",
+				"pages": "89-128",
+				"publicationTitle": "Advances in Ancient, Biblical, and Near Eastern Research",
+				"rights": "Copyright (c) 2021 Joanna Töyräänvuori",
+				"shortTitle": "Wings, Weapons, and the Horned Tiara",
+				"url": "https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/787",
+				"volume": "1",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Bronze Age"
+					},
+					{
+						"tag": "Mediterranean Sea"
+					},
+					{
+						"tag": "North West Semitic"
+					},
+					{
+						"tag": "Syrian glyptic"
+					},
+					{
+						"tag": "Ugarit"
+					},
+					{
+						"tag": "cylinder seals"
+					},
+					{
+						"tag": "iconography"
+					},
+					{
+						"tag": "sea god"
+					}
+				],
+				"notes": [
+					{
+						"note": "orcid:http://orcid.org/0000-0003-4932-8755 | Joanna Töyräänvuori | taken from website"
+					}
+				],
 				"seeAlso": []
 			}
 		]
