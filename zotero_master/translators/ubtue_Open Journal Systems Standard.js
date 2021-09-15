@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-09-14 15:03:38"
+	"lastUpdated": "2021-09-15 14:42:10"
 }
 
 /*
@@ -88,46 +88,56 @@ function invokeEMTranslator(doc) {
  		}
 
  		//orcid for pica-field 8910
- 		var authorEntry = doc.querySelectorAll("meta[name*='DC.Creator.PersonalName']");
- 		if (['2748-6419', '2660-7743'].includes(i.ISSN) && authorEntry) {
- 			for (let v of authorEntry) {
- 				var author = ZU.xpathText(v, '//meta[@name="DC.Creator.PersonalName"]/@content').split(',');
- 			}
- 			var orcidEntry = doc.querySelectorAll('.orcid, .orcidImage');
- 			for (let o of orcidEntry) {
- 				let orcid = attr(o, '*[href*="/orcid.org/"]', 'href');
- 				if (authorEntry && orcidEntry) {
-						i.notes.push({note: "orcid:" + orcid + ' | ' + author.shift(function(author) {return author[0]}) + ' | ' + 'taken from website'});
-				}
- 			}
- 		}
-  		/*let checkOrcid = doc.querySelector(".orcid a");Z.debug(checkOrcid)
- 		if (checkOrcid) {
- 			let authorEntry = ZU.xpath(doc, '//*[@class="item authors"]');//Z.debug(authorEntry)
- 			for (let v in authorEntry) {
- 				let author = authorEntry[v].innerText;//Z.debug(author)
- 				let orcid = attr(v, '*[href*="/orcid.org/"]', 'href');
- 				i.notes.push({note: "orcid:" + orcid + ' | ' + author + ' | ' + 'taken from website'});
- 			}
- 		}*/
- 		else {
- 			let orcidEntries = ZU.xpath(doc, '//div[@class="article-details-authors"]/div[@class="article-details-author hideAuthor"]');
- 			for (let orcidEntry in orcidEntries) {
- 				let newORCID = '';
- 				if (ZU.xpathText(orcidEntries[orcidEntry], './div[@class="article-details-author-orcid"]/a/@href')) {
- 					newORCID += ZU.xpathText(orcidEntries[orcidEntry], './div[@class="article-details-author-orcid"]/a/@href').trim();
- 				if (ZU.xpathText(orcidEntries[orcidEntry], './div[@class="article-details-author-affiliation"]'))
- 					newORCID = ZU.xpathText(orcidEntries[orcidEntry], './div[@class="article-details-author-affiliation"]').trim() + ' | ' + newORCID;
- 				if (ZU.xpathText(orcidEntries[orcidEntry], './div[@class="article-details-author-name small-screen"]')) {
- 					newORCID = ZU.xpathText(orcidEntries[orcidEntry], './div[@class="article-details-author-name small-screen"]').trim() + ' | ' + newORCID;
- 				i.notes.push(newORCID);
- 				}
- 				}
- 			}
- 		}
- 		
- 		//i.notes.push(getOrcids(doc))
- 		
+   		let orcidAuthorEntryCaseA = doc.querySelectorAll('.authors');//Z.debug(orcidAuthorEntryCaseA)
+  		let orcidAuthorEntryCaseB = doc.querySelectorAll('.authors li');//Z.debug(orcidAuthorEntryCaseB)
+  		let orcidAuthorEntryCaseC = doc.querySelectorAll('.authors-string');//Z.debug(orcidAuthorEntryCaseC)
+  		//e.g.  https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/785
+  		if (orcidAuthorEntryCaseA && i.ISSN !== "2660-7743") {
+  			for (let a of orcidAuthorEntryCaseA) {
+  				if (a && a.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
+  					let author = a.innerText;//Z.debug(author + '   AAA1')
+  					i.notes.push({note: author + ' | ' + 'taken from website'});
+  				}
+  			}
+  		 }
+  		 //e.g. https://journal.equinoxpub.com/JSRNC/article/view/19606
+  		 if (orcidAuthorEntryCaseA && i.ISSN !== "2660-7743") {
+  		 	for (let a of orcidAuthorEntryCaseA) {
+  				if (a && a.innerHTML.match(/(<span>.*<\/span>.*https?:\/\/orcid\.org\/\d+-\d+-\d+-\d+x?)/gi)) {
+  					let author = a.innerHTML.match(/(<span>.*<\/span>.*https?:\/\/orcid\.org\/\d+-\d+-\d+-\d+x?)/gi).toString().replace('<a class="orcidImage" href="', ' | ');//Z.debug(author + '   AAA2')
+ 					i.notes.push({note: ZU.unescapeHTML(author) + ' | ' + 'taken from website'});
+  				}
+  			}
+  		}
+  		//e.g. https://periodicos.uem.br/ojs/index.php/RbhrAnpuh/article/view/52641
+  		if (orcidAuthorEntryCaseB) {
+			for (let b of orcidAuthorEntryCaseB) {
+  				if (b && b.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
+  					let author = b.innerText;//Z.debug(author + '   BBB')
+  					i.notes.push({note: author + ' | ' + 'taken from website'});
+  				}
+  			}
+  		}
+  		
+  		if (orcidAuthorEntryCaseC) {
+  			for (let c of orcidAuthorEntryCaseC) {
+  				if (c && c.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
+  					let author = c.innerText;//Z.debug(author  + '   CCC')
+  					i.notes.push({note: author + ' | ' + 'taken from website'});
+  				}
+  			}
+  		}
+  		
+  		//e.g. https://ote-journal.otwsa-otssa.org.za/index.php/journal/article/view/433
+  		if (orcidAuthorEntryCaseC) {
+  		 	for (let c of orcidAuthorEntryCaseC) {
+  				if (c && c.innerHTML.match(/\d+-\d+-\d+-\d+x?/gi)) {
+  					let author = c.innerHTML.match(/(<span>.*<\/span>.*https?:\/\/orcid\.org\/\d+-\d+-\d+-\d+x?)/gi).toString().replace('<a class="orcidImage" href="', ' | ');//Z.debug(author + '   CCC2')
+ 					i.notes.push({note: ZU.unescapeHTML(author) + ' | ' + 'taken from website'});
+  				}
+  			}
+  		}
+
  		if (i.pages !== undefined) {
 			let pageNumberFromDC = ZU.xpathText(doc, '//meta[@name="DC.Identifier.pageNumber"]/@content');
 			//if the first page number matches the results of second page number (see regex "\1") e.g. 3-3,
@@ -714,7 +724,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "orcid:https://orcid.org/0000-0001-6251-0506 | Francisco Javier Ruiz-Ortiz | taken from website"
+						"note": "Francisco Javier Ruiz-Ortiz\nMater Ecclesiae College, St Mary’s University (Twickenham, UK)\n https://orcid.org/0000-0001-6251-0506 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -856,7 +866,14 @@ var testCases = [
 						"tag": "Romaria"
 					}
 				],
-				"notes": [],
+				"notes": [
+					{
+						"note": "Edilece Souza Couto\nUniversidade Federal da Bahia - UFBA\nTânia Maria Meira Mota\nRede Pública Estadual de Ensino da Bahia\n https://orcid.org/0000-0003-3618-7455 | taken from website"
+					},
+					{
+						"note": "Tânia Maria Meira Mota\nRede Pública Estadual de Ensino da Bahia\n https://orcid.org/0000-0003-3618-7455 | taken from website"
+					}
+				],
 				"seeAlso": []
 			}
 		]
@@ -1032,7 +1049,11 @@ var testCases = [
 						"tag": "península ibérica"
 					}
 				],
-				"notes": [],
+				"notes": [
+					{
+						"note": "Alfredo Martín García\nUniversidad de León\n https://orcid.org/0000-0001-6906-0210 | taken from website"
+					}
+				],
 				"seeAlso": []
 			}
 		]
@@ -1186,7 +1207,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "orcid:http://orcid.org/0000-0002-6270-8368 | Sebastian Fink | taken from website"
+						"note": "Sebastian Fink\nUniversität Innsbruck\n http://orcid.org/0000-0002-6270-8368 Mark S. Smith\nPrinceton Theological Seminary | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -1261,16 +1282,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "orcid:http://orcid.org/0000-0003-0706-4480 | Izaak Jozias de Hulster | taken from website"
-					},
-					{
-						"note": "orcid:http://orcid.org/0000-0001-9070-0585 |  Valérie Nicolet | taken from website"
-					},
-					{
-						"note": "orcid:http://orcid.org/0000-0002-3771-8062 |  Ronit Nikolsky | taken from website"
-					},
-					{
-						"note": "orcid:http://orcid.org/0000-0002-0240-9219 |  Jason M. Silverman | taken from website"
+						"note": "Izaak Jozias de Hulster  http://orcid.org/0000-0003-0706-4480 Valérie Nicolet\nInstitut Protestant de Théologie\n http://orcid.org/0000-0001-9070-0585 Ronit Nikolsky\nUniversity of Groningen\n http://orcid.org/0000-0002-3771-8062 Jason M. Silverman\nUniversity of Helsinki\n http://orcid.org/0000-0002-0240-9219 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -1353,7 +1365,9 @@ var testCases = [
 					}
 				],
 				"notes": [
-					"Cephas Tushima | https://orcid.org/0000-0003-0923-1350"
+					{
+						"note": "Cephas Tushima | https://orcid.org/0000-0003-0923-1350 | taken from website"
+					}
 				],
 				"seeAlso": []
 			}
@@ -1711,16 +1725,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "orcid:http://orcid.org/0000-0003-0706-4480 | Izaak Jozias de Hulster | taken from website"
-					},
-					{
-						"note": "orcid:http://orcid.org/0000-0001-9070-0585 |  Valérie Nicolet | taken from website"
-					},
-					{
-						"note": "orcid:http://orcid.org/0000-0002-3771-8062 |  Ronit Nikolsky | taken from website"
-					},
-					{
-						"note": "orcid:http://orcid.org/0000-0002-0240-9219 |  Jason M. Silverman | taken from website"
+						"note": "Izaak Jozias de Hulster  http://orcid.org/0000-0003-0706-4480 Valérie Nicolet\nInstitut Protestant de Théologie\n http://orcid.org/0000-0001-9070-0585 Ronit Nikolsky\nUniversity of Groningen\n http://orcid.org/0000-0002-3771-8062 Jason M. Silverman\nUniversity of Helsinki\n http://orcid.org/0000-0002-0240-9219 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -1795,7 +1800,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "orcid:http://orcid.org/0000-0002-6270-8368 | Sebastian Fink | taken from website"
+						"note": "Sebastian Fink\nUniversität Innsbruck\n http://orcid.org/0000-0002-6270-8368 Mark S. Smith\nPrinceton Theological Seminary | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -1868,7 +1873,78 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "orcid:http://orcid.org/0000-0003-4932-8755 | Joanna Töyräänvuori | taken from website"
+						"note": "Joanna Töyräänvuori\nUniversity of Helsinki\n http://orcid.org/0000-0003-4932-8755 | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://periodicos.uem.br/ojs/index.php/RbhrAnpuh/article/view/52641",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "A vez dos eleitos: religião e discurso conservador nas eleições municipais do Rio de Janeiro",
+				"creators": [
+					{
+						"firstName": "Paulo Gracino",
+						"lastName": "Junior",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Gabriel Silva",
+						"lastName": "Rezende",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020",
+				"DOI": "10.4025/rbhranpuh.v13i38.52641",
+				"ISSN": "1983-2850",
+				"abstractNote": "O presente trabalho tem como objetivo analisar a eleição para a prefeitura da cidade do Rio de Janeiro em 2016, avaliando a preponderância do fator religioso e das pautas morais para a eleição do bispo licenciado da Igreja Universal do Reino de Deus (IURD) e ex-senador, Marcelo Crivella. Neste sentido, destacaremos a capacidade de articulação política dos grupos religiosos envolvidos no pleito, sobretudo, da IURD e, posteriormente, avaliaremos diacronicamente as eleições executivas cariocas disputadas por Crivella entre 2004 e 2016, quando foi finalmente eleito. Partimos da hipótese de que o sucesso eleitoral de 2016 se deveu a uma conjunção que extrapola a questão religiosa, envolvendo aspectos sociais, políticos e econômicos, que incidiram sobre Brasil e, de forma aguda, sobre a capital fluminense. Dessa forma, acreditamos que a vitória de Crivella ainda que tenha se dado em um espaço mais conjuntural do que estrutural, em que se somam o desgaste do PMDB carioca, após sucessivos escândalos de corrupção, o afastamento da presidenta Dilma Rousseff, o progressivo avanço conservador e retração das esquerdas, pode apresentar-se como uma tônica para as eleições majoritárias futuras, na quais, candidatos prescindem do domínio da parcela majoritária do eleitorado, contando com uma minoria coesa, organizada em oposição a outros grupos vistos como inimigos e em meio a um cenário de desmobilização de extensas fatias do eleitorado.",
+				"issue": "38",
+				"journalAbbreviation": "1",
+				"language": "pt",
+				"libraryCatalog": "periodicos.uem.br",
+				"publicationTitle": "Revista Brasileira de História das Religiões",
+				"rights": "Copyright (c) 2020 Paulo Gracino Junior, Gabriel Silva  Rezende (Autor)",
+				"shortTitle": "A vez dos eleitos",
+				"url": "https://periodicos.uem.br/ojs/index.php/RbhrAnpuh/article/view/52641",
+				"volume": "13",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Comportamento eleitoral"
+					},
+					{
+						"tag": "Eleições executivas"
+					},
+					{
+						"tag": "Pentecostais"
+					},
+					{
+						"tag": "Rio de Janeiro"
+					}
+				],
+				"notes": [
+					{
+						"note": "Paulo Gracino Junior\nIUPERJ-UCAM\n http://orcid.org/0000-0002-6764-4797\nGabriel Silva Rezende\nIUPERJ\n https://orcid.org/0000-0002-1798-0274 | taken from website"
+					},
+					{
+						"note": "Paulo Gracino Junior\nIUPERJ-UCAM\n http://orcid.org/0000-0002-6764-4797 | taken from website"
+					},
+					{
+						"note": "Gabriel Silva Rezende\nIUPERJ\n https://orcid.org/0000-0002-1798-0274 | taken from website"
 					}
 				],
 				"seeAlso": []
