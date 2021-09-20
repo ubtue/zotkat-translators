@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-09-15 14:42:10"
+	"lastUpdated": "2021-09-20 07:41:19"
 }
 
 /*
@@ -148,8 +148,9 @@ function invokeEMTranslator(doc) {
  		if (ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content') && i.date.length !== 4 && i.ISSN == '1983-2850') {
 			i.date = ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content').substr(0, 4);
 		}
-
+		
 		if (i.issue === "0") delete i.issue;
+		if (i.volume === "0") delete i.volume;
 		if (i.abstractNote == undefined) {
 			i.abstractNote = ZU.xpathText(doc, '//meta[@name="DC.Description"]/@content');
 		}
@@ -168,10 +169,11 @@ function invokeEMTranslator(doc) {
 		}
 		if (i.tags[0] === "book review") i.tags.push('RezensionstagPica') && delete i.tags[0];
 		if (doc.querySelector(".current")) {
-		if (doc.querySelector(".current").textContent.trim() === "Book Reviews" || articleType === "Recensiones") {
-			i.tags.push('RezensionstagPica');
+			if (doc.querySelector(".current").textContent.trim() === "Book Reviews" || articleType === "Recensiones" || articleType === "Rezensionen") {
+				i.tags.push('RezensionstagPica');
+			}
 		}
-		}
+		
 		if (['2617-3697', '2660-4418', '2748-6419'].includes(i.ISSN)) {
 			if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')) {
 				if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')[0].content.match(/(Media reviews)|(Rezensionen)/i)) {
@@ -246,9 +248,9 @@ function getOrcids(doc) {
  		let authorLink = ZU.xpath(authorSection, '//*[@class="name"]');Z.debug(authorLink)
  		let orcidLink = ZU.xpath(authorSection, '//a[starts-with(@href, "https://orcid.org")]/@href');
  		if (authorLink && orcidLink) {
- 		    let author = authorLink[0].innerText;
- 		    let orcid = orcidLink[0].value.match(/\d+-\d+-\d+-\d+x?/i);
- 		    return {note: "orcid:" + orcid + ' | ' + author + ' | ' + 'taken from website'};
+ 			let author = authorLink[0].innerText;
+ 			let orcid = orcidLink[0].value.match(/\d+-\d+-\d+-\d+x?/i);
+ 			return {note: "orcid:" + orcid + ' | ' + author + ' | ' + 'taken from website'};
  		}
  	}
  	return null;
@@ -1127,6 +1129,9 @@ var testCases = [
 					},
 					{
 						"tag": "Psychologie"
+					},
+					{
+						"tag": "RezensionstagPica"
 					}
 				],
 				"notes": [],
@@ -1947,6 +1952,90 @@ var testCases = [
 						"note": "Gabriel Silva Rezende\nIUPERJ\n https://orcid.org/0000-0002-1798-0274 | taken from website"
 					}
 				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://open-journals.uni-tuebingen.de/ojs/index.php/eug/article/view/1-2021-rez-1",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Schattenseiten der Sozialen Marktwirtschaft. Thomas Biebricher und Ralf Ptak wiegen das Erbe des deutschen Neoliberalismus",
+				"creators": [
+					{
+						"firstName": "Dieter",
+						"lastName": "Plehwe",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/08/09",
+				"DOI": "10.18156/eug-1-2021-859",
+				"ISSN": "2365-6565",
+				"abstractNote": "Rezension von: Thomas Biebricher / Ralf Ptak (2020): Soziale Marktwirtschaft und Ordoliberalismus zur Einführung, Hamburg: Junius. 250 S., ISBN 978-3-96060-312-2, EUR 15.90.",
+				"issue": "1",
+				"language": "de",
+				"libraryCatalog": "open-journals.uni-tuebingen.de",
+				"publicationTitle": "Ethik und Gesellschaft",
+				"rights": "Copyright (c) 2021 Ethik und Gesellschaft",
+				"url": "https://open-journals.uni-tuebingen.de/ojs/index.php/eug/article/view/1-2021-rez-1",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://open-journals.uni-tuebingen.de/ojs/index.php/eug/article/view/1-2021-art-1",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Blinde sehen – Lahme gehen – Stumme reden. Sozialethische Lehren aus der Corona-Pandemie auf dem afrikanischen Kontinent",
+				"creators": [
+					{
+						"firstName": "Gregor",
+						"lastName": "Buß",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/08/09",
+				"DOI": "10.18156/eug-1-2021-853",
+				"ISSN": "2365-6565",
+				"abstractNote": "Der Artikel geht der Frage auf den Grund, welche sozialethischen Lehren aus der Corona-Pandemie auf dem afrikanischen Kontinent zu ziehen sind. Entgegen vieler Prognosen hat sich Afrika bislang als durchaus krisenfest erwiesen. Die eigentliche Stoßrichtung des Bei-trags zielt daher auf die Aufdeckung von eurozentrischen Denk- und Handlungsmustern, die in der aktuellen Krise zum Vorschein gekommen sind. Entlang der Heilsvision aus Jesaja 35,4-6 werden Vorschläge unterbreitet, wie die durch Covid-19 offenbar gewordenen Blindheiten, Lähmungen und Sprachlosigkeiten überwunden werden können.  This article explores the question of what social ethical lessons can be drawn from the Corona pandemic on the African continent. Contrary to many predictions, Africa has so far proven to be quite resilient to the crisis. The actual thrust of the contribution is therefore the uncovering of Eurocentric patterns of thought and action that have come to light in the current crisis. Following the vision of salvation from Isaiah 35:4-6, suggestions are made on how to overcome the blindness, paralysis and speechlessness revealed by Covid",
+				"issue": "1",
+				"language": "de",
+				"libraryCatalog": "open-journals.uni-tuebingen.de",
+				"publicationTitle": "Ethik und Gesellschaft",
+				"rights": "Copyright (c) 2021 Ethik und Gesellschaft",
+				"url": "https://open-journals.uni-tuebingen.de/ojs/index.php/eug/article/view/1-2021-art-1",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
