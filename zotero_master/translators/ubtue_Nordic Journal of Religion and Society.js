@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-06-21 10:14:19"
+	"lastUpdated": "2021-10-04 11:45:29"
 }
 
 /*
@@ -66,6 +66,11 @@ function getSearchResults(doc) {
 }
 
 function postProcess(item, doc) {
+ 	//Paralleltitel --> 4002
+ 	let parallelTitel = ZU.xpathText(doc, '//div[@class="trans-title"]');
+ 	if (parallelTitel) {
+ 		item.notes.push({note: 'Paralleltitel:' + parallelTitel});
+ 	}
 	// sanitize page number ranges
 	if (item.pages) {
 		let pages = item.pages.trim();
@@ -201,6 +206,77 @@ var testCases = [
 		"type": "web",
 		"url": "https://www.idunn.no/nordic_journal_of_religion_and_society/2007/01",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://www.idunn.no/tt/2021/02/da_gud_forlot_gud_jesu_vei_til_doeden_og_dens_betydning_for",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Da Gud forlot Gud: Jesu vei til døden og dens betydning for oss",
+				"creators": [
+					{
+						"firstName": "Knut",
+						"lastName": "Alfsvåg",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021",
+				"DOI": "10.18261/issn.1893-0271-2021-02-02",
+				"ISSN": "1893-0271, 1893-0263",
+				"abstractNote": "Ifølge NT er Faderen og Sønnen ett, samtidig som Faderen forlater Sønnen på korset. Hvordan blir\nvår gudsforståelse om vi antar at denne motsetningen uttrykker kjernen i Guds vesen? Ifølge Bibelen\nstår mennesker under Guds vrede fordi de har gjort urett mot sitt medmenneske. Jesus identifiserer\nseg med denne plasseringen, men bæres likevel gjennom døden til oppstandelsen. Heller ikke under\nGuds vrede faller en ut av det frelsende gudsforhold. Dette betinger isolert sett en\nverdensrettferdiggjørelse, men tvetydigheten i gudsbildet fastholdes ved at frelse formidles i form\nav en utvelgelseslære som fastholder dommens to utganger., According to the NT, the Father and the Son are one, but still the Father leaves the Son on the\ncross. What are the implications of considering this as the essence of divinity? In the Bible,\nhumans are placed under the wrath of God because they have sinned against their neighbours. Jesus\naccepts this as the truth even of his own life, but is still carried through death to the\nresurrection. This could lead to a doctrine of apocatastasis, but the ambiguity in the image of God\nis retained through the idea of an eternal judgment with two different outcomes.",
+				"issue": "2",
+				"language": "no-NO",
+				"libraryCatalog": "www.idunn.no",
+				"pages": "64-75",
+				"publicationTitle": "Teologisk tidsskrift",
+				"shortTitle": "Da Gud forlot Gud",
+				"url": "https://www.idunn.no/tt/2021/02/da_gud_forlot_gud_jesu_vei_til_doeden_og_dens_betydning_for",
+				"volume": "10",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Atonement"
+					},
+					{
+						"tag": "Soteriology"
+					},
+					{
+						"tag": "The cross"
+					},
+					{
+						"tag": "The understanding of God"
+					},
+					{
+						"tag": "forsoning"
+					},
+					{
+						"tag": "frelseslære"
+					},
+					{
+						"tag": "gudsforståelse"
+					},
+					{
+						"tag": "korset"
+					}
+				],
+				"notes": [
+					{
+						"note": "Paralleltitel:When God left God: The significance of the death of Jesus"
+					}
+				],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
