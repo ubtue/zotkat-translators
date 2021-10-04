@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-07-01 11:30:00"
+	"lastUpdated": "2021-10-04 16:05:00"
 }
 
 
@@ -589,6 +589,14 @@ function performExport() {
 			}
 		}
 		
+					
+		//Paralleltitel OJS --> 4002 
+		if (item.notes) {
+			for (let i in item.notes) {
+				if (item.notes[i].note.includes('Paralleltitel')) addLine(currentItemId, "4002", item.notes[i].note.replace(/paralleltitel:/i, ''));
+			}
+		}
+
         //Ausgabe --> 4020
         if (item.edition) {
             addLine(currentItemId, "4020", item.edition);
