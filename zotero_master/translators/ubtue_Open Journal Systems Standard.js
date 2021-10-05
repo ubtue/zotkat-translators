@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-09-20 07:41:19"
+	"lastUpdated": "2021-10-05 15:08:37"
 }
 
 /*
@@ -92,20 +92,20 @@ function invokeEMTranslator(doc) {
   		let orcidAuthorEntryCaseB = doc.querySelectorAll('.authors li');//Z.debug(orcidAuthorEntryCaseB)
   		let orcidAuthorEntryCaseC = doc.querySelectorAll('.authors-string');//Z.debug(orcidAuthorEntryCaseC)
   		//e.g.  https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/785
-  		if (orcidAuthorEntryCaseA && i.ISSN !== "2660-7743") {
+  		if (orcidAuthorEntryCaseA && !orcidAuthorEntryCaseB && i.ISSN !== "2660-7743") {
   			for (let a of orcidAuthorEntryCaseA) {
   				if (a && a.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
   					let author = a.innerText;//Z.debug(author + '   AAA1')
-  					i.notes.push({note: author + ' | ' + 'taken from website'});
+  					i.notes.push({note: ZU.unescapeHTML(author) + ' | ' + 'taken from website'});
   				}
   			}
   		 }
   		 //e.g. https://journal.equinoxpub.com/JSRNC/article/view/19606
-  		 if (orcidAuthorEntryCaseA && i.ISSN !== "2660-7743") {
+  		 if (orcidAuthorEntryCaseA && !orcidAuthorEntryCaseB && i.ISSN !== "2660-7743") {
   		 	for (let a of orcidAuthorEntryCaseA) {
   				if (a && a.innerHTML.match(/(<span>.*<\/span>.*https?:\/\/orcid\.org\/\d+-\d+-\d+-\d+x?)/gi)) {
   					let author = a.innerHTML.match(/(<span>.*<\/span>.*https?:\/\/orcid\.org\/\d+-\d+-\d+-\d+x?)/gi).toString().replace('<a class="orcidImage" href="', ' | ');//Z.debug(author + '   AAA2')
- 					i.notes.push({note: ZU.unescapeHTML(author) + ' | ' + 'taken from website'});
+ 					i.notes.push({note: ZU.unescapeHTML(author).replace(/\n/g, ' | ') + ' | ' + 'taken from website'});
   				}
   			}
   		}
@@ -114,7 +114,7 @@ function invokeEMTranslator(doc) {
 			for (let b of orcidAuthorEntryCaseB) {
   				if (b && b.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
   					let author = b.innerText;//Z.debug(author + '   BBB')
-  					i.notes.push({note: author + ' | ' + 'taken from website'});
+  					i.notes.push({note: ZU.unescapeHTML(author).replace(/\n/g, ' | ') + ' | ' + 'taken from website'});
   				}
   			}
   		}
@@ -123,7 +123,7 @@ function invokeEMTranslator(doc) {
   			for (let c of orcidAuthorEntryCaseC) {
   				if (c && c.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
   					let author = c.innerText;//Z.debug(author  + '   CCC')
-  					i.notes.push({note: author + ' | ' + 'taken from website'});
+  					i.notes.push({note: ZU.unescapeHTML(author).replace(/\n/g, ' | ') + ' | ' + 'taken from website'});
   				}
   			}
   		}
@@ -133,7 +133,7 @@ function invokeEMTranslator(doc) {
   		 	for (let c of orcidAuthorEntryCaseC) {
   				if (c && c.innerHTML.match(/\d+-\d+-\d+-\d+x?/gi)) {
   					let author = c.innerHTML.match(/(<span>.*<\/span>.*https?:\/\/orcid\.org\/\d+-\d+-\d+-\d+x?)/gi).toString().replace('<a class="orcidImage" href="', ' | ');//Z.debug(author + '   CCC2')
- 					i.notes.push({note: ZU.unescapeHTML(author) + ' | ' + 'taken from website'});
+ 					i.notes.push({note: ZU.unescapeHTML(author).replace(/\n/g, ' | ') + ' | ' + 'taken from website'});
   				}
   			}
   		}
@@ -373,12 +373,12 @@ var testCases = [
 				"ISSN": "2293-7374",
 				"abstractNote": "The Jesuit missions in Asia were among the most audacious undertakings by Europeans in the early modern period. This article focuses on a still relatively little understood aspect of the enterprise: its appointment process. It draws together disparate archival documents to recreate the steps to becoming a Jesuit missionary, specifically the Litterae indipetae (petitions for the “Indies”), provincial reports about missionary candidates, and replies to applicants from the Jesuit superior general. Focusing on candidates from the Italian provinces of the Society of Jesus, the article outlines not just how Jesuit missionaries were appointed but also the priorities, motivations, and attitudes that informed their assessment and selection. Missionaries were made, the study shows, through a specific “way of proceeding” that was negotiated between all parties and seen in both organizational and spiritual terms, beginning with the vocation itself, which, whether the applicant departed or not, earned him the name indiano.",
 				"issue": "1",
-				"journalAbbreviation": "1",
+				"journalAbbreviation": "RR",
 				"language": "en",
 				"libraryCatalog": "jps.library.utoronto.ca",
 				"pages": "9-50",
 				"publicationTitle": "Renaissance and Reformation",
-				"rights": "Copyright (c)",
+				"rights": "Copyright (c) 0",
 				"shortTitle": "Becoming “Indians”",
 				"url": "https://jps.library.utoronto.ca/index.php/renref/article/view/34078",
 				"volume": "43",
@@ -726,7 +726,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Francisco Javier Ruiz-Ortiz\nMater Ecclesiae College, St Mary’s University (Twickenham, UK)\n https://orcid.org/0000-0001-6251-0506 | taken from website"
+						"note": "Francisco Javier Ruiz-Ortiz | Mater Ecclesiae College, St Mary’s University (Twickenham, UK) |  https://orcid.org/0000-0001-6251-0506 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -870,10 +870,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Edilece Souza Couto\nUniversidade Federal da Bahia - UFBA\nTânia Maria Meira Mota\nRede Pública Estadual de Ensino da Bahia\n https://orcid.org/0000-0003-3618-7455 | taken from website"
-					},
-					{
-						"note": "Tânia Maria Meira Mota\nRede Pública Estadual de Ensino da Bahia\n https://orcid.org/0000-0003-3618-7455 | taken from website"
+						"note": "Tânia Maria Meira Mota | Rede Pública Estadual de Ensino da Bahia |  https://orcid.org/0000-0003-3618-7455 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -1051,11 +1048,7 @@ var testCases = [
 						"tag": "península ibérica"
 					}
 				],
-				"notes": [
-					{
-						"note": "Alfredo Martín García\nUniversidad de León\n https://orcid.org/0000-0001-6906-0210 | taken from website"
-					}
-				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
@@ -1210,11 +1203,7 @@ var testCases = [
 						"tag": "divine wrath"
 					}
 				],
-				"notes": [
-					{
-						"note": "Sebastian Fink\nUniversität Innsbruck\n http://orcid.org/0000-0002-6270-8368 Mark S. Smith\nPrinceton Theological Seminary | taken from website"
-					}
-				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
@@ -1285,11 +1274,7 @@ var testCases = [
 						"tag": "forum review"
 					}
 				],
-				"notes": [
-					{
-						"note": "Izaak Jozias de Hulster  http://orcid.org/0000-0003-0706-4480 Valérie Nicolet\nInstitut Protestant de Théologie\n http://orcid.org/0000-0001-9070-0585 Ronit Nikolsky\nUniversity of Groningen\n http://orcid.org/0000-0002-3771-8062 Jason M. Silverman\nUniversity of Helsinki\n http://orcid.org/0000-0002-0240-9219 | taken from website"
-					}
-				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
@@ -1728,11 +1713,7 @@ var testCases = [
 						"tag": "forum review"
 					}
 				],
-				"notes": [
-					{
-						"note": "Izaak Jozias de Hulster  http://orcid.org/0000-0003-0706-4480 Valérie Nicolet\nInstitut Protestant de Théologie\n http://orcid.org/0000-0001-9070-0585 Ronit Nikolsky\nUniversity of Groningen\n http://orcid.org/0000-0002-3771-8062 Jason M. Silverman\nUniversity of Helsinki\n http://orcid.org/0000-0002-0240-9219 | taken from website"
-					}
-				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
@@ -1803,11 +1784,7 @@ var testCases = [
 						"tag": "divine wrath"
 					}
 				],
-				"notes": [
-					{
-						"note": "Sebastian Fink\nUniversität Innsbruck\n http://orcid.org/0000-0002-6270-8368 Mark S. Smith\nPrinceton Theological Seminary | taken from website"
-					}
-				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
@@ -1876,11 +1853,7 @@ var testCases = [
 						"tag": "sea god"
 					}
 				],
-				"notes": [
-					{
-						"note": "Joanna Töyräänvuori\nUniversity of Helsinki\n http://orcid.org/0000-0003-4932-8755 | taken from website"
-					}
-				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
@@ -1943,13 +1916,10 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Paulo Gracino Junior\nIUPERJ-UCAM\n http://orcid.org/0000-0002-6764-4797\nGabriel Silva Rezende\nIUPERJ\n https://orcid.org/0000-0002-1798-0274 | taken from website"
+						"note": "Paulo Gracino Junior | IUPERJ-UCAM |  http://orcid.org/0000-0002-6764-4797 | taken from website"
 					},
 					{
-						"note": "Paulo Gracino Junior\nIUPERJ-UCAM\n http://orcid.org/0000-0002-6764-4797 | taken from website"
-					},
-					{
-						"note": "Gabriel Silva Rezende\nIUPERJ\n https://orcid.org/0000-0002-1798-0274 | taken from website"
+						"note": "Gabriel Silva Rezende | IUPERJ |  https://orcid.org/0000-0002-1798-0274 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -2036,6 +2006,139 @@ var testCases = [
 				],
 				"tags": [],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://revistaseletronicas.pucrs.br/index.php/teo/article/view/36941",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "A identidade da educação católica no atual contexto",
+				"creators": [
+					{
+						"firstName": "Leomar Antônio",
+						"lastName": "Brustolin",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Marcia",
+						"lastName": "Koffermann",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/08/23",
+				"DOI": "10.15448/0103-314X.2021.1.36941",
+				"ISSN": "1980-6736",
+				"abstractNote": "This article deals with the identity of Catholic education in the face of current cultural plurality. The article presents the Catholic conception of the world from the writings of several authors, especially Romano Guardini. The text draws a parallel between the Catholic conception of the world and the current reality of Catholic education, marked by the competitiveness in the educational market and the diversity of proposals that are sometimes distant from its commitment to catholicity. The text addresses the issue of Catholic education from an anthropological perspective centered on the person and presents some basic questions that can serve to deepen the essential mission of Catholic education as a differential in the context of education. The reflection points to the need for Catholic educational environments to be transforming agents of society, based on a Catholic conception of the world that dialogues with reality and that enables the active insertion of the Christian educator in the face of the different problems that today’s society presents., , Este artigo trata da identidade da educação católica diante da pluralidade cultural atual. O artigo traz presente a concepção católica de mundo a partir dos escritos de diversos autores, especialmente Romano Guardini. O texto faz um paralelo entre a concepção católica de mundo e a atual realidade da educação católica, marcada pela competitividade no mercado educacional e pela diversidade de propostas que, por vezes, se distanciam de seu compromisso de catolicidade. O texto aborda a problemática da educação católica a partir de uma visão antropológica centrada na pessoa e apresenta alguns questionamentos básicos que podem servir para um aprofundamento da missão essencial da educação católica enquanto diferencial no contexto da educação. A reflexão aponta para a necessidade de que os ambientes católicos de educação sejam agentes transformadores da sociedade, a partir de uma concepção católica de mundo que dialoga com a realidade e que possibilita a inserção ativa do educador cristão frente às diferentes problemáticas que a sociedade atual apresenta.",
+				"issue": "1",
+				"journalAbbreviation": "Teocomunicação (Online)",
+				"language": "pt",
+				"libraryCatalog": "revistaseletronicas.pucrs.br",
+				"pages": "e36941",
+				"publicationTitle": "Teocomunicação",
+				"url": "https://revistaseletronicas.pucrs.br/index.php/teo/article/view/36941",
+				"volume": "51",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Catolicismo"
+					},
+					{
+						"tag": "Cosmovisão"
+					},
+					{
+						"tag": "Educação Católica"
+					},
+					{
+						"tag": "Formação Integral"
+					},
+					{
+						"tag": "Romano Guardini"
+					}
+				],
+				"notes": [
+					{
+						"note": "Leomar Antônio Brustolin | Pontifícia Universidade Católica do Rio Grande do Sul (PUCRS), Porto Alegre, RS, Brasil. | http://orcid.org/0000-0002-0066-4267 | taken from website"
+					},
+					{
+						"note": "Marcia Koffermann | Universidade de Huelva (UHU), Espanha. | http://orcid.org/0000-0003-1689-1509 | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://revistaseletronicas.pucrs.br/index.php/teo/article/view/41089",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Por uma ética do encontro: O eu para o outro",
+				"creators": [
+					{
+						"firstName": "José Neivaldo de",
+						"lastName": "Souza",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/09/17",
+				"DOI": "10.15448/0103-314X.2021.1.41089",
+				"ISSN": "1980-6736",
+				"abstractNote": "The objective of this work is to bring a reflection considering the encounter, a fundamental presupposition in the ethical formation of the Christian. For this, it is necessary to differentiate the concepts: Person and individual important step to think the relations of the encounter. The “I” as a person, differs from the individual, because it divides and dialogues with the other: God, himself, the simile and nature. How to think an ethic that includes meeting as a place for dialogue and for building a more just and fraternal society? Here is the question that will guide this article. It is necessary to form a more critical Christian conscience, in dialogue with the individualistic and egocentric reality in which we find ourselves. The method used considers the observation about the difficulties of the meeting; the biblical-theological orientation as lights to illuminate the encounter and the search for attitudes essential for good relationship and well-being. There are several references, but we look for those more linked to Christian Personalist Thinking and that try to approach the person as being of encounter and dialogue., El Objetivo de este trabajo es traer una reflexión considerando el encuentro como un supuesto fundamental em la formación ética del cristiano. Para ello, es requerido diferenciar los conceptos “Persona” y “individuo”, un paso importante para pensar en las relaciones del encuentro. El “yo” como persona se diferencia del individuo en que es capaz de dividirse y dialogar con el otro: Dios, él mismo, semejante y naturaleza. ¿Cómo pensar en una ética que incluya el encuentro como lugar de diálogo y construcción de una sociedad más justa y fraterna? Esta es la pregunta que guiará este artículo. Es necesario formar una conciencia cristiana, más crítica, en diálogo con la realidad individualista y egocéntrica en la que nos encontramos. El método utilizado considera la observación sobre las dificultades del encuentro; la orientación bíblico-teológica como luces para iluminar el encuentro y la búsqueda de actitudes esenciales para la buena relación y el bienestar. Hay varias referencias, pero buscamos aquellas que están más ligadas al pensamiento Personalista cristiano y que intentan acercarse a la persona como un ser de encuentro y diálogo., O objetivo deste trabalho é trazer uma reflexão considerando o encontro como um pressuposto fundamental na formação ética do cristão. Para tanto, é preciso diferenciar os conceitos “Pessoa” e “indivíduo” passo importante para pensar as relações do encontro. O “eu” enquanto pessoa, difere-se do indivíduo, na medida em que é capaz de se dividir e dialogar com o outro: Deus, si mesmo, semelhante e natureza. Como pensar uma ética que inclua o encontro como lugar do diálogo e da construção de uma sociedade mais justa e fraterna? Eis a pergunta que norteará este artigo. É preciso formar uma consciência cristã, mais crítica, em diálogo com a realidade individualista e egocêntrica na qual nos encontramos. O método utilizado considera a observação sobre as dificuldades do encontro; a orientação bíblico-teológica como luzes a iluminar o encontro e a busca de atitudes essenciais para o bom relacionamento e do bem-viver. São diversas as referências, porém procuramos aquelas mais ligadas ao pensamento personalista cristão e que tratam de abordar a pessoa como ser de encontro e diálogo.",
+				"issue": "1",
+				"journalAbbreviation": "Teocomunicação (Online)",
+				"language": "pt",
+				"libraryCatalog": "revistaseletronicas.pucrs.br",
+				"pages": "e41089",
+				"publicationTitle": "Teocomunicação",
+				"shortTitle": "Por uma ética do encontro",
+				"url": "https://revistaseletronicas.pucrs.br/index.php/teo/article/view/41089",
+				"volume": "51",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Diálogo"
+					},
+					{
+						"tag": "Encontro"
+					},
+					{
+						"tag": "Pessoa"
+					},
+					{
+						"tag": "Relação"
+					},
+					{
+						"tag": "Ética"
+					}
+				],
+				"notes": [
+					{
+						"note": "José Neivaldo de Souza | Pesquisador Autônomo, Curitiba, PR, Brasil. | https://orcid.org/0000-0001-9447-0967 | taken from website"
+					}
+				],
 				"seeAlso": []
 			}
 		]
