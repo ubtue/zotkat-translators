@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-09-08 09:05:41"
+	"lastUpdated": "2021-10-06 15:43:35"
 }
 
 /*
@@ -68,6 +68,8 @@ function getSearchResults(doc) {
 }
 
 function postProcess(doc, item) {
+	let title = ZU.xpathText(doc, '//meta[@name="citation_title"]//@content');Z.debug(title)
+	if (title) item.title = title; 
 	if (!item.abstractNote) {
 	  item.abstractNote = ZU.xpath(doc, '//section[@class="abstract"]//p');
 	  if (item.abstractNote && item.abstractNote.length > 0)
@@ -188,7 +190,7 @@ var testCases = [
 				"ISSN": "2213-8617, 0030-5472",
 				"abstractNote": "Abstract Based on extensive ethnographic research in northern Tajikistan, this article examines the implications of the law ordering traditions and rituals (tanzim), including marriage celebrations, in Tajikistan. At the centre of my analysis is the figure of a state employed ‘worker of culture’, Farkhod, whose family was affected by recent, rather militant, attempts by the state to regulate tradition. By following the story of his daughter’s wedding, I analyse how Farkhod tries to reconcile his roles of a caring father, a respectful community member, and a law-abiding citizen. I argue that the tanzim exacerbates the mismatch between the government’s attempts to impose a rigid notion of tradition and promote the idea of a certain kind of modern citizen, and people’s own understandings of being a modern and moral person having a good wedding.",
 				"issue": "2",
-				"language": "en",
+				"language": "eng",
 				"libraryCatalog": "brill.com",
 				"pages": "147-171",
 				"publicationTitle": "Oriente Moderno",
@@ -253,7 +255,7 @@ var testCases = [
 				"ISSN": "2213-8617, 0030-5472",
 				"abstractNote": "Abstract Uyghur marriages in Xinjiang in the 2010s have been characterised by various, sometimes seemingly contradictory trends of modernisation, such as monetisation, simplification, emphasis on ethnic symbolism, displays of piety and the active integration of both Turkish, Western and Chinese elements. This article views these trends as complex, inter-related reactions to the region’s socio-economic transformations and political campaigns. It analyses how these transformations and campaigns affect everyday decisions at the local level. The study of marriage provides a good insight into the effects of economic and political transformations on the ground. In such studies, we argue for a distinction between trends on the level of symbolic positioning and identity display from trends on a deeper structural level pertaining to social relations, economic integration and household strategies. In the case of Uyghurs in southern Xinjiang these two levels have shown opposite trends. On a surface level of symbolic display, the relatively open years of 2010-2014 allowed for the flourishing of trends that did not follow the Party-State line, such as Islamic piety and a strengthened Uyghur ethno-national identity. Yet, on a deeper structural level these trends signified improved integration into modern Chinese society. In contrast, the increased state violence of 2015-2020 enforced a strong symbolic alignment with Chinese Communist Party (CCP) ideology but at the same time alienated the Uyghur population from this society effectively necessitating the development of forms of organisation that the CCP deems backwards and undesirable.",
 				"issue": "2",
-				"language": "en",
+				"language": "eng",
 				"libraryCatalog": "brill.com",
 				"pages": "172-199",
 				"publicationTitle": "Oriente Moderno",
