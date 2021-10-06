@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-05 15:08:37"
+	"lastUpdated": "2021-10-06 13:31:33"
 }
 
 /*
@@ -91,12 +91,30 @@ function invokeEMTranslator(doc) {
    		let orcidAuthorEntryCaseA = doc.querySelectorAll('.authors');//Z.debug(orcidAuthorEntryCaseA)
   		let orcidAuthorEntryCaseB = doc.querySelectorAll('.authors li');//Z.debug(orcidAuthorEntryCaseB)
   		let orcidAuthorEntryCaseC = doc.querySelectorAll('.authors-string');//Z.debug(orcidAuthorEntryCaseC)
+  		// e.g. https://aabner.org/ojs/index.php/beabs/article/view/781
+  		if (orcidAuthorEntryCaseA && ['2748-6419'].includes(i.ISSN)) {
+  			for (let a of orcidAuthorEntryCaseA) {
+  				if (a && a.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
+  					let author = a.innerText;//Z.debug(author + '   AAA1')
+  					i.notes.push({note: ZU.unescapeHTML(ZU.trimInternal(author)).replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
+  				}
+  			}
+  		 }
+  		 //e.g. https://aabner.org/ojs/index.php/beabs/article/view/781
+  		 if (orcidAuthorEntryCaseA && ['2748-6419'].includes(i.ISSN)) {
+  		 	for (let a of orcidAuthorEntryCaseA) {
+  				if (a && a.innerHTML.match(/(<span>.*<\/span>.*https?:\/\/orcid\.org\/\d+-\d+-\d+-\d+x?)/gi)) {
+  					let author = a.innerHTML.match(/(<span>.*<\/span>.*https?:\/\/orcid\.org\/\d+-\d+-\d+-\d+x?)/gi).toString().replace('<a class="orcidImage" href="', '');//Z.debug(author + '   AAA2')
+ 					i.notes.push({note: ZU.unescapeHTML(ZU.trimInternal(author)).replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
+  				}
+  			}
+  		}
   		//e.g.  https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/785
   		if (orcidAuthorEntryCaseA && !orcidAuthorEntryCaseB && i.ISSN !== "2660-7743") {
   			for (let a of orcidAuthorEntryCaseA) {
   				if (a && a.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
   					let author = a.innerText;//Z.debug(author + '   AAA1')
-  					i.notes.push({note: ZU.unescapeHTML(author) + ' | ' + 'taken from website'});
+  					i.notes.push({note: ZU.unescapeHTML(ZU.trimInternal(author)).replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
   				}
   			}
   		 }
@@ -104,8 +122,8 @@ function invokeEMTranslator(doc) {
   		 if (orcidAuthorEntryCaseA && !orcidAuthorEntryCaseB && i.ISSN !== "2660-7743") {
   		 	for (let a of orcidAuthorEntryCaseA) {
   				if (a && a.innerHTML.match(/(<span>.*<\/span>.*https?:\/\/orcid\.org\/\d+-\d+-\d+-\d+x?)/gi)) {
-  					let author = a.innerHTML.match(/(<span>.*<\/span>.*https?:\/\/orcid\.org\/\d+-\d+-\d+-\d+x?)/gi).toString().replace('<a class="orcidImage" href="', ' | ');//Z.debug(author + '   AAA2')
- 					i.notes.push({note: ZU.unescapeHTML(author).replace(/\n/g, ' | ') + ' | ' + 'taken from website'});
+  					let author = a.innerHTML.match(/(<span>.*<\/span>.*https?:\/\/orcid\.org\/\d+-\d+-\d+-\d+x?)/gi).toString().replace('<a class="orcidImage" href="', '');//Z.debug(author + '   AAA2')
+ 					i.notes.push({note: ZU.unescapeHTML(ZU.trimInternal(author)).replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
   				}
   			}
   		}
@@ -114,7 +132,7 @@ function invokeEMTranslator(doc) {
 			for (let b of orcidAuthorEntryCaseB) {
   				if (b && b.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
   					let author = b.innerText;//Z.debug(author + '   BBB')
-  					i.notes.push({note: ZU.unescapeHTML(author).replace(/\n/g, ' | ') + ' | ' + 'taken from website'});
+  					i.notes.push({note: ZU.unescapeHTML(ZU.trimInternal(author)).replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
   				}
   			}
   		}
@@ -123,7 +141,7 @@ function invokeEMTranslator(doc) {
   			for (let c of orcidAuthorEntryCaseC) {
   				if (c && c.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
   					let author = c.innerText;//Z.debug(author  + '   CCC')
-  					i.notes.push({note: ZU.unescapeHTML(author).replace(/\n/g, ' | ') + ' | ' + 'taken from website'});
+  					i.notes.push({note: ZU.unescapeHTML(ZU.trimInternal(author)).replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
   				}
   			}
   		}
@@ -132,8 +150,8 @@ function invokeEMTranslator(doc) {
   		if (orcidAuthorEntryCaseC) {
   		 	for (let c of orcidAuthorEntryCaseC) {
   				if (c && c.innerHTML.match(/\d+-\d+-\d+-\d+x?/gi)) {
-  					let author = c.innerHTML.match(/(<span>.*<\/span>.*https?:\/\/orcid\.org\/\d+-\d+-\d+-\d+x?)/gi).toString().replace('<a class="orcidImage" href="', ' | ');//Z.debug(author + '   CCC2')
- 					i.notes.push({note: ZU.unescapeHTML(author).replace(/\n/g, ' | ') + ' | ' + 'taken from website'});
+  					let author = c.innerHTML.match(/(<span>.*<\/span>.*https?:\/\/orcid\.org\/\d+-\d+-\d+-\d+x?)/gi).toString().replace('<a class="orcidImage" href="', '');//Z.debug(author + '   CCC2')
+ 					i.notes.push({note: ZU.unescapeHTML(ZU.trimInternal(author)).replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
   				}
   			}
   		}
@@ -726,7 +744,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Francisco Javier Ruiz-Ortiz | Mater Ecclesiae College, St Mary’s University (Twickenham, UK) |  https://orcid.org/0000-0001-6251-0506 | taken from website"
+						"note": "Francisco Javier Ruiz-Ortiz Mater Ecclesiae College, St Mary’s University (Twickenham, UK)  | orcid:0000-0001-6251-0506 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -870,7 +888,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Tânia Maria Meira Mota | Rede Pública Estadual de Ensino da Bahia |  https://orcid.org/0000-0003-3618-7455 | taken from website"
+						"note": "Tânia Maria Meira Mota Rede Pública Estadual de Ensino da Bahia  | orcid:0000-0003-3618-7455 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -1203,7 +1221,11 @@ var testCases = [
 						"tag": "divine wrath"
 					}
 				],
-				"notes": [],
+				"notes": [
+					{
+						"note": "Sebastian Fink Universität Innsbruck  | orcid:0000-0002-6270-8368 Mark S. Smith Princeton Theological Seminary | taken from website"
+					}
+				],
 				"seeAlso": []
 			}
 		]
@@ -1274,7 +1296,11 @@ var testCases = [
 						"tag": "forum review"
 					}
 				],
-				"notes": [],
+				"notes": [
+					{
+						"note": "Izaak Jozias de Hulster  | orcid:0000-0003-0706-4480 Valérie Nicolet Institut Protestant de Théologie  | orcid:0000-0001-9070-0585 Ronit Nikolsky University of Groningen  | orcid:0000-0002-3771-8062 Jason M. Silverman University of Helsinki  | orcid:0000-0002-0240-9219 | taken from website"
+					}
+				],
 				"seeAlso": []
 			}
 		]
@@ -1356,7 +1382,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Cephas Tushima | https://orcid.org/0000-0003-0923-1350 | taken from website"
+						"note": "Cephas Tushima | orcid:0000-0003-0923-1350 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -1713,7 +1739,11 @@ var testCases = [
 						"tag": "forum review"
 					}
 				],
-				"notes": [],
+				"notes": [
+					{
+						"note": "Izaak Jozias de Hulster  | orcid:0000-0003-0706-4480 Valérie Nicolet Institut Protestant de Théologie  | orcid:0000-0001-9070-0585 Ronit Nikolsky University of Groningen  | orcid:0000-0002-3771-8062 Jason M. Silverman University of Helsinki  | orcid:0000-0002-0240-9219 | taken from website"
+					}
+				],
 				"seeAlso": []
 			}
 		]
@@ -1784,7 +1814,11 @@ var testCases = [
 						"tag": "divine wrath"
 					}
 				],
-				"notes": [],
+				"notes": [
+					{
+						"note": "Sebastian Fink Universität Innsbruck  | orcid:0000-0002-6270-8368 Mark S. Smith Princeton Theological Seminary | taken from website"
+					}
+				],
 				"seeAlso": []
 			}
 		]
@@ -1853,7 +1887,11 @@ var testCases = [
 						"tag": "sea god"
 					}
 				],
-				"notes": [],
+				"notes": [
+					{
+						"note": "Joanna Töyräänvuori University of Helsinki  | orcid:0000-0003-4932-8755 | taken from website"
+					}
+				],
 				"seeAlso": []
 			}
 		]
@@ -1916,10 +1954,10 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Paulo Gracino Junior | IUPERJ-UCAM |  http://orcid.org/0000-0002-6764-4797 | taken from website"
+						"note": "Paulo Gracino Junior IUPERJ-UCAM  | orcid:0000-0002-6764-4797 | taken from website"
 					},
 					{
-						"note": "Gabriel Silva Rezende | IUPERJ |  https://orcid.org/0000-0002-1798-0274 | taken from website"
+						"note": "Gabriel Silva Rezende IUPERJ  | orcid:0000-0002-1798-0274 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -2070,10 +2108,10 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Leomar Antônio Brustolin | Pontifícia Universidade Católica do Rio Grande do Sul (PUCRS), Porto Alegre, RS, Brasil. | http://orcid.org/0000-0002-0066-4267 | taken from website"
+						"note": "Leomar Antônio Brustolin Pontifícia Universidade Católica do Rio Grande do Sul (PUCRS), Porto Alegre, RS, Brasil.  | orcid:0000-0002-0066-4267 | taken from website"
 					},
 					{
-						"note": "Marcia Koffermann | Universidade de Huelva (UHU), Espanha. | http://orcid.org/0000-0003-1689-1509 | taken from website"
+						"note": "Marcia Koffermann Universidade de Huelva (UHU), Espanha.  | orcid:0000-0003-1689-1509 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -2136,7 +2174,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "José Neivaldo de Souza | Pesquisador Autônomo, Curitiba, PR, Brasil. | https://orcid.org/0000-0001-9447-0967 | taken from website"
+						"note": "José Neivaldo de Souza Pesquisador Autônomo, Curitiba, PR, Brasil.  | orcid:0000-0001-9447-0967 | taken from website"
 					}
 				],
 				"seeAlso": []
