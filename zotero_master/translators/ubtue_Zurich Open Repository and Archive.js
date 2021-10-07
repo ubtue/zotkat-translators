@@ -5,11 +5,11 @@
 	"target": "^https?://www\\.zora\\.uzh\\.ch/",
 	"minVersion": "3.0",
 	"maxVersion": "",
-	"priority": 100,
+	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-07 12:24:37"
+	"lastUpdated": "2021-10-07 12:31:18"
 }
 
 /*
