@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-07-14 20:06:32"
+	"lastUpdated": "2021-10-12 14:42:47"
 }
 
 /*
@@ -102,7 +102,7 @@ function scrape(id, doc, url) {
 		
 		if (text(infoBlock, "a", 0).includes("Abstract")) {
 			let abstract = attr(infoBlock, "a", "href", 0).split("'")[1];
-			item.abstractNote = text(doc, abstract);
+			item.abstractNote = ZU.xpathText(doc, "//*[@id='"+abstract+"']");
 		}
 	}
 	else if (url.includes('/toc/Supplement')) {
@@ -168,6 +168,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "http://moses.creighton.edu/JRS/toc/SS17.html",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "http://moses.creighton.edu/JRS/toc/2021.html",
 		"items": "multiple"
 	}
 ]
