@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-07-05 09:16:00"
+	"lastUpdated": "2021-10-04 16:05:00"
 }
 
 
@@ -487,7 +487,7 @@ function performExport() {
 
                 //Lookup für Autoren
                 if (authorName[0] != "!") {
-                    var lookupUrl = "https://swb.bsz-bw.de/DB=2.104/SET=70/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=3040&TRM0=" + authorName + "&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=*&ACT3=-&IKT3=8991&TRM3=1[0%2C1%2C2%2C3%2C4%2C5%2C6%2C7][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9]"
+                    var lookupUrl = "https://swb.bsz-bw.de/DB=2.104/SET=70/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=3040&TRM0=" + authorName + "&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=(religions*)&ACT3=-&IKT3=8991&TRM3=1[0%2C1%2C2%2C3%2C4%2C5%2C6%2C7][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9]"
 
                     /*
                     lookupUrl kann je nach Anforderung noch spezifiziert werden.
@@ -589,6 +589,14 @@ function performExport() {
 			}
 		}
 		
+					
+		//Paralleltitel OJS --> 4002 
+		if (item.notes) {
+			for (let i in item.notes) {
+				if (item.notes[i].note.includes('Paralleltitel')) addLine(currentItemId, "4002", item.notes[i].note.replace(/paralleltitel:/i, ''));
+			}
+		}
+
         //Ausgabe --> 4020
         if (item.edition) {
             addLine(currentItemId, "4020", item.edition);
@@ -677,7 +685,12 @@ function performExport() {
 			item.abstractNote = ZU.unescapeHTML(item.abstractNote);
 			addLine(currentItemId, "4207", item.abstractNote.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract\s?:?/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, ''));
         }
-
+		//Inhaltliche Zusammenfassung, falls mehr als ein Abstract --> 4207
+		if (item.notes) {
+			for (let i in item.notes) {
+				if (item.notes[i].note.includes('abs')) addLine(currentItemId, "4207", item.notes[i].note.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract\s?:?/, '').replace(/Abstract  :/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, '').replace('abs:', ''));
+			}
+		}
         //item.publicationTitle --> 4241 Beziehungen zur größeren Einheit
         if (item.itemType == "journalArticle" || item.itemType == "magazineArticle") {
             if (superiorPPN.length != 0) {
@@ -732,8 +745,7 @@ function performExport() {
 			//ORCID und Autorennamen --> 8910
 			if (item.notes) {
 				for (let i in item.notes) {
-				let cleanNote
-				addLine(currentItemId, "8910", '$aixzom$b'+item.notes[i].note);
+					if (item.notes[i].note.includes('orcid')) addLine(currentItemId, "8910", '$aixzom$b'+item.notes[i].note);
 				}
 			}
 			
