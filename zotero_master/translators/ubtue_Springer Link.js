@@ -6,10 +6,10 @@
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 99,
-	"inRepository": false,
+	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsbv",
-	"lastUpdated": "2021-03-17 10:10:25"
+	"lastUpdated": "2021-10-14 16:02:44"
 }
 
 /*
@@ -75,12 +75,6 @@ function getResultList(doc) {
 	if (!results.length) {
 		results = ZU.xpath(doc, '//div[@class="toc"]/ol//li[contains(@class,"toc-item")]/p[@class="title"]/a');
 	}
-	if (!results.length) {
-		results = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "c-card__title", " " ))]//a');
-	}
-	if (!results.length) {
-		results = ZU.xpath(doc, '//li[@class="c-list-group__item"]//h3/a');
-	}
 	return results;
 }
 
@@ -102,6 +96,11 @@ function doWeb(doc, url) {
 	else {
 		scrape(doc, url);
 	}
+}
+
+function undesirableAbstractPresent(doc, item) {
+	let textStart = ZU.xpathText(doc, '//div[@class="c-article-section__content"]/p[not(a | b)]');
+	return textStart.indexOf(item.abstractNote) != -1;
 }
 
 function complementItem(doc, item) {
@@ -149,7 +148,11 @@ function complementItem(doc, item) {
 		if (!item.journalAbbreviation || item.publicationTitle == item.journalAbbreviation) {
 			item.journalAbbreviation = ZU.xpathText(doc, '//meta[@name="citation_journal_abbrev"]/@content');
 		}
+		let oa_desc = ZU.xpathText(doc, '//span[@data-test="open-access"]');
+		if (oa_desc && oa_desc.match(/open access/i))
+			item.notes.push({note: 'LF:'});
 	}
+	
 	if (itemType == 'bookSection' || itemType == "conferencePaper") {
 		// look for editors
 		var editors = ZU.xpath(doc, '//ul[@class="editors"]/li[@itemprop="editor"]/a[@class="person"]');
@@ -196,6 +199,9 @@ function complementItem(doc, item) {
 		item.volume = "";
 	}
 	// add abstract
+	// in some cases we get the beginning of the article as abstract
+	if (undesirableAbstractPresent(doc, item))
+		item.abstractNote = '';
 	let abstractSections = ZU.xpath(doc, '//section[@class="Abstract"]//div[@class="AbstractSection"]');
 	if (abstractSections && abstractSections.length > 0) {
 		let sectionTitles = ZU.xpath(doc, '//section[@class="Abstract"]//div[@class="AbstractSection"]//h3[@class="Heading"]');
@@ -208,30 +214,48 @@ function complementItem(doc, item) {
 		}
 
 		item.abstractNote = abstract.trim();
-		if (item.abstractNote.match(/^null/)) item.abstractNote = '';
 	} else {
-		let absSections = ZU.xpath(doc, '//*[(@id = "Abs2-content")]//p');
-		let sectionTitles = ZU.xpath(doc, '//*[(@id = "Abs2-content")]//*[contains(concat( " ", @class, " " ), concat( " ", "c-article__sub-heading", " " ))]');
-		let titleTextGerman = ZU.xpathText(doc, '//*[(@id = "Abs1-content")]//p');
-		let abs = "";
-		for (let i = 0; i < sectionTitles.length; ++i) {
-			let titleText = sectionTitles[i].textContent.trim();
-			let sectionBody = ZU.xpathText(absSections[i], '//*[(@id = "Abs2-content")]//p').trim();
-			abs += titleText + ": " + sectionBody + "\n\n";
-			item.abstractNote = abs.trim();
+		let otherAbstracts = doc.querySelectorAll('#Abs2-section');
+		let titleTextGerman = ZU.xpathText(doc, '//*[(@id = "Abs1-content")]');
+		item.abstractNote = titleTextGerman ? titleTextGerman : '';
+		for (let part of otherAbstracts) {
+			var otherAbstract = part.innerText.replace(/\b\n{2}/g, ': ');
 		}
-		item.abstractNote = titleTextGerman + "\n\n" + ZU.trimInternal(abs).replace(/^Abstract[:\s]*/, "");
-		if (item.abstractNote.match(/^null/)) item.abstractNote = '';
+		if (otherAbstract) {
+			item.notes.push({
+				note: "abs:" + ZU.trimInternal(otherAbstract).replace(/^Abstract[:\s]*/, "")
+			});
+		}
 	}
+	if (!item.abstractNote)
+		item.abstractNote = '';
 
-	let tags = ZU.xpathText(doc, '//span[@class="Keyword"] | //*[contains(concat( " ", @class, " " ), concat( " ", "c-article-subject-list__subject", " " ))]//span');
+	let tags = ZU.xpathText(doc, '//span[@class="Keyword"] | //*[contains(concat( " ", @class, " " ), concat( " ", "c-article-subject-list__subject", " " ))]//span | \
+			   //li[@class="c-article-subject-list__subject"]');
 	if (tags && (!item.tags || item.tags.length === 0)) {
 		item.tags = tags.split(',');
 	}
+	// Trim and deduplicate
+	item.tags = [...new Set(item.tags.map(keyword => keyword.trim()))];
 
-	let docType = ZU.xpathText(doc, '//meta[@name="citation_article_type"]/@content | //meta[@name="dc.type"]/@content');
-	if (docType.match(/Book (R|r)eviews?|Review (P|p)aper|BookReview/)) item.tags.push("RezensionstagPica");
+	let docType = ZU.xpathText(doc, '//meta[@name="citation_article_type"]/@content');
+	if (docType.match(/(Book R|reviews?)|(Review P|paper)/)) item.tags.push("Book Reviews");
+	// ORCID
+	getORCID(doc, item);
 	return item;
+}
+	// ORCID
+function getORCID(doc, item) {
+	let authorOrcidEntries = ZU.xpath(doc, '//*[@class="c-article-author-list__item"]');
+	for (let authorOrcidEntry of authorOrcidEntries) {
+		let authorEntry = authorOrcidEntry.innerText;
+		let orcidEntry = authorOrcidEntry.innerHTML;
+		if (authorEntry && orcidEntry && orcidEntry.match(/\d+-\d+-\d+-\d+x?/i)) {
+			let author = ZU.trimInternal(authorEntry.replace(/&/g, ''));
+			let orcid = orcidEntry.match(/\d+-\d+-\d+-\d+x?/i)[0]
+			item.notes.push({note: "orcid:" + orcid + ' | ' + author});
+		}
+	}
 }
 
 function shouldPostprocessWithEmbeddedMetadata(item) {
@@ -272,8 +296,7 @@ function scrape(doc, url) {
 			});
 
 			if (shouldPostprocessWithEmbeddedMetadata(item)) postprocessWithEmbeddedMetadataTranslator(doc, item);
-			else
-				item.complete();
+			else item.complete();
 		});
 		translator.translate();
 	});
@@ -778,6 +801,87 @@ var testCases = [
 					}
 				],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://link.springer.com/article/10.1007/s10943-021-01246-1",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "The Role of Worldview in Moral Case Deliberation: Visions and Experiences of Group Facilitators",
+				"creators": [
+					{
+						"lastName": "Spronk",
+						"firstName": "Benita",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Widdershoven",
+						"firstName": "Guy",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Alma",
+						"firstName": "Hans",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021-10-01",
+				"DOI": "10.1007/s10943-021-01246-1",
+				"ISSN": "1573-6571",
+				"abstractNote": "This study investigates the role of worldview in moral case deliberation (MCD). MCD is a form of clinical ethics support which aims to assist caregivers in reflection on moral dilemmas, experienced in daily practice. Bioethicists acknowledge that existential and religious aspects must be taken into account in the analysis of ethical questions, but it remains unclear how these elements are addressed in clinical ethics support. We investigated how facilitators of MCD address worldview in MCD. MCD facilitation is often done by spiritual caregivers, but not in their role as spiritual caregiver. Discussing worldview is no standard part of the procedure in MCD. This study was qualitative, focusing on the views and experiences of the facilitators of MCD. Semi-structured interviews (N = 12) were conducted with facilitators of MCD. Grounded theory was used for analysis. The results show that worldview plays both an explicit and an implicit role in the MCD process. The explicit role concerns the religious beliefs of patients and professionals. This calls for avoiding stereotyping and devoting attention to different visions. The implicit role comes to the fore in addressing core values and spiritual fulfillment. In order to clarify the fundamental nature of values, more explicit attention for worldview might be useful during MCD. However, this should be done with caution as the term ‘worldview’ might be interpreted by participants in terms of religious and personal beliefs, rather than as an invitation to reflect on one’s view of the good life as a whole.",
+				"issue": "5",
+				"journalAbbreviation": "J Relig Health",
+				"language": "en",
+				"libraryCatalog": "ubtue_Springer Link",
+				"pages": "3143-3160",
+				"publicationTitle": "Journal of Religion and Health",
+				"shortTitle": "The Role of Worldview in Moral Case Deliberation",
+				"url": "https://doi.org/10.1007/s10943-021-01246-1",
+				"volume": "60",
+				"attachments": [
+					{
+						"title": "Springer Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Clinical ethics support"
+					},
+					{
+						"tag": "Moral case deliberation"
+					},
+					{
+						"tag": "Religion"
+					},
+					{
+						"tag": "Spirituality"
+					},
+					{
+						"tag": "Values"
+					},
+					{
+						"tag": "Worldview"
+					}
+				],
+				"notes": [
+					{
+						"note": "LF:"
+					},
+					{
+						"note": "orcid:0000-0003-1473-2483 | Benita Spronk,"
+					},
+					{
+						"note": "orcid:0000-0001-7620-6812 | Guy Widdershoven"
+					},
+					{
+						"note": "orcid:0000-0001-6795-4202 | Hans Alma"
+					}
+				],
 				"seeAlso": []
 			}
 		]
