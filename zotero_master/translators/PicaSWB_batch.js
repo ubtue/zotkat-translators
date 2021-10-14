@@ -642,15 +642,6 @@ function performExport() {
             addLine(currentItemId, "\\n4950", item.url + "$xH"); //K10Plus:wird die URL aus dem DOI, einem handle oder einem urn gebildet, sollte es $xR heißen und nicht $xH
         }
 		
-		//Open Access / Free Access als LF --> 4950
-		var openAccess = "";
-		if (item.notes) {
-			for (let i in item.notes) {
-				if (item.notes[i].note.includes('LF'));
-				openAccess = "lf";
-			}
-		}
-		
 		//URL --> 4085 nur bei Satztyp "O.." im Feld 0500 K10Plus:aus 4085 wird 4950
 		switch (true) {
 			case item.url && item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "l": 
