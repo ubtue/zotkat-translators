@@ -636,12 +636,21 @@ function performExport() {
 			if (item.ISSN === "2077-1444" && item.callNumber) {volumeyearissuepage += "$i" + item.callNumber;}
             addLine(currentItemId, "\\n4070", volumeyearissuepage);
         }
-	
+		
         //URL --> 4085 nur bei Dokumenttyp "magazineArticle" für Rezension im Feld 0500 K10Plus:aus 4085 wird 4950 
         if (item.url && item.itemType == "magazineArticle") {
             addLine(currentItemId, "\\n4950", item.url + "$xH"); //K10Plus:wird die URL aus dem DOI, einem handle oder einem urn gebildet, sollte es $xR heißen und nicht $xH
         }
 
+		//Open Access / Free Access als LF --> 4950
+		if (item.notes) {
+			for (let i in item.notes) {
+				if (item.notes[i].note.includes('LF')) {
+					licenceField = "l";	
+				}
+			}
+		}
+		
 		//URL --> 4085 nur bei Satztyp "O.." im Feld 0500 K10Plus:aus 4085 wird 4950
 		switch (true) {
 			case item.url && item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "l": 
