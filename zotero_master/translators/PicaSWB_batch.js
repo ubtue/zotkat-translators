@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-10-14 17:10:00"
+	"lastUpdated": "2021-10-15 13:05:00"
 }
 
 // Zotero Export Translator für das Pica Intern Format
@@ -641,6 +641,15 @@ function performExport() {
         if (item.url && item.itemType == "magazineArticle") {
             addLine(currentItemId, "\\n4950", item.url + "$xH"); //K10Plus:wird die URL aus dem DOI, einem handle oder einem urn gebildet, sollte es $xR heißen und nicht $xH
         }
+		
+		//Open Access / Free Access als LF --> 4950
+		if (item.notes) {
+			for (let i in item.notes) {
+				if (item.notes[i].note.includes('LF')) {
+					licenceField = "l";	
+				}
+			}
+		}
 		
 		//URL --> 4085 nur bei Satztyp "O.." im Feld 0500 K10Plus:aus 4085 wird 4950
 		switch (true) {
