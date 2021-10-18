@@ -1,5 +1,5 @@
 {
-	"translatorID": "e969da6b-30c9-4b26-8fcc-c2d78bce685f",
+	"translatorID": "dde9787d-9ab5-4c49-808c-ec7bf0f0bb8e",
 	"label": "ubtue_Journal of Religion and Society",
 	"creator": "Vincent Carret",
 	"target": "^https?://(www\\.)?moses\\.creighton\\.edu/JRS",
@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-14 15:38:37"
+	"lastUpdated": "2021-10-18 13:02:55"
 }
 
 /*
