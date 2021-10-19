@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-06 15:43:35"
+	"lastUpdated": "2021-10-19 13:23:31"
 }
 
 /*
@@ -68,7 +68,7 @@ function getSearchResults(doc) {
 }
 
 function postProcess(doc, item) {
-	let title = ZU.xpathText(doc, '//meta[@name="citation_title"]//@content');Z.debug(title)
+	let title = ZU.xpathText(doc, '//meta[@name="citation_title"]//@content');
 	if (title) item.title = title; 
 	if (!item.abstractNote) {
 	  item.abstractNote = ZU.xpath(doc, '//section[@class="abstract"]//p');
@@ -121,7 +121,7 @@ function postProcess(doc, item) {
 	item.notes = Array.from(new Set(item.notes.map(JSON.stringify))).map(JSON.parse);
 	// mark articles as "LF" (MARC=856 |z|kostenfrei), that are published as open access	
 	let openAccessTag = text(doc, '.has-license span');
-	if (openAccessTag && openAccessTag.match(/open\s+access/gi)) item.notes.push('LF:');
+	if (openAccessTag && openAccessTag.match(/open\s+access/gi)) item.notes.push({note: 'LF:'});
   // mark articles as "LF" (MARC=856 |z|kostenfrei), that are free accessible e.g. conference report 10.30965/25890433-04902001 
 	let freeAccess = text(doc, '.color-access-free');
 	if (freeAccess && freeAccess.match(/(free|freier)\s+(access|zugang)/gi)) item.notes.push('LF:');
@@ -138,7 +138,17 @@ function extractBerichtsjahr(dateEntry) {
 }
 
 function invokeEmbeddedMetadataTranslator(doc, url) {
+	if (doc.querySelector('body > meta')) {
+	// Brill's HTML is structured incorrectly, and it causes some parsers
+	// to interpret the <meta> tags as being in the body, which breaks EM.
+	// We'll fix it here.
+		for (let meta of doc.querySelectorAll('body > meta')) {
+			doc.head.appendChild(meta);
+		}
+	}
+	
 	var translator = Zotero.loadTranslator("web");
+	// Embedded Metadata
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
@@ -166,11 +176,6 @@ function doWeb(doc, url) {
 
 	/** BEGIN TEST CASES **/
 var testCases = [
-	{
-		"type": "web",
-		"url": "https://brill.com/view/journals/ormo/100/2/ormo.100.issue-2.xml",
-		"items": "multiple"
-	},
 	{
 		"type": "web",
 		"url": "https://brill.com/view/journals/ormo/100/2/article-p147_2.xml",
@@ -225,7 +230,9 @@ var testCases = [
 					}
 				],
 				"notes": [
-					"LF:"
+					{
+						"note": "LF:"
+					}
 				],
 				"seeAlso": []
 			}
@@ -293,6 +300,11 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://brill.com/view/journals/ormo/100/2/ormo.100.issue-2.xml",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
