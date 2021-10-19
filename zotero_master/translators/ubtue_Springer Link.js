@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsbv",
-	"lastUpdated": "2021-10-14 16:02:44"
+	"lastUpdated": "2021-10-19 08:34:52"
 }
 
 /*
@@ -75,6 +75,9 @@ function getResultList(doc) {
 	if (!results.length) {
 		results = ZU.xpath(doc, '//div[@class="toc"]/ol//li[contains(@class,"toc-item")]/p[@class="title"]/a');
 	}
+	if (!results.length) {
+		results = ZU.xpath(doc, '//li[@class="c-list-group__item"]//h3/a');
+	}
 	return results;
 }
 
@@ -87,7 +90,7 @@ function doWeb(doc, url) {
 			items[list[i].href] = list[i].textContent;
 		}
 		Zotero.selectItems(items, function (selectedItems) {
-			if (!selectedItems) return true;
+			if (!selectedItems) return;
 			for (let i in selectedItems) {
 				ZU.processDocuments(i, scrape);
 			}
@@ -248,12 +251,12 @@ function complementItem(doc, item) {
 function getORCID(doc, item) {
 	let authorOrcidEntries = ZU.xpath(doc, '//*[@class="c-article-author-list__item"]');
 	for (let authorOrcidEntry of authorOrcidEntries) {
-		let authorEntry = authorOrcidEntry.innerText;
+		let authorEntry = authorOrcidEntry.innerText.split('\n')[0];
 		let orcidEntry = authorOrcidEntry.innerHTML;
 		if (authorEntry && orcidEntry && orcidEntry.match(/\d+-\d+-\d+-\d+x?/i)) {
 			let author = ZU.trimInternal(authorEntry.replace(/&/g, ''));
 			let orcid = orcidEntry.match(/\d+-\d+-\d+-\d+x?/i)[0]
-			item.notes.push({note: "orcid:" + orcid + ' | ' + author});
+			item.notes.push({note: "orcid:" + orcid + ' | ' + author + ' | ' + 'taken from website'});
 		}
 	}
 }
@@ -545,7 +548,7 @@ var testCases = [
 				"issue": "5",
 				"journalAbbreviation": "Hydrogeol J",
 				"language": "en",
-				"libraryCatalog": "Springer Link",
+				"libraryCatalog": "ubtue_Springer Link",
 				"pages": "1289-1296",
 				"publicationTitle": "Hydrogeology Journal",
 				"shortTitle": "Tide-induced head fluctuations in a coastal aquifer",
@@ -559,22 +562,26 @@ var testCases = [
 				],
 				"tags": [
 					{
-						"tag": " Analytical solutions "
+						"tag": "Analytical solutions"
 					},
 					{
-						"tag": " Elastic storage "
+						"tag": "Coastal aquifers"
 					},
 					{
-						"tag": " Submarine outlet-capping "
+						"tag": "Elastic storage"
 					},
 					{
-						"tag": " Tidal loading efficiency "
+						"tag": "Submarine outlet-capping"
 					},
 					{
-						"tag": "Coastal aquifers "
+						"tag": "Tidal loading efficiency"
 					}
 				],
-				"notes": [],
+				"notes": [
+					{
+						"note": "abs:Résumé Cet article considère les fluctuations piézométriques dues à la marée dans un aquifère côtier captif simple s’étendant à une certaine distance sous la mer. Son exutoire sous-marin est recouvert par un dépôt silteux de propriétés différentes de celles de l’aquifère. Récemment, Li et autres (2007) ont donné une représentation analytique d’un tel système tenant compte de l’effet d’emmagasinement élastique du réservoir sous le toit à l’exutoire. Cet article présente une solution analytique qui généralise le modèle en introduisant l’emmagasinement élastique à l’exutoire. Il démontre que si la couveture à l’exutoire est assez épaisse en direction, l’emmagasinement élastique a un effet amplificateur important sur la fluctuation piézométrique due à la marée. Ignorer cet emmagasinement élastique conduirait à des erreurs importantes sur le rapport entre la hauteur piézométrique réelle et la hauteur telle qu’elle ressort des caractéristiques de l’aquifère. Le modèle montre donc l’effet de l’emmagasinement élastique sur la fluctuation du niveau de l’aquifère. Il indique les seuils en dessous desquels l’effet de cet emmagasinement élastique sur la fluctuation de l’aquifère induite par la marée est négligeable. Li, H.L., Li, G.Y., Chen, J.M., Boufadel, M.C. (2007) Tide-induced head fluctuations in a confined aquifer with sediment covering its outlet at the sea floor. [Fluctuations du niveau piézométrique induites par la marée dans un aquifère captif à décharge sous-marine.] Water Resour. Res 43, doi:10.1029/2005WR004724"
+					}
+				],
 				"seeAlso": []
 			}
 		]
@@ -674,7 +681,7 @@ var testCases = [
 				"issue": "3",
 				"journalAbbreviation": "Pastoral Psychol",
 				"language": "en",
-				"libraryCatalog": "Springer Link",
+				"libraryCatalog": "ubtue_Springer Link",
 				"pages": "169-186",
 				"publicationTitle": "Pastoral Psychology",
 				"shortTitle": "Metabolizing Death",
@@ -688,77 +695,38 @@ var testCases = [
 				],
 				"tags": [
 					{
-						"tag": " 12-step movement"
+						"tag": "12-step movement"
 					},
 					{
-						"tag": " AA"
+						"tag": "AA"
 					},
 					{
-						"tag": " Addiction"
+						"tag": "Addiction"
 					},
 					{
-						"tag": " Ernest Becker"
+						"tag": "Ernest Becker"
 					},
 					{
-						"tag": " Existential psychology"
+						"tag": "Existential psychology"
 					},
 					{
-						"tag": " Recovery"
-					},
-					{
-						"tag": " Transpersonal psychology"
-					},
-					{
-						"tag": " William James"
+						"tag": "Recovery"
 					},
 					{
 						"tag": "Substance use disorder"
-					}
-				],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://link.springer.com/article/10.1007/s40839-019-00082-6",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Orlando Nang Kwok Ho: Rethinking the curriculum: the Epistle to the Romans as a pedagogic text",
-				"creators": [
+					},
 					{
-						"lastName": "O’Shea",
-						"firstName": "Gerard",
-						"creatorType": "author"
-					}
-				],
-				"date": "2019-07-01",
-				"DOI": "10.1007/s40839-019-00082-6",
-				"ISSN": "2199-4625",
-				"abstractNote": "null",
-				"issue": "2",
-				"journalAbbreviation": "j. relig. educ.",
-				"language": "en",
-				"libraryCatalog": "Springer Link",
-				"pages": "165-166",
-				"publicationTitle": "Journal of Religious Education",
-				"shortTitle": "Orlando Nang Kwok Ho",
-				"url": "https://doi.org/10.1007/s40839-019-00082-6",
-				"volume": "67",
-				"attachments": [
+						"tag": "Transpersonal psychology"
+					},
 					{
-						"title": "Springer Full Text PDF",
-						"mimeType": "application/pdf"
+						"tag": "William James"
 					}
 				],
-				"tags": [
+				"notes": [
 					{
-						"tag": "Book Reviews"
+						"note": "orcid:0000-0001-8965-717X | Nicholas Grant Boeving | taken from website"
 					}
 				],
-				"notes": [],
 				"seeAlso": []
 			}
 		]
@@ -783,7 +751,7 @@ var testCases = [
 				"issue": "2",
 				"journalAbbreviation": "j. relig. educ.",
 				"language": "en",
-				"libraryCatalog": "Springer Link",
+				"libraryCatalog": "ubtue_Springer Link",
 				"pages": "165-166",
 				"publicationTitle": "Journal of Religious Education",
 				"shortTitle": "Orlando Nang Kwok Ho",
@@ -795,11 +763,45 @@ var testCases = [
 						"mimeType": "application/pdf"
 					}
 				],
-				"tags": [
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://link.springer.com/article/10.1007/s40839-019-00082-6",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Orlando Nang Kwok Ho: Rethinking the curriculum: the Epistle to the Romans as a pedagogic text",
+				"creators": [
 					{
-						"tag": "RezensionstagPica"
+						"lastName": "O’Shea",
+						"firstName": "Gerard",
+						"creatorType": "author"
 					}
 				],
+				"date": "2019-07-01",
+				"DOI": "10.1007/s40839-019-00082-6",
+				"ISSN": "2199-4625",
+				"issue": "2",
+				"journalAbbreviation": "j. relig. educ.",
+				"language": "en",
+				"libraryCatalog": "ubtue_Springer Link",
+				"pages": "165-166",
+				"publicationTitle": "Journal of Religious Education",
+				"shortTitle": "Orlando Nang Kwok Ho",
+				"url": "https://doi.org/10.1007/s40839-019-00082-6",
+				"volume": "67",
+				"attachments": [
+					{
+						"title": "Springer Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [],
 				"notes": [],
 				"seeAlso": []
 			}
@@ -873,18 +875,23 @@ var testCases = [
 						"note": "LF:"
 					},
 					{
-						"note": "orcid:0000-0003-1473-2483 | Benita Spronk,"
+						"note": "orcid:0000-0003-1473-2483 | Benita Spronk, | taken from website"
 					},
 					{
-						"note": "orcid:0000-0001-7620-6812 | Guy Widdershoven"
+						"note": "orcid:0000-0001-7620-6812 | Guy Widdershoven | taken from website"
 					},
 					{
-						"note": "orcid:0000-0001-6795-4202 | Hans Alma"
+						"note": "orcid:0000-0001-6795-4202 | Hans Alma | taken from website"
 					}
 				],
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://link.springer.com/journal/10943/volumes-and-issues/60-5",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
