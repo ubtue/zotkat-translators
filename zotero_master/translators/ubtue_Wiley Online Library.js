@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-06-24 14:26:47"
+	"lastUpdated": "2021-10-20 15:05:54"
 }
 
 /*
@@ -31,15 +31,13 @@
  */
 
 // attr()/text() v2
-// eslint-disable-next-line
-function attr(docOrElem,selector,attr,index){var elem=index?docOrElem.querySelectorAll(selector).item(index):docOrElem.querySelector(selector);return elem?elem.getAttribute(attr):null}function text(docOrElem,selector,index){var elem=index?docOrElem.querySelectorAll(selector).item(index):docOrElem.querySelector(selector);return elem?elem.textContent:null}
-
+function attr(docOrElem,selector,attr,index){var elem=index?docOrElem.querySelectorAll(selector).item(index):docOrElem.querySelector(selector);return elem?elem.getAttribute(attr):null;}function text(docOrElem,selector,index){var elem=index?docOrElem.querySelectorAll(selector).item(index):docOrElem.querySelector(selector);return elem?elem.textContent:null;}
 
 function fixCase(authorName) {
 	if (typeof authorName != 'string') return authorName;
 
-	if (authorName.toUpperCase() == authorName
-		|| authorName.toLowerCase() == authorName) {
+	if (authorName.toUpperCase() == authorName ||
+		authorName.toLowerCase() == authorName) {
 		return ZU.capitalizeTitle(authorName, true);
 	}
 
@@ -47,28 +45,52 @@ function fixCase(authorName) {
 }
 
 function addCreators(item, creatorType, creators) {
-	if (typeof (creators) == 'string') {
+	if ( typeof(creators) == 'string' ) {
 		creators = [creators];
-	}
-	else if (!(creators instanceof Array)) {
+	} else if ( !(creators instanceof Array) ) {
 		return;
 	}
 
-	for (var i = 0, n = creators.length; i < n; i++) {
+	for (var i=0, n=creators.length; i<n; i++) {
 		item.creators.push(ZU.cleanAuthor(fixCase(creators[i]), creatorType, false));
 	}
 }
 
 function getAuthorName(text) {
-	// lower case words at the end of a name are probably not part of a name
-	text = text.replace(/(\s+[a-z]+)+\s*$/, '');
-	text = text.replace(/(^|[\s,])(PhD|MA|Prof|Dr)\b(\.?|(?=\s|$))/gi, '');	// remove salutations
+	//lower case words at the end of a name are probably not part of a name
+	text = text.replace(/(\s+[a-z]+)+\s*$/,'');
+
+	text = text.replace(/(^|[\s,])(PhD|MA|Prof|Dr)\b(\.?|(?=\s|$))/gi,'');	//remove salutations
+
 	return fixCase(text.trim());
+}
+
+function addBookReviewTag(doc, item) {
+	var primaryHeading = ZU.xpathText(doc, '//span[@class="primary-heading"]');
+	if (primaryHeading.match(/Book Review|Review Essays?|Reviews?/i)) {
+		item.tags.push('Book Review');
+	}
+}
+
+function addPages (doc, item) {
+	// add pages manually if removed or not previously filled by BibTex translator
+	let pagePath = doc.querySelector('p.page-range');
+	if(pagePath && !item.pages) {
+		let pagesMatch = pagePath.innerText.match(/\d+\-\d+/);
+		if (pagesMatch)
+			item.pages = pagesMatch;
+	}
+}
+//ubtue: write article number in $y
+function addArticleNumber (doc, item) {
+	if (item.pages && item.pages.match(/\d{5,}/)) {
+		item.pages = 'article ' + item.pages;	
+	}
 }
 
 function scrapeBook(doc, url) {
 	var title = doc.getElementById('productTitle');
-	if (!title) return;
+	if ( !title ) return false;
 
 	var newItem = new Zotero.Item('book');
 	newItem.title = ZU.capitalizeTitle(title.textContent, true);
@@ -77,34 +99,34 @@ function scrapeBook(doc, url) {
 	var dataRe = /^(.+?):\s*(.+?)\s*$/;
 	var match;
 	var isbn = [];
-	for (var i = 0, n = data.length; i < n; i++) {
+	for ( var i=0, n=data.length; i<n; i++) {
 		match = dataRe.exec(data[i].textContent);
 		if (!match) continue;
 
 		switch (match[1].trim().toLowerCase()) {
-			case 'author(s)':
-				addCreators(newItem, 'author', match[2].split(', '));
-				break;
-			case 'series editor(s)':
-				addCreators(newItem, 'seriesEditor', match[2].split(', '));
-				break;
-			case 'editor(s)':
-				addCreators(newItem, 'editor', match[2].split(', '));
-				break;
-			case 'published online':
-				var date = ZU.strToDate(match[2]);
-				date.part = null;
-				newItem.date = ZU.formatDate(date);
-				break;
-			case 'print isbn':
-			case 'online isbn':
-				isbn.push(match[2]);
-				break;
-			case 'doi':
-				newItem.DOI = match[2];
-				break;
-			case 'book series':
-				newItem.series = match[2];
+		case 'author(s)':
+			addCreators(newItem, 'author', match[2].split(', '));
+			break;
+		case 'series editor(s)':
+			addCreators(newItem, 'seriesEditor', match[2].split(', '));
+			break;
+		case 'editor(s)':
+			addCreators(newItem, 'editor', match[2].split(', '));
+			break;
+		case 'published online':
+			var date = ZU.strToDate(match[2]);
+			date.part = null;
+			newItem.date = ZU.formatDate(date);
+			break;
+		case 'print isbn':
+		case 'online isbn':
+			isbn.push(match[2]);
+			break;
+		case 'doi':
+			newItem.DOI = match[2];
+			break;
+		case 'book series':
+			newItem.series = match[2];
 		}
 	}
 
@@ -115,8 +137,7 @@ function scrapeBook(doc, url) {
 		ZU.xpathText(doc, [
 			'//div[@id="homepageContent"]',
 			'/h6[normalize-space(text())="About The Product"]',
-			'/following-sibling::p'
-		].join(''), null, "\n") || "");
+			'/following-sibling::p'].join(''), null, "\n") || "");
 	newItem.accessDate = 'CURRENT_TIMESTAMP';
 
 	newItem.complete();
@@ -125,43 +146,45 @@ function scrapeBook(doc, url) {
 function scrapeEM(doc, url) {
 	var itemType = detectWeb(doc, url);
 
-	// fetch print publication date
+	//fetch print publication date
 	var date = ZU.xpathText(doc, '//meta[@name="citation_date"]/@content');
+	if (!date) {
+		date = ZU.xpathText(doc, '//span[@class="epub-date" and preceding-sibling::span[@class="epub-state" and contains(text(), "First published:")]]/text()');
+	}
 
-	// remove duplicate meta tags
+	//remove duplicate meta tags
 	var metas = ZU.xpath(doc,
 		'//head/link[@media="screen,print"]/following-sibling::meta');
-	for (var i = 0, n = metas.length; i < n; i++) {
+	for (var i=0, n=metas.length; i<n; i++) {
 		metas[i].parentNode.removeChild(metas[i]);
 	}
 	var translator = Zotero.loadTranslator('web');
-	// use Embedded Metadata
+	//use Embedded Metadata
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 	translator.setDocument(doc);
-	translator.setHandler('itemDone', function (obj, item) {
-		if (itemType == 'bookSection') {
-			// add authors if we didn't get them from embedded metadata
+	translator.setHandler('itemDone', function(obj, item) {
+		if ( itemType == 'bookSection' ) {
+			//add authors if we didn't get them from embedded metadata
 			if (!item.creators.length) {
 				var authors = ZU.xpath(doc, '//ol[@id="authors"]/li/node()[1]');
-				for (let i = 0, n = authors.length; i < n; i++) {
+				for (var i=0, n=authors.length; i<n; i++) {
 					item.creators.push(
-						ZU.cleanAuthor(getAuthorName(authors[i].textContent), 'author', false));
+						ZU.cleanAuthor( getAuthorName(authors[i].textContent), 'author',false) );
 				}
 			}
 
-			// editors
+			//editors
 			var editors = ZU.xpath(doc, '//ol[@id="editors"]/li/node()[1]');
-			for (let i = 0, n = editors.length; i < n; i++) {
+			for (var i=0, n=editors.length; i<n; i++) {
 				item.creators.push(
-					ZU.cleanAuthor(getAuthorName(editors[i].textContent), 'editor', false));
+					ZU.cleanAuthor( getAuthorName(editors[i].textContent), 'editor',false) );
 			}
 
 			item.rights = ZU.xpathText(doc, '//p[@id="copyright"]');
 
-			// this is not great for summary, but will do for now
+			//this is not great for summary, but will do for now
 			item.abstractNote = ZU.xpathText(doc, '//div[@id="abstract"]/div[@class="para"]//p', null, "\n");
-		}
-		else {
+		} else {
 			var keywords = ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content');
 			if (keywords) {
 				item.tags = keywords.split(', ');
@@ -170,33 +193,27 @@ function scrapeEM(doc, url) {
 			item.abstractNote = ZU.xpathText(doc, '//div[@id="abstract"]/div[@class="para"]', null, "\n");
 		}
 
-		// set correct print publication date
+		//set correct print publication date
 		if (date) item.date = date;
 
-		// remove pdf attachments
-		for (let i = 0, n = item.attachments.length; i < n; i++) {
+		//remove pdf attachments
+		for (var i=0, n=item.attachments.length; i<n; i++) {
 			if (item.attachments[i].mimeType == 'application/pdf') {
-				item.attachments.splice(i, 1);
+				item.attachments.splice(i,1);
 				i--;
 				n--;
 			}
 		}
-
-		var pdfURL = attr(doc, 'meta[name="citation_pdf_url"]', "content");
-		if (pdfURL) {
-			pdfURL = pdfURL.replace('/pdf/', '/pdfdirect/');
-			//Z.debug("PDF URL: " + pdfURL);
-			item.attachments.push({
-				url: pdfURL,
-				title: 'Full Text PDF',
-				mimeType: 'application/pdf'
-			});
-		}
-		
 		item.complete();
 	});
 
-	translator.getTranslatorObject(function (em) {
+	addBookReviewTag(doc, item);
+	addArticleNumber(doc, item);
+	addFreeAccessTag(doc, item);
+	getORCID(doc, item);
+	item.complete();
+
+	translator.getTranslatorObject(function(em) {
 		em.itemType = itemType;
 		em.doWeb(doc, url);
 	});
@@ -222,77 +239,66 @@ function scrapeBibTeX(doc, url) {
 		host = 'onlinelibrary.wiley.com';
 	}
 	var postUrl = `https://${host}/action/downloadCitation`;
-	var body = 'direct=direct'
-				+ '&doi=' + encodeURIComponent(doi)
-				+ '&downloadFileName=pericles_14619563AxA'
-				+ '&format=bibtex' // '&format=ris' +
-				+ '&include=abs'
-				+ '&submit=Download';
+	var body = 'direct=direct' +
+				'&doi=' + encodeURIComponent(doi) +
+				'&downloadFileName=pericles_14619563AxA' +
+				'&format=bibtex' + //'&format=ris' +
+				'&include=abs' +
+				'&submit=Download';
 
-	ZU.doPost(postUrl, body, function (text) {
+	ZU.doPost(postUrl, body, function(text) {
 		// Replace uncommon dash (hex e2 80 90)
 		text = text.replace(/‐/g, '-').trim();
-		// Z.debug(text);
+		//Z.debug(text);
 
-		var re = /^\s*@[a-zA-Z]+[({]/;
+		var re = /^\s*@[a-zA-Z]+[\(\{]/;
 		if (text.startsWith('<') || !re.test(text)) {
 			throw new Error("Error retrieving BibTeX");
 		}
 
 		var translator = Zotero.loadTranslator('import');
-		// use BibTeX translator
+		//use BibTeX translator
 		translator.setTranslator("9cb70025-a888-4a29-a210-93ec52da40d4");
 		translator.setString(text);
 
-		translator.setHandler('itemDone', function (obj, item) {
-			// BibTeX throws the last names and first names together
-			// Therefore, we prefer creators names from EM (if available)
-			var primaryHeading = ZU.xpathText(doc, '//span[@class="primary-heading"]');
-			if (primaryHeading.match(/((book|short)\sreview)|(review\sessays?)/i)) {
-				item.tags.push("RezensionstagPica");
-			}
-			if (item.pages.match('-')) {
-				var pages = item.pages.split('-');
-				if (pages[0] == pages[1]) {
-					item.pages = pages[0];
-				}
-			}
-			var authors = doc.querySelectorAll('meta[name="citation_author"]');
-			if (authors && authors.length > 0) {
-				item.creators = [];
-				for (let i = 0; i < authors.length; i++) {
-					item.creators.push(ZU.cleanAuthor(authors[i].content, 'author'));
-				}
-			}
-			// fix author case
-			for (let i = 0, n = item.creators.length; i < n; i++) {
+		translator.setHandler('itemDone', function(obj, item) {
+			
+			//fix author case
+			for (var i=0, n=item.creators.length; i<n; i++) {
 				item.creators[i].firstName = fixCase(item.creators[i].firstName);
 				item.creators[i].lastName = fixCase(item.creators[i].lastName);
 			}
 
-			// delete nonsense author Null, Null
-			if (item.creators.length && item.creators[item.creators.length - 1].lastName == "Null"
-				&& item.creators[item.creators.length - 1].firstName == "Null"
+			//delete nonsense author Null, Null
+			if (item.creators.length && item.creators[item.creators.length-1].lastName == "Null"
+				&& item.creators[item.creators.length-1].firstName == "Null"
 			) {
 				item.creators = item.creators.slice(0, -1);
 			}
 
-			// editors
+			//editors
 			var editors = ZU.xpath(doc, '//ol[@id="editors"]/li/node()[1]');
-			for (let i = 0, n = editors.length; i < n; i++) {
+			for (var i=0, n=editors.length; i<n; i++) {
 				item.creators.push(
-					ZU.cleanAuthor(getAuthorName(editors[i].textContent), 'editor', false));
+					ZU.cleanAuthor( getAuthorName(editors[i].textContent), 'editor',false) );
 			}
 
-			// title
+			//title
 			if (item.title && item.title.toUpperCase() == item.title) {
 				item.title = ZU.capitalizeTitle(item.title, true);
 			}
-
+			//subtitle
+			let citationSubtitle = ZU.xpathText(doc, '//*[@class="citation__subtitle"]');
+			if (item.title && citationSubtitle) item.title = item.title + ': ' + citationSubtitle;
+			
 			if (!item.date) {
 				item.date = ZU.xpathText(doc, '//meta[@name="citation_publication_date"]/@content');
 			}
-			// date in the cochraine library RIS is wrong
+			if (!item.date) {
+				item.date = ZU.xpathText(doc, '//span[@class="epub-date" and preceding-sibling::span[@class="epub-state" and contains(text(), "First published:")]]/text()')
+			}
+
+			//date in the cochraine library RIS is wrong
 			if (ZU.xpathText(doc, '//meta[@name="citation_book_title"]/@content') == "The Cochrane Library") {
 				item.date = ZU.xpathText(doc, '//meta[@name="citation_online_date"]/@content');
 			}
@@ -304,7 +310,7 @@ function scrapeBibTeX(doc, url) {
 				item.ISSN = ZU.xpathText(doc, '//meta[@name="citation_issn"]/@content');
 			}
 
-			// tags
+			//tags
 			if (!item.tags.length) {
 				var keywords = ZU.xpathText(doc,
 					'//meta[@name="citation_keywords"][1]/@content');
@@ -313,73 +319,67 @@ function scrapeBibTeX(doc, url) {
 				}
 			}
 
-			// abstract should not start with "Abstract"
+			//abstract should not start with "Abstract"
 			if (item.abstractNote) {
 				item.abstractNote = item.abstractNote.replace(/^(Abstract|Summary) /i, '');
 			}
 
-			// url in bibtex is invalid
-			item.url
-				= ZU.xpathText(doc,
-					'//meta[@name="citation_summary_html_url"][1]/@content')
-				|| ZU.xpathText(doc,
-					'//meta[@name="citation_abstract_html_url"][1]/@content')
-				|| ZU.xpathText(doc,
-					'//meta[@name="citation_fulltext_html_url"][1]/@content')
-				|| url;
+			//url in bibtex is invalid
+			item.url =
+				ZU.xpathText(doc,
+					'//meta[@name="citation_summary_html_url"][1]/@content') ||
+				ZU.xpathText(doc,
+					'//meta[@name="citation_abstract_html_url"][1]/@content') ||
+				ZU.xpathText(doc,
+					'//meta[@name="citation_fulltext_html_url"][1]/@content') ||
+				url;
 
-			// bookTitle
+			//bookTitle
 			if (!item.bookTitle) {
-				item.bookTitle = item.publicationTitle
-					|| ZU.xpathText(doc,
+				item.bookTitle = item.publicationTitle ||
+					ZU.xpathText(doc,
 						'//meta[@name="citation_book_title"][1]/@content');
 			}
 
-			// language
+			//language
 			if (!item.language) {
 				item.language = ZU.xpathText(doc,
 					'//meta[@name="citation_language"][1]/@content');
 			}
 
-			// rights
+			//rights
 			item.rights = ZU.xpathText(doc,
 				'//p[@class="copyright" or @id="copyright"]');
 
-			// attachments
+			addArticleNumber(doc, item);
+			addPages(doc, item);
+			//attachments
 			item.attachments = [{
 				title: 'Snapshot',
 				document: doc,
 				mimeType: 'text/html'
 			}];
 
-			var pdfURL = attr(doc, 'meta[name="citation_pdf_url"]', "content");
-			if (pdfURL) {
-				pdfURL = pdfURL.replace('/pdf/', '/pdfdirect/');
-				Z.debug("PDF URL: " + pdfURL);
-				item.attachments.push({
-					url: pdfURL,
-					title: 'Full Text PDF',
-					mimeType: 'application/pdf'
-				});
+			addBookReviewTag(doc, item);
+			// adding author(s) for Short Reviews
+			if (!item.creators[0] && getAuthorNameShortReview(doc).length > 20) {
+				for (let author of getAuthorNameShortReview(doc))
+					item.creators.push(ZU.cleanAuthor(author));
 			}
-			if (!item.date) {
-				let date = attr(doc, 'meta[name="citation_online_date"]', "content");
-				if (date) {
-					item.date = date.substring(0, 4);
-				}
-			}
-			if (!item.creators[0]) {
+			
+			if (!item.creators[0] && item.ISSN == "1748-0922") {
 				let author = ZU.xpathText(doc, '//section[@class="article-section__content"]/p[last()-1]/i');
 				if (author) {
 					item.creators.push(ZU.cleanAuthor(getAuthorName(author), 'author', false));
 				}
 			}
-			if (item.DOI) {
-			if (item.DOI.match('https') && ZU.xpathText(doc, '//meta[@name="citation_doi"]/@content')) {
-				item.DOI = ZU.xpathText(doc, '//meta[@name="citation_doi"]/@content');
-			}
-			}
-			
+
+			// Make sure we pass only the DOI not the whole URL
+			doiURLRegex = /^https:\/\/doi.org\/(.*)/;
+			if (item.DOI && item.DOI.match(doiURLRegex))
+				item.DOI = item.DOI.replace(/^https:\/\/doi.org\/(.*)/, "$1");
+			addFreeAccessTag(doc, item);
+			getORCID(doc, item);
 			item.complete();
 		});
 
@@ -387,31 +387,57 @@ function scrapeBibTeX(doc, url) {
 	});
 }
 
-function scrapeCochraneTrial(doc) {
+//ubtue:tag an article as open access
+function addFreeAccessTag(doc, item) {
+	let tagEntry = ZU.xpathText(doc, '//div[@class="doi-access"]');
+	if (tagEntry && tagEntry.match(/(Free|Open)\s+Access/i)) {
+		item.notes.push('LF:');
+	};
+}
+
+function getORCID(doc, item) {
+	let authorOrcidEntries = doc.querySelectorAll('#sb-1 span');
+	for (let authorOrcidEntry of authorOrcidEntries) {
+		let authorEntry = authorOrcidEntry.querySelector('.author-name accordion-tabbed__control, span');
+		let orcidEntry = authorOrcidEntry.querySelector('*[href^="https://orcid"]');
+		if (authorEntry && orcidEntry && orcidEntry.text && orcidEntry.text.match(/\d+-\d+-\d+-\d+x?/i)) {
+			let author = authorEntry.textContent;
+			let orcid = orcidEntry.text.match(/\d+-\d+-\d+-\d+x?/i)[0];
+			item.notes.push({note: "orcid:" + orcid + ' | ' + author});
+			item.notes = Array.from(new Set(item.notes.map(JSON.stringify))).map(JSON.parse);
+		}
+	}
+}
+
+	
+function scrapeCochraneTrial(doc, url){
 	Z.debug("Scraping Cochrane External Sources");
 	var item = new Zotero.Item('journalArticle');
-	// Z.debug(ZU.xpathText(doc, '//meta/@content'))
+	//Z.debug(ZU.xpathText(doc, '//meta/@content'))
 	item.title = ZU.xpathText(doc, '//meta[@name="Article-title"]/@content');
 	item.publicationTitle = ZU.xpathText(doc, '//meta[@name="source"]/@content');
 	item.abstractNote = ZU.xpathText(doc, '//meta[@name="abstract"]/@content');
 	item.date = ZU.xpathText(doc, '//meta[@name="simpleYear"]/@content');
+	if (!item.date) {
+		item.date = ZU.xpathText(doc, '//span[@class="epub-date" and preceding-sibling::span[@class="epub-state" and contains(text(), "First published:")]]')
+	}
 	item.volume = ZU.xpathText(doc, '//meta[@name="volume"]/@content');
 	item.pages = ZU.xpathText(doc, '//meta[@name="pages"]/@content');
 	item.issue = ZU.xpathText(doc, '//meta[@name="issue"]/@content');
 	item.rights = ZU.xpathText(doc, '//meta[@name="Copyright"]/@content');
 	var tags = ZU.xpathText(doc, '//meta[@name="cochraneGroupCode"]/@content');
 	if (tags) tags = tags.split(/\s*;\s*/);
-	for (var i in tags) {
+	for (var i in tags){
 		item.tags.push(tags[i]);
 	}
-	item.attachments.push({ document: doc, title: "Cochrane Snapshot", mimType: "text/html" });
+	item.attachments.push({document: doc, title: "Cochrane Snapshot", mimType: "text/html"});
 	var authors = ZU.xpathText(doc, '//meta[@name="orderedAuthors"]/@content');
 	if (!authors) authors = ZU.xpathText(doc, '//meta[@name="Author"]/@content');
 
 	authors = authors.split(/\s*,\s*/);
 
-	for (let i = 0; i < authors.length; i++) {
-		// authors are in the forms Smith AS
+	for (var i=0; i<authors.length; i++){
+		//authors are in the forms Smith AS
 		var authormatch = authors[i].match(/(.+?)\s+([A-Z]+(\s[A-Z])?)\s*$/);
 		if (authormatch) {
 			item.creators.push({
@@ -419,8 +445,7 @@ function scrapeCochraneTrial(doc) {
 				firstName: authormatch[2],
 				creatorType: "author"
 			});
-		}
-		else {
+		} else {
 			item.creators.push({
 				lastName: authors[i],
 				fieldMode: 1,
@@ -428,19 +453,28 @@ function scrapeCochraneTrial(doc) {
 			});
 		}
 	}
+
+	addBookReviewTag(doc, item);
+	addArticleNumber(doc, item);
 	item.complete();
 }
 
+// returns author(s) of short reviews
+function getAuthorNameShortReview(doc) {
+	let authorsShortReview = doc.querySelectorAll("[class^='article-section'] > p");
+	if (authorsShortReview && authorsShortReview.length >= 2)
+		return [authorsShortReview[authorsShortReview.length - 2].innerText];
+	return [];
+}
+
 function scrape(doc, url) {
-	var itemType = detectWeb(doc, url);
+	var itemType = detectWeb(doc,url);
 
 	if (itemType == 'book') {
 		scrapeBook(doc, url);
-	}
-	else if (/\/o\/cochrane\/(clcentral|cldare|clcmr|clhta|cleed|clabout)/.test(url)) {
-		scrapeCochraneTrial(doc);
-	}
-	else {
+	} else if (/\/o\/cochrane\/(clcentral|cldare|clcmr|clhta|cleed|clabout)/.test(url)) {
+		scrapeCochraneTrial(doc, url);
+	} else {
 		scrapeBibTeX(doc, url);
 	}
 }
@@ -449,7 +483,7 @@ function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
 	var rows = doc.querySelectorAll('.table-of-content a.issue-item__title, .item__body h2 a');
-	for (var i = 0; i < rows.length; i++) {
+	for (var i=0; i<rows.length; i++) {
 		var href = rows[i].href;
 		var title = ZU.trimInternal(rows[i].textContent);
 		if (!href || !title) continue;
@@ -462,31 +496,27 @@ function getSearchResults(doc, checkOnly) {
 
 
 function detectWeb(doc, url) {
-	// monitor for site changes on Cochrane
+	//monitor for site changes on Cochrane
 	if (doc.getElementsByClassName('cochraneSearchForm').length && doc.getElementById('searchResultOuter')) {
 		Zotero.monitorDOMChanges(doc.getElementById('searchResultOuter'));
 	}
 
-	if (url.includes('/toc')
-		|| url.includes('/results')
-		|| url.includes('/doSearch')
-		|| url.includes('/mainSearch?')
+	if (url.includes('/toc') ||
+		url.includes('/results') ||
+		url.includes('/doSearch') ||
+		url.includes('/mainSearch?')
 	) {
 		if (getSearchResults(doc, true)) return 'multiple';
-	}
-	else if (url.includes('/book/')) {
-		// if the book has more than one chapter, scrape chapters
+	} else if (url.includes('/book/')) {
+		//if the book has more than one chapter, scrape chapters
 		if (getSearchResults(doc, true)) return 'multiple';
-		// otherwise, import book
-		return 'book'; // does this exist?
-	}
-	else if (ZU.xpath(doc, '//meta[@name="citation_book_title"]').length) {
+		//otherwise, import book
+		return 'book'; //does this exist?
+	} else if (ZU.xpath(doc, '//meta[@name="citation_book_title"]').length ) {
 		return 'bookSection';
-	}
-	else {
+	} else {
 		return 'journalArticle';
 	}
-	return false;
 }
 
 
@@ -495,11 +525,11 @@ function doWeb(doc, url) {
 	if (type == "multiple") {
 		Zotero.selectItems(getSearchResults(doc, false), function (items) {
 			if (!items) {
-				return;
+				return true;
 			}
 			var articles = [];
 			for (var i in items) {
-				// for Cochrane trials - get the frame with the actual data
+				//for Cochrane trials - get the frame with the actual data
 				if (i.includes("frame.html")) i = i.replace(/frame\.html$/, "sect0.html");
 				articles.push(i);
 			}
@@ -507,24 +537,25 @@ function doWeb(doc, url) {
 		});
 	}
 	// Single article
-	// /pdf/, /epdf/, or /pdfdirect/
-	else if (/\/e?pdf(direct)?\//.test(url)) {
-		url = url.replace(/\/e?pdf(direct)?\//, '/');
-		Zotero.debug("Redirecting to abstract page: " + url);
-		ZU.processDocuments(url, function (doc, url) {
-			scrape(doc, url);
-		});
-	}
 	else {
-		scrape(doc, url);
+		// /pdf/, /epdf/, or /pdfdirect/
+		if (/\/e?pdf(direct)?\//.test(url)) {
+			url = url.replace(/\/e?pdf(direct)?\//,'/');
+			Zotero.debug("Redirecting to abstract page: "+url);
+			ZU.processDocuments(url, function(doc, url) {
+				scrape(doc, url);
+			});
+		}
+		else {
+			scrape(doc, url);
+		}
 	}
 }
-
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "web",
-		"url": "https://onlinelibrary.wiley.com/action/doSearch?field1=AllField&text1=zotero&field2=AllField&text2=&field3=AllField&text3=&Ppub=&AfterMonth=&AfterYear=&BeforeMonth=&BeforeYear=",
+		"url": "https://onlinelibrary.wiley.com/action/doSearch?AfterMonth=&AfterYear=&BeforeMonth=&BeforeYear=&Ppub=&field1=AllField&field2=AllField&field3=AllField&text1=zotero&text2=&text3=",
 		"items": "multiple"
 	},
 	{
@@ -535,24 +566,20 @@ var testCases = [
 				"itemType": "bookSection",
 				"title": "Endnotes",
 				"creators": [],
-				"date": "2012",
+				"date": "2012-01-11",
 				"ISBN": "9781118269381",
 				"bookTitle": "The World is Open",
 				"extra": "DOI: 10.1002/9781118269381.notes",
-				"itemID": "doi:10.1002/9781118269381.notes",
+				"itemID": "doi:https://doi.org/10.1002/9781118269381.notes",
 				"language": "en",
-				"libraryCatalog": "Wiley Online Library",
+				"libraryCatalog": "ubtue_Wiley Online Library",
 				"pages": "427-467",
-				"publisher": "Wiley-Blackwell",
+				"publisher": "John Wiley & Sons, Ltd",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/9781118269381.notes",
 				"attachments": [
 					{
 						"title": "Snapshot",
 						"mimeType": "text/html"
-					},
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
 					}
 				],
 				"tags": [],
@@ -568,7 +595,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://onlinelibrary.wiley.com/book/10.1002/9783527610853",
+		"url": "https://onlinelibrary.wiley.com/doi/book/10.1002/9783527610853",
 		"items": "multiple"
 	},
 	{
@@ -579,25 +606,21 @@ var testCases = [
 				"itemType": "bookSection",
 				"title": "Silent Cinema and its Pioneers (1906–1930)",
 				"creators": [],
-				"date": "2009",
+				"date": "2008",
 				"ISBN": "9781444304794",
 				"abstractNote": "This chapter contains sections titled: Historical and Political Overview of the Period Context11 Film Scenes: Close Readings Directors (Life and Works) Critical Commentary",
 				"bookTitle": "100 Years of Spanish Cinema",
 				"extra": "DOI: 10.1002/9781444304794.ch1",
-				"itemID": "doi:10.1002/9781444304794.ch1",
+				"itemID": "doi:https://doi.org/10.1002/9781444304794.ch1",
 				"language": "en",
-				"libraryCatalog": "Wiley Online Library",
+				"libraryCatalog": "ubtue_Wiley Online Library",
 				"pages": "1-20",
-				"publisher": "Wiley-Blackwell",
+				"publisher": "John Wiley & Sons, Ltd",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/9781444304794.ch1",
 				"attachments": [
 					{
 						"title": "Snapshot",
 						"mimeType": "text/html"
-					},
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
 					}
 				],
 				"tags": [
@@ -648,17 +671,17 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://onlinelibrary.wiley.com/book/10.1002/9781444390124",
+		"url": "https://onlinelibrary.wiley.com/doi/book/10.1002/9781444390124",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
-		"url": "http://onlinelibrary.wiley.com/book/10.1002/9780470320419",
+		"url": "https://ceramics.onlinelibrary.wiley.com/doi/book/10.1002/9780470320419",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
-		"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/pmic.201100327",
+		"url": "https://analyticalsciencejournals.onlinelibrary.wiley.com/doi/full/10.1002/pmic.201100327",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -685,14 +708,14 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "2012-01-01",
+				"date": "2012",
 				"DOI": "10.1002/pmic.201100327",
 				"ISSN": "1615-9861",
 				"abstractNote": "Amidation is a post-translational modification found at the C-terminus of ∼50% of all neuropeptide hormones. Cleavage of the Cα–N bond of a C-terminal glycine yields the α-amidated peptide in a reaction catalyzed by peptidylglycine α-amidating monooxygenase (PAM). The mass of an α-amidated peptide decreases by 58 Da relative to its precursor. The amino acid sequences of an α-amidated peptide and its precursor differ only by the C-terminal glycine meaning that the peptides exhibit similar RP-HPLC properties and tandem mass spectral (MS/MS) fragmentation patterns. Growth of cultured cells in the presence of a PAM inhibitor ensured the coexistence of α-amidated peptides and their precursors. A strategy was developed for precursor and α-amidated peptide pairing (PAPP): LC-MS/MS data of peptide extracts were scanned for peptide pairs that differed by 58 Da in mass, but had similar RP-HPLC retention times. The resulting peptide pairs were validated by checking for similar fragmentation patterns in their MS/MS data prior to identification by database searching or manual interpretation. This approach significantly reduced the number of spectra requiring interpretation, decreasing the computing time required for database searching and enabling manual interpretation of unidentified spectra. Reported here are the α-amidated peptides identified from AtT-20 cells using the PAPP method.",
 				"issue": "2",
-				"itemID": "doi:10.1002/pmic.201100327",
+				"itemID": "https://doi.org/10.1002/pmic.201100327",
 				"language": "en",
-				"libraryCatalog": "Wiley Online Library",
+				"libraryCatalog": "ubtue_Wiley Online Library",
 				"pages": "173-182",
 				"publicationTitle": "PROTEOMICS",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/pmic.201100327",
@@ -701,10 +724,6 @@ var testCases = [
 					{
 						"title": "Snapshot",
 						"mimeType": "text/html"
-					},
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
 					}
 				],
 				"tags": [
@@ -728,7 +747,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://onlinelibrary.wiley.com/doi/full/10.1002/pmic.201100327",
+		"url": "https://analyticalsciencejournals.onlinelibrary.wiley.com/doi/full/10.1002/pmic.201100327",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -755,14 +774,14 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "2012-01-01",
+				"date": "2012",
 				"DOI": "10.1002/pmic.201100327",
 				"ISSN": "1615-9861",
 				"abstractNote": "Amidation is a post-translational modification found at the C-terminus of ∼50% of all neuropeptide hormones. Cleavage of the Cα–N bond of a C-terminal glycine yields the α-amidated peptide in a reaction catalyzed by peptidylglycine α-amidating monooxygenase (PAM). The mass of an α-amidated peptide decreases by 58 Da relative to its precursor. The amino acid sequences of an α-amidated peptide and its precursor differ only by the C-terminal glycine meaning that the peptides exhibit similar RP-HPLC properties and tandem mass spectral (MS/MS) fragmentation patterns. Growth of cultured cells in the presence of a PAM inhibitor ensured the coexistence of α-amidated peptides and their precursors. A strategy was developed for precursor and α-amidated peptide pairing (PAPP): LC-MS/MS data of peptide extracts were scanned for peptide pairs that differed by 58 Da in mass, but had similar RP-HPLC retention times. The resulting peptide pairs were validated by checking for similar fragmentation patterns in their MS/MS data prior to identification by database searching or manual interpretation. This approach significantly reduced the number of spectra requiring interpretation, decreasing the computing time required for database searching and enabling manual interpretation of unidentified spectra. Reported here are the α-amidated peptides identified from AtT-20 cells using the PAPP method.",
 				"issue": "2",
-				"itemID": "doi:10.1002/pmic.201100327",
+				"itemID": "https://doi.org/10.1002/pmic.201100327",
 				"language": "en",
-				"libraryCatalog": "Wiley Online Library",
+				"libraryCatalog": "ubtue_Wiley Online Library",
 				"pages": "173-182",
 				"publicationTitle": "PROTEOMICS",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/pmic.201100327",
@@ -771,10 +790,6 @@ var testCases = [
 					{
 						"title": "Snapshot",
 						"mimeType": "text/html"
-					},
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
 					}
 				],
 				"tags": [
@@ -798,7 +813,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://onlinelibrary.wiley.com/doi/full/10.1002/pmic.201100327#references-section",
+		"url": "https://analyticalsciencejournals.onlinelibrary.wiley.com/doi/full/10.1002/pmic.201100327#references-section",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -825,14 +840,14 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "2012-01-01",
+				"date": "2012",
 				"DOI": "10.1002/pmic.201100327",
 				"ISSN": "1615-9861",
 				"abstractNote": "Amidation is a post-translational modification found at the C-terminus of ∼50% of all neuropeptide hormones. Cleavage of the Cα–N bond of a C-terminal glycine yields the α-amidated peptide in a reaction catalyzed by peptidylglycine α-amidating monooxygenase (PAM). The mass of an α-amidated peptide decreases by 58 Da relative to its precursor. The amino acid sequences of an α-amidated peptide and its precursor differ only by the C-terminal glycine meaning that the peptides exhibit similar RP-HPLC properties and tandem mass spectral (MS/MS) fragmentation patterns. Growth of cultured cells in the presence of a PAM inhibitor ensured the coexistence of α-amidated peptides and their precursors. A strategy was developed for precursor and α-amidated peptide pairing (PAPP): LC-MS/MS data of peptide extracts were scanned for peptide pairs that differed by 58 Da in mass, but had similar RP-HPLC retention times. The resulting peptide pairs were validated by checking for similar fragmentation patterns in their MS/MS data prior to identification by database searching or manual interpretation. This approach significantly reduced the number of spectra requiring interpretation, decreasing the computing time required for database searching and enabling manual interpretation of unidentified spectra. Reported here are the α-amidated peptides identified from AtT-20 cells using the PAPP method.",
 				"issue": "2",
-				"itemID": "doi:10.1002/pmic.201100327",
+				"itemID": "https://doi.org/10.1002/pmic.201100327",
 				"language": "en",
-				"libraryCatalog": "Wiley Online Library",
+				"libraryCatalog": "ubtue_Wiley Online Library",
 				"pages": "173-182",
 				"publicationTitle": "PROTEOMICS",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/pmic.201100327",
@@ -841,10 +856,6 @@ var testCases = [
 					{
 						"title": "Snapshot",
 						"mimeType": "text/html"
-					},
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
 					}
 				],
 				"tags": [
@@ -868,7 +879,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://onlinelibrary.wiley.com/doi/full/10.1002/pmic.201100327#citedBy",
+		"url": "https://analyticalsciencejournals.onlinelibrary.wiley.com/doi/full/10.1002/pmic.201100327#citedBy",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -895,14 +906,14 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "2012-01-01",
+				"date": "2012",
 				"DOI": "10.1002/pmic.201100327",
 				"ISSN": "1615-9861",
 				"abstractNote": "Amidation is a post-translational modification found at the C-terminus of ∼50% of all neuropeptide hormones. Cleavage of the Cα–N bond of a C-terminal glycine yields the α-amidated peptide in a reaction catalyzed by peptidylglycine α-amidating monooxygenase (PAM). The mass of an α-amidated peptide decreases by 58 Da relative to its precursor. The amino acid sequences of an α-amidated peptide and its precursor differ only by the C-terminal glycine meaning that the peptides exhibit similar RP-HPLC properties and tandem mass spectral (MS/MS) fragmentation patterns. Growth of cultured cells in the presence of a PAM inhibitor ensured the coexistence of α-amidated peptides and their precursors. A strategy was developed for precursor and α-amidated peptide pairing (PAPP): LC-MS/MS data of peptide extracts were scanned for peptide pairs that differed by 58 Da in mass, but had similar RP-HPLC retention times. The resulting peptide pairs were validated by checking for similar fragmentation patterns in their MS/MS data prior to identification by database searching or manual interpretation. This approach significantly reduced the number of spectra requiring interpretation, decreasing the computing time required for database searching and enabling manual interpretation of unidentified spectra. Reported here are the α-amidated peptides identified from AtT-20 cells using the PAPP method.",
 				"issue": "2",
-				"itemID": "doi:10.1002/pmic.201100327",
+				"itemID": "https://doi.org/10.1002/pmic.201100327",
 				"language": "en",
-				"libraryCatalog": "Wiley Online Library",
+				"libraryCatalog": "ubtue_Wiley Online Library",
 				"pages": "173-182",
 				"publicationTitle": "PROTEOMICS",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/pmic.201100327",
@@ -911,10 +922,6 @@ var testCases = [
 					{
 						"title": "Snapshot",
 						"mimeType": "text/html"
-					},
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
 					}
 				],
 				"tags": [
@@ -945,8 +952,8 @@ var testCases = [
 				"title": "β-Rezeptorenblocker",
 				"creators": [
 					{
-						"firstName": "L. von",
-						"lastName": "Meyer",
+						"firstName": "L.",
+						"lastName": "von Meyer",
 						"creatorType": "author"
 					},
 					{
@@ -955,25 +962,21 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "2005",
+				"date": "2002",
 				"ISBN": "9783527603015",
 				"abstractNote": "Immunoassay Hochleistungsflüssigkeitschromatographie (HPLC) Gaschromatographie Medizinische Beurteilung und klinische Interpretation Literatur",
 				"bookTitle": "Klinisch-toxikologische Analytik",
 				"extra": "DOI: 10.1002/3527603018.ch17",
-				"itemID": "doi:10.1002/3527603018.ch17",
+				"itemID": "doi:https://doi.org/10.1002/3527603018.ch17",
 				"language": "de",
-				"libraryCatalog": "Wiley Online Library",
+				"libraryCatalog": "ubtue_Wiley Online Library",
 				"pages": "365-370",
-				"publisher": "Wiley-Blackwell",
+				"publisher": "John Wiley & Sons, Ltd",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/3527603018.ch17",
 				"attachments": [
 					{
 						"title": "Snapshot",
 						"mimeType": "text/html"
-					},
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
 					}
 				],
 				"tags": [
@@ -1015,21 +1018,18 @@ var testCases = [
 				"libraryCatalog": "ubtue_Wiley Online Library",
 				"pages": "1-18",
 				"publicationTitle": "Journal of Applied Philosophy",
-				"rights": "Published 2011. This article is a U.S. Government work and is in the public domain in the USA.",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1468-5930.2011.00548.x",
 				"volume": "29",
 				"attachments": [
 					{
 						"title": "Snapshot",
 						"mimeType": "text/html"
-					},
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
 					}
 				],
 				"tags": [],
-				"notes": [],
+				"notes": [
+					"LF:"
+				],
 				"seeAlso": []
 			}
 		]
@@ -1063,7 +1063,6 @@ var testCases = [
 				"libraryCatalog": "ubtue_Wiley Online Library",
 				"pages": "951-974",
 				"publicationTitle": "The Journal of Finance",
-				"rights": "© 1986 the American Finance Association",
 				"shortTitle": "Volume for Winners and Losers",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-6261.1986.tb04559.x",
 				"volume": "41",
@@ -1071,10 +1070,6 @@ var testCases = [
 					{
 						"title": "Snapshot",
 						"mimeType": "text/html"
-					},
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
 					}
 				],
 				"tags": [],
@@ -1112,7 +1107,6 @@ var testCases = [
 				"libraryCatalog": "ubtue_Wiley Online Library",
 				"pages": "165-168",
 				"publicationTitle": "Angewandte Chemie International Edition",
-				"rights": "© 2000 WILEY-VCH Verlag GmbH, Weinheim, Fed. Rep. of Germany",
 				"shortTitle": "Phosphane-Free Palladium-Catalyzed Coupling Reactions",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/%28SICI%291521-3773%2820000103%2939%3A1%3C165%3A%3AAID-ANIE165%3E3.0.CO%3B2-B",
 				"volume": "39",
@@ -1120,10 +1114,6 @@ var testCases = [
 					{
 						"title": "Snapshot",
 						"mimeType": "text/html"
-					},
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
 					}
 				],
 				"tags": [
@@ -1174,17 +1164,12 @@ var testCases = [
 				"libraryCatalog": "ubtue_Wiley Online Library",
 				"pages": "875-885",
 				"publicationTitle": "Journal of Heterocyclic Chemistry",
-				"rights": "Copyright © 1983 Journal of Heterocyclic Chemistry",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/jhet.5570200408",
 				"volume": "20",
 				"attachments": [
 					{
 						"title": "Snapshot",
 						"mimeType": "text/html"
-					},
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
 					}
 				],
 				"tags": [],
@@ -1222,17 +1207,12 @@ var testCases = [
 				"libraryCatalog": "ubtue_Wiley Online Library",
 				"pages": "25-99",
 				"publicationTitle": "New Directions for Evaluation",
-				"rights": "© Wiley Periodicals, Inc., and the American Evaluation Association",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/ev.20077",
 				"volume": "2014",
 				"attachments": [
 					{
 						"title": "Snapshot",
 						"mimeType": "text/html"
-					},
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
 					}
 				],
 				"tags": [],
@@ -1255,7 +1235,7 @@ var testCases = [
 				"title": "SACRED MISINTERPRETATION: REACHING ACROSS THE CHRISTIAN-MUSLIM DIVIDE. By Martin Accad. Grand Rapids, MI: Eerdmans, 2019. Pp. xxx + 366. Paper, $38.00.",
 				"creators": [
 					{
-						"firstName": "tthew",
+						"firstName": "Matthew",
 						"lastName": "Friedman",
 						"creatorType": "author"
 					}
@@ -1267,9 +1247,8 @@ var testCases = [
 				"itemID": "https://doi.org/10.1111/rsr.14681",
 				"language": "en",
 				"libraryCatalog": "ubtue_Wiley Online Library",
-				"pages": "378",
+				"pages": "378-378",
 				"publicationTitle": "Religious Studies Review",
-				"rights": "© 2020 Rice University",
 				"shortTitle": "SACRED MISINTERPRETATION",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/rsr.14681",
 				"volume": "46",
@@ -1277,17 +1256,22 @@ var testCases = [
 					{
 						"title": "Snapshot",
 						"mimeType": "text/html"
-					},
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
 					}
 				],
-				"tags": [],
+				"tags": [
+					{
+						"tag": "Book Review"
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://onlinelibrary.wiley.com/toc/17586623/2021/73/1",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
