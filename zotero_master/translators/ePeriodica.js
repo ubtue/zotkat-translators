@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-01-28 10:25:50"
+	"lastUpdated": "2021-10-20 14:42:53"
 }
 
 /*
@@ -91,6 +91,7 @@ function scrape(doc, url) {
 					title: "Snapshot",
 					document: doc
 			});
+			item.title = item.title.replace(' : ', ': ');
 			item.url = url;
 			item.libraryCatalog = 'e-periodica';
 			item.complete();
