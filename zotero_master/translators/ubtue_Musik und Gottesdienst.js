@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-20 14:20:55"
+	"lastUpdated": "2021-10-25 14:31:37"
 }
 
 /*
@@ -69,7 +69,7 @@ function doWeb(doc, url) {
 
 function scrape(doc, text) {
 	var item = new Zotero.Item('journalArticle');
-	var str = text.replace(/Übersetzt und überarbeitet von|\(Nachtrag I\)|\(Nachtrag II\)|-/gi, '').split('|');
+	var str = text.replace(/Übersetzt und überarbeitet von|\(Nachtrag I\)|\(Nachtrag II\)/gi, '').split('|');
 	let authors = str[0].split(/und|,|&|\//);
 	for (let author of authors) {
 		item.creators.push(ZU.cleanAuthor(author, "author"));
@@ -77,10 +77,11 @@ function scrape(doc, text) {
 	}
 		item.title = str[1].toString();
 		item.url = str[2].toString();
-		item.volume = str[3].match(/\d+/).toString();
+		item.volume = str[3].match(/\d{2}/).toString();
 		item.date = str[3].match(/\d{4}/).toString();
 		item.ISSN = "1015-6798";
 		item.notes.push({note: "LF"});
+		item.publicationTitle = "Musik und Gottesdienst";
 		item.complete();
 }
 /** BEGIN TEST CASES **/
