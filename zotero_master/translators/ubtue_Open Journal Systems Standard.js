@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-07-19 14:45:39"
+	"lastUpdated": "2021-10-27 14:51:43"
 }
 
 /*
@@ -64,6 +64,7 @@ function invokeEMTranslator(doc) {
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
+		
 		if (doc.querySelector(".subtitle")) {
  			i.title = i.title + ' ' + doc.querySelector(".subtitle").textContent.trim();
  		}
@@ -119,7 +120,7 @@ function invokeEMTranslator(doc) {
  		//note = notesEntry.split(/\s*https?:\/\/orcid\.org\//\s/);
 		//for (let n in notesEntry) {
 		//i.tags.push(note[n]); //alternativ .replace(/^\w/, function($0) { return $0.toUpperCase(); }))	
-
+		
  		if (i.pages !== undefined) {
 		var firstPage = ZU.xpathText(doc, '//meta[@name="citation_firstpage"]/@content');
 		var lastPage = ZU.xpathText(doc, '//meta[@name="citation_lastpage"]/@content');
@@ -147,6 +148,7 @@ function invokeEMTranslator(doc) {
 				i.tags.push(tag[t].capitalizeFirstLetter()); //alternativ .replace(/^\w/, function($0) { return $0.toUpperCase(); }))
 			}
 		}
+		
 		if (i.tags[0] === "book review") i.tags.push('RezensionstagPica') && delete i.tags[0];
 		if (doc.querySelector(".current")) {
 		if (doc.querySelector(".current").textContent.trim() === "Book Reviews" || articleType === "Recensiones") {
@@ -156,7 +158,9 @@ function invokeEMTranslator(doc) {
 		if (['2617-3697', '2660-4418', '2748-6419'].includes(i.ISSN)) {
 			if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')) {
 				if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')[0].content.match(/(Media reviews)|(Rezensionen)/i)) {
+					if (!i.tags.includes("RezensionstagPica")) {
 					i.tags.push("RezensionstagPica");
+				}
 				}
 			}
 		}
@@ -165,6 +169,7 @@ function invokeEMTranslator(doc) {
 			i.abstractNote = i.abstractNote.substring(0, i.abstractNote.indexOf("\nReferences\n"));
 		}
 		}
+		
 		if (['2617-3697', '2660-4418', '2748-6419'].includes(i.ISSN)) {
 			let subtitle = ZU.xpathText(doc, '//h1/small');
 			if (subtitle) {
@@ -182,6 +187,37 @@ function invokeEMTranslator(doc) {
 				i.tags.push(tags[t].content);
 			}
 		}
+		
+		var authorNames = ZU.xpath(doc, '//meta[@name = "DC.Creator.PersonalName"]');
+		newCreators = [];
+		for (let entry in authorNames) {
+			var authorName = authorNames[entry].content;
+			if (authorName.match(/\(review/i)) {
+				authorName = authorName.substring(0, authorName.indexOf(" ("));
+			newCreators.push(ZU.cleanAuthor(authorName, "author")) ;
+			if (!i.tags.includes("RezensionstagPica")) {
+					i.tags.push("RezensionstagPica");
+				}
+			}
+			else if (authorName.match(/\(book/i)) {
+				i.title = authorName.substring(0, authorName.indexOf(" (")) + ', ' + i.title;
+			}
+		}
+		if (newCreators.length != 0) {
+			i.creators = newCreators;
+		}
+		
+		if (i.ISSN === "1893-4773") {
+			var articleType = ZU.xpath(doc, '//meta[@name = "DC.Type.articleType"]');
+			if (articleType) {
+				if (articleType[0]['content'] == "Bokanmeldelser"){
+					if (!i.tags.includes("RezensionstagPica")) {
+					i.tags.push("RezensionstagPica");
+				}
+				}
+			}
+			
+		}
 		if (i.ISSN === '2312-3621' && i.abstractNote) {
 			if (i.abstractNote.match(/https:\/\/doi\.org\/\d{2}\.\d+\/.*$/)) {
 				i.DOI = i.abstractNote.substring(i.abstractNote.indexOf('https:\/\/doi\.org'), i.abstractNote.length).replace('https://doi.org/', '');
@@ -194,6 +230,8 @@ function invokeEMTranslator(doc) {
 			let abstractES = ZU.xpathText(doc, '//meta[@name="DC.Description"][2]/@content').trim();
 			i.abstractNote = abstractEN + '\\n4207 ' + abstractES;
 		}
+		
+		
 		//english keywords e.g. https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/147
 		let dcSourceURI = ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content');
 		let dcArticleURI = ZU.xpathText(doc, '//meta[@name="DC.Identifier.URI"]/@content');
@@ -261,7 +299,7 @@ var testCases = [
 				"journalAbbreviation": "STJ",
 				"language": "en",
 				"libraryCatalog": "ojs.reformedjournals.co.za",
-				"pages": "13–40",
+				"pages": "13-40",
 				"publicationTitle": "STJ | Stellenbosch Theological Journal",
 				"rights": "Copyright (c) 2020 Pieter de Waal Neethling Trust, Stellenbosch",
 				"shortTitle": "“The message to the people of South Africa” in contemporary context",
@@ -337,12 +375,12 @@ var testCases = [
 				"ISSN": "2293-7374",
 				"abstractNote": "The Jesuit missions in Asia were among the most audacious undertakings by Europeans in the early modern period. This article focuses on a still relatively little understood aspect of the enterprise: its appointment process. It draws together disparate archival documents to recreate the steps to becoming a Jesuit missionary, specifically the Litterae indipetae (petitions for the “Indies”), provincial reports about missionary candidates, and replies to applicants from the Jesuit superior general. Focusing on candidates from the Italian provinces of the Society of Jesus, the article outlines not just how Jesuit missionaries were appointed but also the priorities, motivations, and attitudes that informed their assessment and selection. Missionaries were made, the study shows, through a specific “way of proceeding” that was negotiated between all parties and seen in both organizational and spiritual terms, beginning with the vocation itself, which, whether the applicant departed or not, earned him the name indiano.",
 				"issue": "1",
-				"journalAbbreviation": "1",
+				"journalAbbreviation": "RR",
 				"language": "en",
 				"libraryCatalog": "jps.library.utoronto.ca",
 				"pages": "9-50",
 				"publicationTitle": "Renaissance and Reformation",
-				"rights": "Copyright (c)",
+				"rights": "Copyright (c) 0",
 				"shortTitle": "Becoming “Indians”",
 				"url": "https://jps.library.utoronto.ca/index.php/renref/article/view/34078",
 				"volume": "43",
@@ -515,7 +553,7 @@ var testCases = [
 				"journalAbbreviation": "STJ",
 				"language": "en",
 				"libraryCatalog": "ojs.reformedjournals.co.za",
-				"pages": "299–317",
+				"pages": "299-317",
 				"publicationTitle": "STJ | Stellenbosch Theological Journal",
 				"rights": "Copyright (c) 2017 Pieter de Waal Neethling Trust, Stellenbosch",
 				"url": "https://ojs.reformedjournals.co.za/stj/article/view/1743",
@@ -582,7 +620,7 @@ var testCases = [
 				"journalAbbreviation": "STJ",
 				"language": "en",
 				"libraryCatalog": "ojs.reformedjournals.co.za",
-				"pages": "11–40",
+				"pages": "11-40",
 				"publicationTitle": "STJ | Stellenbosch Theological Journal",
 				"rights": "Copyright (c) 2017 Pieter de Waal Neethling Trust, Stellenbosch",
 				"shortTitle": "Renewal, Renaissance, Reformation, or Revolution?",
@@ -912,7 +950,7 @@ var testCases = [
 				"journalAbbreviation": "1",
 				"language": "en",
 				"libraryCatalog": "jrfm.eu",
-				"pages": "197–199",
+				"pages": "197-199",
 				"publicationTitle": "Journal for Religion, Film and Media (JRFM)",
 				"rights": "Copyright (c) 2021 Daria Pezzoli-Olgiati",
 				"shortTitle": "Book Review. Christopher Ocker / Susanne Elm (eds.), Material Christianity",
@@ -1350,7 +1388,7 @@ var testCases = [
 				"journalAbbreviation": "STJ",
 				"language": "en",
 				"libraryCatalog": "ojs.reformedjournals.co.za",
-				"pages": "11–40",
+				"pages": "11-40",
 				"publicationTitle": "STJ | Stellenbosch Theological Journal",
 				"rights": "Copyright (c) 2017 Pieter de Waal Neethling Trust, Stellenbosch",
 				"shortTitle": "Renewal, Renaissance, Reformation, or Revolution?",
