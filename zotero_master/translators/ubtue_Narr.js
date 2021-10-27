@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-27 14:28:15"
+	"lastUpdated": "2021-10-27 14:33:33"
 }
 
 /*
@@ -165,7 +165,7 @@ var testCases = [
 				"date": "2020",
 				"DOI": "10.2357/VvAa-2020-0004",
 				"ISSN": "2366-0597",
-				"abstractNote": "Erfahrungen auszutauschen bedeutet Einblicke in die eigene Lehrpraxis zu geben und die eigenen Lehrmethoden zur Diskussion zu stellen. So versteht sich der Text als Beitrag zum lebendigen Dialog zwischen Lehrenden und Lernenden am Historischen Institut der Ruhr-Universität Bochum. Um den Studienanfängern des Faches Orientierung zu geben, ist das erste Studienjahr durch die Integrierten Proseminare sehr strukturiert und speziell organisiert. In zwei Semestern lernen die Studierenden Methoden, Arbeitsweisen und erste Inhalte der drei Epochen Alte Geschichte, Mittelalter und Neuzeit kennen. Maßgeblich unterstützt werden sie dabei von den begleitenden Tutorien, in denen gezielt Inhalte und Propädeutik der einzelnen Präsenzsitzungen vertieft werden. Das erfordert ein hohes Maß an Koordination und Kooperation von Tutorinnen und Tutoren und Dozierenden. Es ist das Ziel des Beitrags aufzuzeigen, wie im aktiven Miteinander die angemessene Vermittlung sichergestellt und ein Lernklima gewährleistet werden kann, das produktiv ist und durch Kommunikation flexibel gestaltet werden kann.",
+				"abstractNote": "Erfahrungen auszutauschen bedeutet Einblicke in die eigene Lehrpraxis zu geben und die eigenen Lehrmethoden zur Diskussion zu stellen. So versteht sich der Text als Beitrag zum lebendigen Dialog zwischen Lehrenden und Lernenden am Historischen Institut der Ruhr-Universität Bochum. Um den Studienanfängern des Faches Orientierung zu geben, ist das erste Studienjahr durch die Integrierten Proseminare sehr strukturiert und speziell organisiert. In zwei Semestern lernen die Studierenden Methoden, Arbeitsweisen und erste Inhalte der drei Epochen Alte Geschichte, Mittelalter und Neuzeit kennen. Maßgeblich unterstützt werden sie dabei von den begleitenden Tutorien, in denen gezielt Inhalte und Propädeutik der einzelnen Präsenzsitzungen vertieft werden. Das erfordert ein hohes Maß an Koordination und Kooperation von Tutorinnen und Tutoren und Dozierenden. Es ist das Ziel des Beitrags aufzuzeigen, wie im aktiven Miteinander die angemessene Vermittlung sichergestellt und ein Lernklima gewährleistet werden kann, das produktiv ist und durch Kommunikation flexibel gestaltet werden kann.\\n4207 Exchanging experiences means giving insights into one’s own teaching practice and putting one’s own teaching methods up for discussion. Thus the text is understood as a contribution to the lively dialogue between teachers and students at the Department of History at the Ruhr-University Bochum. In order to give some orientation aid to the first-year students of the subject, the first year of study is very structured and specially organised by the Integrated Preseminars. In two semesters, students learn methods, working practices and initial content of the three epochs of Ancient History, the Middle Ages and Modern Times. They are significantly supported by the accompanying tutorials, in which the contents and propaedeutics of the individual classroom sessions are specifically deepened. This requires a high degree of coordination and cooperation between tutors and lecturers. The aim of the paper is to show how appropriate teaching can be ensured in active cooperation and how a learning climate can be created that is productive and can be made flexible through communication.",
 				"issue": "1",
 				"journalAbbreviation": "vvaa",
 				"language": "de",
@@ -185,7 +185,23 @@ var testCases = [
 						"mimeType": "text/html"
 					}
 				],
-				"tags": [],
+				"tags": [
+					{
+						"tag": "Excursion"
+					},
+					{
+						"tag": "Introductory course"
+					},
+					{
+						"tag": "Propaedutics"
+					},
+					{
+						"tag": "Student’s participation"
+					},
+					{
+						"tag": "first year’s students"
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
