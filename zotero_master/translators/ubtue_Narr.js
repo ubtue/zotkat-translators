@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-27 14:33:33"
+	"lastUpdated": "2021-10-27 15:25:11"
 }
 
 /*
@@ -79,7 +79,6 @@ function postProcess(item, doc) {
 	}
 	let panels = ZU.xpath(doc, '//div[@class="panel-body"]');
 	for (let i = 0; i < panels.length; i++) {
-		Z.debug(i);
 		if (item.abstractNote) {
 			if (panels[i].textContent.match(item.abstractNote)) {
 				item.abstractNote = item.abstractNote + '\\n4207 ' + panels[i].textContent.substring(item.abstractNote.length, panels[i].length);
@@ -130,6 +129,7 @@ function doWeb(doc, url) {
 	} else
 		scrape(doc, url);
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
