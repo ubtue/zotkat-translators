@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-07-05 09:17:19"
+	"lastUpdated": "2021-10-27 14:28:15"
 }
 
 /*
@@ -77,25 +77,26 @@ function postProcess(item, doc) {
 	if (item.abstractNote == "No Abstract available for this article.") {
 		item.abstractNote = "";
 	}
-		let panels = ZU.xpath(doc, '//div[@class="panel-group"]//div[@class="panel-body"]');
-		for (let i = 0; i < panels.length; i++) {
-			if (item.abstractNote) {
-				if (panels[i].textContent.match(item.abstractNote)) {
-					item.abstractNote = item.abstractNote + '\\n4207 ' + panels[i].textContent.substring(item.abstractNote.length, panels[i].length);
-					
-				}
-			}
-			let links = ZU.xpath(panels[i], './a');
-			for (let i = 0; i < links.length; i++)
-			{
-				if (links[i].href.match('%5Bkeywords%5D')) {
-					item.tags.push(links[i].textContent);
-				}
+	let panels = ZU.xpath(doc, '//div[@class="panel-body"]');
+	for (let i = 0; i < panels.length; i++) {
+		Z.debug(i);
+		if (item.abstractNote) {
+			if (panels[i].textContent.match(item.abstractNote)) {
+				item.abstractNote = item.abstractNote + '\\n4207 ' + panels[i].textContent.substring(item.abstractNote.length, panels[i].length);
+				
 			}
 		}
-		if (ZU.xpathText(doc, '//h2[@class="subtitle"]')) {
-			item.title = item.title + ': ' + ZU.xpathText(doc, '//h2[@class="subtitle"]').trim();
+		let links = ZU.xpath(panels[i], './a');
+		for (let i = 0; i < links.length; i++)
+		{
+			if (links[i].href.match('%5Bkeywords%5D')) {
+				item.tags.push(links[i].textContent);
+			}
 		}
+	}
+	if (ZU.xpathText(doc, '//h2[@class="subtitle"]')) {
+		item.title = item.title + ': ' + ZU.xpathText(doc, '//h2[@class="subtitle"]').trim();
+	}
 	item.complete();
 	}
 
