@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 12,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-28 17:08:22"
+	"lastUpdated": "2021-10-28 17:09:46"
 }
 
 /*
@@ -284,6 +284,7 @@ var testCases = [
 				"ISSN": "1434-5935",
 				"abstractNote": "Friedrich Nietzsche criticò l’ateismo astratto e la religione astratta come illusioni esistenziali e ricostruì la condizione originaria dell’esistenza umana.",
 				"issue": "281",
+				"language": "it",
 				"libraryCatalog": "ubtue_OPUS_uniFrankfurt",
 				"publicationTitle": "Journal of religious culture = Journal für Religionskultur",
 				"series": "Journal of religious culture = Journal für Religionskultur - 281",
