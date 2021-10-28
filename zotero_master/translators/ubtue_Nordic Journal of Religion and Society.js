@@ -5,11 +5,11 @@
 	"target": "idunn\\.no",
 	"minVersion": "3.0",
 	"maxVersion": "",
-	"priority": 100,
+	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-04 11:45:29"
+	"lastUpdated": "2021-10-28 11:00:45"
 }
 
 /*
@@ -81,13 +81,31 @@ function postProcess(item, doc) {
 			}
 		}
 	if (typeof item.abstractNote == 'undefined') {
-		item.abstractNote = ZU.xpathText(doc, '//p[@class="first"]');
+		let absNO = ZU.xpathText(doc, '//div[@class="abstract articleBody"]//p[@class="first"]');
+		let absEN = ZU.xpathText(doc, '//div[@data-ng-show="abstract.expanded == \'en\'"]//p[@class="first"]');
+		if (absEN != null && absNO != null) {
+			item.abstractNote = absNO + '\\n4207' + absEN;
+		}
+		else if (absNO != null) {
+			item.abstractNote = absNO;
+		}
+		else if (absEN != null) {
+			item.abstractNote = absEN;
+		}
 			}
+		let openAccessTag = ZU.xpathText(doc, '//a[@href="/info/openaccess"]');
+		if (openAccessTag != null) {
+			if (openAccessTag.match(/Åpen tilgang/i)) {
+				item.notes.push('LF:');
+			}
+		}
+	//if <a href="/info/openaccess">Åpen tilgang</a>
 	if (item.publicationTitle == 'Nordic Journal of Religion and Society') {
 	if (reviewURLs.includes(item.url)) {
 		item.tags.push('RezensionstagPica');
 		item.abstractNote = '';
 			}
+	item.attachments = [];
 	//on the website, a note says "The journal only publishes articles in English"
 	item.language = 'en';
 	}
@@ -127,6 +145,7 @@ function doWeb(doc, url) {
 	} else
 		scrape(doc, url);
 }
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -161,7 +180,7 @@ var testCases = [
 				"date": "2020",
 				"DOI": "10.18261/issn.1890-7008-2020-02-01",
 				"ISSN": "1890-7008, 0809-7291",
-				"abstractNote": "In less than 15 years, child baptism has gone from being a mainstream tradition to a minority practice. This decline is a result of both high unaffiliation, especially with the Church of Sweden, and a more diversified religious society due to migration. Using microdata from parents of children born in 2005 and 2015, we were able to discern that differences in the practice of child baptism in the Church of Sweden are positively associated with the parents’ relation to the church, residence in rural areas, and income. Our LPM analysis shows that the probability of a child being baptized are mainly determined by the parents’ relation to the church when controlling for all the other variables. The most influential factors are the mother’s affiliation and an urban lifestyle. Parents’ marital status and socioeconomic circumstances have a strong effect on the decision to baptize a child, therefore affecting who becomes a future member of the church., Number of baptized and not-baptized children born in Sweden 2005–2016, Baptism rate in the Nordic majority churches, in percent 2008–2018, Baptism rate in rural municipalities and big cities, in percent 1995–2017., Table 1. Definition of variables, Table 2. Output of linear probability model of child baptism with the full sample., Table 3. Output of linear probability model of child baptism with children where at least one parent is affiliated to the Church of Sweden.",
+				"abstractNote": "In less than 15 years, child baptism has gone from being a mainstream tradition to a minority practice. This decline is a result of both high unaffiliation, especially with the Church of Sweden, and a more diversified religious society due to migration. Using microdata from parents of children born in 2005 and 2015, we were able to discern that differences in the practice of child baptism in the Church of Sweden are positively associated with the parents’ relation to the church, residence in rural areas, and income. Our LPM analysis shows that the probability of a child being baptized are mainly determined by the parents’ relation to the church when controlling for all the other variables. The most influential factors are the mother’s affiliation and an urban lifestyle. Parents’ marital status and socioeconomic circumstances have a strong effect on the decision to baptize a child, therefore affecting who becomes a future member of the church.",
 				"issue": "2",
 				"language": "en",
 				"libraryCatalog": "www.idunn.no",
@@ -170,16 +189,7 @@ var testCases = [
 				"shortTitle": "Who is Baptized?",
 				"url": "https://www.idunn.no/nordic_journal_of_religion_and_society/2020/02/who_is_baptized_a_study_of_socioeconomic_regional_and_gen",
 				"volume": "33",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Baptism"
@@ -197,7 +207,9 @@ var testCases = [
 						"tag": "secularization"
 					}
 				],
-				"notes": [],
+				"notes": [
+					"LF:"
+				],
 				"seeAlso": []
 			}
 		]
@@ -224,7 +236,7 @@ var testCases = [
 				"date": "2021",
 				"DOI": "10.18261/issn.1893-0271-2021-02-02",
 				"ISSN": "1893-0271, 1893-0263",
-				"abstractNote": "Ifølge NT er Faderen og Sønnen ett, samtidig som Faderen forlater Sønnen på korset. Hvordan blir\nvår gudsforståelse om vi antar at denne motsetningen uttrykker kjernen i Guds vesen? Ifølge Bibelen\nstår mennesker under Guds vrede fordi de har gjort urett mot sitt medmenneske. Jesus identifiserer\nseg med denne plasseringen, men bæres likevel gjennom døden til oppstandelsen. Heller ikke under\nGuds vrede faller en ut av det frelsende gudsforhold. Dette betinger isolert sett en\nverdensrettferdiggjørelse, men tvetydigheten i gudsbildet fastholdes ved at frelse formidles i form\nav en utvelgelseslære som fastholder dommens to utganger., According to the NT, the Father and the Son are one, but still the Father leaves the Son on the\ncross. What are the implications of considering this as the essence of divinity? In the Bible,\nhumans are placed under the wrath of God because they have sinned against their neighbours. Jesus\naccepts this as the truth even of his own life, but is still carried through death to the\nresurrection. This could lead to a doctrine of apocatastasis, but the ambiguity in the image of God\nis retained through the idea of an eternal judgment with two different outcomes.",
+				"abstractNote": "Ifølge NT er Faderen og Sønnen ett, samtidig som Faderen forlater Sønnen på korset. Hvordan blir\nvår gudsforståelse om vi antar at denne motsetningen uttrykker kjernen i Guds vesen? Ifølge Bibelen\nstår mennesker under Guds vrede fordi de har gjort urett mot sitt medmenneske. Jesus identifiserer\nseg med denne plasseringen, men bæres likevel gjennom døden til oppstandelsen. Heller ikke under\nGuds vrede faller en ut av det frelsende gudsforhold. Dette betinger isolert sett en\nverdensrettferdiggjørelse, men tvetydigheten i gudsbildet fastholdes ved at frelse formidles i form\nav en utvelgelseslære som fastholder dommens to utganger.\\n4207According to the NT, the Father and the Son are one, but still the Father leaves the Son on the\ncross. What are the implications of considering this as the essence of divinity? In the Bible,\nhumans are placed under the wrath of God because they have sinned against their neighbours. Jesus\naccepts this as the truth even of his own life, but is still carried through death to the\nresurrection. This could lead to a doctrine of apocatastasis, but the ambiguity in the image of God\nis retained through the idea of an eternal judgment with two different outcomes.",
 				"issue": "2",
 				"language": "no-NO",
 				"libraryCatalog": "www.idunn.no",
@@ -272,7 +284,85 @@ var testCases = [
 				"notes": [
 					{
 						"note": "Paralleltitel:When God left God: The significance of the death of Jesus"
+					},
+					"LF:"
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.idunn.no/tt/2021/02/endringsledelse_i_kirken_krever_nye_teologiske_modeller",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Endringsledelse i kirken krever nye teologiske modeller",
+				"creators": [
+					{
+						"firstName": "Angela",
+						"lastName": "Timmann-Mjaaland",
+						"creatorType": "author"
 					}
+				],
+				"date": "2021",
+				"DOI": "10.18261/issn.1893-0271-2021-02-03",
+				"ISSN": "1893-0271, 1893-0263",
+				"abstractNote": "Omorganiseringer stiller store krav til refleksjon, ledelse og nytenkning. En ny kirkestruktur krever også ny teologi, en refleksjon rundt ekklesiologi og praksis. Hvis ikke kirkens ledelse kan gi endringene en god teologisk begrunnelse, skaper det støy og motvilje i organisasjonen. Men dette kan også være fruktbart dersom støyen utfordrer pastorale ledere til nytenkning og kritisk refleksjon: Skal det tenkes lokalt eller regionalt? Er «kirke» stedsavgrenset (menighet), eller anerkjennes også tidsbestemte møter med evangeliet? Intervjuene viser at biskoper, proster og sokneprester argumenterer ulikt: Prostene bidrar til realistisk nytenkning, mens sokneprester og biskoper ofte faller tilbake på kjente modeller. Hva kan dette skyldes?\\n4207Reorganisation of the church requires critical reflection, leadership and innovation concerning theology and praxis. If church leaders are unable to give good theological reasons for structural changes, it causes disturbances and reluctance in the organisation. However, disturbance can be fruitful if it provokes critical reflection upon ecclesiology: Should they think locally or regionally? Is «church» limited to a specific place (parish) or also recognised as temporal encounters with the gospel throughout a lifetime? My interviews show that bishops, deans and ministers argue differently: The deans offer critical and innovative reflection, whereas ministers and bishops often return to well-established models. Why?",
+				"issue": "2",
+				"language": "no-NO",
+				"libraryCatalog": "www.idunn.no",
+				"pages": "76-91",
+				"publicationTitle": "Teologisk tidsskrift",
+				"url": "https://www.idunn.no/tt/2021/02/endringsledelse_i_kirken_krever_nye_teologiske_modeller",
+				"volume": "10",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Church reform"
+					},
+					{
+						"tag": "Ecclesiology"
+					},
+					{
+						"tag": "Ekklesiologi"
+					},
+					{
+						"tag": "Pastoral theology"
+					},
+					{
+						"tag": "Reorganisation"
+					},
+					{
+						"tag": "Transformative leadership"
+					},
+					{
+						"tag": "endringsledelse"
+					},
+					{
+						"tag": "kirkereform"
+					},
+					{
+						"tag": "omorganisering"
+					},
+					{
+						"tag": "pastoralteologi"
+					}
+				],
+				"notes": [
+					{
+						"note": "Paralleltitel:\n\nTransformative leadership in church requires new theological models"
+					},
+					"LF:"
 				],
 				"seeAlso": []
 			}
