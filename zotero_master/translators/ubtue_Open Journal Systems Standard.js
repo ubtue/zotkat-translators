@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-06 13:31:33"
+	"lastUpdated": "2021-10-27 15:28:22"
 }
 
 /*
@@ -199,6 +199,36 @@ function invokeEMTranslator(doc) {
 				}
 			}
 		}
+		var authorNames = ZU.xpath(doc, '//meta[@name = "DC.Creator.PersonalName"]');
+		newCreators = [];
+		for (let entry in authorNames) {
+			var authorName = authorNames[entry].content;
+			if (authorName.match(/\(review/i)) {
+				authorName = authorName.substring(0, authorName.indexOf(" ("));
+			newCreators.push(ZU.cleanAuthor(authorName, "author")) ;
+			if (!i.tags.includes("RezensionstagPica")) {
+					i.tags.push("RezensionstagPica");
+				}
+			}
+			else if (authorName.match(/\(book/i)) {
+				i.title = authorName.substring(0, authorName.indexOf(" (")) + ', ' + i.title;
+			}
+		}
+		if (newCreators.length != 0) {
+			i.creators = newCreators;
+		}
+		
+		if (i.ISSN === "1893-4773") {
+			var articleType = ZU.xpath(doc, '//meta[@name = "DC.Type.articleType"]');
+			if (articleType) {
+				if (articleType[0]['content'] == "Bokanmeldelser"){
+					if (!i.tags.includes("RezensionstagPica")) {
+					i.tags.push("RezensionstagPica");
+				}
+				}
+			}
+			
+		}
 		if (i.ISSN == '2660-4418') {
 			if (i.abstractNote.indexOf("\nReferences\n") !== -1) {
 			i.abstractNote = i.abstractNote.substring(0, i.abstractNote.indexOf("\nReferences\n"));
@@ -290,6 +320,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEMTranslator(doc, url);
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
