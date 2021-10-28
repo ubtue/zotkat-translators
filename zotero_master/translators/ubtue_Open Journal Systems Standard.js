@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-06 13:31:33"
+	"lastUpdated": "2021-10-28 11:49:46"
 }
 
 /*
@@ -131,8 +131,11 @@ function invokeEMTranslator(doc) {
   		if (orcidAuthorEntryCaseB) {
 			for (let b of orcidAuthorEntryCaseB) {
   				if (b && b.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
-  					let author = b.innerText;//Z.debug(author + '   BBB')
-  					i.notes.push({note: ZU.unescapeHTML(ZU.trimInternal(author)).replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
+  					let orcid = b.innerHTML.match(/<a href="https?:\/\/orcid\.org\/([^"]+)/);
+  					if (orcid != null){
+  					let name = b.innerHTML.match(/<span class="name">([^<]+)<\/span>/)[1];
+  					i.notes.push({note: ZU.trimInternal(name) + ' | orcid:' + orcid[1] + ' | ' + 'taken from website'});
+  				}
   				}
   			}
   		}
@@ -198,6 +201,36 @@ function invokeEMTranslator(doc) {
 					i.tags.push("RezensionstagPica");
 				}
 			}
+		}
+		var authorNames = ZU.xpath(doc, '//meta[@name = "DC.Creator.PersonalName"]');
+		newCreators = [];
+		for (let entry in authorNames) {
+			var authorName = authorNames[entry].content;
+			if (authorName.match(/\(review/i)) {
+				authorName = authorName.substring(0, authorName.indexOf(" ("));
+			newCreators.push(ZU.cleanAuthor(authorName, "author")) ;
+			if (!i.tags.includes("RezensionstagPica")) {
+					i.tags.push("RezensionstagPica");
+				}
+			}
+			else if (authorName.match(/\(book/i)) {
+				i.title = authorName.substring(0, authorName.indexOf(" (")) + ', ' + i.title;
+			}
+		}
+		if (newCreators.length != 0) {
+			i.creators = newCreators;
+		}
+		
+		if (i.ISSN === "1893-4773") {
+			var articleType = ZU.xpath(doc, '//meta[@name = "DC.Type.articleType"]');
+			if (articleType) {
+				if (articleType[0]['content'] == "Bokanmeldelser"){
+					if (!i.tags.includes("RezensionstagPica")) {
+					i.tags.push("RezensionstagPica");
+				}
+				}
+			}
+			
 		}
 		if (i.ISSN == '2660-4418') {
 			if (i.abstractNote.indexOf("\nReferences\n") !== -1) {
@@ -290,6 +323,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEMTranslator(doc, url);
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
@@ -744,7 +778,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Francisco Javier Ruiz-Ortiz Mater Ecclesiae College, St Mary’s University (Twickenham, UK)  | orcid:0000-0001-6251-0506 | taken from website"
+						"note": "Francisco Javier Ruiz-Ortiz | orcid:0000-0001-6251-0506 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -888,7 +922,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Tânia Maria Meira Mota Rede Pública Estadual de Ensino da Bahia  | orcid:0000-0003-3618-7455 | taken from website"
+						"note": "Tânia Maria Meira Mota | orcid:0000-0003-3618-7455 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -1954,10 +1988,10 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Paulo Gracino Junior IUPERJ-UCAM  | orcid:0000-0002-6764-4797 | taken from website"
+						"note": "Paulo Gracino Junior | orcid:0000-0002-6764-4797 | taken from website"
 					},
 					{
-						"note": "Gabriel Silva Rezende IUPERJ  | orcid:0000-0002-1798-0274 | taken from website"
+						"note": "Gabriel Silva Rezende | orcid:0000-0002-1798-0274 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -2108,10 +2142,10 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Leomar Antônio Brustolin Pontifícia Universidade Católica do Rio Grande do Sul (PUCRS), Porto Alegre, RS, Brasil.  | orcid:0000-0002-0066-4267 | taken from website"
+						"note": "Leomar Antônio Brustolin | orcid:0000-0002-0066-4267 | taken from website"
 					},
 					{
-						"note": "Marcia Koffermann Universidade de Huelva (UHU), Espanha.  | orcid:0000-0003-1689-1509 | taken from website"
+						"note": "Marcia Koffermann | orcid:0000-0003-1689-1509 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -2174,7 +2208,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "José Neivaldo de Souza Pesquisador Autônomo, Curitiba, PR, Brasil.  | orcid:0000-0001-9447-0967 | taken from website"
+						"note": "José Neivaldo de Souza | orcid:0000-0001-9447-0967 | taken from website"
 					}
 				],
 				"seeAlso": []
