@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-27 15:28:22"
+	"lastUpdated": "2021-10-28 11:43:35"
 }
 
 /*
@@ -131,8 +131,11 @@ function invokeEMTranslator(doc) {
   		if (orcidAuthorEntryCaseB) {
 			for (let b of orcidAuthorEntryCaseB) {
   				if (b && b.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
-  					let author = b.innerText;//Z.debug(author + '   BBB')
-  					i.notes.push({note: ZU.unescapeHTML(ZU.trimInternal(author)).replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
+  					let orcid = b.innerHTML.match(/<a href="https:\/\/orcid\.org\/([^"]+)/);
+  					if (orcid.length != 0){
+  					let name = b.innerHTML.match(/<span class="name">([^<]+)<\/span>/)[1];
+  					i.notes.push({note: ZU.trimInternal(name) + ' | orcid:' + orcid[1] + ' | ' + 'taken from website'});
+  				}
   				}
   			}
   		}
