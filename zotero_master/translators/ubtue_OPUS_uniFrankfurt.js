@@ -7,9 +7,9 @@
 	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
-	"translatorType": 4,
+	"translatorType": 12,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-28 16:16:19"
+	"lastUpdated": "2021-10-28 17:08:22"
 }
 
 /*
@@ -66,7 +66,12 @@ function doWeb(doc, url) {
 				for (var url in selectedItems) {
 					let docId = url.match(/docId\/(.+)$/)[1];
 					let risURL = 'http://publikationen.ub.uni-frankfurt.de/citationExport/index/download/output/ris/docId/' + docId;
-					scrape(risURL);
+					ZU.doGet(url, function (singleDoc) {
+						var parser = new DOMParser();
+						var singleDoc = parser.parseFromString(singleDoc, "text/html");
+						scrape(risURL, singleDoc);
+					});
+					
 				}
 			}
 		});
@@ -74,14 +79,14 @@ function doWeb(doc, url) {
 	else {
 		let docId = url.match(/docId\/(.+)$/)[1];
 		let risURL = 'http://publikationen.ub.uni-frankfurt.de/citationExport/index/download/output/ris/docId/' + docId;
-		scrape(risURL);
+		scrape(risURL, doc);
 		
 	}
 }
 
-function scrape(risURL) {
+function scrape(risURL, doc) {
 	ZU.doGet(risURL, function (text) {
-			processRIS(text);
+			processRIS(text, doc);
 		});
 }
 
@@ -93,7 +98,7 @@ function convertCharRefs(string) {
 		});
 }
 
-function processRIS(text) {
+function processRIS(text, doc) {
 	// load translator for RIS
 	var translator = Zotero.loadTranslator("import");
 	translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
@@ -184,14 +189,24 @@ function processRIS(text) {
 			if (item.ISSN == '1434-5935') {
 				if (item.series != undefined) {
 					let issue = item.series.match(/\d+$/);
-					Z.debug(issue);
 					if (issue != null) {
 						item.issue = issue;
 					}
 				}
 			}
 		}
-		
+		if (item.volume == undefined) {
+			item.volume = item.issue;
+			item.issue = '';
+		}
+		let language = ZU.xpathText(doc, '//tr[contains(./th[@class="name"], "Sprache")]//td');
+		let languages = {'Deutsch': 'de', 'Englisch': 'en', 'Französisch': 'fr', 
+		'Italienisch': 'it', 'Russisch': 'ru', 'Türkisch': 'tr', 'Sonstige': 'und'};
+		if (language in languages) {
+			item.language = languages[language];
+		}
+		let year = ZU.xpathText(doc, '//tr[contains(./th[@class="name"], "Jahr der Erst")]//td');
+		item.date = year;
 		// DB in RIS maps to archive; we don't want that
 		delete item.archive;
 		if (item.DOI || /DOI: 10\./.test(item.extra)) {
