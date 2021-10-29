@@ -4,12 +4,12 @@
 	"creator": "Madeesh Kannan",
 	"target": "^https?://brill.com/view/journals/",
 	"minVersion": "3.0",
-	"maxVersion": "",
+	"maxVersion": null,
 	"priority": 90,
-	"inRepository": true,
+	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-19 13:23:31"
+	"lastUpdated": "2021-10-29 10:32:35"
 }
 
 /*
