@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-29 12:25:19"
+	"lastUpdated": "2021-10-29 12:35:31"
 }
 
 /*
@@ -66,7 +66,7 @@ function postProcess(doc, item) {
 	}
 	
 	let issuetext = ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content');
-	if (issuetext.match(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/)) item.issue = issuetext.match(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/)[1];
+	if (issuetext.match(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/)) item.issue = issuetext.match(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/)[1].replace(/^0/, '');
 	item.complete();
 }
 
@@ -120,7 +120,7 @@ var testCases = [
 				"date": "2020/04/20",
 				"DOI": "10.17879/thrv-2020-2731",
 				"ISSN": "2699-5433",
-				"issue": "04",
+				"issue": "4",
 				"journalAbbreviation": "ThRv",
 				"language": "de",
 				"libraryCatalog": "www.uni-muenster.de",
@@ -161,7 +161,7 @@ var testCases = [
 				"date": "2020/04/20",
 				"DOI": "10.17879/thrv-2020-2689",
 				"ISSN": "2699-5433",
-				"issue": "04",
+				"issue": "4",
 				"journalAbbreviation": "ThRv",
 				"language": "de",
 				"libraryCatalog": "www.uni-muenster.de",
@@ -207,7 +207,7 @@ var testCases = [
 				"date": "2020/04/20",
 				"DOI": "10.17879/thrv-2020-2690",
 				"ISSN": "2699-5433",
-				"issue": "04",
+				"issue": "4",
 				"journalAbbreviation": "ThRv",
 				"language": "de",
 				"libraryCatalog": "www.uni-muenster.de",
