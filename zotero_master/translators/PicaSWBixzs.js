@@ -224,12 +224,20 @@ function WriteItems() {
     itemsOutputCache.forEach(function(element, index) {
         // sort first, codes might be unsorted due to async stuff
         element.sort();
-
+		//remove sorting characters from fields 3000 and 3010
+		var cleanElement = [];
+		for (let line of element) {
+			let toDelete = line.match(/30\d{2}( ##\d{3}##)/);
+			if (toDelete != null) {
+				line = line.replace(toDelete[1], '');
+			}
+			cleanElement.push(line);
+		}
         // implode + write
         if(index > 0) {
             Zotero.write("\n");
         }
-        Zotero.write(element.join("\n") + "\n");
+        Zotero.write(cleanElement.join("\n") + "\n");
     });
 }
 
@@ -482,7 +490,9 @@ function performExport() {
                 } else {
                     code = "3010";
                 }
-
+				//preserve original index of Author
+				let authorIndex = i.toString();
+			    let printIndex = authorIndex.padStart(3, '0');
                 i++;
 
                 //Lookup für Autoren
@@ -532,11 +542,13 @@ function performExport() {
                         // processing callback function
                         function(doc, url, threadParams){
                             var ppn = Zotero.Utilities.xpathText(doc, '//div[a[img]]'); //Z.write(ppn)
+			    
+							//insert original index of author after code
                             if (ppn) {
                                 var authorValue = "!" + ppn.match(/^\d+X?/) + "!$BVerfasserIn$4aut \n8910 $aixzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet";
-                                addLine(threadParams["currentItemId"], threadParams["code"], authorValue);
+                                addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', authorValue);
                             } else {
-                                addLine(threadParams["currentItemId"], threadParams["code"], threadParams["authorName"]  + "$BVerfasserIn$4aut");
+                                addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', threadParams["authorName"]  + "$BVerfasserIn$4aut");
                             }
 
                             // separate onDone function not needed because we only call one url
