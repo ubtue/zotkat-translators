@@ -2,14 +2,14 @@
 	"translatorID": "bc052944-8588-4f34-a348-9892cf76bdf6",
 	"label": "ubtue_Theologische Revue",
 	"creator": "Timotheus Kim",
-	"target": "^https?://www\\.uni-muenster\\.de/Ejournals/index\\.php/thrv/(article|issue)/view",
+	"target": "^https?://www\\.uni-muenster\\.de/Ejournals/index\\.php/thrv/(index|article|issue)",
 	"minVersion": "3",
 	"maxVersion": "",
 	"priority": 80,
-	"inRepository": false,
+	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-07-07 14:47:41"
+	"lastUpdated": "2021-10-29 12:35:31"
 }
 
 /*
@@ -64,24 +64,9 @@ function postProcess(doc, item) {
 	if (item.itemTpye = "journalArticle" && !leitartikel.match(/Leitartikel/)) {
 		item.tags.push('RezensionstagPica');
 	}
-	var month = {
-    Januar : 1,
-    Februar: 2,
-    März: 3,
-    April: 4,
-    Mai: 5,
-    Juni: 6,
-    Juli: 7,
-    August: 8,
-    September: 9,
-    October: 10,
-    November: 11,
-    Dezember: 12
-	};
 	
-	let issuetext = text(doc, '#pkp_content_main .title');Z.debug(issuetext)
-	item.issue = issuetext.match(/Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember/); //Z.debug(item.issue)
-	item.issue = month[item.issue];
+	let issuetext = ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content');
+	if (issuetext.match(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/)) item.issue = issuetext.match(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/)[1].replace(/^0/, '');
 	item.complete();
 }
 
@@ -135,7 +120,8 @@ var testCases = [
 				"date": "2020/04/20",
 				"DOI": "10.17879/thrv-2020-2731",
 				"ISSN": "2699-5433",
-				"journalAbbreviation": "1",
+				"issue": "4",
+				"journalAbbreviation": "ThRv",
 				"language": "de",
 				"libraryCatalog": "www.uni-muenster.de",
 				"publicationTitle": "Theologische Revue",
@@ -148,7 +134,8 @@ var testCases = [
 						"mimeType": "application/pdf"
 					},
 					{
-						"title": "Snapshot"
+						"title": "Snapshot",
+						"mimeType": "text/html"
 					}
 				],
 				"tags": [],
@@ -174,7 +161,8 @@ var testCases = [
 				"date": "2020/04/20",
 				"DOI": "10.17879/thrv-2020-2689",
 				"ISSN": "2699-5433",
-				"journalAbbreviation": "1",
+				"issue": "4",
+				"journalAbbreviation": "ThRv",
 				"language": "de",
 				"libraryCatalog": "www.uni-muenster.de",
 				"publicationTitle": "Theologische Revue",
@@ -188,12 +176,13 @@ var testCases = [
 						"mimeType": "application/pdf"
 					},
 					{
-						"title": "Snapshot"
+						"title": "Snapshot",
+						"mimeType": "text/html"
 					}
 				],
 				"tags": [
 					{
-						"tag": "Book Review"
+						"tag": "RezensionstagPica"
 					}
 				],
 				"notes": [],
@@ -218,7 +207,8 @@ var testCases = [
 				"date": "2020/04/20",
 				"DOI": "10.17879/thrv-2020-2690",
 				"ISSN": "2699-5433",
-				"journalAbbreviation": "1",
+				"issue": "4",
+				"journalAbbreviation": "ThRv",
 				"language": "de",
 				"libraryCatalog": "www.uni-muenster.de",
 				"publicationTitle": "Theologische Revue",
@@ -232,12 +222,13 @@ var testCases = [
 						"mimeType": "application/pdf"
 					},
 					{
-						"title": "Snapshot"
+						"title": "Snapshot",
+						"mimeType": "text/html"
 					}
 				],
 				"tags": [
 					{
-						"tag": "Book Review"
+						"tag": "RezensionstagPica"
 					}
 				],
 				"notes": [],
