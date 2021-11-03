@@ -17,7 +17,7 @@
 	},
 	"inRepository": true,
 	"translatorType": 3,
-	"lastUpdated": "2019-10-19 17:04:49"
+	"lastUpdated": "2021-11-03 15:42:16"
 }
 
 function detectImport() {
@@ -698,7 +698,7 @@ var RISReader = new function() {
 					&& (_maxLineLength > 85
 						|| (lastLineLength !== undefined && lastLineLength < 65)
 						|| cleanLine.length == 0)
-					) {
+					) { Z.debug(tagValue.tag);
 					
 					cleanLine = "\n" + cleanLine;
 					newLineAdded = true;
@@ -868,7 +868,7 @@ var ProCiteCleaner = new function() {
 			}
 		}
 		
-		
+		Z.debug(entry.tags.N1);
 		var notes = entry.tags.N1, extentOfWork, packagingMethod;
 		//go through all the notes
 		for (var i=0; notes && notes.length && i<entry.length; i++) {
@@ -1696,7 +1696,15 @@ function completeItem(item) {
 	}
 	item.unsupportedFields = undefined;
 	item.unknownFields = undefined;
-
+	let cleanNotes = [];
+	for (let note of item.notes) {
+		if (note['note'] != undefined) {
+			if (!note['note'].match(/doi: 10\..+\//)) {
+				cleanNotes.push({'note': note});
+			}
+		}
+	}
+	item.notes = cleanNotes;
 	return item.complete();
 }
 
@@ -1988,6 +1996,7 @@ var exports = {
 	"doImport": doImport,
 	"options": exportedOptions
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
@@ -6343,11 +6352,7 @@ var testCases = [
 				"volume": "30",
 				"attachments": [],
 				"tags": [],
-				"notes": [
-					{
-						"note": "<p>doi: 10.3109/07434618.2014.906498</p>"
-					}
-				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
