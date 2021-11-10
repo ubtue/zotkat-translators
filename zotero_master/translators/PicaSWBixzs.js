@@ -214,7 +214,7 @@ async function processDocumentsCustom (url, processor, processorParams, onDone, 
 
 function addLine(itemid, code, value) {
     //Zeile zusammensetzen
-    var line = code + " " + value.replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Reviews').replace(' $d', '$d').replace('https://doi.org/https://doi.org/', 'https://doi.org/').replace(/@\s/, '@');
+    var line = code + " " + value.replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Reviews').replace(' $d', '$d').replace('https://doi.org/https://doi.org/', 'https://doi.org/').replace(/@\s/, '@').replace('abs1:', '');
     itemsOutputCache[itemid].push(line);
 }
 
