@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-07-01 11:30:00"
+	"lastUpdated": "2021-10-15 13:05:00"
 }
 
 
@@ -224,12 +224,20 @@ function WriteItems() {
     itemsOutputCache.forEach(function(element, index) {
         // sort first, codes might be unsorted due to async stuff
         element.sort();
-
+		//remove sorting characters from fields 3000 and 3010
+		var cleanElement = [];
+		for (let line of element) {
+			let toDelete = line.match(/30\d{2}( ##\d{3}##)/);
+			if (toDelete != null) {
+				line = line.replace(toDelete[1], '');
+			}
+			cleanElement.push(line);
+		}
         // implode + write
         if(index > 0) {
             Zotero.write("\n");
         }
-        Zotero.write(element.join("\n") + "\n");
+        Zotero.write(cleanElement.join("\n") + "\n");
     });
 }
 
@@ -482,7 +490,9 @@ function performExport() {
                 } else {
                     code = "3010";
                 }
-
+				//preserve original index of Author
+				let authorIndex = i.toString();
+			    let printIndex = authorIndex.padStart(3, '0');
                 i++;
 
                 //Lookup für Autoren
@@ -532,11 +542,13 @@ function performExport() {
                         // processing callback function
                         function(doc, url, threadParams){
                             var ppn = Zotero.Utilities.xpathText(doc, '//div[a[img]]'); //Z.write(ppn)
+			    
+							//insert original index of author after code
                             if (ppn) {
                                 var authorValue = "!" + ppn.match(/^\d+X?/) + "!$BVerfasserIn$4aut \n8910 $aixzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet";
-                                addLine(threadParams["currentItemId"], threadParams["code"], authorValue);
+                                addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', authorValue);
                             } else {
-                                addLine(threadParams["currentItemId"], threadParams["code"], threadParams["authorName"]  + "$BVerfasserIn$4aut");
+                                addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', threadParams["authorName"]  + "$BVerfasserIn$4aut");
                             }
 
                             // separate onDone function not needed because we only call one url
@@ -589,6 +601,14 @@ function performExport() {
 			}
 		}
 		
+					
+		//Paralleltitel OJS --> 4002 
+		if (item.notes) {
+			for (let i in item.notes) {
+				if (item.notes[i].note.includes('Paralleltitel')) addLine(currentItemId, "4002", item.notes[i].note.replace(/paralleltitel:/i, ''));
+			}
+		}
+
         //Ausgabe --> 4020
         if (item.edition) {
             addLine(currentItemId, "4020", item.edition);
@@ -619,7 +639,16 @@ function performExport() {
         if (item.url && item.itemType == "magazineArticle") {
             addLine(currentItemId, "4950", item.url + "$xH"); //K10Plus:wird die URL aus dem DOI, einem handle oder einem urn gebildet, sollte es $xR heißen und nicht $xH
         }
-
+		
+		//Open Access / Free Access als LF --> 4950
+		if (item.notes) {
+			for (let i in item.notes) {
+				if (item.notes[i].note.includes('LF')) {
+					licenceField = "l";	
+				}
+			}
+		}
+		
 		//URL --> 4085 nur bei Satztyp "O.." im Feld 0500 K10Plus:aus 4085 wird 4950
 		switch (true) {
 			case item.url && item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "l": 
@@ -677,7 +706,12 @@ function performExport() {
 			item.abstractNote = ZU.unescapeHTML(item.abstractNote);
 			addLine(currentItemId, "4207", item.abstractNote.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract\s?:?/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, ''));
         }
-
+		//Inhaltliche Zusammenfassung, falls mehr als ein Abstract --> 4207
+		if (item.notes) {
+			for (let i in item.notes) {
+				if (item.notes[i].note.includes('abs')) addLine(currentItemId, "4207", item.notes[i].note.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract\s?:?/, '').replace(/Abstract  :/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, '').replace('abs:', ''));
+			}
+		}
         //item.publicationTitle --> 4241 Beziehungen zur größeren Einheit
         if (item.itemType == "journalArticle" || item.itemType == "magazineArticle") {
             if (superiorPPN.length != 0) {
@@ -732,8 +766,7 @@ function performExport() {
 			//ORCID und Autorennamen --> 8910
 			if (item.notes) {
 				for (let i in item.notes) {
-				let cleanNote
-				addLine(currentItemId, "8910", '$aixzom$b'+item.notes[i].note);
+					if (item.notes[i].note.includes('orcid')) addLine(currentItemId, "8910", '$aixzom$b'+item.notes[i].note);
 				}
 			}
 			
