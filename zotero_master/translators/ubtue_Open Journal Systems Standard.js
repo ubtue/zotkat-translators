@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-28 11:49:46"
+	"lastUpdated": "2021-11-11 12:46:50"
 }
 
 /*
@@ -36,7 +36,8 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, url) {
 	var items = {};
 	var found = false;
-	var rows = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "media-heading", " " ))]//a | //*[contains(concat( " ", @class, " " ), concat( " ", "title", " " ))]//a | //*[(@id = "content")]//a');
+	var rows = doc.querySelectorAll('.title a[href*="/view/"], .title a[href*="/catalog/"], \
+		.tocTitle a[href*="/view/"], .tocTitle a[href*="/catalog/"], .media-heading a[href*="/view/"]');
 	if (rows.length == 0 && url.match(/otwsa-otssa/)) {
 		rows = ZU.xpath(doc, '//div[@class="article-summary-title"]//a');
 	}
@@ -72,10 +73,6 @@ function invokeEMTranslator(doc) {
  			if (subTitle) {
  				i.title += ': ' + subTitle.trim();
  			}
- 			var articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
- 				if (articleType == 'Book Reviews') {
- 					i.tags.push('RezensionstagPica');
- 				}
  		}
  		//title in other language for pica-field 4002
  		var articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
@@ -195,9 +192,9 @@ function invokeEMTranslator(doc) {
 			}
 		}
 		
-		if (['2617-3697', '2660-4418', '2748-6419'].includes(i.ISSN)) {
+		if (['2617-3697', '2660-4418', '2748-6419', '1988-3269', '1804-6444'].includes(i.ISSN)) {
 			if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')) {
-				if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')[0].content.match(/(Media reviews)|(Rezensionen)/i)) {
+				if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')[0].content.match(/(Media reviews)|(Rezensionen)|(Reseñas)/i)) {
 					i.tags.push("RezensionstagPica");
 				}
 			}
@@ -259,27 +256,28 @@ function invokeEMTranslator(doc) {
 				i.DOI = i.abstractNote.substring(i.abstractNote.indexOf('https:\/\/doi\.org'), i.abstractNote.length).replace('https://doi.org/', '');
 			}
 		}
-		if (ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content').match(/isidorianum\/article\/view/)) {
+		let sansidoroAbstract = ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content');
+		if (sansidoroAbstract && sansidoroAbstract.match(/isidorianum\/article\/view/)) {
 		//multi language abstract e.g. https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/147
-		if (articleType === "Artículos") {
-			let abstractEN = ZU.xpathText(doc, '//meta[@name="DC.Description"][1]/@content').trim();
-			let abstractES = ZU.xpathText(doc, '//meta[@name="DC.Description"][2]/@content').trim();
-			i.abstractNote = abstractEN + '\\n4207 ' + abstractES;
-		}
-		//english keywords e.g. https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/147
-		let dcSourceURI = ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content');
-		let dcArticleURI = ZU.xpathText(doc, '//meta[@name="DC.Identifier.URI"]/@content');
-		let switchLanguageURL = dcSourceURI + '/user/setLocale/en_US?source=/publicaciones/index.php/' + dcArticleURI.split('index.php')[1];
-		ZU.processDocuments(switchLanguageURL, function (scrapeTags) {
-		var tagentry = ZU.xpathText(scrapeTags, '//meta[@name="citation_keywords"]/@content');
-			if (tagentry) {
-				let tags = tagentry.split(/\s*,|;\s*/);
-				for (let t in tags) {
-				i.tags.push(tags[t]);
-				}
+			if (articleType === "Artículos") {
+				let abstractEN = ZU.xpathText(doc, '//meta[@name="DC.Description"][1]/@content').trim();
+				let abstractES = ZU.xpathText(doc, '//meta[@name="DC.Description"][2]/@content').trim();
+				i.abstractNote = abstractEN + '\\n4207 ' + abstractES;
 			}
-			i.complete();
-		});
+			//english keywords e.g. https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/147
+			let dcSourceURI = ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content');
+			let dcArticleURI = ZU.xpathText(doc, '//meta[@name="DC.Identifier.URI"]/@content');
+			let switchLanguageURL = dcSourceURI + '/user/setLocale/en_US?source=/publicaciones/index.php/' + dcArticleURI.split('index.php')[1];
+			ZU.processDocuments(switchLanguageURL, function (scrapeTags) {
+			var tagentry = ZU.xpathText(scrapeTags, '//meta[@name="citation_keywords"]/@content');
+				if (tagentry) {
+					let tags = tagentry.split(/\s*,|;\s*/);
+					for (let t in tags) {
+					i.tags.push(tags[t]);
+					}
+				}
+				i.complete();
+			});
 		}
 		else i.complete();
 	});
@@ -290,24 +288,6 @@ String.prototype.capitalizeFirstLetter = function() {
 	return this.charAt(0).toUpperCase() + this.slice(1);
 };
 
-/*
-//should link with the second author https://periodicos.uem.br/ojs/index.php/RbhrAnpuh/article/view/54840
-function getOrcids(doc) {
- 	let authorSections = ZU.xpath(doc, '//*[@class="item authors"]/li');
- 	for (let authorSection of authorSections) {
- 		//Z.debug(authorSection);
- 		let authorLink = ZU.xpath(authorSection, '//*[@class="name"]');Z.debug(authorLink)
- 		let orcidLink = ZU.xpath(authorSection, '//a[starts-with(@href, "https://orcid.org")]/@href');
- 		if (authorLink && orcidLink) {
- 			let author = authorLink[0].innerText;
- 			let orcid = orcidLink[0].value.match(/\d+-\d+-\d+-\d+x?/i);
- 			return {note: "orcid:" + orcid + ' | ' + author + ' | ' + 'taken from website'};
- 		}
- 	}
- 	return null;
- }
- */
- 
 function doWeb(doc, url) {
 	if (detectWeb(doc, url) === "multiple") {
 		Zotero.selectItems(getSearchResults(doc, url), function (items) {
@@ -1296,7 +1276,7 @@ var testCases = [
 				"date": "2021/06/18",
 				"DOI": "10.35068/aabner.v1i1.781",
 				"ISSN": "2748-6419",
-				"abstractNote": "The AABNER founding editors-in-chief describe some of the problems with traditional double-blind peer review and describe our solution for them, forum peer&nbsp;review, which we have developed for use within AABNER.",
+				"abstractNote": "Die Chefredaktion von AABNER beschreibt die Schwächen und Probleme des&nbsp;traditionellen ‚Double-Blind-Peer-Review‘ und bietet eine innovative Lösung:&nbsp;den von uns weiterentwickelten ‚Forum-Peer-Review‘.",
 				"issue": "1",
 				"journalAbbreviation": "1",
 				"language": "en",
@@ -1739,7 +1719,7 @@ var testCases = [
 				"date": "2021/06/18",
 				"DOI": "10.35068/aabner.v1i1.781",
 				"ISSN": "2748-6419",
-				"abstractNote": "The AABNER founding editors-in-chief describe some of the problems with traditional double-blind peer review and describe our solution for them, forum peer&nbsp;review, which we have developed for use within AABNER.",
+				"abstractNote": "Die Chefredaktion von AABNER beschreibt die Schwächen und Probleme des&nbsp;traditionellen ‚Double-Blind-Peer-Review‘ und bietet eine innovative Lösung:&nbsp;den von uns weiterentwickelten ‚Forum-Peer-Review‘.",
 				"issue": "1",
 				"journalAbbreviation": "1",
 				"language": "en",
@@ -2211,6 +2191,76 @@ var testCases = [
 						"note": "José Neivaldo de Souza | orcid:0000-0001-9447-0967 | taken from website"
 					}
 				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://revistas.ucm.es/index.php/ILUR/issue/view/3773",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://revistas.ucm.es/index.php/ILUR/article/view/75207",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Álvarez-Pedrosa Núñez, J. A. (ed. y coord.), Fuentes para el estudio de la religión eslava precristiana. Zaragoza, Libros Pórtico, 2017, 505 pp. ISBN: 978-84-7956-164-2",
+				"creators": [
+					{
+						"firstName": "Juan José Carracedo",
+						"lastName": "Doval",
+						"creatorType": "author"
+					}
+				],
+				"date": "2019/12/11",
+				"DOI": "10.5209/ilur.75207",
+				"ISSN": "1988-3269",
+				"abstractNote": ", , ,",
+				"journalAbbreviation": "1",
+				"language": "es",
+				"libraryCatalog": "revistas.ucm.es",
+				"pages": "143-146",
+				"publicationTitle": "'Ilu. Revista de Ciencias de las Religiones",
+				"rights": "Derechos de autor 2021 'Ilu. Revista de Ciencias de las Religiones",
+				"shortTitle": "Álvarez-Pedrosa Núñez, J. A. (ed. y coord.), Fuentes para el estudio de la religión eslava precristiana. Zaragoza, Libros Pórtico, 2017, 505 pp. ISBN",
+				"url": "https://revistas.ucm.es/index.php/ILUR/article/view/75207",
+				"volume": "24",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Ciencias de las Religiones"
+					},
+					{
+						"tag": "Estudios Religiosos"
+					},
+					{
+						"tag": "Historia de las Religiones"
+					},
+					{
+						"tag": "Religiones comparadas"
+					},
+					{
+						"tag": "Religión"
+					},
+					{
+						"tag": "RezensionstagPica"
+					},
+					{
+						"tag": "revista"
+					}
+				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
