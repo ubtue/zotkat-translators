@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-11 12:46:50"
+	"lastUpdated": "2021-11-11 12:59:03"
 }
 
 /*
@@ -175,7 +175,7 @@ function invokeEMTranslator(doc) {
 		if (i.abstractNote == null) {i.abstractNote = undefined}
 		if (i.abstractNote !== undefined) {
 			if (i.abstractNote.match(/No abstract available/)) delete i.abstractNote;
-			else if (i.abstractNote.match(/^.$/)) delete i.abstractNote;
+			else if (i.abstractNote.match(/^.$|^,\s?,\s?,/)) delete i.abstractNote;
 		}
 		if (i.tags[1] === undefined && i.tags[0] !='RezensionstagPica') delete i.tags[0];
 		let tagsEntry = ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content');
@@ -2217,7 +2217,6 @@ var testCases = [
 				"date": "2019/12/11",
 				"DOI": "10.5209/ilur.75207",
 				"ISSN": "1988-3269",
-				"abstractNote": ", , ,",
 				"journalAbbreviation": "1",
 				"language": "es",
 				"libraryCatalog": "revistas.ucm.es",
