@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-12 16:56:59"
+	"lastUpdated": "2021-11-12 18:24:30"
 }
 
 /*
@@ -85,11 +85,13 @@ function scrape(id, doc, url) {
 		//item.date = ZU.strToISO(text(doc, ".heading").split('(')[1].match(/\d+/)[0]);
 		item.volume = text(doc, ".heading").split('(')[0].match(/\d+/)[0];
 		
-		let infoBlock = ZU.xpath(doc, "//p[contains(., '" + id + "')]/following-sibling::p")[0];
-		
-		if (text(infoBlock, "a:last-child", 0).includes("PDF")) {
-			pdfurl = attr(infoBlock, "a:last-child", "href", 0);
+		let infoBlock = ZU.xpath(doc, "//p[contains(., '" + id + "')]/following-sibling::p");
+		for (let i of infoBlock) {
+			if (text(i, "a:last-child", 0).includes("PDF") || text(i, "a:last-child", 0).includes("Editorial")) {
+			pdfurl = attr(i, "a:last-child", "href", 0);
+			}
 		}
+		
 	}
 	
 	item.libraryCatalog = "Journal of Religion and Society";
@@ -98,7 +100,6 @@ function scrape(id, doc, url) {
 	let lookupHandle = 'http://hdl.handle.net/' + pdfurl.split(/handle\//)[1].split(/\/\d{4}-.*.pdf/)[0];
 	if (lookupHandle) {
 		ZU.processDocuments(lookupHandle, function (scrapeItems) {
-			var j = 0;
 			let authorsEntry = ZU.xpathText(scrapeItems, '//meta[@name="citation_author"]/@content');
 			let authors = authorsEntry.split(/^([^,]*,[^,]*),/);
 			for (let author of authors) {
@@ -124,6 +125,7 @@ function scrape(id, doc, url) {
 		});
 	}
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
