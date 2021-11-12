@@ -1,7 +1,7 @@
 {
 	"translatorID": "dde9787d-9ab5-4c49-808c-ec7bf0f0bb8e",
 	"label": "ubtue_Journal of Religion and Society",
-	"creator": "Vincent Carret and Timotheus Kim",
+	"creator": " Timotheus Kim",
 	"target": "^https?://(www\\.)?moses\\.creighton\\.edu/JRS",
 	"minVersion": "3.0",
 	"maxVersion": "",
@@ -9,13 +9,13 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-12 18:24:30"
+	"lastUpdated": "2021-11-12 22:31:13"
 }
 
 /*
 	***** BEGIN LICENSE BLOCK *****
 
-	Copyright © 2019 Vincent Carret
+	Copyright © 2021 Timotheus Kim
 	
 	This file is part of Zotero.
 
@@ -37,7 +37,6 @@
 
 
 function detectWeb(doc, url) {
-	// Three possible cases : the list of articles of an issue, the list of content of a supplement, or the list of the supplements
 	if (getSearchResults(doc, true)) {
 		return "multiple";
 	}
@@ -47,84 +46,49 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	
-	// We have a different querySelector according to the page (respectively, all supplements page, journal issue page, and supplement issue page)
-	var rows = doc.querySelectorAll('div[class^=pubs] p.SuppVolume em, div[class^=pubs] p.title, div[class^=pubs] p.chap');
-	for (let row of rows) {
-		let title = row.textContent;
-		if (!title) continue;
+	//like ubtue_Quaderni di storia religiosa medievale.js 
+	var links = doc.querySelectorAll('a[href*="handle"]');
+	var text = doc.querySelectorAll('.title, .books a');
+	for (let i = 0; i < links.length; ++i) {
+		let href = links[i].href;
+		if (href.match(/handle/)) href = 'http://hdl.handle.net/' + links[i].href.split(/handle\//)[1].split(/\/\d{4}-.*.pdf/)[0];Z.debug(href)
+		let title = ZU.trimInternal(text[i].textContent);
+		if (!href || !title) continue;
 		if (checkOnly) return true;
 		found = true;
-		items[title] = title;
+		items[href] = title;
 	}
 	return found ? items : false;
 }
 
+
 function doWeb(doc, url) {
 	if (detectWeb(doc, url) == "multiple") {
 		Zotero.selectItems(getSearchResults(doc, false), function (items) {
-			if (items) {
-				for (var id of Object.keys(items)) {
-					scrape(id, doc, url);
-				}
-			}
+			if (items) ZU.processDocuments(Object.keys(items), scrape);
 		});
+	}
+	else {
+		scrape(doc, url);
 	}
 }
 
+function scrape(doc, url) {
+	var translator = Zotero.loadTranslator('web');
+	// Embedded Metadata
+	translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48');
+	// translator.setDocument(doc);
+	translator.setHandler('itemDone', function (obj, item) {
+		item.DOI = ZU.xpathText(doc, '//meta[@name="DC.identifier" and @scheme="DCTERMS.URI"]/@content');
+		item.complete();
+	});
 
-function scrape(id, doc, url) {
-	var item = null;
-	var infoBlock = null;
-	var author = null;
-	var pdfurl = "";
-	if (!url.includes('/toc/SS') && !url.includes('/toc/Supplement')) {
-		item = new Zotero.Item("journalArticle");
-		//item.title = id;
-		item.publicationTitle = "Journal of Religion & Society";
-		//item.date = ZU.strToISO(text(doc, ".heading").split('(')[1].match(/\d+/)[0]);
-		item.volume = text(doc, ".heading").split('(')[0].match(/\d+/)[0];
-		
-		let infoBlock = ZU.xpath(doc, "//p[contains(., '" + id + "')]/following-sibling::p");
-		for (let i of infoBlock) {
-			if (text(i, "a:last-child", 0).includes("PDF") || text(i, "a:last-child", 0).includes("Editorial")) {
-			pdfurl = attr(i, "a:last-child", "href", 0);
-			}
-		}
-		
-	}
-	
-	item.libraryCatalog = "Journal of Religion and Society";
-	item.ISSN = "1522-5658";
-	
-	let lookupHandle = 'http://hdl.handle.net/' + pdfurl.split(/handle\//)[1].split(/\/\d{4}-.*.pdf/)[0];
-	if (lookupHandle) {
-		ZU.processDocuments(lookupHandle, function (scrapeItems) {
-			let authorsEntry = ZU.xpathText(scrapeItems, '//meta[@name="citation_author"]/@content');
-			let authors = authorsEntry.split(/^([^,]*,[^,]*),/);
-			for (let author of authors) {
-				item.creators.push({
-					lastName: author.split(',')[0],
-					firstName: author.split(',')[1],
-					creatorType: "author"
-				});
-			}
-			item.title = ZU.xpathText(scrapeItems, '//meta[@name="citation_title"]/@content');
-			item.abstractNote = ZU.xpathText(scrapeItems, '//meta[@name="DCTERMS.abstract"]/@content');
-			item.DOI = ZU.xpathText(scrapeItems, '//meta[@name="DC.identifier" and @scheme="DCTERMS.URI"]/@content');
-			item.url = ZU.xpathText(scrapeItems, '//meta[@name="citation_abstract_html_url"]/@content'); 
-			item.date = ZU.xpathText(scrapeItems, '//meta[@name="citation_date"]/@content');
-			let tagentry = ZU.xpathText(scrapeItems, '//meta[@name="DC.subject"]/@content');
-			if (tagentry) {
-				let tags = tagentry.split(',');
-				for (let i in tags){
-					item.tags.push(tags[i]);
-				}
-			}
-			item.complete();
-		});
-	}
+	translator.getTranslatorObject(function (trans) {
+		trans.itemType = "journalArticle";
+		trans.doWeb(doc, url);
+	});
 }
+
 
 
 /** BEGIN TEST CASES **/
