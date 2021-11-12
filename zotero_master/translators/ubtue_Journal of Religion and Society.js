@@ -1,7 +1,7 @@
 {
 	"translatorID": "dde9787d-9ab5-4c49-808c-ec7bf0f0bb8e",
 	"label": "ubtue_Journal of Religion and Society",
-	"creator": "Vincent Carret",
+	"creator": "Vincent Carret and Timotheus Kim",
 	"target": "^https?://(www\\.)?moses\\.creighton\\.edu/JRS",
 	"minVersion": "3.0",
 	"maxVersion": "",
@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-18 13:02:55"
+	"lastUpdated": "2021-11-12 16:56:59"
 }
 
 /*
@@ -72,6 +72,7 @@ function doWeb(doc, url) {
 	}
 }
 
+
 function scrape(id, doc, url) {
 	var item = null;
 	var infoBlock = null;
@@ -79,77 +80,49 @@ function scrape(id, doc, url) {
 	var pdfurl = "";
 	if (!url.includes('/toc/SS') && !url.includes('/toc/Supplement')) {
 		item = new Zotero.Item("journalArticle");
-		item.title = id;
+		//item.title = id;
 		item.publicationTitle = "Journal of Religion & Society";
-		item.date = ZU.strToISO(text(doc, ".heading").split('(')[1].match(/\d+/)[0]);
+		//item.date = ZU.strToISO(text(doc, ".heading").split('(')[1].match(/\d+/)[0]);
 		item.volume = text(doc, ".heading").split('(')[0].match(/\d+/)[0];
-		infoBlock = ZU.xpath(doc, "//p[contains(., '" + id + "')]/following-sibling::p")[0];
-		author = infoBlock.textContent.split("\n");
-		for (let auth of author.slice(0, author.length - 1)) {
-			item.creators.push(ZU.cleanAuthor(auth.split(", ")[0], "author", false));
-		}
-	
+		
+		let infoBlock = ZU.xpath(doc, "//p[contains(., '" + id + "')]/following-sibling::p")[0];
+		
 		if (text(infoBlock, "a:last-child", 0).includes("PDF")) {
 			pdfurl = attr(infoBlock, "a:last-child", "href", 0);
-			item.url = pdfurl;
-			item.attachments.push({
-				title: item.title,
-				mimeType: "application/pdf",
-				url: pdfurl
-			});
-		}
-		
-		if (text(infoBlock, "a", 0).includes("Abstract")) {
-			let abstract = attr(infoBlock, "a", "href", 0).split("'")[1];
-			item.abstractNote = ZU.xpathText(doc, "//*[@id='"+abstract+"']");
-		}
-	}
-	else if (url.includes('/toc/Supplement')) {
-		item = new Zotero.Item("book");
-		item.title = id;
-		item.series = "Supplement of the Journal of Religion & Society";
-		item.publisher = "Journal of Religion & Society Supplement";
-		
-		infoBlock = ZU.xpath(doc, "//p[contains(., '" + id + "')]")[0];
-		item.date = ZU.strToISO(infoBlock.querySelector("em").nextSibling.textContent.match(/\d+/)[0]);
-		item.seriesNumber = text(infoBlock, "a").match(/\d+/)[0];
-		item.url = "http://moses.creighton.edu/JRS/toc/" + attr(infoBlock, "a", "href");
-		author = infoBlock.nextElementSibling.textContent.split(",")[0].replace("Edited by ", "").split(" and ");
-		for (let auth of author) item.creators.push(ZU.cleanAuthor(auth, "editor", false));
-	}
-	else if (url.includes('/toc/SS')) {
-		item = new Zotero.Item("bookSection");
-		item.title = id.split(" (")[0];
-		item.series = "Supplement of the Journal of Religion & Society";
-		item.seriesNumber = text(doc, ".heading").split('(')[0].match(/\d+/)[0];
-		item.publisher = "Journal of Religion & Society Supplement";
-		item.date = ZU.strToISO(text(doc, ".heading").split('(')[1].match(/\d+/)[0]);
-		item.bookTitle = text(doc, ".suppTitle");
-		author = text(doc, "p.SuppAuthor, p.editor").split(",")[0].replace("Edited by ", "").split(" and ");
-		for (let auth of author) item.creators.push(ZU.cleanAuthor(auth, "editor", false));
-		item.url = url;
-		
-		infoBlock = ZU.xpath(doc, "//p[contains(., '" + id + "')]")[0];
-		item.pages = infoBlock.textContent.split("(pp. ")[1].replace(")", "");
-		author = infoBlock.nextElementSibling.textContent.split(",")[0].split(" and ");
-		for (let auth of author) item.creators.push(ZU.cleanAuthor(auth, "author", false));
-		
-		pdfurl = attr(infoBlock.nextElementSibling, "a:last-child", "href", 0);
-		item.attachments.push({
-			title: item.title,
-			mimeType: "application/pdf",
-			url: pdfurl
-		});
-		
-		if (text(infoBlock.nextElementSibling, "a", 0).includes("Abstract")) {
-			let abstract = attr(infoBlock.nextElementSibling, "a", "href", 0).split("'")[1];
-			item.abstractNote = text(doc, abstract);
 		}
 	}
 	
 	item.libraryCatalog = "Journal of Religion and Society";
 	item.ISSN = "1522-5658";
-	item.complete();
+	
+	let lookupHandle = 'http://hdl.handle.net/' + pdfurl.split(/handle\//)[1].split(/\/\d{4}-.*.pdf/)[0];
+	if (lookupHandle) {
+		ZU.processDocuments(lookupHandle, function (scrapeItems) {
+			var j = 0;
+			let authorsEntry = ZU.xpathText(scrapeItems, '//meta[@name="citation_author"]/@content');
+			let authors = authorsEntry.split(/^([^,]*,[^,]*),/);
+			for (let author of authors) {
+				item.creators.push({
+					lastName: author.split(',')[0],
+					firstName: author.split(',')[1],
+					creatorType: "author"
+				});
+			}
+			item.title = ZU.xpathText(scrapeItems, '//meta[@name="citation_title"]/@content');
+			item.abstractNote = ZU.xpathText(scrapeItems, '//meta[@name="DCTERMS.abstract"]/@content');
+			item.DOI = ZU.xpathText(scrapeItems, '//meta[@name="DC.identifier" and @scheme="DCTERMS.URI"]/@content');
+			item.url = ZU.xpathText(scrapeItems, '//meta[@name="citation_abstract_html_url"]/@content'); 
+			item.date = ZU.xpathText(scrapeItems, '//meta[@name="citation_date"]/@content');
+			let tagentry = ZU.xpathText(scrapeItems, '//meta[@name="DC.subject"]/@content');
+			if (tagentry) {
+				let tags = tagentry.split(',');
+				for (let i in tags){
+					item.tags.push(tags[i]);
+				}
+			}
+			item.complete();
+		});
+	}
 }
 
 /** BEGIN TEST CASES **/
