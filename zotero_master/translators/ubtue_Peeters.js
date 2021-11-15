@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-10 14:39:25"
+	"lastUpdated": "2021-11-15 09:21:16"
 }
 
 /*
@@ -192,7 +192,6 @@ function scrape(doc, url) {
 			if (eissn && eissn.match(/e-issn\s+:?\s+\d{4}-?\d{4}/gi)) {
 				item.ISSN = eissn.match(/e-issn\s+:?\s+\d{4}-?\d{4}/gi).toString().trim().replace(/e-issn\s+:?\s/i, '');
 			}
-			item.complete();
 		});
 	}
 	// fixup date
@@ -201,6 +200,7 @@ function scrape(doc, url) {
 		if (match)
 			item.date = match[1];
 	}
+	item.complete();
 }
 
 /** BEGIN TEST CASES **/
