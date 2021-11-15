@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-28 11:00:45"
+	"lastUpdated": "2021-11-12 16:48:24"
 }
 
 /*
@@ -69,6 +69,7 @@ function postProcess(item, doc) {
  	//Paralleltitel --> 4002
  	let parallelTitel = ZU.xpathText(doc, '//div[@class="trans-title"]');
  	if (parallelTitel) {
+ 		parallelTitel = ZU.trimInternal(parallelTitel);
  		item.notes.push({note: 'Paralleltitel:' + parallelTitel});
  	}
 	// sanitize page number ranges
