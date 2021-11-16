@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-27 15:25:11"
+	"lastUpdated": "2021-11-16 13:02:31"
 }
 
 /*
@@ -93,11 +93,14 @@ function postProcess(item, doc) {
 			}
 		}
 	}
-	if (ZU.xpathText(doc, '//h2[@class="subtitle"]')) {
+	if (ZU.xpathText(doc, '//h2[@class="subtitle"]' !== "")) {
 		item.title = item.title + ': ' + ZU.xpathText(doc, '//h2[@class="subtitle"]').trim();
 	}
+	//review tag
+	if (item.title.match(/(?:ISBN(?:-13)?:?\ )?(?=[0-9]{13}$|(?=(?:[0-9]+[-\ ]){4})[-\ 0-9]{17}$)97[89][-\ ]?[0-9]{1,5}[-\ ]?[0-9]+[-\ ]?[0-9]+[-\ ]?[0-9]/g)) item.tags.push("Book Review");
 	item.complete();
 	}
+	
 
 function invokeEmbeddedMetadataTranslator(doc) {
 	let translator = Zotero.loadTranslator("web");
@@ -144,7 +147,7 @@ var testCases = [
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Wie lehrende und lernende Historikerinnen und Historiker zusammenarbeiten: Die Tutorien im Rahmen des Integrierten Proseminars am Historischen Institut der Ruhr-Universität Bochum",
+				"title": "How Teaching and Learning Historians Work Together",
 				"creators": [
 					{
 						"firstName": "Sebastian",
@@ -165,14 +168,13 @@ var testCases = [
 				"date": "2020",
 				"DOI": "10.2357/VvAa-2020-0004",
 				"ISSN": "2366-0597",
-				"abstractNote": "Erfahrungen auszutauschen bedeutet Einblicke in die eigene Lehrpraxis zu geben und die eigenen Lehrmethoden zur Diskussion zu stellen. So versteht sich der Text als Beitrag zum lebendigen Dialog zwischen Lehrenden und Lernenden am Historischen Institut der Ruhr-Universität Bochum. Um den Studienanfängern des Faches Orientierung zu geben, ist das erste Studienjahr durch die Integrierten Proseminare sehr strukturiert und speziell organisiert. In zwei Semestern lernen die Studierenden Methoden, Arbeitsweisen und erste Inhalte der drei Epochen Alte Geschichte, Mittelalter und Neuzeit kennen. Maßgeblich unterstützt werden sie dabei von den begleitenden Tutorien, in denen gezielt Inhalte und Propädeutik der einzelnen Präsenzsitzungen vertieft werden. Das erfordert ein hohes Maß an Koordination und Kooperation von Tutorinnen und Tutoren und Dozierenden. Es ist das Ziel des Beitrags aufzuzeigen, wie im aktiven Miteinander die angemessene Vermittlung sichergestellt und ein Lernklima gewährleistet werden kann, das produktiv ist und durch Kommunikation flexibel gestaltet werden kann.\\n4207 Exchanging experiences means giving insights into one’s own teaching practice and putting one’s own teaching methods up for discussion. Thus the text is understood as a contribution to the lively dialogue between teachers and students at the Department of History at the Ruhr-University Bochum. In order to give some orientation aid to the first-year students of the subject, the first year of study is very structured and specially organised by the Integrated Preseminars. In two semesters, students learn methods, working practices and initial content of the three epochs of Ancient History, the Middle Ages and Modern Times. They are significantly supported by the accompanying tutorials, in which the contents and propaedeutics of the individual classroom sessions are specifically deepened. This requires a high degree of coordination and cooperation between tutors and lecturers. The aim of the paper is to show how appropriate teaching can be ensured in active cooperation and how a learning climate can be created that is productive and can be made flexible through communication.",
+				"abstractNote": "Exchanging experiences means giving insights into one&rsquo;s own teaching practice and putting one&rsquo;s own teaching methods up for discussion. Thus the text is understood as a contribution to the lively dialogue between teachers and students at the Department of History at the Ruhr-University Bochum. In order to give some orientation aid to the first-year students of the subject, the first year of study is very structured and specially organised by the Integrated Preseminars. In two semesters, students learn methods, working practices and initial content of the three epochs of Ancient History, the Middle Ages and Modern Times. They are significantly supported by the accompanying tutorials, in which the contents and propaedeutics of the individual classroom sessions are specifically deepened. This requires a high degree of coordination and cooperation between tutors and lecturers. The aim of the paper is to show how appropriate teaching can be ensured in active cooperation and how a learning climate can be created that is productive and can be made flexible through communication.",
 				"issue": "1",
 				"journalAbbreviation": "vvaa",
 				"language": "de",
 				"libraryCatalog": "elibrary.narr.digital",
 				"pages": "74-107",
 				"publicationTitle": "Forum Exegese und Hochschuldidaktik: Verstehen von Anfang an (VvAa)",
-				"shortTitle": "Wie lehrende und lernende Historikerinnen und Historiker zusammenarbeiten",
 				"url": "https://elibrary.narr.digital/article/10.2357/VvAa-2020-0004",
 				"volume": "5",
 				"attachments": [
@@ -200,6 +202,102 @@ var testCases = [
 					},
 					{
 						"tag": "first year’s students"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://elibrary.narr.digital/article/10.24053/VvAa-2020-0020",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Interview mit ... Wolfgang Zwickel",
+				"creators": [
+					{
+						"firstName": "Thomas",
+						"lastName": "Wagner",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020",
+				"DOI": "10.24053/VvAa-2020-0020",
+				"ISSN": "2366-0597",
+				"issue": "2",
+				"journalAbbreviation": "vvaa",
+				"language": "de",
+				"libraryCatalog": "elibrary.narr.digital",
+				"pages": "170-176",
+				"publicationTitle": "Forum Exegese und Hochschuldidaktik: Verstehen von Anfang an (VvAa)",
+				"url": "https://elibrary.narr.digital/article/10.24053/VvAa-2020-0020",
+				"volume": "5",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://elibrary.narr.digital/article/10.24053/VvAa-2020-0018",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Silvia Schroer: Die Ikonographie Palästinas/Israels und der Alte Orient. Eine Religionsgeschichte in Bildern (IPIAO), Band 1: Vom ausgehenden Mesolithikum bis zur Frühbronzezeit, Band 2: Die Mittelbronzezeit, Band 3: Die Spätbronzezeit, Band 4: Die Eisenzeit bis zum Beginn der achämenidischen Herrschaft, Basel 2018, 2156 Seiten, ISBN 978-3-7965-3880-3",
+				"creators": [
+					{
+						"firstName": "Thomas",
+						"lastName": "Wagner",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020",
+				"DOI": "10.24053/VvAa-2020-0018",
+				"ISSN": "2366-0597",
+				"issue": "2",
+				"journalAbbreviation": "vvaa",
+				"language": "de",
+				"libraryCatalog": "elibrary.narr.digital",
+				"pages": "155-162",
+				"publicationTitle": "Forum Exegese und Hochschuldidaktik: Verstehen von Anfang an (VvAa)",
+				"shortTitle": "Silvia Schroer",
+				"url": "https://elibrary.narr.digital/article/10.24053/VvAa-2020-0018",
+				"volume": "5",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Ancient Palestine/Israel"
+					},
+					{
+						"tag": "Book Review"
+					},
+					{
+						"tag": "iconography"
+					},
+					{
+						"tag": "seals"
 					}
 				],
 				"notes": [],
