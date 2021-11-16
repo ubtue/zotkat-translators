@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-20 15:23:59"
+	"lastUpdated": "2021-11-16 12:38:55"
 }
 
 /*
@@ -114,6 +114,11 @@ function invokeEMTranslator(doc, url) {
 		if (year && year.match(/\w+\/\d+/)) i.date = year.split('/')[3];
 		let issn = text(doc, '.serialDetailsEissn');
 		if (issn) i.ISSN = issn.replace('Online ISSN:', '');
+		let openAccessTag = doc.querySelector('.accessIconLocation[src]');
+		if (openAccessTag && openAccessTag.src.match(/open\s?access/gi)) i.notes.push({note: 'LF:'});
+		// mark articles as "LF" (MARC=856 |z|kostenfrei), that are free accessible e.g. conference report 10.30965/25890433-04902001 
+		let freeAccess = text(doc, '.color-access-free');
+		if (freeAccess && freeAccess.match(/(free|freier)\s+(access|zugang)/gi)) i.notes.push('LF:');
 		i.itemType = "journalArticle";
 		i.complete();
 	});
@@ -194,6 +199,47 @@ var testCases = [
 				],
 				"tags": [],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.brepolsonline.net/doi/abs/10.1484/J.SE.5.119450",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "New Identifications Among the Sixth-Century Fragments of Augustine in Cambridge University Library",
+				"creators": [
+					{
+						"firstName": "H. A. G.",
+						"lastName": "Houghton",
+						"creatorType": "author"
+					}
+				],
+				"date": "2019",
+				"DOI": "10.1484/J.SE.5.119450",
+				"ISSN": "2295-9025",
+				"abstractNote": "\\n4207 This article offers a re-examination of the palimpsest fragments from a sixth-century codex of Augustine which were found in the Cairo Genizah and are now held in Cambridge University Library. The three largest fragments, with the shelfmark MS Add. 4320a-c, have already been identified as containing the end of De sermone domini and the beginning of Sermo 118. More recently, a smaller fragment of this manuscript was discovered in the Taylor-Schechter collection, also with text from De sermone domini (T-S AS 139.1). A full transcription of this fragment is published here for the first time. In addition, this article identifies the undertext on the two remaining substantial fragments of this manuscript (MS Add. 4320d). These contain part of Sermo 225 auct. and Contra sermonem Arrianorum, which means that they provide the oldest surviving witness to these works by several centuries. In addition to the editio princeps and images of these fragments, the article offers a small correction to Mutzenbecher’s edition of De sermone domini and briefly considers the nature of the original codex as a compilation of multiple writings by Augustine.",
+				"archiveLocation": "Turnhout, Belgium",
+				"language": "en",
+				"libraryCatalog": "www.brepolsonline.net",
+				"pages": "171-180",
+				"publicationTitle": "Sacris Erudiri",
+				"url": "https://www.brepolsonline.net/doi/abs/10.1484/J.SE.5.119450",
+				"volume": "58",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [
+					{
+						"note": "LF:"
+					}
+				],
 				"seeAlso": []
 			}
 		]
