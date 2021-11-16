@@ -436,6 +436,16 @@ function performExport() {
                 addLine(currentItemId, "\\n2053", item.DOI.replace('https://doi.org/', ''));
             }
         }
+		
+		//item.notes as handle --> 2052
+		if (item.notes) {
+			for (let i in item.notes) {
+				if (item.notes[i].note.includes('handle:')) {
+					addLine(currentItemId, "\\n2052", ZU.unescapeHTML(item.notes[i].note.replace(/handle:https?:\/\/hdl\.handle\.net\//i, '')));
+					addLine(currentItemId, "\\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/handle:/i, '') + "$xH$3Volltext$4LF$534"));
+				}
+			}
+		}
 
         //Autoren --> 3000, 3010
         //Titel, erster Autor --> 4000

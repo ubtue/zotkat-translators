@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-12 22:31:13"
+	"lastUpdated": "2021-11-16 14:14:46"
 }
 
 /*
@@ -79,7 +79,8 @@ function scrape(doc, url) {
 	translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48');
 	// translator.setDocument(doc);
 	translator.setHandler('itemDone', function (obj, item) {
-		item.DOI = ZU.xpathText(doc, '//meta[@name="DC.identifier" and @scheme="DCTERMS.URI"]/@content');
+		let handlePID = ZU.xpathText(doc, '//meta[@name="DC.identifier" and @scheme="DCTERMS.URI"]/@content');
+		if (handlePID) item.notes.push({note: 'handle:' + handlePID});
 		item.complete();
 	});
 
