@@ -1,15 +1,15 @@
 {
 	"translatorID": "10a6eb69-6f51-4189-a175-46f87db0f8ce",
-	"label": "Taylor and Francis+NEJM",
+	"label": "ubtue_Taylor and Francis+NEJM",
 	"creator": "Sebastian Karcher and Timotheus Kim",
 	"target": "^https?://(www\\.)?(tandfonline\\.com|nejm\\.org)",
 	"minVersion": "3.0",
 	"maxVersion": "",
-	"priority": 100,
-	"inRepository": true,
+	"priority": 99,
+	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-12 17:18:10"
+	"lastUpdated": "2021-11-17 12:12:10"
 }
 
 /*
