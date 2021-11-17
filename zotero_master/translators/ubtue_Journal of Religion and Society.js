@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-16 14:14:46"
+	"lastUpdated": "2021-11-17 14:46:21"
 }
 
 /*
@@ -81,6 +81,21 @@ function scrape(doc, url) {
 	translator.setHandler('itemDone', function (obj, item) {
 		let handlePID = ZU.xpathText(doc, '//meta[@name="DC.identifier" and @scheme="DCTERMS.URI"]/@content');
 		if (handlePID) item.notes.push({note: 'handle:' + handlePID});
+		//volume number are stored unusually in DC.description, therefore it should be checked for the presence of numbers
+		let itemVolume = ZU.xpathText(doc, '//meta[@name="DC.description"]/@content');
+		if (itemVolume && itemVolume.match(/^\d+/)) item.volume = itemVolume;
+		let abstractKeywordsEntry = ZU.xpathText(doc, '//meta[@name="DCTERMS.abstract"]/@content');
+		if (abstractKeywordsEntry && abstractKeywordsEntry !== null) item.abstractNote = abstractKeywordsEntry.split('|Keywords: ')[0];
+		if (abstractKeywordsEntry && abstractKeywordsEntry !== null) {
+			let keywords = abstractKeywordsEntry.split('|Keywords: ')[1].split(',');
+			if (keywords && keywords !== null) {
+				for (let k of keywords) {
+					item.tags.push(k.trim().replace(/^\w/gi,function(m){ return m.toUpperCase();}));
+				}	
+			}		
+		}
+		//search and remove keyword "Journal Article" 
+		item.tags = item.tags.filter(e => e !== 'Journal Article');
 		item.complete();
 	});
 

@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-11-16 15:05:00"
+	"lastUpdated": "2021-11-17 15:05:00"
 }
 
 
@@ -427,7 +427,7 @@ function performExport() {
 			for (let i in item.notes) {
 				if (item.notes[i].note.includes('handle:')) {
 					addLine(currentItemId, "2052", ZU.unescapeHTML(item.notes[i].note.replace(/handle:https?:\/\/hdl\.handle\.net\//i, '')));
-					addLine(currentItemId, "4950", ZU.unescapeHTML(item.notes[i].note.replace(/handle:/i, '') + "$xH$3Volltext$4LF$534"));
+					addLine(currentItemId, "4950", ZU.unescapeHTML(item.notes[i].note.replace(/handle:/i, '') + "$xR$3Volltext$4LF$534"));
 				}
 			}
 		}
