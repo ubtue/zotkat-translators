@@ -67,7 +67,7 @@ var journal_title_to_language_code = {
 
 /* =============================================================================================================== */
 // ab hier Programmcode
-var defaultSsgNummer = "1";
+var defaultSsgNummer = "";
 var defaultLanguage = "eng";
 
 //lokaldatensatz z.B. \\n6700 !372049834!\\n6700 !37205241X!\\n6700 !372053025!\\n6700!37205319X!
