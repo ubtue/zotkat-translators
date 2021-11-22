@@ -6,10 +6,10 @@
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 99,
-	"inRepository": false,
+	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-03-17 10:10:25"
+	"lastUpdated": "2021-11-22 16:56:04"
 }
 
 /*
@@ -54,11 +54,14 @@ function getSearchResults(doc, checkOnly) {
 	var rows = ZU.xpath(doc, '//p/span[@class="titulo"]/a');
 	for (var i=0; i<rows.length; i++) {
 		var href = rows[i].href;
+		if (!href.includes('libro')) {
 		var title = ZU.trimInternal(rows[i].textContent);
 		if (!href || !title) continue;
 		if (checkOnly) return true;
 		found = true;
 		items[href] = title;
+		}
+
 	}
 	return found ? items : false;
 }
@@ -108,7 +111,7 @@ function scrape(doc, url) {
  			item.issue = multiIssue.split('Fasc.')[1].split(',')[0];
  		}
  		// replace issue number with volume number for certain journals e.g. 'Analecta calasanctiana: publicación semestral religioso cultural y de investigación histórica' 
- 		if (item.ISSN.match(/0569-9789|1594-344/)) item.volume = issueEntry.split('\(')[0];
+ 		if (item.ISSN && item.ISSN.match(/0569-9789|1594-344/)) item.volume = issueEntry.split('\(')[0];
  		if (item.issue === item.volume) delete item.issue;
  		// Delete generic keywords
  		if (item.tags);
@@ -144,7 +147,8 @@ var testCases = [
 				"url": "https://dialnet.unirioja.es/servlet/libro?codigo=293780",
 				"attachments": [
 					{
-						"title": "Snapshot"
+						"title": "Snapshot",
+						"mimeType": "text/html"
 					}
 				],
 				"notes": [],
@@ -173,7 +177,7 @@ var testCases = [
 				],
 				"date": "2011",
 				"ISSN": "1692-715X",
-				"abstractNote": "This article presents the outcome of research conducted between 2006 and 2009 on speeches\nand policy action in seven groups of young university students in Bogotá.\nTheoretical, epistemological and methodological research was supported by the approach of Hannah Arendt\n(2001a, 2001b), were supplemented by the insights of Kohn (2005), Brunet (2007), Sánchez (2003), Rosenthal\n(2006) and Fraser (1997, 2008).\nThe research was developed from four main categories: conceptions of political citizenship; constraints of\npolitics, democracy and citizenship; trigger political action by young people and forms of political action by\nyoung people. It concludes with the need for education for political participation and ethics in Colombia\nreconfiguration.",
+				"abstractNote": "En este artículo se presentan los resultados de la investigación llevada a cabo entre 2006 y 2009 sobre discursos y acción política en siete grupos de jóvenes estudiantes universitarios de Bogotá., Teórica, epistemológica y metodológicamente, se sustentó la investigación en los planteamientos de Hannah Arendt (2001a, 2001b), se complementaron con las comprensiones de Kohn (2005), Brunet (2007), Sánchez (2003), Greppi (2006) y Fraser (1997, 2008)., El trabajo se desarrolló desde cuatro categorías fundamentales: concepciones de política, ciudadanía;, condicionantes de la política, democracia y la ciudadanía; detonantes de la acción política del los colectivos de jóvenes y las formas de acción política de los jóvenes y las jóvenes. Se Concluye con la necesidad de una educación para la participación política y la reconfiguración ética en Colombia., This article presents the outcome of research conducted between 2006 and 2009 on speeches and policy action in seven groups of young university students in Bogotá., Theoretical, epistemological and methodological research was supported by the approach of Hannah Arendt (2001a, 2001b), were supplemented by the insights of Kohn (2005), Brunet (2007), Sánchez (2003), Rosenthal (2006) and Fraser (1997, 2008)., The research was developed from four main categories: conceptions of political citizenship; constraints of politics, democracy and citizenship; trigger political action by young people and forms of political action by young people. It concludes with the need for education for political participation and ethics in Colombia reconfiguration., Este artigo apresenta os resultados de uma pesquisa realizada entre 2006 e 2009, em discursos e ação política em sete grupos de jovens universitários em Bogotá., Teóricas, epistemológicas e metodológicas de pesquisa foi suportada pela abordagem de Hannah Arendt (2001a, 2001b), foram complementadas com as idéias de Kohn (2005), Brunet (2007), Sánchez (2003), Rosenthal (2006) e Fraser (1997, 2008)., O trabalho foi desenvolvido a partir de quatro categorias principais: as concepções de cidadania política;, restrições da política, da democracia e da cidadania; desencadear uma ação política por parte dos jovens e das formas de ação política dos jovens. Conclui-se com a necessidade de educação para a participação política e ética na reconfiguração da Colômbia.",
 				"issue": "1",
 				"language": "spa",
 				"libraryCatalog": "dialnet.unirioja.es",
@@ -187,7 +191,8 @@ var testCases = [
 						"mimeType": "application/pdf"
 					},
 					{
-						"title": "Snapshot"
+						"title": "Snapshot",
+						"mimeType": "text/html"
 					}
 				],
 				"notes": [],
@@ -197,7 +202,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://dialnet.unirioja.es/buscar/documentos?querysDismax.DOCUMENTAL_TODO=politica",
+		"url": "https://dialnet.unirioja.es/buscar/documentos?querysDismax.DOCUMENTAL_TODO=politica",
 		"items": "multiple"
 	},
 	{
@@ -230,7 +235,8 @@ var testCases = [
 				"volume": "89",
 				"attachments": [
 					{
-						"title": "Snapshot"
+						"title": "Snapshot",
+						"mimeType": "text/html"
 					}
 				],
 				"notes": [],
@@ -326,7 +332,7 @@ var testCases = [
 					}
 				],
 				"date": "2017",
-				"ISSN": "0425-340X",
+				"ISSN": "0425-340X, 2792-260X",
 				"issue": "1-3",
 				"language": "spa",
 				"libraryCatalog": "dialnet.unirioja.es",
@@ -360,7 +366,7 @@ var testCases = [
 					}
 				],
 				"date": "2019",
-				"ISSN": "0425-340X",
+				"ISSN": "0425-340X, 2792-260X",
 				"issue": "1-2",
 				"language": "spa",
 				"libraryCatalog": "dialnet.unirioja.es",
@@ -396,12 +402,12 @@ var testCases = [
 				"date": "2020",
 				"ISSN": "0569-9789",
 				"abstractNote": "El artículo es un estudio documentado sobre la fundación primera escolapia fuera de Italia, en Nikolsburg (ahora Mikulov, en la República Checa y en los años que contempla este estudio en Moravia. Fue pedida a San José de Calasanz por el Cardenal Francisco Dietrichstein (1570-1636), gobernador de Moravia, que había nacido en España por ser hijo del embajador moravo en Madrid. La fundación se llevó a cabo y fue mantenida por el Cardenal que siempre manifestó su agradecimiento a Calasanz., El estudio se centra solamente en los años de la fundación y primera consolidación (1631 a 1648). La fuentes documentales son básicamente los epistolarios calasancios ya publicados: Epistolario de Calasanz, dos Epistolarios de Cartas a él dirigidas y Epistolario de correspondencia entre escolapios durante la vida de Calasanz. Destacan los escolapios que fueron enviados y crearon la escuela, el internado y varias congregaciones asociativas para los escolares. La presencia escolapia acabó en 1884, al reclamar derechos propios sobre toda la obra los herederos del Cardenal",
-				"issue": "123",
 				"language": "spa",
 				"libraryCatalog": "dialnet.unirioja.es",
 				"pages": "11-231",
 				"publicationTitle": "Analecta calasanctiana: publicación semestral religioso cultural y de investigación histórica",
 				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7558938",
+				"volume": "123",
 				"attachments": [
 					{
 						"title": "Snapshot",
@@ -469,6 +475,41 @@ var testCases = [
 				"publicationTitle": "Barnabiti Studi: Rivista di ricerche storiche dei Chierici Regolari di S. Paolo",
 				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=6584233",
 				"volume": "34",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8109506",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Fernando Rivas Rebaque, \" San Ignacio de Antioquía. Obispo y Mártir \". Editorial Ciudad Nueva ( Colección Conocer el Siglo II, 1 ), Madrid 2020, ISBN: 978-84-462-8, 459 páginas, 33 euros",
+				"creators": [
+					{
+						"firstName": "Juan Sanjurjo",
+						"lastName": "Arias",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021",
+				"ISSN": "0573-2018",
+				"issue": "1-2",
+				"language": "spa",
+				"libraryCatalog": "dialnet.unirioja.es",
+				"pages": "341-344",
+				"publicationTitle": "Compostellanum: revista de la Archidiócesis de Santiago de Compostela",
+				"shortTitle": "Fernando Rivas Rebaque, \" San Ignacio de Antioquía. Obispo y Mártir \". Editorial Ciudad Nueva ( Colección Conocer el Siglo II, 1 ), Madrid 2020, ISBN",
+				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8109506",
+				"volume": "66",
 				"attachments": [
 					{
 						"title": "Snapshot",
