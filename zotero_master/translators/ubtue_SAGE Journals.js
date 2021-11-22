@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-09-29 13:11:43"
+	"lastUpdated": "2021-11-22 17:07:39"
 }
 
 /*
@@ -128,7 +128,7 @@ function scrape(doc, url) {
 			//scrape ORCID from website e.g. https://journals.sagepub.com/doi/full/10.1177/0084672419883339
 			let authorSectionEntries = doc.querySelectorAll('.author-section-div');
 			for (let authorSectionEntry of authorSectionEntries) {
-				    let entryHTML = authorSectionEntry.innerHTML;
+					let entryHTML = authorSectionEntry.innerHTML;
 					let regexOrcid = /\d+-\d+-\d+-\d+x?/i;
 					let regexName = /author=.*"/;
 					if(entryHTML.match(regexOrcid)) {
@@ -146,9 +146,9 @@ function scrape(doc, url) {
 				item.abstractNote = abstract;
 			}
 			if (otherabstract) {
-				item.notes.push({note: "abs:" + otherabstract.replace(/^Résumé/, '')});
+				item.notes.push({note: "abs:" + ZU.unescapeHTML(otherabstract.replace(/^Résumé/, ''))});
 			} else {
-				item.abstractNote = ubtueabstract;
+				item.abstractNote = ZU.unescapeHTML(ubtueabstract);
 			}			
 
 			var tagentry = ZU.xpathText(doc, '//kwd-group[1] | //*[contains(concat( " ", @class, " " ), concat( " ", "hlFld-KeywordText", " " ))]');
@@ -217,497 +217,68 @@ function scrape(doc, url) {
 	});
 }
 
-/** END TEST CASES **//** BEGIN TEST CASES **/
+/** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "web",
-		"url": "https://journals.sagepub.com/doi/abs/10.1177/1754073910380971",
+		"url": "https://journals.sagepub.com/doi/10.1177/00084298211036567",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Emotion and Regulation are One!",
+				"title": "ACÉBAC: Les voix et les voies de l’Écriture",
 				"creators": [
 					{
-						"lastName": "Kappas",
-						"firstName": "Arvid",
+						"lastName": "Luna",
+						"firstName": "Rodolfo Felices",
 						"creatorType": "author"
 					}
 				],
-				"date": "January 1, 2011",
-				"DOI": "10.1177/1754073910380971",
-				"ISSN": "1754-0739",
-				"abstractNote": "Emotions are foremost self-regulating processes that permit rapid responses and adaptations to situations of personal concern. They have biological bases and are shaped ontogenetically via learning and experience. Many situations and events of personal concern are social in nature. Thus, social exchanges play an important role in learning about rules and norms that shape regulation processes. I argue that (a) emotions often are actively auto-regulating—the behavior implied by the emotional reaction bias to the eliciting event or situation modifies or terminates the situation; (b) certain emotion components are likely to habituate dynamically, modifying the emotional states; (c) emotions are typically intra- and interpersonal processes at the same time, and modulating forces at these different levels interact; (d) emotions are not just regulated—they regulate. Important conclusions of my arguments are that the scientific analysis of emotion should not exclude regulatory processes, and that effortful emotion regulation should be seen relative to a backdrop of auto-regulation and habituation, and not the ideal notion of a neutral baseline. For all practical purposes unregulated emotion is not a realistic concept.",
-				"issue": "1",
-				"journalAbbreviation": "Emotion Review",
-				"language": "en",
-				"libraryCatalog": "ubtue_SAGE Journals",
-				"pages": "17-25",
-				"publicationTitle": "Emotion Review",
-				"url": "https://doi.org/10.1177/1754073910380971",
-				"volume": "3",
-				"attachments": [],
-				"tags": [
-					{
-						"tag": " emotion regulation"
-					},
-					{
-						"tag": " facial expression"
-					},
-					{
-						"tag": " facial feedback"
-					}
-				],
-				"notes": [
-					{
-						"note": "<p>doi: 10.1177/1754073910380971</p>"
-					}
-				],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://journals.sagepub.com/toc/rera/86/3",
-		"items": "multiple"
-	},
-	{
-		"type": "web",
-		"url": "https://journals.sagepub.com/doi/full/10.1177/0954408914525387",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Brookfield powder flow tester – Results of round robin tests with CRM-116 limestone powder",
-				"creators": [
-					{
-						"lastName": "Berry",
-						"firstName": "RJ",
-						"creatorType": "author"
-					},
-					{
-						"lastName": "Bradley",
-						"firstName": "MSA",
-						"creatorType": "author"
-					},
-					{
-						"lastName": "McGregor",
-						"firstName": "RG",
-						"creatorType": "author"
-					}
-				],
-				"date": "August 1, 2015",
-				"DOI": "10.1177/0954408914525387",
-				"ISSN": "0954-4089",
-				"abstractNote": "A low cost powder flowability tester for industry has been developed at The Wolfson Centre for Bulk Solids Handling Technology, University of Greenwich in collaboration with Brookfield Engineering and four food manufacturers: Cadbury, Kerry Ingredients, GSK and United Biscuits. Anticipated uses of the tester are primarily for quality control and new product development, but it can also be used for storage vessel design.This paper presents the preliminary results from ‘round robin’ trials undertaken with the powder flow tester using the BCR limestone (CRM-116) standard test material. The mean flow properties have been compared to published data found in the literature for the other shear testers.",
+				"date": "September 1, 2021",
+				"DOI": "10.1177/00084298211036567",
+				"ISSN": "0008-4298",
+				"abstractNote": "L’Association catholique d’études bibliques au Canada a été fondée en 1943 afin de promouvoir les études bibliques en français parmi le clergé catholique en charge de la formation académique des séminaristes. Au cours de ses 77 années d’existence, cette société savante a navigué à travers deux tournants herméneutiques majeurs : le déplacement d’attention de l’exégèse historico-critique vers les méthodes littéraires centrées sur le texte final, puis le déplacement subséquent vers les approches attentives aux lectrices et lecteurs. À partir de la Révolution tranquille au Québec, la composition de l’assemblée des membres s’est progressivement diversifiée, pour y inclure des laïcs, des femmes, des étranger.e.s à la foi catholique et des savant.e.s du monde séculier, sans affiliation religieuse professée ou connue. Le travail de l’exégèse est appelé à rencontrer le défi de l’interdisciplinarité, compte tenu de l’intérêt grandissant des sciences humaines et sociales pour le texte biblique.",
 				"issue": "3",
-				"journalAbbreviation": "Proceedings of the Institution of Mechanical Engineers, Part E: Journal of Process Mechanical Engineering",
+				"journalAbbreviation": "Studies in Religion/Sciences Religieuses",
 				"language": "en",
 				"libraryCatalog": "ubtue_SAGE Journals",
-				"pages": "215-230",
-				"publicationTitle": "Proceedings of the Institution of Mechanical Engineers, Part E: Journal of Process Mechanical Engineering",
-				"url": "https://doi.org/10.1177/0954408914525387",
-				"volume": "229",
+				"pages": "336-343",
+				"publicationTitle": "Studies in Religion/Sciences Religieuses",
+				"shortTitle": "ACÉBAC",
+				"url": "https://doi.org/10.1177/00084298211036567",
+				"volume": "50",
 				"attachments": [],
 				"tags": [
 					{
-						"tag": " BCR limestone powder (CRM-116)"
+						"tag": " Canada"
 					},
 					{
-						"tag": " Brookfield powder flow tester"
+						"tag": " French language"
 					},
 					{
-						"tag": " Jenike shear cell"
+						"tag": " biblical studies"
 					},
 					{
-						"tag": " Schulze ring shear tester"
+						"tag": " exegesis"
 					},
 					{
-						"tag": " Shear cell"
+						"tag": " exégèse"
 					},
 					{
-						"tag": " characterizing powder flowability"
+						"tag": " langue française"
 					},
 					{
-						"tag": " flow function"
+						"tag": " learned societies"
 					},
 					{
-						"tag": " reproducibility"
+						"tag": " sociétés savantesCanada"
+					},
+					{
+						"tag": " études bibliques"
 					}
 				],
 				"notes": [
 					{
-						"note": "<p>doi: 10.1177/0954408914525387</p>"
-					}
-				],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://journals.sagepub.com/action/doSearch?AllField=test&",
-		"items": "multiple"
-	},
-	{
-		"type": "web",
-		"url": "https://journals.sagepub.com/doi/full/10.1177/1541204015581389",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Moffitt’s Developmental Taxonomy and Gang Membership: An Alternative Test of the Snares Hypothesis",
-				"creators": [
-					{
-						"lastName": "Petkovsek",
-						"firstName": "Melissa A.",
-						"creatorType": "author"
-					},
-					{
-						"lastName": "Boutwell",
-						"firstName": "Brian B.",
-						"creatorType": "author"
-					},
-					{
-						"lastName": "Barnes",
-						"firstName": "J. C.",
-						"creatorType": "author"
-					},
-					{
-						"lastName": "Beaver",
-						"firstName": "Kevin M.",
-						"creatorType": "author"
-					}
-				],
-				"date": "October 1, 2016",
-				"DOI": "10.1177/1541204015581389",
-				"ISSN": "1541-2040",
-				"abstractNote": "Moffitt’s taxonomy remains an influential theoretical framework within criminology. Despite much empirical scrutiny, comparatively less time has been spent testing the snares component of Moffitt’s work. Specifically, are there factors that might engender continued criminal involvement for individuals otherwise likely to desist? The current study tested whether gang membership increased the odds of contact with the justice system for each of the offender groups specified in Moffitt’s original developmental taxonomy. Our findings provided little evidence that gang membership increased the odds of either adolescence-limited or life-course persistent offenders being processed through the criminal justice system. Moving forward, scholars may wish to shift attention to alternative variables—beyond gang membership—when testing the snares hypothesis.",
-				"issue": "4",
-				"journalAbbreviation": "Youth Violence and Juvenile Justice",
-				"language": "en",
-				"libraryCatalog": "ubtue_SAGE Journals",
-				"pages": "335-349",
-				"publicationTitle": "Youth Violence and Juvenile Justice",
-				"shortTitle": "Moffitt’s Developmental Taxonomy and Gang Membership",
-				"url": "https://doi.org/10.1177/1541204015581389",
-				"volume": "14",
-				"attachments": [],
-				"tags": [
-					{
-						"tag": " Moffitt’s developmental taxonomy"
-					},
-					{
-						"tag": " delinquency"
-					},
-					{
-						"tag": " gang membership"
-					},
-					{
-						"tag": " snares"
-					}
-				],
-				"notes": [
-					{
-						"note": "<p>doi: 10.1177/1541204015581389</p>"
-					}
-				],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://journals.sagepub.com/doi/full/10.1177/2056997119868248",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Discernment, technology, and digital citizenship in a Christian school system",
-				"creators": [
-					{
-						"lastName": "Smith",
-						"firstName": "David I",
-						"creatorType": "author"
-					},
-					{
-						"lastName": "Sevensma",
-						"firstName": "Kara",
-						"creatorType": "author"
-					}
-				],
-				"date": "July 1, 2020",
-				"DOI": "10.1177/2056997119868248",
-				"ISSN": "2056-9971",
-				"abstractNote": "Using a qualitative analysis of school artifacts, this article analyzes the documentary record of one Christian school system’s experience with technological change. It focuses on documentary evidence for how the concept of Christian discernment was deployed to situate new technologies within a Christian discourse. The idea of discernment shifted in emphasis as new technologies were implemented. The theologically rooted concept of discernment both shaped and was shaped by the ongoing effort to manage technological change. Examining this evolution offers an empirical contribution to discussions of how Christian schools can sustain an integrity of fit between faith and practice.",
-				"issue": "2",
-				"journalAbbreviation": "International Journal of Christianity & Education",
-				"language": "en",
-				"libraryCatalog": "ubtue_SAGE Journals",
-				"pages": "135-152",
-				"publicationTitle": "International Journal of Christianity & Education",
-				"url": "https://doi.org/10.1177/2056997119868248",
-				"volume": "24",
-				"attachments": [],
-				"tags": [
-					{
-						"tag": " Christian schools"
-					},
-					{
-						"tag": " digital citizenship"
-					},
-					{
-						"tag": " digital technology"
-					},
-					{
-						"tag": " discernment"
-					},
-					{
-						"tag": " school leadership"
-					},
-					{
-						"tag": " theology"
-					}
-				],
-				"notes": [
-					{
-						"note": "<p>doi: 10.1177/2056997119868248</p>"
-					},
-					{
-						"note": "orcid:0000-0002-9890-7342 | author=Smith, David I"
-					}
-				],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://journals.sagepub.com/doi/full/10.1177/0040571X20944577",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Praying to win: reflections on the involvement of God in the outcomes of sport",
-				"creators": [
-					{
-						"lastName": "Smith",
-						"firstName": "Jason M.",
-						"creatorType": "author"
-					}
-				],
-				"date": "September 1, 2020",
-				"DOI": "10.1177/0040571X20944577",
-				"ISSN": "0040-571X",
-				"abstractNote": "This article applies to sport the question: to what extent is God involved in the outcomes of worldly affairs? It examines Lincoln Harvey’s assertion that sport is one unique area of creation in which God has left the outcomes entirely up to us, as a ‘liturgical celebration of our contingency’. Not entirely satisfied with this answer, I take up concepts from Kathryn Tanner’s work to try to arrive at a solution wherein God’s providential care over all worldly affairs is maintained but with sufficient care so as not to imagine God choosing one team over another during every sporting event.",
-				"issue": "5",
-				"journalAbbreviation": "Theology",
-				"language": "en",
-				"libraryCatalog": "ubtue_SAGE Journals",
-				"pages": "329-336",
-				"publicationTitle": "Theology",
-				"shortTitle": "Praying to win",
-				"url": "https://doi.org/10.1177/0040571X20944577",
-				"volume": "123",
-				"attachments": [],
-				"tags": [
-					{
-						"tag": " Kathryn Tanner"
-					},
-					{
-						"tag": " Lincoln Harvey"
-					},
-					{
-						"tag": " contingency"
-					},
-					{
-						"tag": " providence"
-					},
-					{
-						"tag": " sport"
-					}
-				],
-				"notes": [
-					{
-						"note": "<p>doi: 10.1177/0040571X20944577</p>"
-					}
-				],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://journals.sagepub.com/doi/full/10.1177/2056997120919765",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Covenant and pedagogy",
-				"creators": [
-					{
-						"lastName": "Faber",
-						"firstName": "Ben",
-						"creatorType": "author"
-					}
-				],
-				"date": "November 1, 2020",
-				"DOI": "10.1177/2056997120919765",
-				"ISSN": "2056-9971",
-				"abstractNote": "This article argues that “covenant” ought to serve universally as a framework for education, beyond the exclusive sense of covenant in use in Reformed Christian education. The article begins with covenant as creation’s answerable relationship with the Creator, then offers a brief account of language as a form of covenantal exchange, and concludes with pedagogy as a function of the covenantal structures of being and of speaking.",
-				"issue": "3",
-				"journalAbbreviation": "International Journal of Christianity & Education",
-				"language": "en",
-				"libraryCatalog": "ubtue_SAGE Journals",
-				"pages": "254-268",
-				"publicationTitle": "International Journal of Christianity & Education",
-				"url": "https://doi.org/10.1177/2056997120919765",
-				"volume": "24",
-				"attachments": [],
-				"tags": [
-					{
-						"tag": " Speech Act Theory"
-					},
-					{
-						"tag": " answerability"
-					},
-					{
-						"tag": " covenant theology"
-					},
-					{
-						"tag": " philosophy of education"
-					}
-				],
-				"notes": [
-					{
-						"note": "<p>doi: 10.1177/2056997120919765</p>"
-					},
-					{
-						"note": "orcid:0000-0002-8821-3988 | author=Faber, Ben"
-					}
-				],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://journals.sagepub.com/doi/full/10.1177/0014524620944817",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Commentary on the Letter of Polycarp to the Philippians",
-				"creators": [
-					{
-						"lastName": "Foster",
-						"firstName": "Paul",
-						"creatorType": "author"
-					}
-				],
-				"date": "October 1, 2020",
-				"DOI": "10.1177/0014524620944817",
-				"ISSN": "0014-5246",
-				"issue": "1",
-				"journalAbbreviation": "The Expository Times",
-				"language": "en",
-				"libraryCatalog": "ubtue_SAGE Journals",
-				"pages": "40-40",
-				"publicationTitle": "The Expository Times",
-				"url": "https://doi.org/10.1177/0014524620944817",
-				"volume": "132",
-				"attachments": [],
-				"tags": [
-					{
-						"tag": "Book Review"
-					}
-				],
-				"notes": [
-					{
-						"note": "<p>doi: 10.1177/0014524620944817</p>"
-					}
-				],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://journals.sagepub.com/doi/full/10.1177/0014524620944817",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Commentary on the Letter of Polycarp to the Philippians",
-				"creators": [
-					{
-						"lastName": "Foster",
-						"firstName": "Paul",
-						"creatorType": "author"
-					}
-				],
-				"date": "October 1, 2020",
-				"DOI": "10.1177/0014524620944817",
-				"ISSN": "0014-5246",
-				"issue": "1",
-				"journalAbbreviation": "The Expository Times",
-				"language": "en",
-				"libraryCatalog": "ubtue_SAGE Journals",
-				"pages": "40-40",
-				"publicationTitle": "The Expository Times",
-				"url": "https://doi.org/10.1177/0014524620944817",
-				"volume": "132",
-				"attachments": [],
-				"tags": [
-					{
-						"tag": "Book Review"
-					}
-				],
-				"notes": [
-					{
-						"note": "<p>doi: 10.1177/0014524620944817</p>"
-					}
-				],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://journals.sagepub.com/toc/pcca/75/1",
-		"items": "multiple"
-	},
-	{
-		"type": "web",
-		"url": "https://journals.sagepub.com/doi/full/10.1177/1542305020962013",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Stanford, M. S. (2019). Grace for the Children: Finding Hope in the Midst of Child and Adolescent Mental Illness",
-				"creators": [
-					{
-						"lastName": "Welch",
-						"firstName": "Barbara Kathleen",
-						"creatorType": "author"
-					}
-				],
-				"date": "March 1, 2021",
-				"DOI": "10.1177/1542305020962013",
-				"ISSN": "1542-3050",
-				"issue": "1",
-				"journalAbbreviation": "J Pastoral Care Counsel",
-				"language": "en",
-				"libraryCatalog": "ubtue_SAGE Journals",
-				"pages": "75-76",
-				"publicationTitle": "Journal of Pastoral Care & Counseling",
-				"shortTitle": "Stanford, M. S. (2019). Grace for the Children",
-				"url": "https://doi.org/10.1177/1542305020962013",
-				"volume": "75",
-				"attachments": [],
-				"tags": [
-					{
-						"tag": "Book Review"
-					}
-				],
-				"notes": [
-					{
-						"note": "<p>doi: 10.1177/1542305020962013</p>"
-					},
-					{
-						"note": "orcid:0000-0001-5215-0447 | author=Welch, Barbara Kathleen"
+						"note": "abs:The Association catholique d’études bibliques au Canada was founded in 1943 to foster biblical studies in French among Roman Catholic clergy in charge of the academic instruction of seminarians. During its 77 years of existence, this learned society has navigated through two major hermeneutical turns in biblical studies : the shift of focus from historical-critical exegesis to final-text centered literary methods, and the shift from the latter to reader-conscious and reader-oriented approaches. The society’s membership has also widened to include non-clerics, women scholars, non-Catholics, and secular scholars, following the deep social transformation of the Révolution tranquille in Quebec and beyond. As interest in the Bible continues to grow among the humanities and social sciences, interdisciplinary work is both a challenge and an opportunity that guides the way forward."
 					}
 				],
 				"seeAlso": []
