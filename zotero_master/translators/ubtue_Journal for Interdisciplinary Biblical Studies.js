@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-24 09:13:46"
+	"lastUpdated": "2021-11-24 09:17:47"
 }
 
 /*
@@ -81,7 +81,7 @@ function scrape(doc, url) {
 				delete i.lastName;
 			}
 		}
-		let keywords = ZU.xpathText(doc, '//meta[@name="citation_keyword"]/@content');Z.debug(keywords)
+		let keywords = ZU.xpathText(doc, '//meta[@name="citation_keyword"]/@content');//Z.debug(keywords)
 		if (keywords && keywords != null) {
 			keywords = keywords.split(/\s*,\s*/);
 			for (let keyword of keywords) {
@@ -93,15 +93,15 @@ function scrape(doc, url) {
 		if (!item.ISSN) item.ISSN = '2633-0695';
 		if (!item.pulicationTitle) item.pulicationTitle = 'Journal for Interdisciplinary Biblical Studies';
 		//scrape text from "notes:" field on the website because no structure metadata avaiable for date
-		let date = ZU.xpathText(doc, "//*[contains(text(),'Date:')]//following-sibling::dd[1]");Z.debug("date: " + date)
+		let date = ZU.xpathText(doc, "//*[contains(text(),'Date:')]//following-sibling::dd[1]");//Z.debug("date: " + date)
 		if (!item.date && date.match(/\d{4}/)) item.date = date;
 		//scrape text from "notes:" field on the website because no structure metadata avaiable for volumesIssuePageEntry
-		let volumesIssuePageEntry = ZU.xpathText(doc, "//*[contains(text(),'Notes:')]//following-sibling::dd[1] | //*[contains(text(),'Abstract:')]//following-sibling::dd[1] | //a[@class='bp-deposits-download button']/@href").split(/Journal for Interdisciplinary Biblical Studies|jibs/i)[1].trim();Z.debug("volumesIssuePageEntry: " + volumesIssuePageEntry)
+		let volumesIssuePageEntry = ZU.xpathText(doc, "//*[contains(text(),'Notes:')]//following-sibling::dd[1] | //*[contains(text(),'Abstract:')]//following-sibling::dd[1] | //a[@class='bp-deposits-download button']/@href").split(/Journal for Interdisciplinary Biblical Studies|jibs/i)[1].trim();//Z.debug("volumesIssuePageEntry: " + volumesIssuePageEntry)
 		let reMatchVolume = /\d{1}/i;
-		let volume = volumesIssuePageEntry.match(reMatchVolume)[0];Z.debug("volume: " + volume)
+		let volume = volumesIssuePageEntry.match(reMatchVolume)[0];//Z.debug("volume: " + volume)
 		if (!item.volume && volume) item.volume = volume;
 		let reSplitIssue = /\.|issue/i;
-		let issue = volumesIssuePageEntry.split(reSplitIssue)[1].trim().match(/^\d{1}/)[0];Z.debug("issue: " + issue)
+		let issue = volumesIssuePageEntry.split(reSplitIssue)[1].trim().match(/^\d{1}/)[0];//Z.debug("issue: " + issue)
 		if (!item.issue && issue.split(reSplitIssue)[1]) item.issue = issue;
 		//four different seperator for page numbers
 		let reSplitPages = /\W:|pp\.|pages|pp\-/;
