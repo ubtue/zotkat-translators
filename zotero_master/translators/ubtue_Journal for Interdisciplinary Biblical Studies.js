@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-24 09:17:47"
+	"lastUpdated": "2021-11-24 12:52:26"
 }
 
 /*
@@ -89,7 +89,7 @@ function scrape(doc, url) {
 			}
 		}
 		let doi = ZU.xpathText(doc, '//meta[@name="citation_handle_id"]/@content');
-		if (!item.DOI && doi) item.DOI = doi.replace('http', 'https');
+		if (!item.DOI && doi) item.DOI = doi.replace('http://dx.doi.org/', '');
 		if (!item.ISSN) item.ISSN = '2633-0695';
 		if (!item.pulicationTitle) item.pulicationTitle = 'Journal for Interdisciplinary Biblical Studies';
 		//scrape text from "notes:" field on the website because no structure metadata avaiable for date
@@ -100,9 +100,9 @@ function scrape(doc, url) {
 		let reMatchVolume = /\d{1}/i;
 		let volume = volumesIssuePageEntry.match(reMatchVolume)[0];//Z.debug("volume: " + volume)
 		if (!item.volume && volume) item.volume = volume;
-		let reSplitIssue = /\.|issue/i;
-		let issue = volumesIssuePageEntry.split(reSplitIssue)[1].trim().match(/^\d{1}/)[0];//Z.debug("issue: " + issue)
-		if (!item.issue && issue.split(reSplitIssue)[1]) item.issue = issue;
+		let reSplitIssue = /\.|issue/i;Z.debug(volumesIssuePageEntry)
+		let issue = volumesIssuePageEntry.split(reSplitIssue)[1].trim().match(/^\d{1}/)[0];Z.debug("issue: " + issue)
+		if (!item.issue && issue) item.issue = issue;
 		//four different seperator for page numbers
 		let reSplitPages = /\W:|pp\.|pages|pp\-/;
 		//two different hypen types for matching pages (-|–) from volumesIssuePageEntry
