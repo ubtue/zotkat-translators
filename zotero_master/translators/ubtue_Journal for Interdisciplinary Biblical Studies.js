@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-24 12:52:26"
+	"lastUpdated": "2021-11-24 12:53:54"
 }
 
 /*
@@ -100,8 +100,8 @@ function scrape(doc, url) {
 		let reMatchVolume = /\d{1}/i;
 		let volume = volumesIssuePageEntry.match(reMatchVolume)[0];//Z.debug("volume: " + volume)
 		if (!item.volume && volume) item.volume = volume;
-		let reSplitIssue = /\.|issue/i;Z.debug(volumesIssuePageEntry)
-		let issue = volumesIssuePageEntry.split(reSplitIssue)[1].trim().match(/^\d{1}/)[0];Z.debug("issue: " + issue)
+		let reSplitIssue = /\.|issue/i;//Z.debug(volumesIssuePageEntry)
+		let issue = volumesIssuePageEntry.split(reSplitIssue)[1].trim().match(/^\d{1}/)[0];//Z.debug("issue: " + issue)
 		if (!item.issue && issue) item.issue = issue;
 		//four different seperator for page numbers
 		let reSplitPages = /\W:|pp\.|pages|pp\-/;
