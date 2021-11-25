@@ -214,7 +214,7 @@ async function processDocumentsCustom (url, processor, processorParams, onDone, 
 
 function addLine(itemid, code, value) {
     //Zeile zusammensetzen
-    var line = code + " " + value.replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Reviews').replace(' $d', '$d').replace('https://doi.org/https://doi.org/', 'https://doi.org/').replace(/@\s/, '@').replace('abs1:', '');
+    var line = code + " " + value.replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Reviews').replace(' $d', '$d').replace('https://doi.org/https://doi.org/', 'https://doi.org/').replace(/@\s/, '@').replace('abs1:', '').replace('doi:https://doi.org/', '').replace('handle:https://hdl.handle.net/', '');
     itemsOutputCache[itemid].push(line);
 }
 
@@ -421,6 +421,16 @@ function performExport() {
                 addLine(currentItemId, "2053", item.DOI.replace('https://doi.org/', ''));
             }
         }
+		
+		//item.notes as second doi --> 2051
+		if (item.notes) {
+			for (let i in item.notes) {
+				if (item.notes[i].note.includes('doi:')) {
+					addLine(currentItemId, "2051", ZU.unescapeHTML(item.notes[i].note.replace('doi:https://doi.org/', '')));
+					addLine(currentItemId, "4950", ZU.unescapeHTML(item.notes[i].note.replace(/doi:/i, '') + "$xR$3Volltext$4LF$534"));
+				}
+			}
+		}
 		
 		//item.notes as handle --> 2052
 		if (item.notes) {

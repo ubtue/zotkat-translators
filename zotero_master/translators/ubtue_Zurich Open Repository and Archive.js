@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-25 15:57:34"
+	"lastUpdated": "2021-11-25 16:13:01"
 }
 
 /*
@@ -79,6 +79,9 @@ function scrape(doc, url) {
 			if (i.note.match(/undefined/)) delete i.note;
 		}
 		if (item.notes) item.notes.push({note : item.oa_status});
+		//permanent url (DOI) from university of zürich (uzh)
+		let doiUzh = text(doc, '#summary_id_link a');
+		if (doiUzh.length > 0) item.notes.push({note: "doi:" + doiUzh});
 		if (item.tags) delete item.tags;
 		item.complete();
 	});
@@ -132,13 +135,16 @@ var testCases = [
 						"mimeType": "text/html"
 					}
 				],
-				"tags": [
-					{
-						"tag": "Altes Testament"
-					}
-				],
 				"notes": [
-					"orcid:0000-0002-8968-2604 | taken from website"
+					{
+						"note": "orcid:0000-0002-8968-2604 | taken from website"
+					},
+					{
+						"note": "green"
+					},
+					{
+						"note": "doi:https://doi.org/10.5167/uzh-197101"
+					}
 				],
 				"seeAlso": []
 			}
@@ -190,6 +196,60 @@ var testCases = [
 					{},
 					{
 						"note": "green"
+					},
+					{
+						"note": "doi:https://doi.org/10.5167/uzh-23300"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.zora.uzh.ch/id/eprint/197101/",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "‚Writing on the Heart‘ (Jer 31:31–34): an allusion to scribal training? a response to Joachim J. Krause",
+				"creators": [
+					{
+						"firstName": "Konrad",
+						"lastName": "Schmid",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020/09/10",
+				"DOI": "10.1515/zaw-2020-3006",
+				"ISSN": "0044-2526",
+				"issue": "3",
+				"language": "eng",
+				"libraryCatalog": "www.zora.uzh.ch",
+				"pages": "458-462",
+				"publicationTitle": "Zeitschrift für die alttestamentliche Wissenschaft",
+				"rights": "info:eu-repo/semantics/openAccess",
+				"shortTitle": "‚Writing on the Heart‘ (Jer 31",
+				"url": "https://www.zora.uzh.ch/id/eprint/197101/",
+				"volume": "132",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"notes": [
+					{
+						"note": "orcid:0000-0002-8968-2604 | taken from website"
+					},
+					{
+						"note": "green"
+					},
+					{
+						"note": "doi:https://doi.org/10.5167/uzh-197101"
 					}
 				],
 				"seeAlso": []
