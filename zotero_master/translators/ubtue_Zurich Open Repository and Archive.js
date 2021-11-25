@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-25 16:13:01"
+	"lastUpdated": "2021-11-25 16:54:29"
 }
 
 /*
@@ -78,7 +78,7 @@ function scrape(doc, url) {
 		for (let i of item.notes) {
 			if (i.note.match(/undefined/)) delete i.note;
 		}
-		if (item.notes) item.notes.push({note : item.oa_status});
+		if (item.notes) item.notes.push({note : item.oa_status.replace('green', 'LF:')});
 		//permanent url (DOI) from university of zürich (uzh)
 		let doiUzh = text(doc, '#summary_id_link a');
 		if (doiUzh.length > 0) item.notes.push({note: "doi:" + doiUzh});
@@ -140,7 +140,7 @@ var testCases = [
 						"note": "orcid:0000-0002-8968-2604 | taken from website"
 					},
 					{
-						"note": "green"
+						"note": "LF:"
 					},
 					{
 						"note": "doi:https://doi.org/10.5167/uzh-197101"
@@ -195,7 +195,7 @@ var testCases = [
 				"notes": [
 					{},
 					{
-						"note": "green"
+						"note": "LF:"
 					},
 					{
 						"note": "doi:https://doi.org/10.5167/uzh-23300"
@@ -246,7 +246,7 @@ var testCases = [
 						"note": "orcid:0000-0002-8968-2604 | taken from website"
 					},
 					{
-						"note": "green"
+						"note": "LF:"
 					},
 					{
 						"note": "doi:https://doi.org/10.5167/uzh-197101"
