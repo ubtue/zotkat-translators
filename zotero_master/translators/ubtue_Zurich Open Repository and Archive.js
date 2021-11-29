@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-25 16:54:29"
+	"lastUpdated": "2021-11-29 14:31:42"
 }
 
 /*
@@ -74,11 +74,8 @@ function scrape(doc, url) {
 	translator.setDocument(doc);
 	
 	translator.setHandler('itemDone', function (obj, item) {
-		if (item.notes) item.notes.push({note :'orcid:' + item.orcid + ' | ' + 'taken from website'});
-		for (let i of item.notes) {
-			if (i.note.match(/undefined/)) delete i.note;
-		}
-		if (item.notes) item.notes.push({note : item.oa_status.replace('green', 'LF:')});
+		if (item.orcid) item.notes.push({note :'orcid:' + item.orcid + ' | ' + 'taken from website'});
+		if (item.oa_status) item.notes.push({note : item.oa_status.replace('green', 'LF:')});
 		//permanent url (DOI) from university of zürich (uzh)
 		let doiUzh = text(doc, '#summary_id_link a');
 		if (doiUzh.length > 0) item.notes.push({note: "doi:" + doiUzh});
@@ -193,7 +190,6 @@ var testCases = [
 					}
 				],
 				"notes": [
-					{},
 					{
 						"note": "LF:"
 					},
@@ -250,6 +246,101 @@ var testCases = [
 					},
 					{
 						"note": "doi:https://doi.org/10.5167/uzh-197101"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.zora.uzh.ch/id/eprint/23298/",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Klassische und nachklassische Deutungen der alttestamentlichen Prophetie",
+				"creators": [
+					{
+						"firstName": "Konrad",
+						"lastName": "Schmid",
+						"creatorType": "author"
+					}
+				],
+				"date": "1996",
+				"DOI": "10.1515/znth.1996.3.2.225",
+				"ISSN": "0943-7592",
+				"issue": "2",
+				"language": "deu",
+				"libraryCatalog": "www.zora.uzh.ch",
+				"pages": "225-250",
+				"publicationTitle": "Zeitschrift für neuere Theologiegeschichte",
+				"rights": "info:eu-repo/semantics/openAccess",
+				"url": "https://www.zora.uzh.ch/id/eprint/23298/",
+				"volume": "3",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"notes": [
+					{
+						"note": "LF:"
+					},
+					{
+						"note": "doi:https://doi.org/10.5167/uzh-23298"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.zora.uzh.ch/id/eprint/2050/",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Esras Begegnung mit Zion. Die Deutung der Zerstörung Jerusalems im 4. Esrabuch und das Problem des »bösen Herzens«",
+				"creators": [
+					{
+						"firstName": "Konrad",
+						"lastName": "Schmid",
+						"creatorType": "author"
+					}
+				],
+				"date": "1998",
+				"DOI": "10.1163/157006398X00119",
+				"ISSN": "0047-2212",
+				"abstractNote": "Die Erfassung des narrativen Ablaufs des 4. Esrabuchs ist von entscheidender Bedeutung, um seine Anthropologie angemessen zu beschreiben.",
+				"issue": "3",
+				"language": "deu",
+				"libraryCatalog": "www.zora.uzh.ch",
+				"pages": "261-277",
+				"publicationTitle": "Journal for the Study of Judaism",
+				"rights": "info:eu-repo/semantics/openAccess",
+				"url": "https://www.zora.uzh.ch/id/eprint/2050/",
+				"volume": "29",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"notes": [
+					{
+						"note": "LF:"
+					},
+					{
+						"note": "doi:https://doi.org/10.5167/uzh-2050"
 					}
 				],
 				"seeAlso": []
