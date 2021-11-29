@@ -747,7 +747,7 @@ function performExport() {
 
 			//SSG bzw. FID-Nummer --> 5056 "0" = Religionwissenschaft | "1" = Theologie | "0; 1" = RW & Theol.
 
-            if (SsgField === "0" || SsgField === "0$a1" || SsgField === "FID-KRIM-DE-21") { 
+            if (SsgField === "1" || SsgField === "0" || SsgField === "0$a1" || SsgField === "FID-KRIM-DE-21") { 
                 addLine(currentItemId, "5056", SsgField);
             } else {
                 addLine(currentItemId, "5056", defaultSsgNummer);
