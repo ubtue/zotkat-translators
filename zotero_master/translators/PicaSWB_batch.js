@@ -428,35 +428,6 @@ function performExport() {
             addLine(currentItemId, "\\n2000", item.ISBN);
         }
 
-        //item.DOI --> 2051 bei "Oou" bzw. 2053 bei "Aou"
-        if (item.DOI) {
-            if (physicalForm === "O" || item.DOI) {
-                addLine(currentItemId, "\\n2051", item.DOI.replace('https://doi.org/', ''));
-            } else if (physicalForm === "A") {
-                addLine(currentItemId, "\\n2053", item.DOI.replace('https://doi.org/', ''));
-            }
-        }
-		
-		//item.notes as second doi --> 2051
-		if (item.notes) {
-			for (let i in item.notes) {
-				if (item.notes[i].note.includes('doi:')) {
-					addLine(currentItemId, "\\n2051", ZU.unescapeHTML(item.notes[i].note.replace('doi:https://doi.org/', '')));
-					addLine(currentItemId, "\\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/doi:/i, '') + "$xR$3Volltext$4LF$534"));
-				}
-			}
-		}
-		
-		//item.notes as handle --> 2052
-		if (item.notes) {
-			for (let i in item.notes) {
-				if (item.notes[i].note.includes('handle:')) {
-					addLine(currentItemId, "\\n2052", ZU.unescapeHTML(item.notes[i].note.replace(/handle:https?:\/\/hdl\.handle\.net\//i, '')));
-					addLine(currentItemId, "\\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/handle:/i, '') + "$xR$3Volltext$4LF$534"));
-				}
-			}
-		}
-
         //Autoren --> 3000, 3010
         //Titel, erster Autor --> 4000
         var titleStatement = "";
@@ -720,6 +691,53 @@ function performExport() {
 					addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4LF$534");
 				} else if (!licenceField) {
 					addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4ZZ$534");
+				}
+			}
+			//item.DOI --> 2051 bei "Oou" bzw. 2053 bei "Aou"
+			if (item.DOI) {
+				if (physicalForm === "O" || item.DOI) {
+					addLine(currentItemId, "\\n2051", item.DOI.replace('https://doi.org/', ''));
+				} else if (physicalForm === "A") {
+					addLine(currentItemId, "\\n2053", item.DOI.replace('https://doi.org/', ''));
+				}
+			}
+			
+			//item.notes as second doi --> 2051
+			if (item.notes) {
+				for (let i in item.notes) {
+					if (item.notes[i].note.includes('doi:')) {
+						addLine(currentItemId, "\\n2051", ZU.unescapeHTML(item.notes[i].note.replace('doi:https://doi.org/', '')));
+						if (licenceField === "l") {
+						addLine(currentItemId, "\\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/doi:/i, '') + "$xR$3Volltext$4LF$534"));
+						}
+						else {
+							addLine(currentItemId, "\\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/doi:/i, '') + "$xR$3Volltext$4ZZ$534"));
+						}
+					}
+				}
+			}
+			
+			//item.notes as handle --> 2052
+			if (item.notes) {
+				for (let i in item.notes) {
+					if (item.notes[i].note.includes('handle:')) {
+						addLine(currentItemId, "\\n2052", ZU.unescapeHTML(item.notes[i].note.replace(/handle:https?:\/\/hdl\.handle\.net\//i, '')));
+						if (licenceField === "l") {
+						addLine(currentItemId, "\\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/handle:/i, '') + "$xR$3Volltext$4LF$534"));
+						}
+						else {
+							addLine(currentItemId, "\\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/handle:/i, '') + "$xR$3Volltext$4ZZ$534"));
+						}
+					}
+					if (item.notes[i].note.indexOf('urn:') == 0) {
+						addLine(currentItemId, "\\n2050", ZU.unescapeHTML(item.notes[i].note));
+						if (licenceField === "l") {
+						addLine(currentItemId, "\\n4950", 'http://nbn-resolving.de/' + ZU.unescapeHTML(item.notes[i].note + "$xR$3Volltext$4LF$534"));
+						}
+						else {
+							addLine(currentItemId, "\\n4950", 'http://nbn-resolving.de/' + ZU.unescapeHTML(item.notes[i].note + "$xR$3Volltext$4ZZ$534"));
+						}
+					}
 				}
 			}
 
