@@ -6,10 +6,10 @@
 	"minVersion": "2.1.9",
 	"maxVersion": "",
 	"priority": 99,
-	"inRepository": false,
+	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-03-17 10:10:25"
+	"lastUpdated": "2021-11-30 20:33:58"
 }
 
 /*
@@ -83,9 +83,21 @@ function scrape(doc, url) {
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 	translator.setDocument(doc);
 	translator.setHandler('itemDone', function(obj, item) {
-		if (abstract) item.abstractNote = abstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "").replace(/[\n\t]/g, "");
-		if (transAbstract) item.notes.push({note: "abs:" + transAbstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, ""),
-		});
+		if (abstract != null) {
+			if (abstract || transAbstract) {
+				item.abstractNote = abstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "").replace(/[\n\t]/g, "");
+				item.notes.push({note: "abs:" + transAbstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "")});
+				
+			}
+			else if (!abstract || !transAbstract) {
+				abstract = ZU.xpathText(doc, "//*[contains(text(),'Resumen')]//following::font[1]");
+				item.abstractNote = abstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "").replace(/[\n\t]/g, "");
+				transAbstract = ZU.xpathText(doc, "//*[contains(text(),'Abstract')]//following::font[1]");
+				item.notes.push({note: "abs:" + transAbstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "")});
+			}
+		}
+
+		
 		var keywords = ZU.xpath(doc, '//b[contains(text(), "Keywords:") or contains(text(), "Keywords")]/..');
 		if (!keywords || keywords.length == 0) keywords = ZU.xpath(doc, '//strong[contains(text(), "Keywords:") or contains(text(), "Keywords")]/.. | /html/body/div[1]/div[2]/div[2]/p[5]');
 		if (keywords && keywords.length > 0) {
@@ -108,11 +120,11 @@ function scrape(doc, url) {
 var testCases = [
 	{
 		"type": "web",
-		"url": "http://www.scielosp.org/scielo.php?script=sci_arttext&pid=S0034-89102007000900015&lang=pt",
+		"url": "https://scielosp.org/article/rsp/2007.v41suppl2/94-100/",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Perceptions of HIV rapid testing among injecting drug users in Brazil",
+				"title": "Impressões sobre o teste rápido para o HIV entre usuários de drogas injetáveis no Brasil",
 				"creators": [
 					{
 						"firstName": "P. R.",
@@ -135,13 +147,16 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "12/2007",
+				"date": "2007-12",
 				"DOI": "10.1590/S0034-89102007000900015",
-				"ISSN": "0034-8910",
+				"ISSN": "0034-8910, 0034-8910, 1518-8787",
+				"abstractNote": "OBJETIVO: Descrever as impressões, experiências, conhecimentos, crenças e a receptividade de usuários de drogas injetáveis para participar das estratégias de testagem rápida para HIV. MÉTODOS: Estudo qualitativo exploratório foi conduzido entre usuários de drogas injetáveis, de dezembro de 2003 a fevereiro de 2004, em cinco cidades brasileiras, localizadas em quatro regiões do País. Um roteiro de entrevista semi-estruturado contendo questões fechadas e abertas foi usado para avaliar percepções desses usuários sobre procedimentos e formas alternativas de acesso e testagem. Foram realizadas 106 entrevistas, aproximadamente 26 por região. RESULTADOS: Características da população estudada, opiniões sobre o teste rápido e preferências por usar amostras de sangue ou saliva foram apresentadas junto com as vantagens e desvantagens associadas a cada opção. Os resultados mostraram a viabilidade do uso de testes rápidos entre usuários de drogas injetáveis e o interesse deles quanto à utilização destes métodos, especialmente se puderem ser equacionadas questões relacionadas à confidencialidade e confiabilidade dos testes. CONCLUSÕES: Os resultados indicam que os testes rápidos para HIV seriam bem recebidos por essa população. Esses testes podem ser considerados uma ferramenta valiosa, ao permitir que mais usuários de drogas injetáveis conheçam sua sorologia para o HIV e possam ser referidos para tratamento, como subsidiar a melhoria das estratégias de testagem entre usuários de drogas injetáveis.",
+				"journalAbbreviation": "Rev. Saúde Pública",
+				"language": "pt",
 				"libraryCatalog": "SciELO",
 				"pages": "94-100",
 				"publicationTitle": "Revista de Saúde Pública",
-				"url": "http://www.scielosp.org/scielo.php?script=sci_abstract&pid=S0034-89102007000900015&lng=en&nrm=iso&tlng=pt",
+				"url": "https://scielosp.org/article/rsp/2007.v41suppl2/94-100/",
 				"volume": "41",
 				"attachments": [
 					{
@@ -149,10 +164,36 @@ var testCases = [
 						"mimeType": "application/pdf"
 					},
 					{
-						"title": "Snapshot"
+						"title": "Snapshot",
+						"mimeType": "text/html"
 					}
 				],
-				"tags": [],
+				"tags": [
+					{
+						"tag": "Abuso de substâncias por via intravenosa"
+					},
+					{
+						"tag": "Brasil"
+					},
+					{
+						"tag": "Pesquisa qualitativa"
+					},
+					{
+						"tag": "Serviços de diagnóstico"
+					},
+					{
+						"tag": "Sorodiagnóstico da Aids"
+					},
+					{
+						"tag": "Síndrome de imunodeficiência adquirida"
+					},
+					{
+						"tag": "Técnicas de diagnóstico e procedimentos"
+					},
+					{
+						"tag": "Vulnerabilidade em saúde"
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
@@ -160,11 +201,11 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://www.scielo.br/scielo.php?script=sci_arttext&pid=S0104-62762002000200002&lang=pt",
+		"url": "https://www.scielo.br/j/op/a/JNgwxBLSnHQnSJbzhkRbCBq/?lang=pt",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "How candidates for the Presidency are nominated?: Rules and procedures in the Latin American political parties",
+				"title": "Como se escolhe um candidato a Presidente?: Regras e práticas nos partidos políticos da América Latina",
 				"creators": [
 					{
 						"firstName": "Flavia",
@@ -177,15 +218,17 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "10/2002",
+				"date": "2002-10",
 				"DOI": "10.1590/S0104-62762002000200002",
-				"ISSN": "0104-6276",
-				"issue": "2",
+				"ISSN": "0104-6276, 1807-0191",
+				"abstractNote": "Este trabalho examina a maneira como os partidos políticos da América Latina selecionam seus candidatos às eleições presidenciais. A análise está baseada no estudo de 44 partidos de 16 países da América Latina, e mostra que apesar da crescente tendência para o emprego de processos mais inclusivos na seleção dos candidatos nas últimas décadas, predomina a centralização do processo de tomada de decisões dos partidos da região. O material empírico provém da pesquisa sobre Partidos Políticos e Governabilidade na América Latina da Universidad de Salamanca.",
+				"journalAbbreviation": "Opin. Publica",
+				"language": "pt",
 				"libraryCatalog": "SciELO",
 				"pages": "158-188",
 				"publicationTitle": "Opinião Pública",
-				"shortTitle": "How candidates for the Presidency are nominated?",
-				"url": "http://www.scielo.br/scielo.php?script=sci_abstract&pid=S0104-62762002000200002&lng=en&nrm=iso&tlng=pt",
+				"shortTitle": "Como se escolhe um candidato a Presidente?",
+				"url": "http://www.scielo.br/j/op/a/JNgwxBLSnHQnSJbzhkRbCBq/?lang=pt",
 				"volume": "8",
 				"attachments": [
 					{
@@ -193,10 +236,24 @@ var testCases = [
 						"mimeType": "application/pdf"
 					},
 					{
-						"title": "Snapshot"
+						"title": "Snapshot",
+						"mimeType": "text/html"
 					}
 				],
-				"tags": [],
+				"tags": [
+					{
+						"tag": "América Latina"
+					},
+					{
+						"tag": "eleições internas"
+					},
+					{
+						"tag": "partidos políticos"
+					},
+					{
+						"tag": "seleção de candidatos"
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
@@ -204,12 +261,12 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://search.scielo.org/?q=&lang=pt&count=15&from=0&output=site&sort=&format=summary&fb=&page=1&q=zotero&lang=pt&page=1",
+		"url": "https://search.scielo.org/?q=&lang=pt&count=15&from=0&output=site&sort=&format=summary&fb=&page=1&q=zotero&lang=pt&page=1",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
-		"url": "http://www.scielo.br/scielo.php?script=sci_arttext&pid=S1413-35552013000400328&lang=pt",
+		"url": "https://www.scielo.br/j/rbfis/a/69tz8bYzpn36wcdTNSGWKyj/?lang=en",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -229,32 +286,18 @@ var testCases = [
 						"firstName": "Stéphane",
 						"lastName": "Bourliataux-Lajoine",
 						"creatorType": "author"
-					},
-					{
-						"firstName": "Renato S.",
-						"lastName": "Almeida",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Leandro A. C.",
-						"lastName": "Nogueira",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Stéphane",
-						"lastName": "Bourliataux-Lajoine",
-						"creatorType": "author"
 					}
 				],
-				"date": "08/2013",
+				"date": "2013-08-01",
 				"DOI": "10.1590/S1413-35552013005000097",
-				"ISSN": "1413-3555",
-				"abstractNote": "BACKGROUND: The concepts of quality management have increasingly been introduced into the health sector. Methods to measure satisfaction and quality are examples of this trend.  OBJECTIVE: This study aimed to identify the level of customer satisfaction in a physical therapy department involved in the public area and to analyze the key variables that impact the usersâ€(tm) perceived quality. METHOD: A cross-sectional observational study was conducted, and 95 patients from the physical therapy department of the Hospital Universitário Gaffrée e Guinle - Universidade Federal do Estado do Rio de Janeiro (HUGG/UNIRIO) - Rio de Janeiro, Brazil, were evaluated by the SERVQUAL questionnaire. A brief questionnaire to identify the sociocultural profile of the patients was also performed.  RESULTS: Patients from this health service presented a satisfied status with the treatment, and the population final average value in the questionnaire was 0.057 (a positive value indicates satisfaction). There was an influence of the educational level on the satisfaction status (χ‡Â²=17,149; p=0.002). A correlation was found between satisfaction and the dimensions of tangibility (rho=0.56, p=0.05) and empathy (rho=0.46, p=0.01) for the Unsatisfied group. Among the Satisfied group, the dimension that was correlated with the final value of the SERVQUAL was responsiveness (rho=0.44, p=0.01).  CONCLUSIONS: The final values of the GGUH physical therapy department showed that patients can be satisfied even in a public health service. Satisfaction measures must have a multidimensional approach, and we found that people with more years of study showed lower values of satisfaction.Key words: health management; physical therapy; user satisfaction",
-				"issue": "4",
+				"ISSN": "1413-3555, 1809-9246",
+				"abstractNote": "BACKGROUND: The concepts of quality management have increasingly been introduced into the health sector. Methods to measure satisfaction and quality are examples of this trend. OBJECTIVE: This study aimed to identify the level of customer satisfaction in a physical therapy department involved in the public area and to analyze the key variables that impact the usersâ€(tm) perceived quality. METHOD: A cross-sectional observational study was conducted, and 95 patients from the physical therapy department of the Hospital Universitário Gaffrée e Guinle - Universidade Federal do Estado do Rio de Janeiro (HUGG/UNIRIO) - Rio de Janeiro, Brazil, were evaluated by the SERVQUAL questionnaire. A brief questionnaire to identify the sociocultural profile of the patients was also performed. RESULTS: Patients from this health service presented a satisfied status with the treatment, and the population final average value in the questionnaire was 0.057 (a positive value indicates satisfaction). There was an influence of the educational level on the satisfaction status (χ‡Â²=17,149; p=0.002). A correlation was found between satisfaction and the dimensions of tangibility (rho=0.56, p=0.05) and empathy (rho=0.46, p=0.01) for the Unsatisfied group. Among the Satisfied group, the dimension that was correlated with the final value of the SERVQUAL was responsiveness (rho=0.44, p=0.01). CONCLUSIONS: The final values of the GGUH physical therapy department showed that patients can be satisfied even in a public health service. Satisfaction measures must have a multidimensional approach, and we found that people with more years of study showed lower values of satisfaction.",
+				"journalAbbreviation": "Braz. J. Phys. Ther.",
+				"language": "en",
 				"libraryCatalog": "SciELO",
 				"pages": "328-335",
 				"publicationTitle": "Brazilian Journal of Physical Therapy",
-				"url": "http://www.scielo.br/scielo.php?script=sci_abstract&pid=S1413-35552013000400328&lng=en&nrm=iso&tlng=en",
+				"url": "http://www.scielo.br/j/rbfis/a/69tz8bYzpn36wcdTNSGWKyj/?lang=en",
 				"volume": "17",
 				"attachments": [
 					{
@@ -262,10 +305,21 @@ var testCases = [
 						"mimeType": "application/pdf"
 					},
 					{
-						"title": "Snapshot"
+						"title": "Snapshot",
+						"mimeType": "text/html"
 					}
 				],
-				"tags": [],
+				"tags": [
+					{
+						"tag": "health management"
+					},
+					{
+						"tag": "physical therapy"
+					},
+					{
+						"tag": "user satisfaction"
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
@@ -299,57 +353,7 @@ var testCases = [
 				"pages": "457-474",
 				"publicationTitle": "Teología y vida",
 				"shortTitle": "Re-pensar el ex opere operato II",
-				"url": "https://scielo.conicyt.cl/scielo.php?script=sci_abstract&pid=S0049-34492019000400457&lng=en&nrm=iso&tlng=en",
-				"volume": "60",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [],
-				"notes": [
-					{
-						"note": "abs:\nThe anthropological approach of Sacrosanctum concilium to the sacred liturgy requires entering into the universe of symbolic language and its semiotic process. It casts an important light to re-think the ex opere operato, detaching itself from an ontological-static vision to enter into the dynamics of an action re-presented thanks to the action of the Holy Spirit. The semiotic reflection of the last century, especially in American authors Charles Peirce and Charles Morris, helps seriously to understand how the ritus et preces of the liturgical celebration are a theological place of the action of the Spirit that makes possible the encounter of the human and the divine.\nKeywords: performative; sacraments; liturgy; semiotics; symbolic language; rituality; ex opere operato\n"
-					}
-				],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://scielo.conicyt.cl/scielo.php?script=sci_arttext&pid=S0049-34492019000400457&lng=en&nrm=iso&tlng=en",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Re-pensar el ex opere operato II: Per signa sensibilia significantur (SC 7). Quid enim?",
-				"creators": [
-					{
-						"firstName": "Gonzalo",
-						"lastName": "Guzmán",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Gonzalo",
-						"lastName": "Guzmán",
-						"creatorType": "author"
-					}
-				],
-				"date": "12/2019",
-				"DOI": "10.4067/S0049-34492019000400457",
-				"ISSN": "0049-3449",
-				"abstractNote": "La aproximación antropológica de Sacrosanctum concilium a la sagrada liturgia exige adentrarse en el universo del lenguaje simbólico y su proceso semiótico. Este arroja una luz importante para re-pensar el ex opere operato desprendiéndose de una visión ontológica-estática para adentrarse en la dinámica de una acción re-presentada gracias a la acción del Espíritu Santo. La reflexión semiótica del siglo pasado, especialmente en los autores estadounidenses Charles Peirce y Charles Morris, ayuda seriamente para comprender cómo los ritus et preces de la celebración litúrgica son un lugar teológico de la acción del Espíritu que posibilita el encuentro de lo humano y lo divino.Palabras claves: performativo; sacramentos; liturgia; semiótica; lenguaje simbólico; ritualidad; ex opere operato",
-				"issue": "4",
-				"libraryCatalog": "SciELO",
-				"pages": "457-474",
-				"publicationTitle": "Teología y vida",
-				"shortTitle": "Re-pensar el ex opere operato II",
-				"url": "https://scielo.conicyt.cl/scielo.php?script=sci_abstract&pid=S0049-34492019000400457&lng=en&nrm=iso&tlng=en",
+				"url": "http://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0049-34492019000400457&lng=en&nrm=iso&tlng=en",
 				"volume": "60",
 				"attachments": [
 					{
@@ -389,6 +393,120 @@ var testCases = [
 						"note": "abs:\nThe anthropological approach of Sacrosanctum concilium to the sacred liturgy requires entering into the universe of symbolic language and its semiotic process. It casts an important light to re-think the ex opere operato, detaching itself from an ontological-static vision to enter into the dynamics of an action re-presented thanks to the action of the Holy Spirit. The semiotic reflection of the last century, especially in American authors Charles Peirce and Charles Morris, helps seriously to understand how the ritus et preces of the liturgical celebration are a theological place of the action of the Spirit that makes possible the encounter of the human and the divine.\nKeywords: performative; sacraments; liturgy; semiotics; symbolic language; rituality; ex opere operato\n"
 					}
 				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://scielo.conicyt.cl/scielo.php?script=sci_arttext&pid=S0049-34492019000400457&lng=en&nrm=iso&tlng=en",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Re-pensar el ex opere operato II: Per signa sensibilia significantur (SC 7). Quid enim?",
+				"creators": [
+					{
+						"firstName": "Gonzalo",
+						"lastName": "Guzmán",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Gonzalo",
+						"lastName": "Guzmán",
+						"creatorType": "author"
+					}
+				],
+				"date": "12/2019",
+				"DOI": "10.4067/S0049-34492019000400457",
+				"ISSN": "0049-3449",
+				"abstractNote": "La aproximación antropológica de Sacrosanctum concilium a la sagrada liturgia exige adentrarse en el universo del lenguaje simbólico y su proceso semiótico. Este arroja una luz importante para re-pensar el ex opere operato desprendiéndose de una visión ontológica-estática para adentrarse en la dinámica de una acción re-presentada gracias a la acción del Espíritu Santo. La reflexión semiótica del siglo pasado, especialmente en los autores estadounidenses Charles Peirce y Charles Morris, ayuda seriamente para comprender cómo los ritus et preces de la celebración litúrgica son un lugar teológico de la acción del Espíritu que posibilita el encuentro de lo humano y lo divino.Palabras claves: performativo; sacramentos; liturgia; semiótica; lenguaje simbólico; ritualidad; ex opere operato",
+				"issue": "4",
+				"libraryCatalog": "SciELO",
+				"pages": "457-474",
+				"publicationTitle": "Teología y vida",
+				"shortTitle": "Re-pensar el ex opere operato II",
+				"url": "http://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0049-34492019000400457&lng=en&nrm=iso&tlng=en",
+				"volume": "60",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Ex opere operato"
+					},
+					{
+						"tag": "Liturgy"
+					},
+					{
+						"tag": "Performative"
+					},
+					{
+						"tag": "Rituality"
+					},
+					{
+						"tag": "Sacraments"
+					},
+					{
+						"tag": "Semiotics"
+					},
+					{
+						"tag": "Symbolic language"
+					}
+				],
+				"notes": [
+					{
+						"note": "abs:\nThe anthropological approach of Sacrosanctum concilium to the sacred liturgy requires entering into the universe of symbolic language and its semiotic process. It casts an important light to re-think the ex opere operato, detaching itself from an ontological-static vision to enter into the dynamics of an action re-presented thanks to the action of the Holy Spirit. The semiotic reflection of the last century, especially in American authors Charles Peirce and Charles Morris, helps seriously to understand how the ritus et preces of the liturgical celebration are a theological place of the action of the Spirit that makes possible the encounter of the human and the divine.\nKeywords: performative; sacraments; liturgy; semiotics; symbolic language; rituality; ex opere operato\n"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.scielo.cl/scielo.php?script=sci_arttext&pid=S0718-92732016000100006&lng=en&nrm=iso&tlng=es",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Metaphysical presuppositions for a sound critical historiography applied to the biblical text",
+				"creators": [
+					{
+						"firstName": "Carlos",
+						"lastName": "Casanova",
+						"creatorType": "author"
+					}
+				],
+				"date": "03/2016",
+				"DOI": "10.4067/S0718-92732016000100006",
+				"ISSN": "0718-9273",
+				"issue": "34",
+				"libraryCatalog": "SciELO",
+				"pages": "117-143",
+				"publicationTitle": "Veritas",
+				"url": "http://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0718-92732016000100006&lng=en&nrm=iso&tlng=es",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Carlos Casanova*"
+					}
+				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
