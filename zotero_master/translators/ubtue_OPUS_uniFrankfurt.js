@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 12,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-29 16:25:43"
+	"lastUpdated": "2021-11-29 16:35:09"
 }
 
 /*
@@ -189,12 +189,12 @@ function processRIS(text, doc) {
 				if (item.series != undefined) {
 					let issue = item.series.match(/\d+$/);
 					if (issue != null) {
-						item.issue = issue;
+						item.issue = issue[0];
 					}
 				}
 			}
 		}
-		if (item.volume == undefined) {
+		if (item.volume == undefined || item.volume == item.year) {
 			item.volume = item.issue;
 			item.issue = '';
 		}
