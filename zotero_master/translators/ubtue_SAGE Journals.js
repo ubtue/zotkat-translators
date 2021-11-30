@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-30 11:01:40"
+	"lastUpdated": "2021-11-30 18:56:30"
 }
 
 /*
@@ -128,13 +128,28 @@ function scrape(doc, url) {
 			//scrape ORCID from website e.g. https://journals.sagepub.com/doi/full/10.1177/0084672419883339
 			let authorSectionEntries = doc.querySelectorAll('.author-section-div');
 			for (let authorSectionEntry of authorSectionEntries) {
-					let entryHTML = authorSectionEntry.innerHTML;
-					let regexOrcid = /\d+-\d+-\d+-\d+x?/i;
-					let regexName = /author=.*"/;
-					if(entryHTML.match(regexOrcid)) {
-						item.notes.push({note: "orcid:" + entryHTML.match(regexOrcid)[0] + ' | ' + entryHTML.match(regexName)[0].replace('\"', '')});
-					}
+				let entryHTML = authorSectionEntry.innerHTML;
+				let regexOrcid = /\d+-\d+-\d+-\d+x?/i;
+				let regexName = /author=.*"/;
+				if(entryHTML.match(regexOrcid)) {
+					item.notes.push({note: "orcid:" + entryHTML.match(regexOrcid)[0] + ' | ' + entryHTML.match(regexName)[0].replace('\"', '').replace('author=', '')});
+				}
 			}
+			
+			//scrape ORCID at the bottom of text and split firstName and lastName for deduplicate notes. E.g. most of cases by reviews https://journals.sagepub.com/doi/10.1177/15423050211028189
+			let ReviewAuthorSectionEntries = doc.querySelectorAll('.NLM_fn p');
+			for (let ReviewAuthorSectionEntry of ReviewAuthorSectionEntries) {
+				let entryInnerText = ReviewAuthorSectionEntry.innerText;
+				let regexOrcid = /\d+-\d+-\d+-\d+x?/i;
+				if(entryInnerText.match(regexOrcid) && entryInnerText.split('\n')[1] != undefined) {
+					let authorEntry = entryInnerText.split('\n')[1].replace(/https:\/\/.*/, '');
+					let fullName = entryInnerText.match(authorEntry)[0].replace('\"', '').trim();Z.debug(fullName)
+					let	firstName = fullName.split(' ').slice(0, -1).join(' ');
+					let	lastName = fullName.split(' ').slice(-1).join(' ');
+					item.notes.push({note: "orcid:" + entryInnerText.match(regexOrcid)[0] + ' | ' + lastName + ', ' + firstName});
+				}				
+			}
+			 
 			// Workaround to address address weird incorrect multiple extraction by both querySelectorAll and xpath
 			// So, let's deduplicate...
 			item.notes = Array.from(new Set(item.notes.map(JSON.stringify))).map(JSON.parse);
@@ -148,7 +163,9 @@ function scrape(doc, url) {
 			if (otherabstract) {
 				item.notes.push({note: "abs:" + ZU.unescapeHTML(otherabstract.replace(/^Résumé/, ''))});
 			} 
-			else if (ubtueabstract != null) item.abstractNote = ZU.unescapeHTML(ubtueabstract);				
+			else if (ubtueabstract != null) {
+				item.abstractNote = ZU.unescapeHTML(ubtueabstract);
+			}			
 
 			var tagentry = ZU.xpathText(doc, '//kwd-group[1] | //*[contains(concat( " ", @class, " " ), concat( " ", "hlFld-KeywordText", " " ))]');
 			if (tagentry) {
@@ -159,7 +176,7 @@ function scrape(doc, url) {
 				for (let r of articleType) {
 					var reviewDOIlink = r.innerHTML;
 					if (reviewDOIlink.match(/(product|book)\s+reviews?/i)) {
-						item.tags.push('Book Review');
+						item.tags.push('RezensionstagPica');
 					} else if (reviewDOIlink.match(/article\s+commentary|review\s+article/i)) { //"Review article", "Article commentary" as Keywords
 						item.tags.push(reviewDOIlink)
 					}
@@ -178,16 +195,7 @@ function scrape(doc, url) {
 			}	
 			// numbering issues with slash, e.g. in case of  double issue "1-2" > "1/2"
 			if (item.issue) item.issue = item.issue.replace('-', '/');
-			
-			// ubtue: add tags "Book Review" if "Review Article"
-			if (articleType) {
-				for (let r of articleType) {
-					let reviewDOIlink = r.textContent;
-					if (reviewDOIlink.match(/Review Article/)) {
-						item.tags.push('RezensionstagPica');
-					}
-				}
-			}
+
 			// Workaround while Sage hopefully fixes RIS for authors
 			for (let i = 0; i < item.creators.length; i++) {
 				if (!item.creators[i].firstName) {
@@ -246,7 +254,12 @@ var testCases = [
 				"shortTitle": "ACÉBAC",
 				"url": "https://doi.org/10.1177/00084298211036567",
 				"volume": "50",
-				"attachments": [],
+				"attachments": [
+					{
+						"title": "SAGE PDF Full Text",
+						"mimeType": "application/pdf"
+					}
+				],
 				"tags": [
 					{
 						"tag": " Canada"
@@ -284,6 +297,11 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://journals.sagepub.com/toc/pcca/current",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
