@@ -1,15 +1,15 @@
 {
 	"translatorID": "d0b1914a-11f1-4dd7-8557-b32fe8a3dd47",
-	"translatorType": 4,
 	"label": "EBSCOhost",
 	"creator": "Simon Kornblith, Michael Berkowitz, Josh Geller",
 	"target": "^https?://[^/]+/(eds|bsi|ehost)/(results|detail|folder|pdfviewer)",
 	"minVersion": "3.0",
-	"maxVersion": null,
+	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
+	"translatorType": 4,
 	"browserSupport": "gcsib",
-	"lastUpdated": "2021-03-11 17:35:00"
+	"lastUpdated": "2021-11-30 14:08:27"
 }
 
 /*
@@ -97,7 +97,6 @@ function downloadFunction(text, url, prefs) {
 	translator.setString(text);
 	// eslint-disable-next-line padded-blocks
 	translator.setHandler("itemDone", function (obj, item) {
-		
 		/* Fix capitalization issues */
 		// title
 		if (!item.title && prefs.itemTitle) {
@@ -111,6 +110,7 @@ function downloadFunction(text, url, prefs) {
 				item.title = ZU.capitalizeTitle(item.title, true);
 			}
 		}
+		item.language = prefs.languageTag;
 
 		// authors
 		var fn, ln;
@@ -521,8 +521,16 @@ function doDelivery(doc, itemInfo) {
 	if (prefs.itemTitle) {
 		prefs.itemTitle = ZU.trimInternal(prefs.itemTitle).replace(/([^.])\.$/, '$1');
 	}
-	// Z.debug(prefs);
-
+	let languageMap = {"Afrikaans": "afr", "Arabic": "ara", "Danish": "dan", "Dutch": "dut", "German": "ger", "English": "eng", "French": "fre", "Greek": "gre", "Italian": "ita", "Malay": "may", "Portuguese": "por", "Romanian": "ron", "Russian": "rus", "Spanish": "spa", "Serbian": "srp", "Turkish": "tur"};
+	let newTest = ZU.xpathText(doc, '//div[@class="citation-wrapping-div "]');
+	let language = newTest.match(/Language:(.+?)Authors:/);
+	prefs.languageTag = '';
+	if (language.length > 0) {
+		languageName = language[1];
+		if (languageName in languageMap) {
+			prefs.languageTag = languageMap[languageName];
+		}
+	}
 	var postURL = ZU.xpathText(doc, '//form[@id="aspnetForm"]/@action');
 	if (!postURL) {
 		postURL = doc.location.href; // fallback for mobile site
@@ -540,6 +548,4 @@ function doDelivery(doc, itemInfo) {
 	});
 }
 
-/** BEGIN TEST CASES **/
 
-/** END TEST CASES **/

@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 12,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-28 17:09:46"
+	"lastUpdated": "2021-11-29 16:35:09"
 }
 
 /*
@@ -182,7 +182,6 @@ function processRIS(text, doc) {
 		if (item.url && !item.url.startsWith("http")) item.url = "https://" + item.url;
 		let URNs = text.match(/(urn:nbn:de:.+)\n/);
 		if (URNs.length != 0) {
-			item.url = 'http://nbn-resolving.de/' + URNs[1];
 			item.notes.push(URNs[1]);
 		}
 		if (item.issue == undefined) {
@@ -190,12 +189,12 @@ function processRIS(text, doc) {
 				if (item.series != undefined) {
 					let issue = item.series.match(/\d+$/);
 					if (issue != null) {
-						item.issue = issue;
+						item.issue = issue[0];
 					}
 				}
 			}
 		}
-		if (item.volume == undefined) {
+		if (item.volume == undefined || item.volume == item.year) {
 			item.volume = item.issue;
 			item.issue = '';
 		}
