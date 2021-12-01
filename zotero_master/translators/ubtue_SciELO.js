@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-12-01 13:55:38"
+	"lastUpdated": "2021-12-01 11:15:58"
 }
 
 /*
@@ -52,6 +52,7 @@ function getTitle(item) {
 	}
 	}
 }
+
 
 function detectWeb(doc,url) {
 	if (ZU.xpathText(doc, '//meta[@name="citation_journal_title"]/@content')) {
@@ -132,6 +133,7 @@ function scrape(doc, url) {
 					.map(function(x) { return x.trim(); })
 					.map(function(y) { return y.charAt(0).toUpperCase() + y.slice(1); });
 	}
+
 	//keywords in other language
 	let transKeywords = ZU.xpathText(doc, '//*[contains(text(),"Palabra claves")]//..');
 	if (transKeywords) {
@@ -150,13 +152,12 @@ function scrape(doc, url) {
 		delete item.issue;
 	}
 		item.libraryCatalog = "SciELO"
-		if (item.ISSN == "0718-9273") {
-			getTitle(item);
-		}
-		else item.complete();
+		item.complete();
+
 	});
 	translator.translate();
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
