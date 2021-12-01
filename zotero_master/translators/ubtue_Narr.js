@@ -97,7 +97,7 @@ function postProcess(item, doc) {
 		item.title = item.title + ': ' + ZU.xpathText(doc, '//h2[@class="subtitle"]').trim();
 	}
 	//review tag
-	if (item.title.match(/(?:ISBN(?:-13)?:?\ )?(?=[0-9]{13}$|(?=(?:[0-9]+[-\ ]){4})[-\ 0-9]{17}$)97[89][-\ ]?[0-9]{1,5}[-\ ]?[0-9]+[-\ ]?[0-9]+[-\ ]?[0-9]/g)) item.tags.push("Book Review");
+	if (item.title.match(/(?:ISBN(?:-13)?:?\ )?(?=[0-9]{13}$|(?=(?:[0-9]+[-\ ]){4})[-\ 0-9]{17})97[89][-\ ]?[0-9]{1,5}[-\ ]?[0-9]+[-\ ]?[0-9]+[-\ ]?[0-9]/g)) item.tags.push("Book Review");
 	item.complete();
 	}
 	
