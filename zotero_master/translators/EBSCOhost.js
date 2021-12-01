@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsib",
-	"lastUpdated": "2021-11-30 14:08:27"
+	"lastUpdated": "2021-12-01 10:37:32"
 }
 
 /*
@@ -91,6 +91,7 @@ function downloadFunction(text, url, prefs) {
 		/^(Y1\s+-\s+(\d{2})(\d{2})\/\/\/)(?:\2?\3(.+)|(.+?)\2?\3)\s*$/m);
 	season = season && (season[4] || season[5]);
 	
+	
 	// load translator for RIS
 	var translator = Zotero.loadTranslator("import");
 	translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
@@ -160,6 +161,11 @@ function downloadFunction(text, url, prefs) {
 		
 		// the archive field is pretty useless:
 		item.archive = "";
+		if (item.ISSN == "03938417") {
+		if (item.publicationTitle != undefined && item.publiactionTitle != "Studi e Materiali di Storia delle Religioni") {
+			item.notes.push("Paralleltitel:" + item.publicationTitle);
+		}
+		}
 		
 		if (item.url) {
 			// Trim the ⟨=cs suffix -- EBSCO can't find the record with it!

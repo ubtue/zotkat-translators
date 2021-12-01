@@ -609,7 +609,7 @@ function performExport() {
 		//Paralleltitel OJS --> 4002 
 		if (item.notes) {
 			for (let i in item.notes) {
-				if (item.notes[i].note.includes('Paralleltitel')) addLine(currentItemId, "\\n4002", item.notes[i].note.replace(/paralleltitel:/i, ''));
+				if (item.notes[i].note.includes('Paralleltitel:')) addLine(currentItemId, "\\n4002", item.notes[i].note.replace(/paralleltitel:/i, ''));
 			}
 		}
 		
