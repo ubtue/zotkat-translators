@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-12-01 10:11:19"
+	"lastUpdated": "2021-12-01 10:44:33"
 }
 
 /*
@@ -98,7 +98,7 @@ function scrape(doc, url) {
 		item.notes.push({note: "abs:" + transAbstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "")});
 	} 
 	
-	var keywords = ZU.xpath(doc, '//b[contains(text(), "Keywords:") or contains(text(), "Keywords")]/.. | //*[contains(text(),"Key words")]//following::i | //*[contains(text(),"Palabra claves")]/b');
+	let keywords = ZU.xpath(doc, '//b[contains(text(), "Keywords:") or contains(text(), "Keywords")]/.. | //*[contains(text(),"Key words")]//following::i');
 	if (!keywords || keywords.length == 0) keywords = ZU.xpath(doc, '//strong[contains(text(), "Keywords:") or contains(text(), "Keywords")]/.. | /html/body/div[1]/div[2]/div[2]/p[5]');
 	if (keywords && keywords.length > 0) {
 		item.tags = keywords[0].textContent
@@ -110,7 +110,17 @@ function scrape(doc, url) {
 					.map(function(x) { return x.trim(); })
 					.map(function(y) { return y.charAt(0).toUpperCase() + y.slice(1); });
 	}
-
+	//keywords in other language
+	let transKeywords = ZU.xpathText(doc, '//*[contains(text(),"Palabra claves")]//..');
+	if (transKeywords) {
+		for (let t of transKeywords.split(/;|,/)) {
+			item.tags.push({tag : t
+				.trim()
+				.replace(/\.$|palabra\s?claves:/i, "")
+				.replace(/^\w/gi,function(m){ return m.toUpperCase();})
+			});
+		}
+	}
 		item.libraryCatalog = "SciELO"
 		item.complete();
 	});
@@ -496,16 +506,31 @@ var testCases = [
 				],
 				"tags": [
 					{
+						"tag": " Biblia"
+					},
+					{
 						"tag": "Bible"
 					},
 					{
 						"tag": "Divine interventions"
 					},
 					{
+						"tag": "Historicidad del Nuevo Testamento"
+					},
+					{
 						"tag": "Historicity of the New Testament"
 					},
 					{
+						"tag": "Intervenciones divinas"
+					},
+					{
+						"tag": "Milagros"
+					},
+					{
 						"tag": "Miracles"
+					},
+					{
+						"tag": "Profecías"
 					},
 					{
 						"tag": "Prophecies"
