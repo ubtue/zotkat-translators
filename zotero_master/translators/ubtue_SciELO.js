@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-12-01 10:44:33"
+	"lastUpdated": "2021-12-01 11:15:58"
 }
 
 /*
@@ -120,6 +120,12 @@ function scrape(doc, url) {
 				.replace(/^\w/gi,function(m){ return m.toUpperCase();})
 			});
 		}
+	}
+	//0718-9273 citation_issue = citation_volume
+	let citationVolume = ZU.xpathText(doc, '//meta[@name="citation_volume"]/@content');
+	if (item.ISSN == "0718-9273" && citationVolume.length == 0) {
+		item.volume = item.issue;
+		delete item.issue;
 	}
 		item.libraryCatalog = "SciELO"
 		item.complete();
@@ -489,11 +495,11 @@ var testCases = [
 				"DOI": "10.4067/S0718-92732016000100006",
 				"ISSN": "0718-9273",
 				"abstractNote": "Trata sobre los presupuestos metafísicos de aceptar la Biblia como Palabra de Dios. En particular, trata sobre la posibilidad de las intervenciones divinas, de los milagros y profecías. Responde al argumento de Hobbes por el determinismo, al principio de la clausura causal del mundo, a la crítica de Hume a la posibilidad de probar un milagro y a la negación de las profecías.",
-				"issue": "34",
 				"libraryCatalog": "SciELO",
 				"pages": "117-143",
 				"publicationTitle": "Veritas",
 				"url": "http://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0718-92732016000100006&lng=en&nrm=iso&tlng=es",
+				"volume": "34",
 				"attachments": [
 					{
 						"title": "Full Text PDF",
