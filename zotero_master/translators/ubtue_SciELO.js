@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-12-01 10:11:19"
+	"lastUpdated": "2021-12-01 13:37:20"
 }
 
 /*
@@ -29,6 +29,29 @@
    You should have received a copy of the GNU Affero General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+function getTitle(item) {
+	if (item.DOI) {
+		if (item.DOI.split('/').length > 1) {
+			pid = item.DOI.split('/')[1];
+		ZU.doGet('https://www.scielo.cl/scielo.php?download&format=RefMan&pid=' + pid,
+		function (text) {
+			var translator = Zotero.loadTranslator("import");
+			translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
+			translator.setString(text);
+			translator.setHandler("itemDone", function(obj, i) {
+				if (i.title != item.title) {
+					item.notes.push("Paralleltitel:" + item.title);
+					item.title = i.title;
+				}
+			item.complete();
+				
+			});
+			translator.translate(); 
+		});
+	}
+	}
+}
 
 
 function detectWeb(doc,url) {
@@ -111,11 +134,15 @@ function scrape(doc, url) {
 					.map(function(y) { return y.charAt(0).toUpperCase() + y.slice(1); });
 	}
 
-		item.libraryCatalog = "SciELO"
-		item.complete();
+		item.libraryCatalog = "SciELO";
+		if (item.ISSN == "0718-9273") {
+			getTitle(item);
+		}
+		else item.complete();
 	});
 	translator.translate();
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
@@ -467,7 +494,7 @@ var testCases = [
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Metaphysical presuppositions for a sound critical historiography applied to the biblical text",
+				"title": "Presupuestos metafísicos de una sana historiografía crítica aplicada al texto bíblico",
 				"creators": [
 					{
 						"firstName": "Carlos",
@@ -514,7 +541,8 @@ var testCases = [
 				"notes": [
 					{
 						"note": "abs:This paper deals with the metaphysical presuppositions which underlie the acceptance of the Bible as the Word of God. In particular, it deals with the possibility of divine interventions, miracles and prophecies. It answers to the Hobbesian argument for determinism, to the principle of the causal closure of the world, to Hume’s criticism of the possibility to prove miracles and to the negation of prophecies."
-					}
+					},
+					"Paralleltitel:Metaphysical presuppositions for a sound critical historiography applied to the biblical text"
 				],
 				"seeAlso": []
 			}
