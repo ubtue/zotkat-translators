@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-30 20:33:58"
+	"lastUpdated": "2021-12-01 08:40:25"
 }
 
 /*
@@ -76,38 +76,38 @@ function doWeb(doc, url) {
 
 
 function scrape(doc, url) {
-	var abstract = ZU.xpathText(doc, '//div[@class="abstract"]');
-	var transAbstract = ZU.xpathText(doc, '//div[@class="trans-abstract"]');
-	var translator = Zotero.loadTranslator('web');
+	let abstract = ZU.xpathText(doc, '//div[@class="abstract"]/p[@class="sec"]/following-sibling::p[1]');
+	let transAbstract = ZU.xpathText(doc, '//div[@class="trans-abstract"]/p[@class="sec"]/following-sibling::p[1]');
+	// different xpath for abstractTwo
+	let abstractTwo = ZU.xpathText(doc, "//*[contains(text(),'Resumen')]//following::font[1]");//Z.debug('abstractTwo' + abstractTwo)
+	let transAbstractTwo = ZU.xpathText(doc, "//*[contains(text(),'Abstract')]//following::font[1]");//Z.debug('transAbstractTwo' + transAbstractTwo)
+	let translator = Zotero.loadTranslator('web');
 	//use Embedded Metadata
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 	translator.setDocument(doc);
 	translator.setHandler('itemDone', function(obj, item) {
-		if (abstract != null) {
-			if (abstract || transAbstract) {
-				item.abstractNote = abstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "").replace(/[\n\t]/g, "");
-				item.notes.push({note: "abs:" + transAbstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "")});
-				
-			}
-			else if (!abstract || !transAbstract) {
-				abstract = ZU.xpathText(doc, "//*[contains(text(),'Resumen')]//following::font[1]");
-				item.abstractNote = abstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "").replace(/[\n\t]/g, "");
-				transAbstract = ZU.xpathText(doc, "//*[contains(text(),'Abstract')]//following::font[1]");
-				item.notes.push({note: "abs:" + transAbstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "")});
-			}
-		}
 
-		
-		var keywords = ZU.xpath(doc, '//b[contains(text(), "Keywords:") or contains(text(), "Keywords")]/..');
-		if (!keywords || keywords.length == 0) keywords = ZU.xpath(doc, '//strong[contains(text(), "Keywords:") or contains(text(), "Keywords")]/.. | /html/body/div[1]/div[2]/div[2]/p[5]');
-		if (keywords && keywords.length > 0) {
-			item.tags = keywords[0].textContent
-						.trim()
-						.replace(/\n/g, "")
-						.replace(/keywords\s*:\s*/ig, "")
-						.split(";")
-						.map(function(x) { return x.trim(); })
-						.map(function(y) { return y.charAt(0).toUpperCase() + y.slice(1); });
+	if (abstract || transAbstract) {
+		item.abstractNote = abstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "").replace(/[\n\t]/g, "");
+		item.notes.push({note: "abs:" + transAbstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "")});
+	}
+	if (abstractTwo || transAbstractTwo) {
+		abstract = ZU.xpathText(doc, "//*[contains(text(),'Resumen')]//following::font[1]");
+		item.abstractNote = abstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "").replace(/[\n\t]/g, "");
+		transAbstract = ZU.xpathText(doc, "//*[contains(text(),'Abstract')]//following::font[1]");
+		item.notes.push({note: "abs:" + transAbstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "")});
+	} 
+	
+	var keywords = ZU.xpath(doc, '//b[contains(text(), "Keywords:") or contains(text(), "Keywords")]/..');
+	if (!keywords || keywords.length == 0) keywords = ZU.xpath(doc, '//strong[contains(text(), "Keywords:") or contains(text(), "Keywords")]/.. | /html/body/div[1]/div[2]/div[2]/p[5]');
+	if (keywords && keywords.length > 0) {
+		item.tags = keywords[0].textContent
+					.trim()
+					.replace(/\n/g, "")
+					.replace(/keywords\s*:\s*/ig, "")
+					.split(";")
+					.map(function(x) { return x.trim(); })
+					.map(function(y) { return y.charAt(0).toUpperCase() + y.slice(1); });
 	}
 
 		item.libraryCatalog = "SciELO"
@@ -347,7 +347,7 @@ var testCases = [
 				"date": "12/2019",
 				"DOI": "10.4067/S0049-34492019000400457",
 				"ISSN": "0049-3449",
-				"abstractNote": "La aproximación antropológica de Sacrosanctum concilium a la sagrada liturgia exige adentrarse en el universo del lenguaje simbólico y su proceso semiótico. Este arroja una luz importante para re-pensar el ex opere operato desprendiéndose de una visión ontológica-estática para adentrarse en la dinámica de una acción re-presentada gracias a la acción del Espíritu Santo. La reflexión semiótica del siglo pasado, especialmente en los autores estadounidenses Charles Peirce y Charles Morris, ayuda seriamente para comprender cómo los ritus et preces de la celebración litúrgica son un lugar teológico de la acción del Espíritu que posibilita el encuentro de lo humano y lo divino.Palabras claves: performativo; sacramentos; liturgia; semiótica; lenguaje simbólico; ritualidad; ex opere operato",
+				"abstractNote": "La aproximación antropológica de Sacrosanctum concilium a la sagrada liturgia exige adentrarse en el universo del lenguaje simbólico y su proceso semiótico. Este arroja una luz importante para re-pensar el ex opere operato desprendiéndose de una visión ontológica-estática para adentrarse en la dinámica de una acción re-presentada gracias a la acción del Espíritu Santo. La reflexión semiótica del siglo pasado, especialmente en los autores estadounidenses Charles Peirce y Charles Morris, ayuda seriamente para comprender cómo los ritus et preces de la celebración litúrgica son un lugar teológico de la acción del Espíritu que posibilita el encuentro de lo humano y lo divino.",
 				"issue": "4",
 				"libraryCatalog": "SciELO",
 				"pages": "457-474",
@@ -390,7 +390,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "abs:\nThe anthropological approach of Sacrosanctum concilium to the sacred liturgy requires entering into the universe of symbolic language and its semiotic process. It casts an important light to re-think the ex opere operato, detaching itself from an ontological-static vision to enter into the dynamics of an action re-presented thanks to the action of the Holy Spirit. The semiotic reflection of the last century, especially in American authors Charles Peirce and Charles Morris, helps seriously to understand how the ritus et preces of the liturgical celebration are a theological place of the action of the Spirit that makes possible the encounter of the human and the divine.\nKeywords: performative; sacraments; liturgy; semiotics; symbolic language; rituality; ex opere operato\n"
+						"note": "abs:The anthropological approach of Sacrosanctum concilium to the sacred liturgy requires entering into the universe of symbolic language and its semiotic process. It casts an important light to re-think the ex opere operato, detaching itself from an ontological-static vision to enter into the dynamics of an action re-presented thanks to the action of the Holy Spirit. The semiotic reflection of the last century, especially in American authors Charles Peirce and Charles Morris, helps seriously to understand how the ritus et preces of the liturgical celebration are a theological place of the action of the Spirit that makes possible the encounter of the human and the divine."
 					}
 				],
 				"seeAlso": []
@@ -419,7 +419,7 @@ var testCases = [
 				"date": "12/2019",
 				"DOI": "10.4067/S0049-34492019000400457",
 				"ISSN": "0049-3449",
-				"abstractNote": "La aproximación antropológica de Sacrosanctum concilium a la sagrada liturgia exige adentrarse en el universo del lenguaje simbólico y su proceso semiótico. Este arroja una luz importante para re-pensar el ex opere operato desprendiéndose de una visión ontológica-estática para adentrarse en la dinámica de una acción re-presentada gracias a la acción del Espíritu Santo. La reflexión semiótica del siglo pasado, especialmente en los autores estadounidenses Charles Peirce y Charles Morris, ayuda seriamente para comprender cómo los ritus et preces de la celebración litúrgica son un lugar teológico de la acción del Espíritu que posibilita el encuentro de lo humano y lo divino.Palabras claves: performativo; sacramentos; liturgia; semiótica; lenguaje simbólico; ritualidad; ex opere operato",
+				"abstractNote": "La aproximación antropológica de Sacrosanctum concilium a la sagrada liturgia exige adentrarse en el universo del lenguaje simbólico y su proceso semiótico. Este arroja una luz importante para re-pensar el ex opere operato desprendiéndose de una visión ontológica-estática para adentrarse en la dinámica de una acción re-presentada gracias a la acción del Espíritu Santo. La reflexión semiótica del siglo pasado, especialmente en los autores estadounidenses Charles Peirce y Charles Morris, ayuda seriamente para comprender cómo los ritus et preces de la celebración litúrgica son un lugar teológico de la acción del Espíritu que posibilita el encuentro de lo humano y lo divino.",
 				"issue": "4",
 				"libraryCatalog": "SciELO",
 				"pages": "457-474",
@@ -462,7 +462,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "abs:\nThe anthropological approach of Sacrosanctum concilium to the sacred liturgy requires entering into the universe of symbolic language and its semiotic process. It casts an important light to re-think the ex opere operato, detaching itself from an ontological-static vision to enter into the dynamics of an action re-presented thanks to the action of the Holy Spirit. The semiotic reflection of the last century, especially in American authors Charles Peirce and Charles Morris, helps seriously to understand how the ritus et preces of the liturgical celebration are a theological place of the action of the Spirit that makes possible the encounter of the human and the divine.\nKeywords: performative; sacraments; liturgy; semiotics; symbolic language; rituality; ex opere operato\n"
+						"note": "abs:The anthropological approach of Sacrosanctum concilium to the sacred liturgy requires entering into the universe of symbolic language and its semiotic process. It casts an important light to re-think the ex opere operato, detaching itself from an ontological-static vision to enter into the dynamics of an action re-presented thanks to the action of the Holy Spirit. The semiotic reflection of the last century, especially in American authors Charles Peirce and Charles Morris, helps seriously to understand how the ritus et preces of the liturgical celebration are a theological place of the action of the Spirit that makes possible the encounter of the human and the divine."
 					}
 				],
 				"seeAlso": []
@@ -486,6 +486,7 @@ var testCases = [
 				"date": "03/2016",
 				"DOI": "10.4067/S0718-92732016000100006",
 				"ISSN": "0718-9273",
+				"abstractNote": "Trata sobre los presupuestos metafísicos de aceptar la Biblia como Palabra de Dios. En particular, trata sobre la posibilidad de las intervenciones divinas, de los milagros y profecías. Responde al argumento de Hobbes por el determinismo, al principio de la clausura causal del mundo, a la crítica de Hume a la posibilidad de probar un milagro y a la negación de las profecías.",
 				"issue": "34",
 				"libraryCatalog": "SciELO",
 				"pages": "117-143",
@@ -506,7 +507,11 @@ var testCases = [
 						"tag": "Carlos Casanova*"
 					}
 				],
-				"notes": [],
+				"notes": [
+					{
+						"note": "abs:This paper deals with the metaphysical presuppositions which underlie the acceptance of the Bible as the Word of God. In particular, it deals with the possibility of divine interventions, miracles and prophecies. It answers to the Hobbesian argument for determinism, to the principle of the causal closure of the world, to Hume’s criticism of the possibility to prove miracles and to the negation of prophecies."
+					}
+				],
 				"seeAlso": []
 			}
 		]
