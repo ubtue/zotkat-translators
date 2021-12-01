@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-29 14:31:42"
+	"lastUpdated": "2021-11-30 18:05:10"
 }
 
 /*
@@ -74,7 +74,7 @@ function scrape(doc, url) {
 	translator.setDocument(doc);
 	
 	translator.setHandler('itemDone', function (obj, item) {
-		if (item.orcid) item.notes.push({note :'orcid:' + item.orcid + ' | ' + 'taken from website'});
+		if (item.orcid) item.notes.push({note :'orcid:' + item.orcid + ' | ' + item.creators_name + ' | ' + 'taken from website'});
 		if (item.oa_status) item.notes.push({note : item.oa_status.replace('green', 'LF:')});
 		//permanent url (DOI) from university of zürich (uzh)
 		let doiUzh = text(doc, '#summary_id_link a');
@@ -89,6 +89,7 @@ function scrape(doc, url) {
 			'eprints.creators_orcid': 'orcid',
 			'eprints.chair_subject' : 'tags',
 			'eprints.oa_status' : 'oa_status',
+			'eprints.creators_name' : 'creators_name',
 		});
 		trans.doWeb(doc, url);
 	});
@@ -134,7 +135,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "orcid:0000-0002-8968-2604 | taken from website"
+						"note": "orcid:0000-0002-8968-2604 | Schmid, Konrad | taken from website"
 					},
 					{
 						"note": "LF:"
@@ -239,7 +240,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "orcid:0000-0002-8968-2604 | taken from website"
+						"note": "orcid:0000-0002-8968-2604 | Schmid, Konrad | taken from website"
 					},
 					{
 						"note": "LF:"
