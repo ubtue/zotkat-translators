@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-24 12:53:54"
+	"lastUpdated": "2021-12-01 13:22:29"
 }
 
 /*
@@ -91,7 +91,7 @@ function scrape(doc, url) {
 		let doi = ZU.xpathText(doc, '//meta[@name="citation_handle_id"]/@content');
 		if (!item.DOI && doi) item.DOI = doi.replace('http://dx.doi.org/', '');
 		if (!item.ISSN) item.ISSN = '2633-0695';
-		if (!item.pulicationTitle) item.pulicationTitle = 'Journal for Interdisciplinary Biblical Studies';
+		if (!item.publicationTitle) item.publicationTitle = 'Journal for Interdisciplinary Biblical Studies';
 		//scrape text from "notes:" field on the website because no structure metadata avaiable for date
 		let date = ZU.xpathText(doc, "//*[contains(text(),'Date:')]//following-sibling::dd[1]");//Z.debug("date: " + date)
 		if (!item.date && date.match(/\d{4}/)) item.date = date;
