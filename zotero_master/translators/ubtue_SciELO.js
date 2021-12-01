@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-12-01 08:40:25"
+	"lastUpdated": "2021-12-01 10:11:19"
 }
 
 /*
@@ -98,14 +98,15 @@ function scrape(doc, url) {
 		item.notes.push({note: "abs:" + transAbstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "")});
 	} 
 	
-	var keywords = ZU.xpath(doc, '//b[contains(text(), "Keywords:") or contains(text(), "Keywords")]/..');
+	var keywords = ZU.xpath(doc, '//b[contains(text(), "Keywords:") or contains(text(), "Keywords")]/.. | //*[contains(text(),"Key words")]//following::i | //*[contains(text(),"Palabra claves")]/b');
 	if (!keywords || keywords.length == 0) keywords = ZU.xpath(doc, '//strong[contains(text(), "Keywords:") or contains(text(), "Keywords")]/.. | /html/body/div[1]/div[2]/div[2]/p[5]');
 	if (keywords && keywords.length > 0) {
 		item.tags = keywords[0].textContent
 					.trim()
 					.replace(/\n/g, "")
 					.replace(/keywords\s*:\s*/ig, "")
-					.split(";")
+					.replace(/\.$/, "")
+					.split(/;|,/)
 					.map(function(x) { return x.trim(); })
 					.map(function(y) { return y.charAt(0).toUpperCase() + y.slice(1); });
 	}
@@ -242,16 +243,7 @@ var testCases = [
 				],
 				"tags": [
 					{
-						"tag": "América Latina"
-					},
-					{
-						"tag": "eleições internas"
-					},
-					{
-						"tag": "partidos políticos"
-					},
-					{
-						"tag": "seleção de candidatos"
+						"tag": "Introdução"
 					}
 				],
 				"notes": [],
@@ -504,7 +496,19 @@ var testCases = [
 				],
 				"tags": [
 					{
-						"tag": "Carlos Casanova*"
+						"tag": "Bible"
+					},
+					{
+						"tag": "Divine interventions"
+					},
+					{
+						"tag": "Historicity of the New Testament"
+					},
+					{
+						"tag": "Miracles"
+					},
+					{
+						"tag": "Prophecies"
 					}
 				],
 				"notes": [
