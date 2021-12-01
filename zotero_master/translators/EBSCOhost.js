@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsib",
-	"lastUpdated": "2021-12-01 10:37:32"
+	"lastUpdated": "2021-12-01 10:46:38"
 }
 
 /*
@@ -163,7 +163,7 @@ function downloadFunction(text, url, prefs) {
 		item.archive = "";
 		if (item.ISSN == "03938417") {
 		if (item.publicationTitle != undefined && item.publiactionTitle != "Studi e Materiali di Storia delle Religioni") {
-			item.notes.push("Paralleltitel:" + item.publicationTitle);
+			item.notes.push("translatedTitle:" + item.publicationTitle);
 		}
 		}
 		
