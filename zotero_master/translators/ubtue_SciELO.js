@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-12-02 14:51:02"
+	"lastUpdated": "2021-12-02 15:40:04"
 }
 
 /*
@@ -40,7 +40,7 @@ function getTitle(item) {
 			translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
 			translator.setString(text);
 			translator.setHandler("itemDone", function(obj, i) {
-				if (i.title != item.title) {
+				if (i.title != undefined && i.title != item.title) {
 					item.notes.push("Paralleltitel:" + ZU.trimInternal(item.title));
 					item.title = ZU.trimInternal(i.title);
 				}
@@ -57,7 +57,10 @@ function detectWeb(doc,url) {
 	if (ZU.xpathText(doc, '//meta[@name="citation_journal_title"]/@content')) {
 		return "journalArticle";
 	}
-	if (url.indexOf("search.")!=-1 && getSearchResults(doc, true)){
+	else if (url.indexOf("search.")!=-1 && getSearchResults(doc, true)){
+		return "multiple";
+	}
+	else if (url.indexOf("script=sci_issuetoc")!=-1 && getSearchResults(doc, true)) {
 		return "multiple";
 	}
 }
@@ -74,6 +77,20 @@ function getSearchResults(doc, checkOnly) {
 		if (checkOnly) return true;
 		found = true;
 		items[href] = title;
+	}
+	if (rows.length == 0) {
+		//http://www.scielo.cl/scielo.php?script=sci_arttext&amp;
+		let tds = ZU.xpath(doc, '//td//td');
+		for (let t = 0; t < tds.length; t++) {
+			let rows = ZU.xpath(tds[t], './/a[contains(@href, "http://www.scielo.cl/scielo.php?script=sci_arttext")]');
+			for (let i = 0; i < rows.length; i++) {
+				if (items[rows[i].href] == undefined) {
+				items[rows[i].href] = ZU.trimInternal(ZU.xpathText(tds[t], './/B'));
+				if (checkOnly) return true;
+				found = true;
+				}
+			}
+		}
 	}
 	return found ? items : false;
 }
@@ -121,7 +138,9 @@ function scrape(doc, url) {
 		item.abstractNote = abstractTwo.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "").replace(/[\n\t]/g, "");
 		item.notes.push({note: "abs:" + ZU.trimInternal(transAbstractTwo.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, ""))});
 	} 
+	if (item.abstractNote != undefined) {
 	item.abstractNote = ZU.trimInternal(item.abstractNote);
+	}
 	
 	let keywords = ZU.xpath(doc, '//b[contains(text(), "Keywords:") or contains(text(), "Keywords")]/.. | //*[contains(text(),"Key words")]//following::i');
 	if (!keywords || keywords.length == 0) keywords = ZU.xpath(doc, '//strong[contains(text(), "Keywords:") or contains(text(), "Keywords")]/.. | /html/body/div[1]/div[2]/div[2]/p[5]');
@@ -386,6 +405,7 @@ var testCases = [
 				"ISSN": "0049-3449",
 				"abstractNote": "La aproximación antropológica de Sacrosanctum concilium a la sagrada liturgia exige adentrarse en el universo del lenguaje simbólico y su proceso semiótico. Este arroja una luz importante para re-pensar el ex opere operato desprendiéndose de una visión ontológica-estática para adentrarse en la dinámica de una acción re-presentada gracias a la acción del Espíritu Santo. La reflexión semiótica del siglo pasado, especialmente en los autores estadounidenses Charles Peirce y Charles Morris, ayuda seriamente para comprender cómo los ritus et preces de la celebración litúrgica son un lugar teológico de la acción del Espíritu que posibilita el encuentro de lo humano y lo divino.",
 				"issue": "4",
+				"language": "es",
 				"libraryCatalog": "SciELO",
 				"pages": "457-474",
 				"publicationTitle": "Teología y vida",
@@ -458,6 +478,7 @@ var testCases = [
 				"ISSN": "0049-3449",
 				"abstractNote": "La aproximación antropológica de Sacrosanctum concilium a la sagrada liturgia exige adentrarse en el universo del lenguaje simbólico y su proceso semiótico. Este arroja una luz importante para re-pensar el ex opere operato desprendiéndose de una visión ontológica-estática para adentrarse en la dinámica de una acción re-presentada gracias a la acción del Espíritu Santo. La reflexión semiótica del siglo pasado, especialmente en los autores estadounidenses Charles Peirce y Charles Morris, ayuda seriamente para comprender cómo los ritus et preces de la celebración litúrgica son un lugar teológico de la acción del Espíritu que posibilita el encuentro de lo humano y lo divino.",
 				"issue": "4",
+				"language": "es",
 				"libraryCatalog": "SciELO",
 				"pages": "457-474",
 				"publicationTitle": "Teología y vida",
@@ -524,6 +545,7 @@ var testCases = [
 				"DOI": "10.4067/S0718-92732016000100006",
 				"ISSN": "0718-9273",
 				"abstractNote": "Trata sobre los presupuestos metafísicos de aceptar la Biblia como Palabra de Dios. En particular, trata sobre la posibilidad de las intervenciones divinas, de los milagros y profecías. Responde al argumento de Hobbes por el determinismo, al principio de la clausura causal del mundo, a la crítica de Hume a la posibilidad de probar un milagro y a la negación de las profecías.",
+				"language": "es",
 				"libraryCatalog": "SciELO",
 				"pages": "117-143",
 				"publicationTitle": "Veritas",
