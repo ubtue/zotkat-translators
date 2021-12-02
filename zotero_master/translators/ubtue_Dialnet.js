@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-22 16:56:04"
+	"lastUpdated": "2021-12-02 14:01:59"
 }
 
 /*
@@ -113,9 +113,15 @@ function scrape(doc, url) {
  		// replace issue number with volume number for certain journals e.g. 'Analecta calasanctiana: publicación semestral religioso cultural y de investigación histórica' 
  		if (item.ISSN && item.ISSN.match(/0569-9789|1594-344/)) item.volume = issueEntry.split('\(')[0];
  		if (item.issue === item.volume) delete item.issue;
- 		// Delete generic keywords
- 		if (item.tags);
- 			delete item.tags;
+ 		if (item.title.match(/ISBN/ig)) item.tags.push("RezensionstagPica");
+		if (item.tags) {
+			for (let t of item.tags) {
+			if (t.includes('RezensionstagPica')) {
+				item.tags = item.tags.slice(-1);
+				}
+			}
+		}
+		if (!item.tags.includes('RezensionstagPica')) delete item.tags;
 		item.complete();
 	});
 	translator.getTranslatorObject(function(trans) {
@@ -514,6 +520,50 @@ var testCases = [
 					{
 						"title": "Snapshot",
 						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8109499",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Andrea Riccardi, \" La chiesa brucia. Crisi e futuro del cristianesimo \", Laterza, Roma, 2021 ( ISBN 978.88-581-441-4 )",
+				"creators": [
+					{
+						"firstName": "Francisco Javier Buide del",
+						"lastName": "Real",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021",
+				"ISSN": "0573-2018",
+				"issue": "1-2",
+				"language": "spa",
+				"libraryCatalog": "dialnet.unirioja.es",
+				"pages": "309-314",
+				"publicationTitle": "Compostellanum: revista de la Archidiócesis de Santiago de Compostela",
+				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8109499",
+				"volume": "66",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
 					}
 				],
 				"notes": [],
