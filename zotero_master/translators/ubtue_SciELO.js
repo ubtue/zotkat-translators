@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-12-01 14:57:36"
+	"lastUpdated": "2021-12-02 07:58:24"
 }
 
 /*
@@ -114,10 +114,8 @@ function scrape(doc, url) {
 		item.notes.push({note: "abs:" + transAbstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "")});
 	}
 	if (abstractTwo || transAbstractTwo) {
-		abstract = ZU.xpathText(doc, "//*[contains(text(),'Resumen')]//following::font[1]");
-		item.abstractNote = abstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "").replace(/[\n\t]/g, "");
-		transAbstract = ZU.xpathText(doc, "//*[contains(text(),'Abstract')]//following::font[1]");
-		item.notes.push({note: "abs:" + transAbstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "")});
+		item.abstractNote = abstractTwo.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "").replace(/[\n\t]/g, "");
+		item.notes.push({note: "abs:" + transAbstractTwo.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "")});
 	} 
 	
 	let keywords = ZU.xpath(doc, '//b[contains(text(), "Keywords:") or contains(text(), "Keywords")]/.. | //*[contains(text(),"Key words")]//following::i');
