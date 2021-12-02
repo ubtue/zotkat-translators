@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsib",
-	"lastUpdated": "2021-12-01 10:46:38"
+	"lastUpdated": "2021-12-02 17:10:03"
 }
 
 /*
@@ -162,10 +162,11 @@ function downloadFunction(text, url, prefs) {
 		// the archive field is pretty useless:
 		item.archive = "";
 		if (item.ISSN == "03938417") {
-		if (item.publicationTitle != undefined && item.publiactionTitle != "Studi e Materiali di Storia delle Religioni") {
+		if (item.publicationTitle != undefined && item.publicationTitle != "Studi e Materiali di Storia delle Religioni") {
 			item.notes.push("translatedTitle:" + item.publicationTitle);
 		}
 		}
+		item.publicationTitle = item.journalAbbreviation;
 		
 		if (item.url) {
 			// Trim the ⟨=cs suffix -- EBSCO can't find the record with it!
