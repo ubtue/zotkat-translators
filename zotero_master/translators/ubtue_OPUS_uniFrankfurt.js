@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 12,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-29 16:35:09"
+	"lastUpdated": "2021-12-02 16:15:43"
 }
 
 /*
@@ -113,7 +113,7 @@ function processRIS(text, doc) {
 	translator.setHandler("itemDone", function (obj, item) {
 		// author names are not (always) supplied as lastName, firstName in RIS
 		// we fix it here (note sure if still need with new RIS)
-	
+		item.notes = [];
 		var m;
 		for (var i = 0, n = item.creators.length; i < n; i++) {
 			if (!item.creators[i].firstName
@@ -206,6 +206,10 @@ function processRIS(text, doc) {
 		}
 		let year = ZU.xpathText(doc, '//tr[contains(./th[@class="name"], "Jahr der Erst")]//td');
 		item.date = year;
+		let totalPages = ZU.xpathText(doc, '//tr[contains(./th[@class="name"], "Seitenzahl:")]//td');
+		if (totalPages != null) {
+			item.notes.push('seitenGesamt:' + totalPages);
+		}
 		// DB in RIS maps to archive; we don't want that
 		delete item.archive;
 		if (item.DOI || /DOI: 10\./.test(item.extra)) {
