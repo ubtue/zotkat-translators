@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 12,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-12-02 16:15:43"
+	"lastUpdated": "2021-12-02 16:52:39"
 }
 
 /*
@@ -186,21 +186,23 @@ function processRIS(text, doc) {
 		}
 		if (item.issue == undefined) {
 			if (item.ISSN == '1434-5935') {
+				
 				if (item.series != undefined) {
-					let issue = item.series.match(/\d+$/);
+					let issue = item.series.match(/(\d+).?$/);
 					if (issue != null) {
-						item.issue = issue[0];
+						item.issue = issue[1];
 					}
 				}
 			}
 		}
-		if (item.volume == undefined || item.volume == item.year) {
+		Z.debug(item.date);
+		if (item.volume == undefined || item.volume == item.date) {
 			item.volume = item.issue;
 			item.issue = '';
 		}
 		let language = ZU.xpathText(doc, '//tr[contains(./th[@class="name"], "Sprache")]//td');
-		let languages = {'Deutsch': 'de', 'Englisch': 'en', 'Französisch': 'fr', 
-		'Italienisch': 'it', 'Russisch': 'ru', 'Türkisch': 'tr', 'Sonstige': 'und'};
+		let languages = {'Deutsch': 'ger', 'Englisch': 'eng', 'Französisch': 'fre', 
+		'Italienisch': 'ita', 'Russisch': 'rus', 'Türkisch': 'tur', 'Sonstige': 'und'};
 		if (language in languages) {
 			item.language = languages[language];
 		}
