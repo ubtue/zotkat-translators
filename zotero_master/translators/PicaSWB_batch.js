@@ -227,7 +227,11 @@ function EscapeNonASCIICharacters(unescaped_string) {
 }
 
 function addLine(itemid, code, value) {
-    
+    //if (value == undefined) {
+		//Zotero.write('application.messageBox("Upload fehlgeschlagen", "Eintrag in Feldnummer ' + code + ' ist nicht definiert", "alert-icon")\n');
+	//}
+	
+
 	//call the function EscapeNonASCIICharacters
 	value = EscapeNonASCIICharacters(value);
 
@@ -637,6 +641,9 @@ function performExport() {
 			if (item.issue && item.ISSN !== "2699-5433") { volumeyearissuepage += "$a" + item.issue.replace("-", "/").replace(/^0/, ""); }
 			if (item.issue && item.ISSN === "2699-5433") { volumeyearissuepage += "$m" + item.issue.replace("-", "/").replace(/^0/, ""); }
 			if (item.pages) { volumeyearissuepage += "$p" + item.pages; }
+			for (let i in item.notes) {
+				if (item.notes[i].note.includes('seitenGesamt:')) { volumeyearissuepage += "$t" + item.notes[i].note.replace(/seitenGesamt:/i, '') };
+			}
 			if (item.ISSN === "2077-1444" && item.callNumber) {volumeyearissuepage += "$i" + item.callNumber;}
             addLine(currentItemId, "\\n4070", volumeyearissuepage);
         }
@@ -654,7 +661,6 @@ function performExport() {
 				}
 			}
 		}
-		
 		//URL --> 4085 nur bei Satztyp "O.." im Feld 0500 K10Plus:aus 4085 wird 4950
 		switch (true) {
 			case item.url && item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "l": 

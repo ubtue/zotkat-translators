@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-12-02 07:58:24"
+	"lastUpdated": "2021-12-02 15:40:04"
 }
 
 /*
@@ -40,9 +40,9 @@ function getTitle(item) {
 			translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
 			translator.setString(text);
 			translator.setHandler("itemDone", function(obj, i) {
-				if (i.title != item.title) {
-					item.notes.push("Paralleltitel:" + item.title);
-					item.title = i.title;
+				if (i.title != undefined && i.title != item.title) {
+					item.notes.push("Paralleltitel:" + ZU.trimInternal(item.title));
+					item.title = ZU.trimInternal(i.title);
 				}
 			item.complete();
 				
@@ -57,7 +57,10 @@ function detectWeb(doc,url) {
 	if (ZU.xpathText(doc, '//meta[@name="citation_journal_title"]/@content')) {
 		return "journalArticle";
 	}
-	if (url.indexOf("search.")!=-1 && getSearchResults(doc, true)){
+	else if (url.indexOf("search.")!=-1 && getSearchResults(doc, true)){
+		return "multiple";
+	}
+	else if (url.indexOf("script=sci_issuetoc")!=-1 && getSearchResults(doc, true)) {
 		return "multiple";
 	}
 }
@@ -74,6 +77,20 @@ function getSearchResults(doc, checkOnly) {
 		if (checkOnly) return true;
 		found = true;
 		items[href] = title;
+	}
+	if (rows.length == 0) {
+		//http://www.scielo.cl/scielo.php?script=sci_arttext&amp;
+		let tds = ZU.xpath(doc, '//td//td');
+		for (let t = 0; t < tds.length; t++) {
+			let rows = ZU.xpath(tds[t], './/a[contains(@href, "http://www.scielo.cl/scielo.php?script=sci_arttext")]');
+			for (let i = 0; i < rows.length; i++) {
+				if (items[rows[i].href] == undefined) {
+				items[rows[i].href] = ZU.trimInternal(ZU.xpathText(tds[t], './/B'));
+				if (checkOnly) return true;
+				found = true;
+				}
+			}
+		}
 	}
 	return found ? items : false;
 }
@@ -108,15 +125,22 @@ function scrape(doc, url) {
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 	translator.setDocument(doc);
 	translator.setHandler('itemDone', function(obj, item) {
-
+	
+	if (item.language == undefined) {
+		item.language = ZU.xpathText(doc, '//meta[@name="citation_pdf_url"]/@language');
+		//meta xmlns="" name="citation_pdf_url" language="en"
+	}
 	if (abstract || transAbstract) {
 		item.abstractNote = abstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "").replace(/[\n\t]/g, "");
-		item.notes.push({note: "abs:" + transAbstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "")});
+		item.notes.push({note: "abs:" + ZU.trimInternal(transAbstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, ""))});
 	}
 	if (abstractTwo || transAbstractTwo) {
 		item.abstractNote = abstractTwo.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "").replace(/[\n\t]/g, "");
-		item.notes.push({note: "abs:" + transAbstractTwo.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "")});
+		item.notes.push({note: "abs:" + ZU.trimInternal(transAbstractTwo.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, ""))});
 	} 
+	if (item.abstractNote != undefined) {
+	item.abstractNote = ZU.trimInternal(item.abstractNote);
+	}
 	
 	let keywords = ZU.xpath(doc, '//b[contains(text(), "Keywords:") or contains(text(), "Keywords")]/.. | //*[contains(text(),"Key words")]//following::i');
 	if (!keywords || keywords.length == 0) keywords = ZU.xpath(doc, '//strong[contains(text(), "Keywords:") or contains(text(), "Keywords")]/.. | /html/body/div[1]/div[2]/div[2]/p[5]');
@@ -155,6 +179,7 @@ function scrape(doc, url) {
 	});
 	translator.translate();
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
@@ -380,6 +405,7 @@ var testCases = [
 				"ISSN": "0049-3449",
 				"abstractNote": "La aproximación antropológica de Sacrosanctum concilium a la sagrada liturgia exige adentrarse en el universo del lenguaje simbólico y su proceso semiótico. Este arroja una luz importante para re-pensar el ex opere operato desprendiéndose de una visión ontológica-estática para adentrarse en la dinámica de una acción re-presentada gracias a la acción del Espíritu Santo. La reflexión semiótica del siglo pasado, especialmente en los autores estadounidenses Charles Peirce y Charles Morris, ayuda seriamente para comprender cómo los ritus et preces de la celebración litúrgica son un lugar teológico de la acción del Espíritu que posibilita el encuentro de lo humano y lo divino.",
 				"issue": "4",
+				"language": "es",
 				"libraryCatalog": "SciELO",
 				"pages": "457-474",
 				"publicationTitle": "Teología y vida",
@@ -452,6 +478,7 @@ var testCases = [
 				"ISSN": "0049-3449",
 				"abstractNote": "La aproximación antropológica de Sacrosanctum concilium a la sagrada liturgia exige adentrarse en el universo del lenguaje simbólico y su proceso semiótico. Este arroja una luz importante para re-pensar el ex opere operato desprendiéndose de una visión ontológica-estática para adentrarse en la dinámica de una acción re-presentada gracias a la acción del Espíritu Santo. La reflexión semiótica del siglo pasado, especialmente en los autores estadounidenses Charles Peirce y Charles Morris, ayuda seriamente para comprender cómo los ritus et preces de la celebración litúrgica son un lugar teológico de la acción del Espíritu que posibilita el encuentro de lo humano y lo divino.",
 				"issue": "4",
+				"language": "es",
 				"libraryCatalog": "SciELO",
 				"pages": "457-474",
 				"publicationTitle": "Teología y vida",
@@ -518,6 +545,7 @@ var testCases = [
 				"DOI": "10.4067/S0718-92732016000100006",
 				"ISSN": "0718-9273",
 				"abstractNote": "Trata sobre los presupuestos metafísicos de aceptar la Biblia como Palabra de Dios. En particular, trata sobre la posibilidad de las intervenciones divinas, de los milagros y profecías. Responde al argumento de Hobbes por el determinismo, al principio de la clausura causal del mundo, a la crítica de Hume a la posibilidad de probar un milagro y a la negación de las profecías.",
+				"language": "es",
 				"libraryCatalog": "SciELO",
 				"pages": "117-143",
 				"publicationTitle": "Veritas",
@@ -570,6 +598,106 @@ var testCases = [
 						"note": "abs:This paper deals with the metaphysical presuppositions which underlie the acceptance of the Bible as the Word of God. In particular, it deals with the possibility of divine interventions, miracles and prophecies. It answers to the Hobbesian argument for determinism, to the principle of the causal closure of the world, to Hume’s criticism of the possibility to prove miracles and to the negation of prophecies."
 					},
 					"Paralleltitel:Metaphysical presuppositions for a sound critical historiography applied to the biblical text"
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.scielo.cl/scielo.php?script=sci_arttext&pid=S0718-92732018000100137&lng=en&nrm=iso&tlng=fr",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Trois missionnaires capucins dans le Royaume de Congo de la fin du XVIIe siècle: Cavazzi, Merolla et Zucchelli. Force et prose dans les récits de spectacles punitifs et de châtiments exemplaires",
+				"creators": [
+					{
+						"firstName": "José",
+						"lastName": "Sarzi Amade",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "José",
+						"lastName": "Sarzi Amade",
+						"creatorType": "author"
+					}
+				],
+				"date": "04/2018",
+				"DOI": "10.4067/S0718-92732018000100137",
+				"ISSN": "0718-9273",
+				"abstractNote": "L’article traite de littérature de voyage et plus particuliérement de récits de missionnaires italiens de l’ordre des Capucins, ayant ceuvré à 1’évangélisation du Royaume du Congo vers la fin du XVIIe siécle. Giovanm Antonio Cavazzi da Montecuccolo, Girolamo Merolla da Sorrento et Antonio Zucchelli da Gradisca ont un point commun, celuí d’avoir reporté dans leurs livres respectifs, des mamfestations d’aprionsmes, de violences à l’encontre des us et coutumes congolais. L’étude en offre les détails littéraires traduisant ees répressions et leurs surgissements. Sur le fond, elle marque une distinction entre une narration découlant d’une violence réelle, celle de spectacles pumtifs, et une autre, imagologico-morale, expnmée en chátiments exemplaires.",
+				"language": "fr",
+				"libraryCatalog": "SciELO",
+				"pages": "137-160",
+				"publicationTitle": "Veritas",
+				"shortTitle": "Trois missionnaires capucins dans le Royaume de Congo de la fin du XVIIe siècle",
+				"url": "http://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0718-92732018000100137&lng=en&nrm=iso&tlng=fr",
+				"volume": "39",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [
+					{
+						"note": "abs:The objective of this research is to investigate about travel literature, particularly on the travel accounts written by the Capuchin missionaries Giovanni Antonio Cavazzi da Montecuccolo, Girolamo Merolla da Sorrento and Antonio Zucchelli da Gradisca, who participated in the Evangelization of the Kingdom of Congo in the late seventeenth century. Their texts are characterized by the recurrence to apriorisms and the use of violence toward Congolese traditions and customs. This study examines precisely the literary motifs that represents the above mentioned characteristics and, simultaneously, establishes the causes of their origin, through the distinction between narrative as a result of the real violence represented in the punitive spectacles and a imagological-moral violence, expressed through exemplary punishments., El artículo trata de literatura de viajes y más particularmente de historias de misioneros italianos de la orden de los Capuchinos, quienes trabajaron para la evangelización del Reino del Congo a fines del siglo XVII. Giovanni Antonio Cavazzi da Montecuccolo, Girolamo Merolla da Sorrento y Antonio Zucchelli da Gradisca tienen un punto en común, el de haber expresado en sus respectivos libros, manifestaciones de apriorismos y violencia contra las costumbres congoleñas. El estudio ofrece detalles literarios que reflejan estas represiones y sus emergencias. En lo sustancial, se establece una distinción entre una narración resultante de la violencia real, la de los espectáculos punitivos, y otra, imagológica-moral, expresada en castigos ejemplares."
+					},
+					"Paralleltitel:Three Capuchin missionaries in the Kingdom of Congo at the end of the 17th century: Cavazzi, Merolla and Zucchelli. Strength and prose in the stories of punitive spectacles and exemplary punishments"
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.scielo.cl/scielo.php?script=sci_arttext&pid=S0718-92732020000300151&lng=en&nrm=iso&tlng=en",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "La cultura de la paz y la tolerancia religiosa desde una perspectiva islámica",
+				"creators": [
+					{
+						"firstName": "Abbas",
+						"lastName": "Yazdani",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Abbas",
+						"lastName": "Yazdani",
+						"creatorType": "author"
+					}
+				],
+				"date": "12/2020",
+				"DOI": "10.4067/S0718-92732020000300151",
+				"ISSN": "0718-9273",
+				"abstractNote": "The subject of the culture of peace and non-violent communication is extremely important, even more so today than in the past. The contention of this paper is that Islam is a religion of tolerance, peace, and reconciliation. I shall argue that there are many principles of the culture of peace in Islam. However, this doctrine may be misunderstood in some Islamic societies due to the poor knowledge of Islamic teachings or wrong education. Therefore, we strongly need to have a true interpretation of religious teachings as well as a true approach to religious diversity to provide the culture of peace.",
+				"language": "en",
+				"libraryCatalog": "SciELO",
+				"pages": "151-168",
+				"publicationTitle": "Veritas",
+				"url": "http://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0718-92732020000300151&lng=en&nrm=iso&tlng=en",
+				"volume": "47",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [
+					{
+						"note": "abs:El tema de la cultura de paz y la comunicación no violenta es sumamente importante, especialmente en la actualidad. El argumento de este artículo es que el Islam es una religión de tolerancia, paz y reconciliación. Argumentaré que hay muchos principios de la cultura de paz en el Islam. Sin embargo, esta doctrina puede malinterpretarse en algunas sociedades islámicas debido al escaso conocimiento de las enseñanzas islámicas o la educación incorrecta. Por lo tanto, necesitamos tener una verdadera interpretación de las enseñanzas religiosas, así como un verdadero enfoque de la diversidad religiosa para difundir la cultura de la paz."
+					}
 				],
 				"seeAlso": []
 			}

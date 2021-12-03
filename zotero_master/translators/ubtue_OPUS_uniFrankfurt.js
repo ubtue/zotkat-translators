@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 12,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-29 16:35:09"
+	"lastUpdated": "2021-12-02 16:52:39"
 }
 
 /*
@@ -113,7 +113,7 @@ function processRIS(text, doc) {
 	translator.setHandler("itemDone", function (obj, item) {
 		// author names are not (always) supplied as lastName, firstName in RIS
 		// we fix it here (note sure if still need with new RIS)
-	
+		item.notes = [];
 		var m;
 		for (var i = 0, n = item.creators.length; i < n; i++) {
 			if (!item.creators[i].firstName
@@ -186,26 +186,32 @@ function processRIS(text, doc) {
 		}
 		if (item.issue == undefined) {
 			if (item.ISSN == '1434-5935') {
+				
 				if (item.series != undefined) {
-					let issue = item.series.match(/\d+$/);
+					let issue = item.series.match(/(\d+).?$/);
 					if (issue != null) {
-						item.issue = issue[0];
+						item.issue = issue[1];
 					}
 				}
 			}
 		}
-		if (item.volume == undefined || item.volume == item.year) {
+		Z.debug(item.date);
+		if (item.volume == undefined || item.volume == item.date) {
 			item.volume = item.issue;
 			item.issue = '';
 		}
 		let language = ZU.xpathText(doc, '//tr[contains(./th[@class="name"], "Sprache")]//td');
-		let languages = {'Deutsch': 'de', 'Englisch': 'en', 'Französisch': 'fr', 
-		'Italienisch': 'it', 'Russisch': 'ru', 'Türkisch': 'tr', 'Sonstige': 'und'};
+		let languages = {'Deutsch': 'ger', 'Englisch': 'eng', 'Französisch': 'fre', 
+		'Italienisch': 'ita', 'Russisch': 'rus', 'Türkisch': 'tur', 'Sonstige': 'und'};
 		if (language in languages) {
 			item.language = languages[language];
 		}
 		let year = ZU.xpathText(doc, '//tr[contains(./th[@class="name"], "Jahr der Erst")]//td');
 		item.date = year;
+		let totalPages = ZU.xpathText(doc, '//tr[contains(./th[@class="name"], "Seitenzahl:")]//td');
+		if (totalPages != null) {
+			item.notes.push('seitenGesamt:' + totalPages);
+		}
 		// DB in RIS maps to archive; we don't want that
 		delete item.archive;
 		if (item.DOI || /DOI: 10\./.test(item.extra)) {
