@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-12-02 15:40:04"
+	"lastUpdated": "2021-12-08 16:07:55"
 }
 
 /*
@@ -130,42 +130,45 @@ function scrape(doc, url) {
 		item.language = ZU.xpathText(doc, '//meta[@name="citation_pdf_url"]/@language');
 		//meta xmlns="" name="citation_pdf_url" language="en"
 	}
-	if (abstract || transAbstract) {
+	if (abstract != null && abstract || transAbstract) {
 		item.abstractNote = abstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "").replace(/[\n\t]/g, "");
 		item.notes.push({note: "abs:" + ZU.trimInternal(transAbstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, ""))});
 	}
-	if (abstractTwo || transAbstractTwo) {
+	if (abstractTwo != null && abstractTwo) {
 		item.abstractNote = abstractTwo.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "").replace(/[\n\t]/g, "");
 		item.notes.push({note: "abs:" + ZU.trimInternal(transAbstractTwo.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, ""))});
-	} 
+	}
 	if (item.abstractNote != undefined) {
 	item.abstractNote = ZU.trimInternal(item.abstractNote);
 	}
 	
-	let keywords = ZU.xpath(doc, '//b[contains(text(), "Keywords:") or contains(text(), "Keywords")]/.. | //*[contains(text(),"Key words")]//following::i');
-	if (!keywords || keywords.length == 0) keywords = ZU.xpath(doc, '//strong[contains(text(), "Keywords:") or contains(text(), "Keywords")]/.. | /html/body/div[1]/div[2]/div[2]/p[5]');
+	let keywords = ZU.xpath(doc, '//*[contains(text(), "Keywords:")  or contains(text(), "Keywords") or contains(text(), "Key words") or contains(text(), "Key Words") or contains(text(), "Kew words")]/..');
 	if (keywords && keywords.length > 0) {
 		item.tags = keywords[0].textContent
 					.trim()
 					.replace(/\n/g, "")
-					.replace(/keywords\s*:\s*/ig, "")
+					.replace(/ke[y|w]\s?words\s*:\s*/ig, "")
 					.replace(/\.$/, "")
 					.split(/;|,/)
 					.map(function(x) { return x.trim(); })
 					.map(function(y) { return y.charAt(0).toUpperCase() + y.slice(1); });
 	}
 	//keywords in other language
-	let transKeywords = ZU.xpathText(doc, '//*[contains(text(),"Palabra claves")]//..');
+	let transKeywords = ZU.xpathText(doc, '//*[contains(text(),"Palabra claves") or contains(text(), "Palabras clave")]//..');
 	if (transKeywords) {
 		for (let t of transKeywords.split(/;|,/)) {
-			item.tags.push({tag : t
+			item.tags.push(t
 				.trim()
-				.replace(/\.$|palabra\s?claves:/i, "")
+				.replace(/\.$/, "")
+				.replace(/\.$|palabras?\s?claves?\s*:?\s*/i, "")
 				.replace(/^\w/gi,function(m){ return m.toUpperCase();})
-			});
+			);
 		}
 	}
-	//0718-9273 citation_issue = citation_volume
+	
+	//duduplicate all keywords
+	item.tags = [...new Set(item.tags.map(x => x))];
+	
 	let citationVolume = ZU.xpathText(doc, '//meta[@name="citation_volume"]/@content');
 	if (item.ISSN == "0718-9273" && citationVolume.length == 0) {
 		item.volume = item.issue;
@@ -307,7 +310,16 @@ var testCases = [
 				],
 				"tags": [
 					{
-						"tag": "Introdução"
+						"tag": "Internal elections"
+					},
+					{
+						"tag": "Latin America"
+					},
+					{
+						"tag": "Nomination of candidates"
+					},
+					{
+						"tag": "Political parties"
 					}
 				],
 				"notes": [],
@@ -427,77 +439,10 @@ var testCases = [
 						"tag": "Ex opere operato"
 					},
 					{
-						"tag": "Liturgy"
+						"tag": "Lenguaje simbólico"
 					},
 					{
-						"tag": "Performative"
-					},
-					{
-						"tag": "Rituality"
-					},
-					{
-						"tag": "Sacraments"
-					},
-					{
-						"tag": "Semiotics"
-					},
-					{
-						"tag": "Symbolic language"
-					}
-				],
-				"notes": [
-					{
-						"note": "abs:The anthropological approach of Sacrosanctum concilium to the sacred liturgy requires entering into the universe of symbolic language and its semiotic process. It casts an important light to re-think the ex opere operato, detaching itself from an ontological-static vision to enter into the dynamics of an action re-presented thanks to the action of the Holy Spirit. The semiotic reflection of the last century, especially in American authors Charles Peirce and Charles Morris, helps seriously to understand how the ritus et preces of the liturgical celebration are a theological place of the action of the Spirit that makes possible the encounter of the human and the divine."
-					}
-				],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://scielo.conicyt.cl/scielo.php?script=sci_arttext&pid=S0049-34492019000400457&lng=en&nrm=iso&tlng=en",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Re-pensar el ex opere operato II: Per signa sensibilia significantur (SC 7). Quid enim?",
-				"creators": [
-					{
-						"firstName": "Gonzalo",
-						"lastName": "Guzmán",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Gonzalo",
-						"lastName": "Guzmán",
-						"creatorType": "author"
-					}
-				],
-				"date": "12/2019",
-				"DOI": "10.4067/S0049-34492019000400457",
-				"ISSN": "0049-3449",
-				"abstractNote": "La aproximación antropológica de Sacrosanctum concilium a la sagrada liturgia exige adentrarse en el universo del lenguaje simbólico y su proceso semiótico. Este arroja una luz importante para re-pensar el ex opere operato desprendiéndose de una visión ontológica-estática para adentrarse en la dinámica de una acción re-presentada gracias a la acción del Espíritu Santo. La reflexión semiótica del siglo pasado, especialmente en los autores estadounidenses Charles Peirce y Charles Morris, ayuda seriamente para comprender cómo los ritus et preces de la celebración litúrgica son un lugar teológico de la acción del Espíritu que posibilita el encuentro de lo humano y lo divino.",
-				"issue": "4",
-				"language": "es",
-				"libraryCatalog": "SciELO",
-				"pages": "457-474",
-				"publicationTitle": "Teología y vida",
-				"shortTitle": "Re-pensar el ex opere operato II",
-				"url": "http://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0049-34492019000400457&lng=en&nrm=iso&tlng=en",
-				"volume": "60",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [
-					{
-						"tag": "Ex opere operato"
+						"tag": "Liturgia"
 					},
 					{
 						"tag": "Liturgy"
@@ -506,13 +451,25 @@ var testCases = [
 						"tag": "Performative"
 					},
 					{
+						"tag": "Performativo"
+					},
+					{
+						"tag": "Ritualidad"
+					},
+					{
 						"tag": "Rituality"
+					},
+					{
+						"tag": "Sacramentos"
 					},
 					{
 						"tag": "Sacraments"
 					},
 					{
 						"tag": "Semiotics"
+					},
+					{
+						"tag": "Semiótica"
 					},
 					{
 						"tag": "Symbolic language"
@@ -563,19 +520,10 @@ var testCases = [
 				],
 				"tags": [
 					{
-						"tag": " Biblia"
-					},
-					{
-						"tag": "Bible"
-					},
-					{
-						"tag": "Divine interventions"
+						"tag": "Biblia"
 					},
 					{
 						"tag": "Historicidad del Nuevo Testamento"
-					},
-					{
-						"tag": "Historicity of the New Testament"
 					},
 					{
 						"tag": "Intervenciones divinas"
@@ -584,13 +532,7 @@ var testCases = [
 						"tag": "Milagros"
 					},
 					{
-						"tag": "Miracles"
-					},
-					{
 						"tag": "Profecías"
-					},
-					{
-						"tag": "Prophecies"
 					}
 				],
 				"notes": [
@@ -643,7 +585,32 @@ var testCases = [
 						"mimeType": "text/html"
 					}
 				],
-				"tags": [],
+				"tags": [
+					{
+						"tag": "Capuchinos"
+					},
+					{
+						"tag": "Capuchins"
+					},
+					{
+						"tag": "Cavazzi"
+					},
+					{
+						"tag": "Congo"
+					},
+					{
+						"tag": "Merolla"
+					},
+					{
+						"tag": "Misioneros"
+					},
+					{
+						"tag": "Missionaries"
+					},
+					{
+						"tag": "Zucchelli"
+					}
+				],
 				"notes": [
 					{
 						"note": "abs:The objective of this research is to investigate about travel literature, particularly on the travel accounts written by the Capuchin missionaries Giovanni Antonio Cavazzi da Montecuccolo, Girolamo Merolla da Sorrento and Antonio Zucchelli da Gradisca, who participated in the Evangelization of the Kingdom of Congo in the late seventeenth century. Their texts are characterized by the recurrence to apriorisms and the use of violence toward Congolese traditions and customs. This study examines precisely the literary motifs that represents the above mentioned characteristics and, simultaneously, establishes the causes of their origin, through the distinction between narrative as a result of the real violence represented in the punitive spectacles and a imagological-moral violence, expressed through exemplary punishments., El artículo trata de literatura de viajes y más particularmente de historias de misioneros italianos de la orden de los Capuchinos, quienes trabajaron para la evangelización del Reino del Congo a fines del siglo XVII. Giovanni Antonio Cavazzi da Montecuccolo, Girolamo Merolla da Sorrento y Antonio Zucchelli da Gradisca tienen un punto en común, el de haber expresado en sus respectivos libros, manifestaciones de apriorismos y violencia contra las costumbres congoleñas. El estudio ofrece detalles literarios que reflejan estas represiones y sus emergencias. En lo sustancial, se establece una distinción entre una narración resultante de la violencia real, la de los espectáculos punitivos, y otra, imagológica-moral, expresada en castigos ejemplares."
@@ -693,11 +660,130 @@ var testCases = [
 						"mimeType": "text/html"
 					}
 				],
-				"tags": [],
+				"tags": [
+					{
+						"tag": "Diversidad religiosa"
+					},
+					{
+						"tag": "Enseñanzas religiosas"
+					},
+					{
+						"tag": "Islam"
+					},
+					{
+						"tag": "Paz"
+					},
+					{
+						"tag": "Peace"
+					},
+					{
+						"tag": "Religious diversity"
+					},
+					{
+						"tag": "Religious teachings"
+					},
+					{
+						"tag": "Violence"
+					},
+					{
+						"tag": "Violencia"
+					}
+				],
 				"notes": [
 					{
 						"note": "abs:El tema de la cultura de paz y la comunicación no violenta es sumamente importante, especialmente en la actualidad. El argumento de este artículo es que el Islam es una religión de tolerancia, paz y reconciliación. Argumentaré que hay muchos principios de la cultura de paz en el Islam. Sin embargo, esta doctrina puede malinterpretarse en algunas sociedades islámicas debido al escaso conocimiento de las enseñanzas islámicas o la educación incorrecta. Por lo tanto, necesitamos tener una verdadera interpretación de las enseñanzas religiosas, así como un verdadero enfoque de la diversidad religiosa para difundir la cultura de la paz."
 					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.scielo.cl/scielo.php?script=sci_arttext&pid=S0718-92732016000100002&lng=en&nrm=iso&tlng=en",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "La memoria histórica en los procesos de acompañamiento pastoral a personas en situación de desplazamiento",
+				"creators": [
+					{
+						"firstName": "Olga Consuelo",
+						"lastName": "Vélez",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Ángela María",
+						"lastName": "Sierra",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Oar",
+						"lastName": "Rodríguez",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Susana",
+						"lastName": "Becerra",
+						"creatorType": "author"
+					}
+				],
+				"date": "03/2016",
+				"DOI": "10.4067/S0718-92732016000100002",
+				"ISSN": "0718-9273",
+				"abstractNote": "En los procesos sociopolíticos de superación de los conflictos armados, la recuperación de la Memoria histórica está ocupando un lugar central debido al papel que está juega para una efectiva reconciliación donde la verdad, la reparación y el perdón forman parte de ese proceso. La experiencia cristiana, como comunidad de memoria tiene mucho que aportar en la medida que articule la reflexión crítica sobre qué memoria, desde dónde, desde quiénes; con el potencial liberador del Dios que se pone del lado de las víctimas y desde ellas no deja que se olvide su dolor sino que busca transformarlo. Además incorporar la perspectiva de género, permite reconocer las diferencias genéricas que influyen en la recuperación de la memoria histórica. Mostrar la relevancia de estas articulaciones, es el propósito de este artículo con la invitación a transformar la pastoral urbana que pretende acompañar a las personas en situación de desplazamiento.",
+				"language": "es",
+				"libraryCatalog": "SciELO",
+				"pages": "33-60",
+				"publicationTitle": "Veritas",
+				"url": "http://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0718-92732016000100002&lng=en&nrm=iso&tlng=en",
+				"volume": "34",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Desplazamiento"
+					},
+					{
+						"tag": "Displacement"
+					},
+					{
+						"tag": "Gender"
+					},
+					{
+						"tag": "Género"
+					},
+					{
+						"tag": "Memoria"
+					},
+					{
+						"tag": "Memory"
+					},
+					{
+						"tag": "Pastoral urbana"
+					},
+					{
+						"tag": "Urban pastoral"
+					},
+					{
+						"tag": "Victims"
+					},
+					{
+						"tag": "Víctimas"
+					}
+				],
+				"notes": [
+					{
+						"note": "abs:In socio-political processes of overcoming armed conflict, the Historical Memory is taking a central point because of the role it plays for effective reconciliation where \"truth, reparation and forgiveness\" are part of that process. Christian experience, as memory community has much to contribute to articulate the critical reflection about what memory, from where, from whom; with the liberating potential of the God who takes the side of the victims and doesn’t allow to forget them neither their pain and seeks transformation. Besides, incorporate the gender perspective, allow to recognize the gender differences and their influences in the recovery of historical memory. Show the relevance of these articulations is the purpose of this article with an invitation to transform urban pastoral in order to support displaced people."
+					},
+					"Paralleltitel:The historical memory in the process of pastoral support to displaced persons"
 				],
 				"seeAlso": []
 			}
