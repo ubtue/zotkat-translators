@@ -705,8 +705,6 @@ function performExport() {
 				addLine(currentItemId, "\\n5580", "$ADE-Tue135-3/21-fid1-DAKR-MSZK");
 			}
 			
-			
-			addLine(currentItemId, '\\n6600', 'E* l01');
 			//notes > IxTheo-Notation K10plus: 6700 wird hochgezählt und nicht wiederholt, inkrementell ab z.B. 6800, 6801, 6802 etc.
 			if (item.notes) {
 				for (i in item.notes) {
