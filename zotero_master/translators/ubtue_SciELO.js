@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-12-08 16:07:55"
+	"lastUpdated": "2021-12-14 12:59:13"
 }
 
 /*
@@ -178,6 +178,9 @@ function scrape(doc, url) {
 	if (item.ISSN == "0718-9273") {
 			getTitle(item);
 		}
+	if (item.pages && item.pages.match(/^0/)) {
+		item.pages = item.pages.replace(/^0/, '');
+	}
 	else item.complete();
 	});
 	translator.translate();
@@ -490,6 +493,61 @@ var testCases = [
 		"items": [
 			{
 				"itemType": "journalArticle",
+				"title": "Metaphysical presuppositions for a sound critical historiography applied to the biblical text",
+				"creators": [
+					{
+						"firstName": "Carlos",
+						"lastName": "Casanova",
+						"creatorType": "author"
+					}
+				],
+				"date": "03/2016",
+				"DOI": "10.4067/S0718-92732016000100006",
+				"ISSN": "0718-9273",
+				"abstractNote": "Trata sobre los presupuestos metafísicos de aceptar la Biblia como Palabra de Dios. En particular, trata sobre la posibilidad de las intervenciones divinas, de los milagros y profecías. Responde al argumento de Hobbes por el determinismo, al principio de la clausura causal del mundo, a la crítica de Hume a la posibilidad de probar un milagro y a la negación de las profecías.",
+				"language": "es",
+				"libraryCatalog": "SciELO",
+				"pages": "117-143",
+				"publicationTitle": "Veritas",
+				"url": "http://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0718-92732016000100006&lng=en&nrm=iso&tlng=es",
+				"volume": "34",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Biblia"
+					},
+					{
+						"tag": "Historicidad del Nuevo Testamento"
+					},
+					{
+						"tag": "Intervenciones divinas"
+					},
+					{
+						"tag": "Milagros"
+					},
+					{
+						"tag": "Profecías"
+					}
+				],
+				"notes": [
+					{
+						"note": "abs:This paper deals with the metaphysical presuppositions which underlie the acceptance of the Bible as the Word of God. In particular, it deals with the possibility of divine interventions, miracles and prophecies. It answers to the Hobbesian argument for determinism, to the principle of the causal closure of the world, to Hume’s criticism of the possibility to prove miracles and to the negation of prophecies."
+					},
+					"Paralleltitel:Metaphysical presuppositions for a sound critical historiography applied to the biblical text"
+				],
+				"seeAlso": []
+			},
+			{
+				"itemType": "journalArticle",
 				"title": "Presupuestos metafísicos de una sana historiografía crítica aplicada al texto bíblico",
 				"creators": [
 					{
@@ -551,6 +609,76 @@ var testCases = [
 		"items": [
 			{
 				"itemType": "journalArticle",
+				"title": "Three Capuchin missionaries in the Kingdom of Congo at the end of the 17th century: Cavazzi, Merolla and Zucchelli. Strength and prose in the stories of punitive spectacles and exemplary punishments",
+				"creators": [
+					{
+						"firstName": "José",
+						"lastName": "Sarzi Amade",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "José",
+						"lastName": "Sarzi Amade",
+						"creatorType": "author"
+					}
+				],
+				"date": "04/2018",
+				"DOI": "10.4067/S0718-92732018000100137",
+				"ISSN": "0718-9273",
+				"abstractNote": "L’article traite de littérature de voyage et plus particuliérement de récits de missionnaires italiens de l’ordre des Capucins, ayant ceuvré à 1’évangélisation du Royaume du Congo vers la fin du XVIIe siécle. Giovanm Antonio Cavazzi da Montecuccolo, Girolamo Merolla da Sorrento et Antonio Zucchelli da Gradisca ont un point commun, celuí d’avoir reporté dans leurs livres respectifs, des mamfestations d’aprionsmes, de violences à l’encontre des us et coutumes congolais. L’étude en offre les détails littéraires traduisant ees répressions et leurs surgissements. Sur le fond, elle marque une distinction entre une narration découlant d’une violence réelle, celle de spectacles pumtifs, et une autre, imagologico-morale, expnmée en chátiments exemplaires.",
+				"language": "fr",
+				"libraryCatalog": "SciELO",
+				"pages": "137-160",
+				"publicationTitle": "Veritas",
+				"shortTitle": "Three Capuchin missionaries in the Kingdom of Congo at the end of the 17th century",
+				"url": "http://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0718-92732018000100137&lng=en&nrm=iso&tlng=fr",
+				"volume": "39",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Capuchinos"
+					},
+					{
+						"tag": "Capuchins"
+					},
+					{
+						"tag": "Cavazzi"
+					},
+					{
+						"tag": "Congo"
+					},
+					{
+						"tag": "Merolla"
+					},
+					{
+						"tag": "Misioneros"
+					},
+					{
+						"tag": "Missionaries"
+					},
+					{
+						"tag": "Zucchelli"
+					}
+				],
+				"notes": [
+					{
+						"note": "abs:The objective of this research is to investigate about travel literature, particularly on the travel accounts written by the Capuchin missionaries Giovanni Antonio Cavazzi da Montecuccolo, Girolamo Merolla da Sorrento and Antonio Zucchelli da Gradisca, who participated in the Evangelization of the Kingdom of Congo in the late seventeenth century. Their texts are characterized by the recurrence to apriorisms and the use of violence toward Congolese traditions and customs. This study examines precisely the literary motifs that represents the above mentioned characteristics and, simultaneously, establishes the causes of their origin, through the distinction between narrative as a result of the real violence represented in the punitive spectacles and a imagological-moral violence, expressed through exemplary punishments., El artículo trata de literatura de viajes y más particularmente de historias de misioneros italianos de la orden de los Capuchinos, quienes trabajaron para la evangelización del Reino del Congo a fines del siglo XVII. Giovanni Antonio Cavazzi da Montecuccolo, Girolamo Merolla da Sorrento y Antonio Zucchelli da Gradisca tienen un punto en común, el de haber expresado en sus respectivos libros, manifestaciones de apriorismos y violencia contra las costumbres congoleñas. El estudio ofrece detalles literarios que reflejan estas represiones y sus emergencias. En lo sustancial, se establece una distinción entre una narración resultante de la violencia real, la de los espectáculos punitivos, y otra, imagológica-moral, expresada en castigos ejemplares."
+					},
+					"Paralleltitel:Three Capuchin missionaries in the Kingdom of Congo at the end of the 17th century: Cavazzi, Merolla and Zucchelli. Strength and prose in the stories of punitive spectacles and exemplary punishments"
+				],
+				"seeAlso": []
+			},
+			{
+				"itemType": "journalArticle",
 				"title": "Trois missionnaires capucins dans le Royaume de Congo de la fin du XVIIe siècle: Cavazzi, Merolla et Zucchelli. Force et prose dans les récits de spectacles punitifs et de châtiments exemplaires",
 				"creators": [
 					{
@@ -572,7 +700,7 @@ var testCases = [
 				"libraryCatalog": "SciELO",
 				"pages": "137-160",
 				"publicationTitle": "Veritas",
-				"shortTitle": "Trois missionnaires capucins dans le Royaume de Congo de la fin du XVIIe siècle",
+				"shortTitle": "Three Capuchin missionaries in the Kingdom of Congo at the end of the 17th century",
 				"url": "http://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0718-92732018000100137&lng=en&nrm=iso&tlng=fr",
 				"volume": "39",
 				"attachments": [
@@ -695,6 +823,77 @@ var testCases = [
 					}
 				],
 				"seeAlso": []
+			},
+			{
+				"itemType": "journalArticle",
+				"title": "La cultura de la paz y la tolerancia religiosa desde una perspectiva islámica",
+				"creators": [
+					{
+						"firstName": "Abbas",
+						"lastName": "Yazdani",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Abbas",
+						"lastName": "Yazdani",
+						"creatorType": "author"
+					}
+				],
+				"date": "12/2020",
+				"DOI": "10.4067/S0718-92732020000300151",
+				"ISSN": "0718-9273",
+				"abstractNote": "The subject of the culture of peace and non-violent communication is extremely important, even more so today than in the past. The contention of this paper is that Islam is a religion of tolerance, peace, and reconciliation. I shall argue that there are many principles of the culture of peace in Islam. However, this doctrine may be misunderstood in some Islamic societies due to the poor knowledge of Islamic teachings or wrong education. Therefore, we strongly need to have a true interpretation of religious teachings as well as a true approach to religious diversity to provide the culture of peace.",
+				"language": "en",
+				"libraryCatalog": "SciELO",
+				"pages": "151-168",
+				"publicationTitle": "Veritas",
+				"url": "http://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0718-92732020000300151&lng=en&nrm=iso&tlng=en",
+				"volume": "47",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Diversidad religiosa"
+					},
+					{
+						"tag": "Enseñanzas religiosas"
+					},
+					{
+						"tag": "Islam"
+					},
+					{
+						"tag": "Paz"
+					},
+					{
+						"tag": "Peace"
+					},
+					{
+						"tag": "Religious diversity"
+					},
+					{
+						"tag": "Religious teachings"
+					},
+					{
+						"tag": "Violence"
+					},
+					{
+						"tag": "Violencia"
+					}
+				],
+				"notes": [
+					{
+						"note": "abs:El tema de la cultura de paz y la comunicación no violenta es sumamente importante, especialmente en la actualidad. El argumento de este artículo es que el Islam es una religión de tolerancia, paz y reconciliación. Argumentaré que hay muchos principios de la cultura de paz en el Islam. Sin embargo, esta doctrina puede malinterpretarse en algunas sociedades islámicas debido al escaso conocimiento de las enseñanzas islámicas o la educación incorrecta. Por lo tanto, necesitamos tener una verdadera interpretación de las enseñanzas religiosas, así como un verdadero enfoque de la diversidad religiosa para difundir la cultura de la paz."
+					}
+				],
+				"seeAlso": []
 			}
 		]
 	},
@@ -702,6 +901,91 @@ var testCases = [
 		"type": "web",
 		"url": "https://www.scielo.cl/scielo.php?script=sci_arttext&pid=S0718-92732016000100002&lng=en&nrm=iso&tlng=en",
 		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "The historical memory in the process of pastoral support to displaced persons",
+				"creators": [
+					{
+						"firstName": "Olga Consuelo",
+						"lastName": "Vélez",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Ángela María",
+						"lastName": "Sierra",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Oar",
+						"lastName": "Rodríguez",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Susana",
+						"lastName": "Becerra",
+						"creatorType": "author"
+					}
+				],
+				"date": "03/2016",
+				"DOI": "10.4067/S0718-92732016000100002",
+				"ISSN": "0718-9273",
+				"abstractNote": "En los procesos sociopolíticos de superación de los conflictos armados, la recuperación de la Memoria histórica está ocupando un lugar central debido al papel que está juega para una efectiva reconciliación donde la verdad, la reparación y el perdón forman parte de ese proceso. La experiencia cristiana, como comunidad de memoria tiene mucho que aportar en la medida que articule la reflexión crítica sobre qué memoria, desde dónde, desde quiénes; con el potencial liberador del Dios que se pone del lado de las víctimas y desde ellas no deja que se olvide su dolor sino que busca transformarlo. Además incorporar la perspectiva de género, permite reconocer las diferencias genéricas que influyen en la recuperación de la memoria histórica. Mostrar la relevancia de estas articulaciones, es el propósito de este artículo con la invitación a transformar la pastoral urbana que pretende acompañar a las personas en situación de desplazamiento.",
+				"language": "es",
+				"libraryCatalog": "SciELO",
+				"pages": "33-60",
+				"publicationTitle": "Veritas",
+				"url": "http://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0718-92732016000100002&lng=en&nrm=iso&tlng=en",
+				"volume": "34",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Desplazamiento"
+					},
+					{
+						"tag": "Displacement"
+					},
+					{
+						"tag": "Gender"
+					},
+					{
+						"tag": "Género"
+					},
+					{
+						"tag": "Memoria"
+					},
+					{
+						"tag": "Memory"
+					},
+					{
+						"tag": "Pastoral urbana"
+					},
+					{
+						"tag": "Urban pastoral"
+					},
+					{
+						"tag": "Victims"
+					},
+					{
+						"tag": "Víctimas"
+					}
+				],
+				"notes": [
+					{
+						"note": "abs:In socio-political processes of overcoming armed conflict, the Historical Memory is taking a central point because of the role it plays for effective reconciliation where \"truth, reparation and forgiveness\" are part of that process. Christian experience, as memory community has much to contribute to articulate the critical reflection about what memory, from where, from whom; with the liberating potential of the God who takes the side of the victims and doesn’t allow to forget them neither their pain and seeks transformation. Besides, incorporate the gender perspective, allow to recognize the gender differences and their influences in the recovery of historical memory. Show the relevance of these articulations is the purpose of this article with an invitation to transform urban pastoral in order to support displaced people."
+					},
+					"Paralleltitel:The historical memory in the process of pastoral support to displaced persons"
+				],
+				"seeAlso": []
+			},
 			{
 				"itemType": "journalArticle",
 				"title": "La memoria histórica en los procesos de acompañamiento pastoral a personas en situación de desplazamiento",
@@ -785,6 +1069,67 @@ var testCases = [
 					},
 					"Paralleltitel:The historical memory in the process of pastoral support to displaced persons"
 				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0718-92732016000100001&lng=en&nrm=iso&tlng=es",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Entre la oscuridad y el silencio: ciegos y sordomudos en el mundo de la Biblia",
+				"creators": [
+					{
+						"firstName": "Casas",
+						"lastName": "Ramírez",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Juan",
+						"lastName": "Alberto",
+						"creatorType": "author"
+					}
+				],
+				"date": "03/2016",
+				"DOI": "10.4067/S0718-92732016000100001",
+				"ISSN": "0718-9273",
+				"language": "es",
+				"libraryCatalog": "SciELO",
+				"pages": "9-32",
+				"publicationTitle": "Veritas",
+				"shortTitle": "Entre la oscuridad y el silencio",
+				"url": "http://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0718-92732016000100001&lng=en&nrm=iso&tlng=es",
+				"volume": "34",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Antropología bíblica"
+					},
+					{
+						"tag": "Ceguera en la Biblia"
+					},
+					{
+						"tag": "Discapacidad en la Biblia"
+					},
+					{
+						"tag": "Enfermedad en la Biblia"
+					},
+					{
+						"tag": "Sordera en la Biblia curación en la Biblia"
+					}
+				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
