@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-06-23 09:36:13"
+	"lastUpdated": "2021-12-16 10:27:34"
 }
 
 /*
@@ -80,7 +80,13 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 				item.issue = issueAndVol[2];
 			}
 		}
-		if (item.ISSN == '0335-5985') {
+		//issue number as volume
+		if (item.issue && item.ISSN == '1972-2516') {
+			item.volume = item.issue;
+			delete item.issue;
+		}
+		
+		if (['0335-5985'].includes(item.ISSN)) {
 				item.abstractNote == '';
 			let abstractTags = ZU.xpath(doc, '//meta[@name="description"]');
 			for (let i in abstractTags) {
@@ -210,6 +216,50 @@ var testCases = [
 		"type": "web",
 		"url": "https://journals.openedition.org/assr/51596",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://journals.openedition.org/mythos/3818",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Immagini religiose nel mondo romano. Nove saggi",
+				"creators": [
+					{
+						"firstName": "Claudia",
+						"lastName": "Beltrão",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Federico",
+						"lastName": "Santangelo",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/12/15",
+				"ISSN": "1972-2516",
+				"abstractNote": "Qual è il ruolo delle immagini nelle dinamiche religiose, e come occorre valutarne l’importanza? Creare l’immagine di una divinità o renderla visibile ha un impatto sulla prassi, sulla devozione religiosa e sulla più vasta riflessione che le accompagna e le sostiene; conferisce inoltre all’essere divino un grado di presenza nella dimensione materiale. Il linguaggio delle immagini, gli elementi iconografici, le concezioni spaziali e l’uso stesso dello spazio creano modalità di visibilità, di p...",
+				"language": "it",
+				"libraryCatalog": "journals.openedition.org",
+				"publicationTitle": "Mythos. Rivista di Storia delle Religioni",
+				"rights": "Mythos",
+				"url": "http://journals.openedition.org/mythos/3818",
+				"volume": "15",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
