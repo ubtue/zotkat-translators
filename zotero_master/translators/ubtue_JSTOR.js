@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-05-05 10:11:21"
+	"lastUpdated": "2021-12-16 11:50:18"
 }
 
 /*
@@ -41,7 +41,7 @@ function attr(docOrElem,selector,attr,index){var elem=index?docOrElem.querySelec
 
 function detectWeb(doc, url) {
 	// See if this is a search results page or Issue content
-	if (doc.title == "JSTOR: Search Results") {
+	if (doc.title == "JSTOR: Search Results" || url.includes('www.jstor.org/stable/')) {
 		return getSearchResults(doc, true) ? "multiple" : false;
 	}
 	else if (/stable|pss/.test(url) // Issues with DOIs can't be identified by URL
@@ -739,6 +739,42 @@ var testCases = [
 				"shortTitle": "Review of The Communards of Paris, 1871; The Paris Commune of 1871",
 				"url": "https://www.jstor.org/stable/40401968",
 				"volume": "40",
+				"attachments": [
+					{
+						"title": "JSTOR Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.jstor.org/stable/10.2979/antistud.3.1.03",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Luther and the Jews",
+				"creators": [
+					{
+						"lastName": "Kaufmann",
+						"firstName": "Thomas",
+						"creatorType": "author"
+					}
+				],
+				"date": "2019",
+				"DOI": "10.2979/antistud.3.1.03",
+				"ISSN": "2474-1809",
+				"abstractNote": "Martin Luther's relationship to the Jewish people was primarily theological and underwent dramatic changes throughout his lifetime. In the early 1520s, he emphasized the responsibility of the Papal Church for the failure to convert the Jews to Christianity. In the 1540s, he fought for the subjugation of Jewish people and their expulsion from Protestant territories. This article reconstructs the reception of Luther's anti-Jewish writings in late 19th and early 20th century Germany. Even before the rise of National Socialism, racist antisemites made use of Luther's repressive ideas, culminating in the burning of synagogues.",
+				"issue": "1",
+				"libraryCatalog": "ubtue_JSTOR",
+				"pages": "46-65",
+				"publicationTitle": "Antisemitism Studies",
+				"url": "https://www.jstor.org/stable/10.2979/antistud.3.1.03",
+				"volume": "3",
 				"attachments": [
 					{
 						"title": "JSTOR Full Text PDF",
