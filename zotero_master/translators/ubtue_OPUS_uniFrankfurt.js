@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 12,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-12-02 16:52:39"
+	"lastUpdated": "2021-12-16 18:39:49"
 }
 
 /*
@@ -198,6 +198,7 @@ function processRIS(text, doc) {
 		Z.debug(item.date);
 		if (item.volume == undefined || item.volume == item.date) {
 			item.volume = item.issue;
+			if (item.ISSN == '1434-5935') item.notes.push("artikelID:" + item.issue);
 			item.issue = '';
 		}
 		let language = ZU.xpathText(doc, '//tr[contains(./th[@class="name"], "Sprache")]//td');
