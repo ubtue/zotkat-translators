@@ -243,6 +243,8 @@ function addLine(itemid, code, value) {
 // this should be called at end of each element,
 // and also when all async calls are finished (only when runningThreadCount == 0)
 function WriteItems() {
+	var batchUpload = false;
+	if (itemsOutputCache.length > 1) batchUpload = true;
     itemsOutputCache.forEach(function(element, index) {
         // sort first, codes might be unsorted due to async stuff
         element.sort();
@@ -259,7 +261,12 @@ function WriteItems() {
         if(index > 0) {
             Zotero.write("\n");
         }
-        Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + cleanElement.join("") + "\n");
+		if (batchUpload) Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + cleanElement.join("") + '");\napplication.activeWindow.pressButton("Enter");\n\n');
+		else {
+			var elementString = cleanElement.join("");
+			elementString = elementString.replace(/\\n/g, '\n');
+			Zotero.write(elementString);
+		}
     });
 }
 
@@ -833,7 +840,8 @@ function performExport() {
 					if (item.notes[i].note.includes('orcid')) addLine(currentItemId, "\\n8910", '$aixzom$b'+item.notes[i].note);
 				}
 			}
-			addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo");\napplication.activeWindow.pressButton("Enter");\n\n', ""); //K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
+			addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo', ""); 
+			//K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
         }
     }
 
