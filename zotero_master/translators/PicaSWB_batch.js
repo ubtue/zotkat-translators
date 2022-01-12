@@ -233,7 +233,7 @@ function addLine(itemid, code, value) {
 	
 
 	//call the function EscapeNonASCIICharacters
-	value = EscapeNonASCIICharacters(value);
+	//value = EscapeNonASCIICharacters(value);
 
     //Zeile zusammensetzen
     var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Reviews').replace('|f|Book Reviews, Book Review', '|f|Book Reviews').replace('https://doi.org/https://doi.org/', 'https://doi.org/').replace(/@\s/, '@').replace('abs1:', '').replace('doi:https://doi.org/', '').replace('handle:https://hdl.handle.net/', '');
@@ -261,7 +261,11 @@ function WriteItems() {
         if(index > 0) {
             Zotero.write("\n");
         }
-		if (batchUpload) Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + cleanElement.join("") + '");\napplication.activeWindow.pressButton("Enter");\n\n');
+		if (batchUpload) {
+			let writeString = cleanElement.join("");
+			writeString = EscapeNonASCIICharacters(writeString);
+			Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + writeString + '");\napplication.activeWindow.pressButton("Enter");\n\n');
+		}
 		else {
 			var elementString = cleanElement.join("");
 			elementString = elementString.replace(/\\n/g, '\n');
