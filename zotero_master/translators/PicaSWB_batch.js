@@ -232,9 +232,6 @@ function addLine(itemid, code, value) {
 	//}
 	
 
-	//call the function EscapeNonASCIICharacters
-	//value = EscapeNonASCIICharacters(value);
-
     //Zeile zusammensetzen
 	if (value == undefined) {
 		value = "Für Feld " +  code.replace(/\\n/, '') + " wurde kein Eintrag hinterlegt";
