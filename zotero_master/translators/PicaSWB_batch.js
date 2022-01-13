@@ -67,7 +67,7 @@ var journal_title_to_language_code = {
 
 /* =============================================================================================================== */
 // ab hier Programmcode
-var defaultSsgNummer = "";
+var defaultSsgNummer = undefined;
 var defaultLanguage = "eng";
 
 //lokaldatensatz z.B. \\n6700 !372049834!\\n6700 !37205241X!\\n6700 !372053025!\\n6700!37205319X!
@@ -236,6 +236,10 @@ function addLine(itemid, code, value) {
 	//value = EscapeNonASCIICharacters(value);
 
     //Zeile zusammensetzen
+	if (value == undefined) {
+		value = "Für Feld " +  code.replace(/\\n/, '') + " wurde kein Eintrag hinterlegt";
+		code = '\\nxxxx';
+	}
     var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Reviews').replace('|f|Book Reviews, Book Review', '|f|Book Reviews').replace('https://doi.org/https://doi.org/', 'https://doi.org/').replace(/@\s/, '@').replace('abs1:', '').replace('doi:https://doi.org/', '').replace('handle:https://hdl.handle.net/', '');
     itemsOutputCache[itemid].push(line);
 }
@@ -245,6 +249,7 @@ function addLine(itemid, code, value) {
 function WriteItems() {
 	var batchUpload = false;
 	if (itemsOutputCache.length > 1) batchUpload = true;
+	let errorString = "";
     itemsOutputCache.forEach(function(element, index) {
         // sort first, codes might be unsorted due to async stuff
         element.sort();
@@ -255,6 +260,9 @@ function WriteItems() {
 			if (toDelete != null) {
 				line = line.replace(toDelete[1], '');
 			}
+			if (line.match(/\\nxxxx /) != null) {
+				errorString += line.substring(7, line.length) + '\\n';
+			}
 			cleanElement.push(line);
 		}
         // implode + write
@@ -264,7 +272,13 @@ function WriteItems() {
 		if (batchUpload) {
 			let writeString = cleanElement.join("");
 			writeString = EscapeNonASCIICharacters(writeString);
+			if (errorString != "") {
+				Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + writeString + '");')
+				Zotero.write("application.messageBox('Fehler beim Export aus Zotero', '" + errorString + "', 'error-icon')");
+			}
+			else {
 			Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + writeString + '");\napplication.activeWindow.pressButton("Enter");\n\n');
+			}
 		}
 		else {
 			var elementString = cleanElement.join("");
@@ -343,7 +357,6 @@ function performExport() {
 				article = true;
 				break;
 		}
-
 		//item.type --> 0500 Bibliographische Gattung und Status K10Plus: 0500 das "o" an der 2. Stelle muss in ein "s" geändert werden
 		//http://swbtools.bsz-bw.de/winibwhelp/Liste_0500.htm
 		switch (true) {
@@ -791,9 +804,11 @@ function performExport() {
         if (item.itemType == "journalArticle" || item.itemType == "magazineArticle") {
             if (superiorPPN.length != 0) {
                 addLine(currentItemId, "\\n4241", "Enthalten in" + superiorPPN);
-            } else if (item.publicationTitle) {
+            } else if (journalTitlePPN.length != 0) {
                 addLine(currentItemId, "\\n4241", "Enthalten in" + journalTitlePPN);
             }
+			else addLine(currentItemId, "\\n4241", undefined);
+			
 
             //4261 Themenbeziehungen (Beziehung zu der Veröffentlichung, die beschrieben wird)|case:magazineArticle
             if (item.itemType == "magazineArticle") {
