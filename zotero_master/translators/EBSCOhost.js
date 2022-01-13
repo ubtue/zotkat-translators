@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsib",
-	"lastUpdated": "2021-12-17 16:10:32"
+	"lastUpdated": "2022-01-13 11:07:49"
 }
 
 /*
@@ -43,8 +43,7 @@ function detectWeb(doc, url) {
 		return "multiple";
 	}
 
-	var persistentLink = doc.getElementsByClassName("permalink-link");
-	if (persistentLink.length && persistentLink[0].nodeName.toUpperCase() == 'A') {
+	if (doc.querySelector("a.permalink-link")) {
 		return "journalArticle";
 	}
 	else if (ZU.xpathText(doc, '//section[@class="record-header"]/h2')) {
@@ -83,6 +82,25 @@ function downloadFunction(text, url, prefs) {
 	// hopefully EBCSOhost doesn't use this for anything useful
 	text = text.replace(/^M3\s\s?-.*/gm, '');
 	
+	// we'll save this for later, in case we have to throw away a subtitle
+	// from the RIS
+	let subtitle;
+	
+	// EBSCOhost uses nonstandard tags to represent journal titles on some items
+	// no /g flag so we don't create duplicate tags
+	let journalRe = /^(JO|JF|J1)/m;
+	if (journalRe.test(text)) {
+		let subtitleRe = /^T2\s\s?-\s?(.*)/m;
+		let subtitleMatch = text.match(subtitleRe);
+		if (subtitleMatch) {
+			// if there's already something in T2, store it and erase it from the RIS
+			subtitle = subtitleMatch[1];
+			text = text.replace(subtitleRe, '');
+		}
+		
+		text = text.replace(journalRe, 'T2');
+	}
+	
 	// Let's try to keep season info
 	// Y1  - 1993///Winter93
 	// Y1  - 2009///Spring2009
@@ -91,13 +109,13 @@ function downloadFunction(text, url, prefs) {
 		/^(Y1\s+-\s+(\d{2})(\d{2})\/\/\/)(?:\2?\3(.+)|(.+?)\2?\3)\s*$/m);
 	season = season && (season[4] || season[5]);
 	
-	
 	// load translator for RIS
 	var translator = Zotero.loadTranslator("import");
 	translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
 	translator.setString(text);
 	// eslint-disable-next-line padded-blocks
 	translator.setHandler("itemDone", function (obj, item) {
+		
 		/* Fix capitalization issues */
 		// title
 		if (!item.title && prefs.itemTitle) {
@@ -110,8 +128,11 @@ function downloadFunction(text, url, prefs) {
 			if (item.title.toUpperCase() == item.title) {
 				item.title = ZU.capitalizeTitle(item.title, true);
 			}
+			item.language = prefs.languageTag;
+			if (subtitle) {
+				item.title += `: ${subtitle}`;
+			}
 		}
-		item.language = prefs.languageTag;
 
 		// authors
 		var fn, ln;
@@ -168,7 +189,7 @@ function downloadFunction(text, url, prefs) {
 		}
 		}
 		item.publicationTitle = item.journalAbbreviation;
-		
+		if (item.ISSN == "05801400") item.publicationTitle = "Münchener Theologische Zeitschrift";
 		if (item.url) {
 			// Trim the ⟨=cs suffix -- EBSCO can't find the record with it!
 			item.url = item.url.replace(/(AN=[0-9]+)⟨=[a-z]{2}/, "$1")
@@ -218,6 +239,11 @@ function downloadFunction(text, url, prefs) {
 
 				ZU.processDocuments(pdf,
 					function (pdfDoc) {
+						if (!isCorrectViewerPage(pdfDoc)) {
+							Z.debug('PDF viewer page doesn\'t appear to be serving the correct PDF. Skipping PDF attachment.');
+							return;
+						}
+						
 						var realpdf = findPdfUrl(pdfDoc);
 						if (realpdf) {
 							item.attachments.push({
@@ -345,6 +371,21 @@ function urlToArgs(url) {
 	}
 
 	return args;
+}
+
+// given a PDF viewer document, returns whether it appears to be displaying
+// the correct PDF corresponding to the requested item. EBSCO sometimes returns
+// the PDF for a previously viewed item when the current item doesn't have an
+// associated PDF, but it won't serve metadata on the PDF viewer page in these
+// cases.
+function isCorrectViewerPage(pdfDoc) {
+	let citationAmplitude = attr(pdfDoc, 'a[name="citation"][data-amplitude]', 'data-amplitude');
+	if (!citationAmplitude || !citationAmplitude.startsWith('{')) {
+		Z.debug('PDF viewer page structure has changed - assuming PDF is correct');
+		return true;
+	}
+	
+	return !!JSON.parse(citationAmplitude).result_index;
 }
 
 // given a pdfviewer page, extracts the PDF url
@@ -531,14 +572,16 @@ function doDelivery(doc, itemInfo) {
 	}
 	let languageMap = {"Afrikaans": "afr", "Arabic": "ara", "Danish": "dan", "Dutch": "dut", "German": "ger", "English": "eng", "French": "fre", "Greek": "gre", "Italian": "ita", "Malay": "may", "Portuguese": "por", "Romanian": "ron", "Russian": "rus", "Spanish": "spa", "Serbian": "srp", "Turkish": "tur"};
 	let newTest = ZU.xpathText(doc, '//div[@class="citation-wrapping-div "]');
-	let language = newTest.match(/Language:(.+?)Authors:/);
+	let language = newTest.match(/Language:(.+?)(?:(?:Authors:)|(?:Language\s+Note:))/);
 	prefs.languageTag = '';
-	if (language.length > 0) {
+	// Vorsicht, das kann zu Problemen führen!
+	if (language != null) {
 		languageName = language[1];
 		if (languageName in languageMap) {
 			prefs.languageTag = languageMap[languageName];
 		}
 	}
+
 	var postURL = ZU.xpathText(doc, '//form[@id="aspnetForm"]/@action');
 	if (!postURL) {
 		postURL = doc.location.href; // fallback for mobile site
@@ -556,4 +599,6 @@ function doDelivery(doc, itemInfo) {
 	});
 }
 
-
+/** BEGIN TEST CASES **/
+var testCases = []
+/** END TEST CASES **/
