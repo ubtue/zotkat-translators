@@ -2,14 +2,14 @@
 	"translatorID": "a5d5ca83-b975-4abe-86c9-d956d7b9c8fa",
 	"label": "ubtue_Open Journal Systems Standard",
 	"creator": "Timotheus Kim",
-	"target": "/(article|issue)/(view)?",
+	"target": "\\/(article|issue)\\/(view)?",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-12-01 09:27:24"
+	"lastUpdated": "2022-01-13 12:56:56"
 }
 
 /*
@@ -38,7 +38,7 @@ function getSearchResults(doc, url) {
 	var found = false;
 	var rows = doc.querySelectorAll('.title a[href*="/view/"], .title a[href*="/catalog/"], \
 		.tocTitle a[href*="/view/"], .tocTitle a[href*="/catalog/"], .media-heading a[href*="/view/"]');
-	if (rows.length == 0 && url.match(/otwsa-otssa/)) {
+	if (rows.length == 0 && url.match(/(otwsa-otssa)|(koersjournal)/)) {
 		rows = ZU.xpath(doc, '//div[@class="article-summary-title"]//a');
 	}
 	for (let row of rows) {
@@ -153,22 +153,21 @@ function invokeEMTranslator(doc) {
   		 	for (let c of orcidAuthorEntryCaseC) {
   				if (c && c.innerHTML.match(/\d+-\d+-\d+-\d+x?/gi)) {
   					let author = c.innerHTML.match(/(<span>.*<\/span>.*https?:\/\/orcid\.org\/\d+-\d+-\d+-\d+x?)/gi).toString().replace('<a class="orcidImage" href="', '');//Z.debug(author + '   CCC2')
- 					i.notes.push({note: ZU.unescapeHTML(ZU.trimInternal(author)).replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
+ 					i.notes.push({note: ZU.unescapeHTML(ZU.trimInternal(author)).replace(/https?:\/\/orcid\.org\//g, ' | orcid:').replace('+−', '') + ' | ' + 'taken from website'});
   				}
   			}
   		}
-
+		
+		
  		if (i.pages !== undefined) {
 			let pageNumberFromDC = ZU.xpathText(doc, '//meta[@name="DC.Identifier.pageNumber"]/@content');
 			//if the first page number matches the results of second page number (see regex "\1") e.g. 3-3,
 			//then replace the range with a first page number e.g 3 
 			i.pages = pageNumberFromDC.trim().replace(/^([^-]+)-\1$/, '$1');
  		}
- 		
  		if (ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content') && i.date.length !== 4 && i.ISSN == '1983-2850') {
 			i.date = ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content').substr(0, 4);
 		}
-		
 		if (i.issue === "0") delete i.issue;
 		if (i.volume === "0") delete i.volume;
 		if (i.abstractNote == undefined) {
@@ -258,6 +257,14 @@ function invokeEMTranslator(doc) {
 				i.DOI = i.abstractNote.substring(i.abstractNote.indexOf('https:\/\/doi\.org'), i.abstractNote.length).replace('https://doi.org/', '');
 			}
 		}
+		if (i.ISSN == "2304-8557") {
+			let abstractSplitter = /(?:\nAbstract\s?)|(?:\nOpsomming\s?)/;
+			let splittingString = i.abstractNote.match(abstractSplitter);
+			if (splittingString != null) {
+				i.abstractNote = i.abstractNote.replace(splittingString, '\\n4207 ');
+			};
+			i.abstractNote = i.abstractNote.replace(/[^\\](\n)/g, " ");
+		}
 		let sansidoroAbstract = ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content');
 		if (sansidoroAbstract && sansidoroAbstract.match(/isidorianum\/article\/view/)) {
 		//multi language abstract e.g. https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/147
@@ -266,6 +273,7 @@ function invokeEMTranslator(doc) {
 				let abstractES = ZU.xpathText(doc, '//meta[@name="DC.Description"][2]/@content').trim();
 				i.abstractNote = abstractEN + '\\n4207 ' + abstractES;
 			}
+			
 			//english keywords e.g. https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/147
 			let dcSourceURI = ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content');
 			let dcArticleURI = ZU.xpathText(doc, '//meta[@name="DC.Identifier.URI"]/@content');
@@ -281,7 +289,9 @@ function invokeEMTranslator(doc) {
 				i.complete();
 			});
 		}
-		else i.complete();
+		else {
+			i.complete();
+		}
 	});
 	translator.translate();
 }
