@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsib",
-	"lastUpdated": "2022-01-13 15:42:07"
+	"lastUpdated": "2022-01-21 11:14:40"
 }
 
 /*
@@ -80,7 +80,8 @@ function downloadFunction(text, url, prefs) {
 	}
 	// remove M3 so it does not interfere with DOI.
 	// hopefully EBCSOhost doesn't use this for anything useful
-	text = text.replace(/^M3\s\s?-.*/gm, '');
+	// clean L2 due to "TypeError: URL constructor: https://digital.journalworship.org (Subscriber access); is not a valid URL."
+	text = text.replace(/^M3\s\s?-.*/gm, '').replace(/(^L2\s\s?-.*\s)(\(Subscriber access\)\;?)/gm,'$1');
 	
 	// we'll save this for later, in case we have to throw away a subtitle
 	// from the RIS
@@ -600,5 +601,63 @@ function doDelivery(doc, itemInfo) {
 }
 
 /** BEGIN TEST CASES **/
-var testCases = []
+var testCases = [
+	{
+		"type": "web",
+		"url": "https://web.s.ebscohost.com/ehost/detail/detail?vid=0&sid=2dd9ea70-61d3-4a66-a974-7034a590e3ad%40redis&bdata=JnNpdGU9ZWhvc3QtbGl2ZQ%3d%3d#db=reh&AN=ATLAiACO210125000692",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Original Sin, Baptism and the New Cosmology",
+				"creators": [
+					{
+						"lastName": "Vincie",
+						"firstName": "Catherine",
+						"creatorType": "author"
+					}
+				],
+				"date": "January 2021",
+				"ISSN": "0043941X",
+				"libraryCatalog": "EBSCOhost",
+				"pages": "51-71",
+				"url": "http://www.redi-bw.de/db/ebsco.php/search.ebscohost.com/login.aspx%3fdirect%3dtrue%26db%3dreh%26AN%3dATLAiACO210125000692%26site%3dehost-live",
+				"volume": "95",
+				"attachments": [
+					{
+						"title": "Full Text (HTML)",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Baptism --   History of doctrines"
+					},
+					{
+						"tag": "Bible  . Genesis--Theology"
+					},
+					{
+						"tag": "Cosmology, Christian"
+					},
+					{
+						"tag": "Domning, Daryl P"
+					},
+					{
+						"tag": "Edwards, Denis,   , 1943-2019"
+					},
+					{
+						"tag": "Mahoney, John,   , 1931-"
+					},
+					{
+						"tag": "Religion and science"
+					},
+					{
+						"tag": "Sin, Original --   History of doctrines"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	}
+]
 /** END TEST CASES **/
