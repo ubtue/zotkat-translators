@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-01-13 16:52:46"
+	"lastUpdated": "2022-01-27 12:07:42"
 }
 
 /*
@@ -173,7 +173,6 @@ function invokeEMTranslator(doc) {
   			}
   		}
 		
-		
  		if (i.pages !== undefined) {
 			let pageNumberFromDC = ZU.xpathText(doc, '//meta[@name="DC.Identifier.pageNumber"]/@content');
 			//if the first page number matches the results of second page number (see regex "\1") e.g. 3-3,
@@ -280,6 +279,7 @@ function invokeEMTranslator(doc) {
 			};
 			i.abstractNote = i.abstractNote.replace(/[^\\](\n)/g, " ");
 		}
+		if (i.abstractNote == ', ' || i.abstractNote == ',') i.abstractNote = "";
 		let sansidoroAbstract = ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content');
 		if (sansidoroAbstract && sansidoroAbstract.match(/isidorianum\/article\/view/)) {
 		//multi language abstract e.g. https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/147
