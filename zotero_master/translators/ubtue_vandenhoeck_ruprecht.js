@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-01-27 15:21:36"
+	"lastUpdated": "2022-01-27 15:26:28"
 }
 
 /*
@@ -160,3 +160,45 @@ function scrape(doc, url) {
 		});
 	});
 }
+/** BEGIN TEST CASES **/
+var testCases = [
+	{
+		"type": "web",
+		"url": "https://www.vr-elibrary.de/doi/10.13109/9783666703034.8",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "»Die Sprache, mit der ich Gott beschreiben könnte, gibt es nicht« ? Gedanken von Kindern, Jugendlichen und jungen Erwachsenen",
+				"creators": [
+					{
+						"lastName": "Menne",
+						"firstName": "Andreas",
+						"creatorType": "author"
+					}
+				],
+				"date": "September 5, 2021",
+				"DOI": "10.13109/9783666703034.8",
+				"ISSN": "2567-9384",
+				"extra": "DOI: 10.13109/9783666703034.8",
+				"language": "de",
+				"libraryCatalog": "ubtue_vandenhoeck_ruprecht",
+				"pages": "8-13",
+				"publicationTitle": "Jahrbuch der Religionspädagogik (JRP)",
+				"series": "Jahrbuch der Religionspädagogik (JRP)",
+				"shortTitle": "»Die Sprache, mit der ich Gott beschreiben könnte, gibt es nicht« ?",
+				"url": "https://www.vr-elibrary.de/doi/10.13109/9783666703034.8",
+				"volume": "37",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.vr-elibrary.de/doi/book/10.13109/9783666703034",
+		"items": "multiple"
+	}
+]
+/** END TEST CASES **/
