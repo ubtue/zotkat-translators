@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-05-04 13:34:47"
+	"lastUpdated": "2022-01-27 15:26:28"
 }
 
 /*
@@ -31,7 +31,8 @@
 */
 
 function detectWeb(doc, url) {
-	if (url.includes('/doi/')) return "journalArticle";
+	if (url.includes('/doi/book/') && getSearchResults(doc)) return "multiple";
+	else if (url.includes('/doi/')) return "journalArticle";
 	else if (url.includes('/toc/') && getSearchResults(doc)) return "multiple";
 	else return false;
 }
@@ -51,6 +52,7 @@ function getSearchResults(doc) {
 }
 
 function doWeb(doc, url) {
+	Z.debug(detectWeb(doc, url));
 	if (detectWeb(doc, url) === "multiple") {
 		Zotero.selectItems(getSearchResults(doc), function (items) {
 			if (!items) {
@@ -110,7 +112,20 @@ function scrape(doc, url) {
 				}
 				
 				item.url = url;
-				
+				if (ZU.xpathText(doc, '//span[@class="citation__access__type"]') != null) {
+					if (ZU.xpathText(doc, '//span[@class="citation__access__type"]').match(/(open(\s+)?access)|(kostenlos)/i)) {
+						item.notes.push('LF:');
+					}
+				}
+				let authorTags = ZU.xpath(doc, '//div[contains(@class, "accordion-tabbed__tab-mobile")]');
+				for (let authorTag of authorTags) {
+					if (ZU.xpathText(authorTag, './/a[@class="orcid-link"]') != null) {
+						let author = ZU.xpathText(authorTag, './a/@title');
+						let orcid = ZU.xpathText(authorTag, './/a[@class="orcid-link"]');
+						orcid = orcid.replace('https://orcid.org/', '')
+					item.notes.push({note: "orcid:" + orcid + ' | ' + author});	
+					}
+				}
 				//book review
 				let docType = ZU.xpathText(doc, '//meta[@name="dc.Type"]/@content');
 				if (docType === "book-review")
@@ -120,12 +135,22 @@ function scrape(doc, url) {
 					if (metaLang && metaLang.getAttribute("content"))
 						item.language = metaLang.getAttribute("content")
 				}
-				//
 				let switchToDE = "https://www.vr-elibrary.de/action/doLocaleChange?locale=de&requestUri=/doi/"+ doi;
 					ZU.processDocuments(switchToDE, function (url) {
 						let scrapeAbstractsDE = ZU.xpathText(url, '//*[contains(concat( " ", @class, " " ), concat( " ", "abstractInFull", " " ))]');
 						if (scrapeAbstractsDE) {
 							item.abstractNote = ZU.trimInternal(scrapeAbstractsDE.replace(/^(abstract|zusammenfassung)/gi, '')); //+= '\\n4207 ' + ZU.trimInternal(scrapeAbstractsDE.replace(/^(abstract|zusammenfassung)/gi, ''));
+						}
+						if (item.series == "Jahrbuch der Religionspädagogik (JRP)") {
+							item.itemType = "journalArticle";
+							item.DOI = ZU.xpathText(doc, "//meta[@scheme='doi']/@content");
+							if (item.volume != undefined) {
+							if (item.volume.match(/\d+/) != null) {
+								item.volume = item.volume.match(/\d+/)[0];
+							}
+							item.ISSN = "2567-9384";
+							item.publicationTitle = "Jahrbuch der Religionspädagogik (JRP)";
+							}
 						}
 						item.complete();
 					});
@@ -135,3 +160,45 @@ function scrape(doc, url) {
 		});
 	});
 }
+/** BEGIN TEST CASES **/
+var testCases = [
+	{
+		"type": "web",
+		"url": "https://www.vr-elibrary.de/doi/10.13109/9783666703034.8",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "»Die Sprache, mit der ich Gott beschreiben könnte, gibt es nicht« ? Gedanken von Kindern, Jugendlichen und jungen Erwachsenen",
+				"creators": [
+					{
+						"lastName": "Menne",
+						"firstName": "Andreas",
+						"creatorType": "author"
+					}
+				],
+				"date": "September 5, 2021",
+				"DOI": "10.13109/9783666703034.8",
+				"ISSN": "2567-9384",
+				"extra": "DOI: 10.13109/9783666703034.8",
+				"language": "de",
+				"libraryCatalog": "ubtue_vandenhoeck_ruprecht",
+				"pages": "8-13",
+				"publicationTitle": "Jahrbuch der Religionspädagogik (JRP)",
+				"series": "Jahrbuch der Religionspädagogik (JRP)",
+				"shortTitle": "»Die Sprache, mit der ich Gott beschreiben könnte, gibt es nicht« ?",
+				"url": "https://www.vr-elibrary.de/doi/10.13109/9783666703034.8",
+				"volume": "37",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.vr-elibrary.de/doi/book/10.13109/9783666703034",
+		"items": "multiple"
+	}
+]
+/** END TEST CASES **/

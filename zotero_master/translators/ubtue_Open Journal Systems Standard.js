@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-01-13 12:56:56"
+	"lastUpdated": "2022-01-27 12:07:42"
 }
 
 /*
@@ -95,7 +95,22 @@ function invokeEMTranslator(doc) {
   			for (let a of orcidAuthorEntryCaseA) {
   				if (a && a.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
   					let author = a.innerText;//Z.debug(author + '   AAA1')
-  					i.notes.push({note: ZU.unescapeHTML(ZU.trimInternal(author)).replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
+  					i.notes.push({note: ZU.unescapeHTML(ZU.trimInternal(author)).replace(/https?:\/\/orcid.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
+  				}
+  			}
+  		 }
+  		 if (orcidAuthorEntryCaseA && ['2627-6062'].includes(i.ISSN)) {
+  			for (let a of orcidAuthorEntryCaseA) {
+  				let name_to_orcid = {};
+  				let tgs = ZU.xpath(a, './/*[self::strong or self::a]');
+  				let tg_nr = 0;
+  				for (let t of tgs) {
+  					if (t.textContent.match(/orcid/) != null) {
+  						name_to_orcid[tgs[tg_nr -1].textContent] = t.textContent.trim();
+  						let author = name_to_orcid[tgs[tg_nr -1].textContent];
+  						i.notes.push({note: tgs[tg_nr -1].textContent + ZU.unescapeHTML(ZU.trimInternal(t.textContent)).replace(/https?:\/\/orcid.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
+  					}
+  					tg_nr += 1;
   				}
   			}
   		 }
@@ -157,7 +172,6 @@ function invokeEMTranslator(doc) {
   				}
   			}
   		}
-		
 		
  		if (i.pages !== undefined) {
 			let pageNumberFromDC = ZU.xpathText(doc, '//meta[@name="DC.Identifier.pageNumber"]/@content');
@@ -265,6 +279,7 @@ function invokeEMTranslator(doc) {
 			};
 			i.abstractNote = i.abstractNote.replace(/[^\\](\n)/g, " ");
 		}
+		if (i.abstractNote == ', ' || i.abstractNote == ',') i.abstractNote = "";
 		let sansidoroAbstract = ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content');
 		if (sansidoroAbstract && sansidoroAbstract.match(/isidorianum\/article\/view/)) {
 		//multi language abstract e.g. https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/147
@@ -326,7 +341,7 @@ var testCases = [
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "“The message to the people of South Africa” in contemporary context: The question of Palestine and the challenge to the church The question of Palestine and the challenge to the church",
+				"title": "“The message to the people of South Africa” in contemporary context: The question of Palestine and the challenge to the church",
 				"creators": [
 					{
 						"firstName": "Mark",
@@ -343,7 +358,7 @@ var testCases = [
 				"language": "en",
 				"libraryCatalog": "ojs.reformedjournals.co.za",
 				"pages": "13–40",
-				"publicationTitle": "STJ | Stellenbosch Theological Journal",
+				"publicationTitle": "STJ – Stellenbosch Theological Journal",
 				"rights": "Copyright (c) 2020 Pieter de Waal Neethling Trust, Stellenbosch",
 				"shortTitle": "“The message to the people of South Africa” in contemporary context",
 				"url": "https://ojs.reformedjournals.co.za/stj/article/view/1969",
@@ -597,7 +612,7 @@ var testCases = [
 				"language": "en",
 				"libraryCatalog": "ojs.reformedjournals.co.za",
 				"pages": "299–317",
-				"publicationTitle": "STJ | Stellenbosch Theological Journal",
+				"publicationTitle": "STJ – Stellenbosch Theological Journal",
 				"rights": "Copyright (c) 2017 Pieter de Waal Neethling Trust, Stellenbosch",
 				"url": "https://ojs.reformedjournals.co.za/stj/article/view/1743",
 				"volume": "3",
@@ -664,7 +679,7 @@ var testCases = [
 				"language": "en",
 				"libraryCatalog": "ojs.reformedjournals.co.za",
 				"pages": "11–40",
-				"publicationTitle": "STJ | Stellenbosch Theological Journal",
+				"publicationTitle": "STJ – Stellenbosch Theological Journal",
 				"rights": "Copyright (c) 2017 Pieter de Waal Neethling Trust, Stellenbosch",
 				"shortTitle": "Renewal, Renaissance, Reformation, or Revolution?",
 				"url": "https://ojs.reformedjournals.co.za/stj/article/view/1731",
@@ -784,7 +799,7 @@ var testCases = [
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Sustaining Abundance: The Role of the Divine River in the Economy of Ancient Persia The Role of the Divine River in the Economy of Ancient Persia",
+				"title": "Sustaining Abundance: The Role of the Divine River in the Economy of Ancient Persia",
 				"creators": [
 					{
 						"firstName": "Tobin Montgomery",
@@ -928,7 +943,7 @@ var testCases = [
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Dark Green Religion: A Decade Later A Decade Later",
+				"title": "Dark Green Religion: A Decade Later",
 				"creators": [
 					{
 						"firstName": "Bron",
@@ -1444,7 +1459,7 @@ var testCases = [
 				"language": "en",
 				"libraryCatalog": "ojs.reformedjournals.co.za",
 				"pages": "11–40",
-				"publicationTitle": "STJ | Stellenbosch Theological Journal",
+				"publicationTitle": "STJ – Stellenbosch Theological Journal",
 				"rights": "Copyright (c) 2017 Pieter de Waal Neethling Trust, Stellenbosch",
 				"shortTitle": "Renewal, Renaissance, Reformation, or Revolution?",
 				"url": "https://ojs.reformedjournals.co.za/stj/article/view/1731",

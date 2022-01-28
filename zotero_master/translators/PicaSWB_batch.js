@@ -279,7 +279,7 @@ function WriteItems() {
 		}
 		else {
 			var elementString = cleanElement.join("");
-			elementString = elementString.replace(/\\n/g, '\n');
+			elementString = elementString.replace(/\\n/g, '\n').replace(/\\"/g, '"');
 			Zotero.write(elementString);
 		}
     });

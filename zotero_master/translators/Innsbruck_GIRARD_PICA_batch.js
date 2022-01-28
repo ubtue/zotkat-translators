@@ -227,27 +227,57 @@ function EscapeNonASCIICharacters(unescaped_string) {
 }
 
 function addLine(itemid, code, value) {
-    
-	//call the function EscapeNonASCIICharacters
-	value = EscapeNonASCIICharacters(value);
 
     //Zeile zusammensetzen
-    var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Reviews').replace('|f|Book Reviews, Book Review', '|f|Book Reviews').replace('https://doi.org/https://doi.org/', 'https://doi.org/').replace(/@\s/, '@');
+	if (value == undefined) {
+		value = "Für Feld " +  code.replace(/\\n/, '') + " wurde kein Eintrag hinterlegt";
+		code = '\\nxxxx';
+	}
+    var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Reviews').replace('|f|Book Reviews, Book Review', '|f|Book Reviews').replace('https://doi.org/https://doi.org/', 'https://doi.org/').replace(/@\s/, '@').replace('abs1:', '').replace('doi:https://doi.org/', '').replace('handle:https://hdl.handle.net/', '');
     itemsOutputCache[itemid].push(line);
 }
 
 // this should be called at end of each element,
 // and also when all async calls are finished (only when runningThreadCount == 0)
 function WriteItems() {
+	var batchUpload = false;
+	if (itemsOutputCache.length > 1) batchUpload = true;
+	let errorString = "";
     itemsOutputCache.forEach(function(element, index) {
         // sort first, codes might be unsorted due to async stuff
         element.sort();
-
+		//remove sorting characters from fields 3000 and 3010
+		var cleanElement = [];
+		for (let line of element) {
+			let toDelete = line.match(/30\d{2}( ##\d{3}##)/);
+			if (toDelete != null) {
+				line = line.replace(toDelete[1], '');
+			}
+			if (line.match(/\\nxxxx /) != null) {
+				errorString += line.substring(7, line.length) + '\\n';
+			}
+			cleanElement.push(line);
+		}
         // implode + write
         if(index > 0) {
             Zotero.write("\n");
         }
-        Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + element.join("") + "\n");
+		if (batchUpload) {
+			let writeString = cleanElement.join("");
+			writeString = EscapeNonASCIICharacters(writeString);
+			if (errorString != "") {
+				Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + writeString + '");')
+				Zotero.write("application.messageBox('Fehler beim Export aus Zotero', '" + errorString + "', 'error-icon')");
+			}
+			else {
+			Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + writeString + '");\napplication.activeWindow.pressButton("Enter");\n\n');
+			}
+		}
+		else {
+			var elementString = cleanElement.join("");
+			elementString = elementString.replace(/\\n/g, '\n');
+			Zotero.write(elementString);
+		}
     });
 }
 
@@ -320,7 +350,6 @@ function performExport() {
 				article = true;
 				break;
 		}
-
 		//item.type --> 0500 Bibliographische Gattung und Status K10Plus: 0500 das "o" an der 2. Stelle muss in ein "s" geändert werden
 		//http://swbtools.bsz-bw.de/winibwhelp/Liste_0500.htm
 		switch (true) {
@@ -500,6 +529,9 @@ function performExport() {
                 } else {
                     code = "\\n3010";
                 }
+				//preserve original index of Author
+				let authorIndex = i.toString();
+			    let printIndex = authorIndex.padStart(3, '0');
 
                 i++;
 
@@ -551,10 +583,10 @@ function performExport() {
                         function(doc, url, threadParams){
                             var ppn = Zotero.Utilities.xpathText(doc, '//div[a[img]]');
 							if (ppn) {
-                                var authorValue = "!" + ppn.match(/^\d+X?/) + "!" + "$BVerfasserIn$4aut" + "\\n8910 $ainzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet\\n";
-                                addLine(threadParams["currentItemId"], threadParams["code"], authorValue);
+                                var authorValue = "!" + ppn.match(/^\d+X?/) + "!" + "$BVerfasserIn$4aut" + "\\n8910 $aixzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet\\n";
+                                addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', authorValue);
                             } else {
-                                addLine(threadParams["currentItemId"], threadParams["code"], threadParams["authorName"]  + "$BVerfasserIn$4aut");
+                                addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', threadParams["authorName"]  + "$BVerfasserIn$4aut");
                             }
 
                             // separate onDone function not needed because we only call one url
@@ -583,6 +615,38 @@ function performExport() {
         }
 
         addLine(currentItemId, "\\n4000", ZU.unescapeHTML(titleStatement));
+		//Paralleltitel --> 4002
+		if (item.archiveLocation && item.ISSN == '2660-7743') {
+			switch (true) {
+				case item.language == "ger" || !item.language && item.archiveLocation:
+				addLine(currentItemId, "\\n4002", item.archiveLocation.replace(/^(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "„$2 @$3"));
+					break;
+				case item.language == "eng" || !item.language && item.archiveLocation:
+				addLine(currentItemId, "\\n4002", item.archiveLocation.replace(/^(The|A|An) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(The|A|An) ([^@])/i, "„$2 @$3"));
+					break;
+				case item.language == "fre" || !item.language && item.archiveLocation:
+				addLine(currentItemId, "\\n4002", item.archiveLocation.replace(/^(Le|La|Les|Des|Un|Une) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(Le|La|Les|Des|Un|Une) ([^@])/i, "„$2 @$3").replace(/^L'\s?([^@])/i, "L' @$1").replace(/^([\u201e]|[\u201d]|[\u201c])L'\s?([^@])/i, "„L' @$2"));
+					break;
+				case item.language == "ita" || !item.language && item.archiveLocation:
+				addLine(currentItemId, "\\n4002", item.archiveLocation.replace(/^(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "„$2 @$3").replace(/^L'\s?([^@])/i, "L' @$1").replace(/^([\u201e]|[\u201d]|[\u201c])L'\s?([^@])/i, "„L' @$2"));
+					break;
+				case item.language == "por" || !item.language && item.archiveLocation:
+				addLine(currentItemId, "\\n4002", item.archiveLocation.replace(/^(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/i, "„$2 @$3"));
+					break;
+				case item.language == "spa" || !item.language && item.archiveLocation:
+				addLine(currentItemId, "\\n4002", item.archiveLocation.replace(/^(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/i, "„$2 @$3"));
+					break;
+			}
+		}
+
+		//Paralleltitel OJS --> 4002
+		//Übersetzung des Haupttitels --> 4212
+		if (item.notes) {
+			for (let i in item.notes) {
+				if (item.notes[i].note.includes('Paralleltitel:')) addLine(currentItemId, "\\n4002", item.notes[i].note.replace(/paralleltitel:/i, ''));
+				if (item.notes[i].note.includes('translatedTitle:')) addLine(currentItemId, "\\n4212 Übersetzung des Haupttitels: ", item.notes[i].note.replace(/translatedTitle:/i, ''));
+			}
+		}
 
         //Ausgabe --> 4020
         if (item.edition) {
@@ -605,7 +669,13 @@ function performExport() {
 			if (date.year !== undefined) { volumeyearissuepage +=  "$j" + date.year; }
 			if (item.issue && item.ISSN !== "2699-5433") { volumeyearissuepage += "$a" + item.issue.replace("-", "/").replace(/^0/, ""); }
 			if (item.issue && item.ISSN === "2699-5433") { volumeyearissuepage += "$m" + item.issue.replace("-", "/").replace(/^0/, ""); }
+			for (let i in item.notes) {
+				if (item.notes[i].note.includes('artikelID:')) { volumeyearissuepage += "$i" + item.notes[i].note.replace(/artikelID:/i, '') };
+			}
 			if (item.pages) { volumeyearissuepage += "$p" + item.pages; }
+			for (let i in item.notes) {
+				if (item.notes[i].note.includes('seitenGesamt:')) { volumeyearissuepage += "$t" + item.notes[i].note.replace(/seitenGesamt:/i, '') };
+			}
 			if (item.ISSN === "2077-1444" && item.callNumber) {volumeyearissuepage += "$i" + item.callNumber;}
             addLine(currentItemId, "\\n4070", volumeyearissuepage);
         }
@@ -615,6 +685,14 @@ function performExport() {
             addLine(currentItemId, "\\n4950", item.url + "$xH"); //K10Plus:wird die URL aus dem DOI, einem handle oder einem urn gebildet, sollte es $xR heißen und nicht $xH
         }
 
+		//Open Access / Free Access als LF --> 4950
+		if (item.notes) {
+			for (let i in item.notes) {
+				if (item.notes[i].note.includes('LF')) {
+					licenceField = "l";
+				}
+			}
+		}
 		//URL --> 4085 nur bei Satztyp "O.." im Feld 0500 K10Plus:aus 4085 wird 4950
 		switch (true) {
 			case item.url && item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "l": 
@@ -655,6 +733,53 @@ function performExport() {
 					addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4ZZ$534");
 				}
 			}
+			//item.DOI --> 2051 bei "Oou" bzw. 2053 bei "Aou"
+			if (item.DOI) {
+				if (physicalForm === "O" || item.DOI) {
+					addLine(currentItemId, "\\n2051", item.DOI.replace('https://doi.org/', ''));
+				} else if (physicalForm === "A") {
+					addLine(currentItemId, "\\n2053", item.DOI.replace('https://doi.org/', ''));
+				}
+			}
+
+			//item.notes as second doi --> 2051
+			if (item.notes) {
+				for (let i in item.notes) {
+					if (item.notes[i].note.includes('doi:')) {
+						addLine(currentItemId, "\\n2051", ZU.unescapeHTML(item.notes[i].note.replace('doi:https://doi.org/', '')));
+						if (licenceField === "l") {
+						addLine(currentItemId, "\\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/doi:/i, '') + "$xR$3Volltext$4LF$534"));
+						}
+						else {
+							addLine(currentItemId, "\\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/doi:/i, '') + "$xR$3Volltext$4ZZ$534"));
+						}
+					}
+				}
+			}
+
+			//item.notes as handle --> 2052
+			if (item.notes) {
+				for (let i in item.notes) {
+					if (item.notes[i].note.includes('handle:')) {
+						addLine(currentItemId, "\\n2052", ZU.unescapeHTML(item.notes[i].note.replace(/handle:https?:\/\/hdl\.handle\.net\//i, '')));
+						if (licenceField === "l") {
+						addLine(currentItemId, "\\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/handle:/i, '') + "$xR$3Volltext$4LF$534"));
+						}
+						else {
+							addLine(currentItemId, "\\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/handle:/i, '') + "$xR$3Volltext$4ZZ$534"));
+						}
+					}
+					if (item.notes[i].note.indexOf('urn:') == 0) {
+						addLine(currentItemId, "\\n2050", ZU.unescapeHTML(item.notes[i].note));
+						if (licenceField === "l") {
+						addLine(currentItemId, "\\n4950", 'http://nbn-resolving.de/' + ZU.unescapeHTML(item.notes[i].note + "$xR$3Volltext$4LF$534"));
+						}
+						else {
+							addLine(currentItemId, "\\n4950", 'http://nbn-resolving.de/' + ZU.unescapeHTML(item.notes[i].note + "$xR$3Volltext$4ZZ$534"));
+						}
+					}
+				}
+			}
 
 			
         //Reihe --> 4110
@@ -674,14 +799,21 @@ function performExport() {
 			item.abstractNote = ZU.unescapeHTML(item.abstractNote);
 			addLine(currentItemId, "\\n4207", item.abstractNote.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract\s?:?/, '').replace(/Abstract  :/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, ''));
         }
-
+		//Inhaltliche Zusammenfassung, falls mehr als ein Abstract --> 4207
+		if (item.notes) {
+			for (let i in item.notes) {
+				if (item.notes[i].note.includes('abs')) addLine(currentItemId, "\\n4207", item.notes[i].note.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract\s?:?/, '').replace(/Abstract  :/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, '').replace('abs:', ''));
+			}
+		}
         //item.publicationTitle --> 4241 Beziehungen zur größeren Einheit
         if (item.itemType == "journalArticle" || item.itemType == "magazineArticle") {
             if (superiorPPN.length != 0) {
                 addLine(currentItemId, "\\n4241", "Enthalten in" + superiorPPN);
-            } else if (item.publicationTitle) {
+            } else if (journalTitlePPN.length != 0) {
                 addLine(currentItemId, "\\n4241", "Enthalten in" + journalTitlePPN);
             }
+			else addLine(currentItemId, "\\n4241", undefined);
+
 
             //4261 Themenbeziehungen (Beziehung zu der Veröffentlichung, die beschrieben wird)|case:magazineArticle
             if (item.itemType == "magazineArticle") {
@@ -726,8 +858,13 @@ function performExport() {
 					}
 				}
 			}
-
-			addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo");\napplication.activeWindow.pressButton("Enter");\n\n', ""); //K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 inzs$ainzo
+			//ORCID und Autorennamen --> 8910
+			if (item.notes) {
+				for (let i in item.notes) {
+					if (item.notes[i].note.includes('orcid')) addLine(currentItemId, "\\n8910", '$aixzom$b'+item.notes[i].note);
+				}
+			}
+			addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo', ""); //K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 inzs$ainzo
         }
     }
 
