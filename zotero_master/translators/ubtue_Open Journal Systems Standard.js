@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-01-28 13:16:26"
+	"lastUpdated": "2022-01-28 13:24:40"
 }
 
 /*
@@ -77,6 +77,12 @@ function invokeEMTranslator(doc) {
  			let subTitle = ZU.xpathText(doc, '//article[@class="article-details"]//h1[@class="page-header"]/small');
  			if (subTitle) {
  				i.title += ': ' + subTitle.trim();
+ 			}
+ 		}
+ 		if (i.ISSN=="2183-2803") {
+ 			let abstract = ZU.xpathText(doc, '//meta[@name="DC.Description"]/@content');
+ 			if (abstract) {
+ 				i.abstractNote = abstract;
  			}
  		}
  		//title in other language for pica-field 4002
