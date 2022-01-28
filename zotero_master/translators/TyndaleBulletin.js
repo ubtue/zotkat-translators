@@ -15,7 +15,7 @@
 /*
 	***** BEGIN LICENSE BLOCK *****
 	
-	AEA Web translator Copyright © 2014 Sebastian Karcher 
+	Copyright © 2022 Universitätsbibliothek Tübingen. All rights reserved.
 	This file is part of Zotero.
 	
 	Zotero is free software: you can redistribute it and/or modify
