@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsib",
-	"lastUpdated": "2022-01-21 11:14:40"
+	"lastUpdated": "2022-01-28 13:29:24"
 }
 
 /*
@@ -573,7 +573,7 @@ function doDelivery(doc, itemInfo) {
 	}
 	let languageMap = {"Afrikaans": "afr", "Arabic": "ara", "Danish": "dan", "Dutch": "dut", "German": "ger", "English": "eng", "French": "fre", "Greek": "gre", "Italian": "ita", "Malay": "may", "Portuguese": "por", "Romanian": "ron", "Russian": "rus", "Spanish": "spa", "Serbian": "srp", "Turkish": "tur"};
 	let newTest = ZU.xpathText(doc, '//div[@class="citation-wrapping-div "]');
-	let language = newTest.match(/Language:(.+?)(?:(?:Authors:)|(?:Language\s+Note:))/);
+	let language = newTest.match(/Language:(.+?)(?:(?:Authors:)|(?:Language\s+Note:)|(?:Subjects:))/);
 	prefs.languageTag = '';
 	// Vorsicht, das kann zu Problemen führen!
 	if (language != null) {
@@ -600,6 +600,7 @@ function doDelivery(doc, itemInfo) {
 	});
 }
 
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -618,6 +619,64 @@ var testCases = [
 				],
 				"date": "January 2021",
 				"ISSN": "0043941X",
+				"libraryCatalog": "EBSCOhost",
+				"pages": "51-71",
+				"url": "http://www.redi-bw.de/db/ebsco.php/search.ebscohost.com/login.aspx%3fdirect%3dtrue%26db%3dreh%26AN%3dATLAiACO210125000692%26site%3dehost-live",
+				"volume": "95",
+				"attachments": [
+					{
+						"title": "Full Text (HTML)",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Baptism --   History of doctrines"
+					},
+					{
+						"tag": "Bible  . Genesis--Theology"
+					},
+					{
+						"tag": "Cosmology, Christian"
+					},
+					{
+						"tag": "Domning, Daryl P"
+					},
+					{
+						"tag": "Edwards, Denis,   , 1943-2019"
+					},
+					{
+						"tag": "Mahoney, John,   , 1931-"
+					},
+					{
+						"tag": "Religion and science"
+					},
+					{
+						"tag": "Sin, Original --   History of doctrines"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://web.p.ebscohost.com/ehost/detail/detail?vid=0&sid=0f83d05d-f5e7-4979-9fda-d2edaefde606%40redis&bdata=JnNpdGU9ZWhvc3QtbGl2ZQ%3d%3d#AN=ATLAiACO210125000692&db=reh",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Original Sin, Baptism and the New Cosmology",
+				"creators": [
+					{
+						"lastName": "Vincie",
+						"firstName": "Catherine",
+						"creatorType": "author"
+					}
+				],
+				"date": "January 2021",
+				"ISSN": "0043941X",
+				"language": "eng",
 				"libraryCatalog": "EBSCOhost",
 				"pages": "51-71",
 				"url": "http://www.redi-bw.de/db/ebsco.php/search.ebscohost.com/login.aspx%3fdirect%3dtrue%26db%3dreh%26AN%3dATLAiACO210125000692%26site%3dehost-live",
