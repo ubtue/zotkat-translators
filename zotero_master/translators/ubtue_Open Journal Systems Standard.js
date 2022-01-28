@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-01-28 12:48:33"
+	"lastUpdated": "2022-01-28 13:16:26"
 }
 
 /*
@@ -37,7 +37,7 @@ function getSearchResults(doc, url) {
 	var items = {};
 	var found = false;
 	var rows = doc.querySelectorAll('.title a[href*="/view/"], .title a[href*="/catalog/"], \
-		.tocTitle a[href*="/view/"], .tocTitle a[href*="/catalog/"], .media-heading a[href*="/view/"]');
+		.tocTitle a[href*="/view/"], .tocArticleTitle a[href*="/view/"], .tocTitle a[href*="/catalog/"], .media-heading a[href*="/view/"]');
 	if (rows.length == 0 && url.match(/(otwsa-otssa)|(koersjournal)/)) {
 		rows = ZU.xpath(doc, '//div[@class="article-summary-title"]//a');
 	}
