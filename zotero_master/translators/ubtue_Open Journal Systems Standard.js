@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-01-27 12:07:42"
+	"lastUpdated": "2022-01-28 12:48:33"
 }
 
 /*
@@ -40,6 +40,9 @@ function getSearchResults(doc, url) {
 		.tocTitle a[href*="/view/"], .tocTitle a[href*="/catalog/"], .media-heading a[href*="/view/"]');
 	if (rows.length == 0 && url.match(/(otwsa-otssa)|(koersjournal)/)) {
 		rows = ZU.xpath(doc, '//div[@class="article-summary-title"]//a');
+	}
+	if (rows.length == 0 && url.match(/(journals\.us\.edu)/)) {
+		rows = ZU.xpath(doc, '//h4[contains(@class, "article-summary-title")]//a');
 	}
 	for (let row of rows) {
 		let href = row.href;
@@ -90,6 +93,7 @@ function invokeEMTranslator(doc) {
    		let orcidAuthorEntryCaseA = doc.querySelectorAll('.authors');//Z.debug(orcidAuthorEntryCaseA)
   		let orcidAuthorEntryCaseB = doc.querySelectorAll('.authors li');//Z.debug(orcidAuthorEntryCaseB)
   		let orcidAuthorEntryCaseC = doc.querySelectorAll('.authors-string');//Z.debug(orcidAuthorEntryCaseC)
+  		let orcidAuthorEntryCaseD = ZU.xpath(doc, '//div[@id="authors"]');
   		// e.g. https://aabner.org/ojs/index.php/beabs/article/view/781
   		if (orcidAuthorEntryCaseA && ['2748-6419'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
@@ -173,6 +177,15 @@ function invokeEMTranslator(doc) {
   			}
   		}
 		
+		if (orcidAuthorEntryCaseD.length != 0) {
+			for (let o of ZU.xpath(orcidAuthorEntryCaseD[0], './/div[@class="card-body"]')) {
+				if (ZU.xpathText(o, './/a[contains(@href, "orcid")]') != null) {
+					let orcid = ZU.trimInternal(ZU.xpathText(o, './/a[contains(@href, "orcid")]'));
+					let author = ZU.trimInternal(o.innerHTML.split('&nbsp;')[0]);
+					i.notes.push({note: author + ' | orcid:' + orcid.replace(/https?:\/\/orcid\.org\//g, '') + ' | taken from website'});
+				}
+			}
+		}
  		if (i.pages !== undefined) {
 			let pageNumberFromDC = ZU.xpathText(doc, '//meta[@name="DC.Identifier.pageNumber"]/@content');
 			//if the first page number matches the results of second page number (see regex "\1") e.g. 3-3,
@@ -1060,7 +1073,7 @@ var testCases = [
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "La Orden Tercera Franciscana en la península ibérica: De sus orígenes medievales a su eclosión en la Edad Moderna",
+				"title": "La Orden Tercera Franciscana en la península ibérica De sus orígenes medievales a su eclosión en la Edad Moderna",
 				"creators": [
 					{
 						"firstName": "Alfredo Martín",
@@ -1078,7 +1091,6 @@ var testCases = [
 				"pages": "69-97",
 				"publicationTitle": "Archivo Ibero-Americano",
 				"rights": "Derechos de autor 2017 Archivo Ibero-Americano",
-				"shortTitle": "La Orden Tercera Franciscana en la península ibérica",
 				"url": "https://revistasfranciscanas.org/index.php/ArchivoIberoAmericano/article/view/117",
 				"volume": "77",
 				"attachments": [
@@ -1108,7 +1120,11 @@ var testCases = [
 						"tag": "península ibérica"
 					}
 				],
-				"notes": [],
+				"notes": [
+					{
+						"note": "Alfredo Martín García | orcid:0000-0001-6906-0210 | taken from website"
+					}
+				],
 				"seeAlso": []
 			}
 		]
@@ -1135,7 +1151,6 @@ var testCases = [
 				"date": "2020/10/31",
 				"DOI": "10.25784/jeac.v2i0.297",
 				"ISSN": "2627-6062",
-				"abstractNote": ",",
 				"journalAbbreviation": "1",
 				"language": "en",
 				"libraryCatalog": "jeac.de",
@@ -2291,6 +2306,83 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.journals.us.edu.pl/index.php/EL/article/view/13012",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "“Accompanying Migrants” as a Touchstone of the Realisation of the Synodal Church Idea. A Canonist’s Remarks",
+				"creators": [
+					{
+						"firstName": "Andrzej",
+						"lastName": "Pastwa",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/12/31",
+				"DOI": "10.31261/EaL.2021.09.2.01",
+				"ISSN": "2391-4327",
+				"abstractNote": "“Synodality is a style, it is walking together, and it is what the Lord expects of the Church in the third millennium” (Francis). The specific motto and wording of this study in the quoted “programme” thought of Pope Francis, articulated in the Address to Members of the International Theological Commission (2019). The Pope expresses appreciation for the extensive work of the Commission crowned with the “theological clarification” of the mentioned idea, and above all by demonstrating the importance in the perception of the mission of the Church today. If, in the opinion of the Holy Father, factual and competent expert argumentation, step by step, reveals the truth that “a synodal Church is a Church of participation and co-responsibility,” such a determination cannot remain without impact on the praxis of undertaking the most serious pastoral challenges of the present time — on various levels of realization: local, regional, and universal, including ecumenical commitment. This applies in its entirety to the creation of strategies and specific actions of the Church towards the growing phenomenon of human mobility, especially in its forms that manifest themselves as dramatic and devastating to families and individuals. What we mean here is the Church’s multi-track postulate — or more precisely: communion, synodal — efficiency (with its determinants: dynamics, efficiency, effectiveness), for which in 2016 Francis coined the term: “accompanying migrants”. Consequently, in recent years there have been a number of normative and operational activities of the present successor of St. Peter, which in our time — rightly called: “the era of migration” (Francis) — set a new trend of clothing/embellishing the aforementioned critical area of salus animarum with synodal accents. As it is showed in the study, a canonist, with the horizon of the principle of ius sequitur vitam before his eyes, cannot remain passive towards the pressing challenges delineated here. Indeed, within the orbit of the study of canon law a weighty question appears — what conclusions of a canonical nature stem from the “millennium” project of the realization of the Synodal Church Idea.",
+				"issue": "2",
+				"journalAbbreviation": "1",
+				"language": "pl",
+				"libraryCatalog": "www.journals.us.edu.pl",
+				"pages": "7-40",
+				"publicationTitle": "Ecumeny and Law",
+				"rights": "Copyright (c) 2021 Ecumeny and Law",
+				"url": "https://www.journals.us.edu.pl/index.php/EL/article/view/13012",
+				"volume": "9",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Pope Francis"
+					},
+					{
+						"tag": "ecumenical context"
+					},
+					{
+						"tag": "kairós of synodality"
+					},
+					{
+						"tag": "mission of synodal Church"
+					},
+					{
+						"tag": "rights of (Christian) migrants"
+					},
+					{
+						"tag": "the postulate of the Church law renewal"
+					},
+					{
+						"tag": "the “millennial” path of the Church’s renewal"
+					},
+					{
+						"tag": "“accompanying migrants”"
+					}
+				],
+				"notes": [
+					{
+						"note": "Andrzej Pastwa | orcid:0000-0003-2679-5107 | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.journals.us.edu.pl/index.php/EL/issue/view/1204",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
