@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsib",
-	"lastUpdated": "2022-01-28 13:29:24"
+	"lastUpdated": "2022-01-28 13:34:39"
 }
 
 /*
@@ -191,6 +191,7 @@ function downloadFunction(text, url, prefs) {
 		}
 		item.publicationTitle = item.journalAbbreviation;
 		if (item.ISSN == "05801400") item.publicationTitle = "Münchener Theologische Zeitschrift";
+		if (item.ISSN == "0043941X") item.publicationTitle = "Worship";
 		if (item.url) {
 			// Trim the ⟨=cs suffix -- EBSCO can't find the record with it!
 			item.url = item.url.replace(/(AN=[0-9]+)⟨=[a-z]{2}/, "$1")
