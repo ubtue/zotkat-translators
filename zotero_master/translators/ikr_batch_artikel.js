@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-06-30 11:10:00"
+	"lastUpdated": "2022-01-28 14:40:00"
 }
 
 
@@ -243,12 +243,12 @@ function WriteItems() {
     itemsOutputCache.forEach(function(element, index) {
         // sort first, codes might be unsorted due to async stuff
         element.sort();
-
+		
         // implode + write
         if(index > 0) {
             Zotero.write("\n");
         }
-			Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + element.join("").replace('\\n6600 ', '\\n') + "\n");
+			Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + element.join("").replace('\\n6600 ', '\\n').replace(/\\n967/gm, '\\n67') + "\n");
     });
 }
 
@@ -268,8 +268,8 @@ function performExport() {
 		
 		if (!item.ISSN)
 				item.ISSN = "";
-		item.ISSN = ZU.cleanISSN(item.ISSN);
-		Z.debug("Item ISSN: " + item.ISSN);
+		//item.ISSN = ZU.cleanISSN(item.ISSN);
+		//Z.debug("Item ISSN: " + item.ISSN);
 		//enrich items based on their ISSN
 		if (!item.language && issn_to_language_code.get(item.ISSN) !== undefined) {
 			item.language = issn_to_language_code.get(item.ISSN);
@@ -383,10 +383,8 @@ function performExport() {
         }*/
 
         //1131 Art des Inhalts
-        for (i=0; i<item.tags.length; i++) {
-			if (item.tags[i].tag.match(/RezensionstagPica|Book Reviews/)) {
-				addLine(currentItemId, "1131", "!106186019!");
-			}
+		if (item.title.match(/^\[Rezension\s?von/)) {
+				addLine(currentItemId, "\\n1131", "!106186019!");
 		}
 
         // 1140 Veröffentlichungsart und Inhalt http://swbtools.bsz-bw.de/winibwhelp/Liste_1140.htm K10plus:1140 "uwre" entfällt. Das Feld wird folglich auch nicht mehr benötigt. Es sei denn es handelt sich um eines der folgenden Dokumente: http://swbtools.bsz-bw.de/cgi-bin/k10plushelp.pl?cmd=kat&val=1140&kattype=Standard
@@ -538,8 +536,10 @@ function performExport() {
                             if (ppn) {
                                 var authorValue = "!" + ppn.match(/^\d+X?/) + "!" + "$BVerfasserIn$4aut" + "\\n8910 $aixzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet\\n";
                                 addLine(threadParams["currentItemId"], threadParams["code"], authorValue);
-                            } else {
-                                addLine(threadParams["currentItemId"], threadParams["code"],  "!" + threadParams["authorName"] + "!$BVerfasserIn$4aut");
+                            } else if (threadParams["authorName"].match(/^\d+/g)){
+								addLine(threadParams["currentItemId"], threadParams["code"],  "!" + threadParams["authorName"] + "!$BVerfasserIn$4aut");
+							} else if (threadParams["authorName"].match(/^\w+/g)){
+                                addLine(threadParams["currentItemId"], threadParams["code"], threadParams["authorName"] + "$BVerfasserIn$4aut");
                             }
 
                             // separate onDone function not needed because we only call one url
@@ -659,77 +659,75 @@ function performExport() {
         }
 
         //item.publicationTitle --> 4241 Beziehungen zur größeren Einheit
-        if (item.itemType == "journalArticle" || item.itemType == "magazineArticle") {
-            if (superiorPPN.length != 0) {
-                addLine(currentItemId, "\\n4241", "Enthalten in" + superiorPPN);
-            } else if (item.publicationTitle) {
-                addLine(currentItemId, "\\n4241", "Enthalten in!" + item.publicationTitle + "!");
-            }
+		if (item.ISSN.match(/^[0-9]/)) {
+			addLine(currentItemId, "\\n4241", "Enthalten in!" + item.ISSN + "!");
+		} else if (item.ISSN.match(/^[A-Z]|[a-z]/)) {
+			addLine(currentItemId, "\\n4241", "Enthalten in" + item.ISSN );
+		}
 
-            //4261 Themenbeziehungen (Beziehung zu der Veröffentlichung, die beschrieben wird)|case:magazineArticle
-            if (item.itemType == "magazineArticle") {
-                addLine(currentItemId, "\\n4261", "Rezension von" + "!" + item.publicationTitle + "!"); // zwischen den Ausrufezeichen noch die PPN des rezensierten Werkes manuell einfügen.
-            }
+		//4261 Themenbeziehungen (Beziehung zu der Veröffentlichung, die beschrieben wird)|case:magazineArticle
+		if (item.itemType == "magazineArticle") {
+			addLine(currentItemId, "\\n4261", "Rezension von" + "!" + item.publicationTitle + "!"); // zwischen den Ausrufezeichen noch die PPN des rezensierten Werkes manuell einfügen.
+		}
 
-            //SSG bzw. FID-Nummer --> 5056 "0" = Religionwissenschaft | "1" = Theologie | "0; 1" = RW & Theol.
+		//SSG bzw. FID-Nummer --> 5056 "0" = Religionwissenschaft | "1" = Theologie | "0; 1" = RW & Theol.
 
-            if (SsgField === "0" || SsgField === "0$a1" || SsgField === "FID-KRIM-DE-21") { //K10plus: 5056 mehrere SSG-Nummern werden durch $a getrennt: aus 5056 0;1 wird 5056 0$a1
-                addLine(currentItemId, "\\n5056", SsgField);
-            } else {
-                addLine(currentItemId, "\\n5056", defaultSsgNummer);
-            }
-			
-			//Schlagwörter aus einem Thesaurus (Fremddaten) --> 5520 (oder alternativ siehe Mapping)
-			if (item.extra){
-				var parts = item.extra.replace(/#r\n/, '#r@').replace(/#n\n/, '#n@').replace(/\n|\t/g, '').trim().split("@");
-					for (index in parts){
-					addLine(currentItemId, "\\n5520", "|s|" + parts[index].trim() + '$ADE-Tue135-3/21-fid1-DAKR-MSZK');
-				}
+		if (SsgField === "0" || SsgField === "0$a1" || SsgField === "FID-KRIM-DE-21") { //K10plus: 5056 mehrere SSG-Nummern werden durch $a getrennt: aus 5056 0;1 wird 5056 0$a1
+			addLine(currentItemId, "\\n5056", SsgField);
+		} else {
+			addLine(currentItemId, "\\n5056", defaultSsgNummer);
+		}
+		
+		//Schlagwörter aus einem Thesaurus (Fremddaten) --> 5520 (oder alternativ siehe Mapping)
+		if (item.extra){
+			var parts = item.extra.replace(/#r\n/, '#r@').replace(/#n\n/, '#n@').replace(/\n|\t/g, '').trim().split("@");
+				for (index in parts){
+				addLine(currentItemId, "\\n5520", "|s|" + parts[index].trim() + '$ADE-Tue135-3/21-fid1-DAKR-MSZK');
 			}
-			
-			// Einzelschlagwörter (Projekte) --> 5580 
-            if (issn_to_keyword_field.get(item.ISSN) !== undefined) {
-                var codeBase = issn_to_keyword_field.get(item.ISSN);
-                for (i=0; i<item.tags.length; i++) {
-                    var code = codeBase + i;
-                    addLine(currentItemId, code, "!" + item.tags[i].tag.replace(/\s?--\s?/g, '@ ') + "!");
-                }
-            } else {
-                for (i=0; i<item.tags.length; i++) {
-                    addLine(currentItemId, "\\n5580", "!" + ZU.unescapeHTML(item.tags[i].tag.replace(/\s?--\s?/g, '@ ')) + "!");
-                }
-            }
-			
-			// Urheberkennung --> 5580
-			if(item.tags.length) {
-				addLine(currentItemId, "\\n5580", "$ADE-Tue135-3/21-fid1-DAKR-MSZK");
+		}
+		
+		// Einzelschlagwörter (Projekte) --> 5580 
+		if (issn_to_keyword_field.get(item.ISSN) !== undefined) {
+			var codeBase = issn_to_keyword_field.get(item.ISSN);
+			for (i=0; i<item.tags.length; i++) {
+				var code = codeBase + i;
+				addLine(currentItemId, code, "!" + item.tags[i].tag.replace(/\s?--\s?/g, '@ ') + "!");
 			}
-			
-			//notes > IxTheo-Notation K10plus: 6700 wird hochgezählt und nicht wiederholt, inkrementell ab z.B. 6800, 6801, 6802 etc.
-			if (item.notes) {
-				for (i in item.notes) {
-					var note = ZU.unescapeHTML(item.notes[i].note)
-                    var re = /\s*@\s*/;
-					var notation_splits = note.replace(/^@/, '').split(re);
-                    for (i in notation_splits) {
-                        var notation = notation_splits[i].toLowerCase();
-                        var notation_ppn = notes_to_ixtheo_notations.get(notation);
-                        if (notation_ppn !== undefined) {
-							var field = 670 + i
-								 for (i=0; i<item.notes.length; i++) {
-								addLine(currentItemId, '\\n'+field, notation_ppn);
-							}
+		} else {
+			for (i=0; i<item.tags.length; i++) {
+				addLine(currentItemId, "\\n5580", "!" + ZU.unescapeHTML(item.tags[i].tag.replace(/\s?--\s?/g, '@ ')) + "!");
+			}
+		}
+		
+		// Urheberkennung --> 5580
+		if(item.tags.length) {
+			addLine(currentItemId, "\\n5580", "$ADE-Tue135-3/21-fid1-DAKR-MSZK");
+		}
+		
+		//Vierstellige, recherchierbare Abrufzeichen --> 8012
+		addLine(currentItemId, '\\nE* l01\\n8012 mszk");\napplication.activeWindow.pressButton("Enter");\n\n', "");
+		//notes > IxTheo-Notation K10plus: 6700 wird hochgezählt und nicht wiederholt, inkrementell ab z.B. 6800, 6801, 6802 etc.
+		if (item.notes) {
+			for (i in item.notes) {
+				var note = ZU.unescapeHTML(item.notes[i].note)
+				var re = /\s*@\s*/;
+				var notation_splits = note.replace(/^@/, '').split(re);
+				for (i in notation_splits) {
+					var notation = notation_splits[i].toLowerCase();
+					var notation_ppn = notes_to_ixtheo_notations.get(notation);
+					if (notation_ppn !== undefined) {
+						var field = 9670 + i
+							 for (i=0; i<item.notes.length; i++) {
+							addLine(currentItemId, '\\n'+field, notation_ppn);
 						}
 					}
 				}
 			}
+		}
 			
-			//Signatur --> 7100
-			addLine(currentItemId, '\\n7100', '$Jn');
+	//Signatur --> 7100
+	addLine(currentItemId, '\\n7100', '$Jn');
 			
-			//Vierstellige, recherchierbare Abrufzeichen --> 8012
-			addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 mszk");\napplication.activeWindow.pressButton("Enter");\n\n', "");
-        }
     }
 
     runningThreadCount--;

@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-06-30 11:10:00"
+	"lastUpdated": "2022-01-28 14:40:00"
 }
 
 
@@ -248,7 +248,7 @@ function WriteItems() {
         if(index > 0) {
             Zotero.write("\n");
         }
-			Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + element.join("").replace('\\n6600 ', '\\n') + "\n");
+			Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + element.join("").replace('\\n6600 ', '\\n').replace(/\\n967/gm, '\\n67') + "\n");
     });
 }
 
@@ -383,10 +383,8 @@ function performExport() {
         }*/
 
         //1131 Art des Inhalts
-        for (i=0; i<item.tags.length; i++) {
-			if (item.tags[i].tag.match(/RezensionstagPica|Book Reviews/)) {
-				addLine(currentItemId, "1131", "!106186019!");
-			}
+		if (item.title.match(/^\[Rezension\s?von/)) {
+				addLine(currentItemId, "\\n1131", "!106186019!");
 		}
 
         // 1140 Veröffentlichungsart und Inhalt http://swbtools.bsz-bw.de/winibwhelp/Liste_1140.htm K10plus:1140 "uwre" entfällt. Das Feld wird folglich auch nicht mehr benötigt. Es sei denn es handelt sich um eines der folgenden Dokumente: http://swbtools.bsz-bw.de/cgi-bin/k10plushelp.pl?cmd=kat&val=1140&kattype=Standard
@@ -537,8 +535,10 @@ function performExport() {
                             if (ppn) {
                                 var authorValue = "!" + ppn.match(/^\d+X?/) + "!" + "$BVerfasserIn$4aut" + "\\n8910 $aixzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet\\n";
                                 addLine(threadParams["currentItemId"], threadParams["code"], authorValue);
-                            } else {
-                                addLine(threadParams["currentItemId"], threadParams["code"],  "!" + threadParams["authorName"] + "!$BVerfasserIn$4aut");
+                            } else if (threadParams["authorName"].match(/^\d+/g)){
+								addLine(threadParams["currentItemId"], threadParams["code"],  "!" + threadParams["authorName"] + "!$BVerfasserIn$4aut");
+							} else if (threadParams["authorName"].match(/^\w+/g)){
+                                addLine(threadParams["currentItemId"], threadParams["code"], threadParams["authorName"] + "$BVerfasserIn$4aut");
                             }
 
                             // separate onDone function not needed because we only call one url
@@ -661,8 +661,10 @@ function performExport() {
         if (item.itemType == "journalArticle" || item.itemType == "magazineArticle") {
             if (superiorPPN.length != 0) {
                 addLine(currentItemId, "\\n4241", "Enthalten in" + superiorPPN);
-            } else if (item.publicationTitle) {
+            } else if (item.publicationTitle.match(/^[0-9]/)) {
                 addLine(currentItemId, "\\n4241", "Enthalten in!" + item.publicationTitle + "!");
+            } else if (item.publicationTitle.match(/^[A-Z]|[a-z]/)) {
+                addLine(currentItemId, "\\n4241", "Enthalten in" + item.publicationTitle);
             }
 
             //4261 Themenbeziehungen (Beziehung zu der Veröffentlichung, die beschrieben wird)|case:magazineArticle
@@ -703,7 +705,8 @@ function performExport() {
 			if(item.tags.length) {
 				addLine(currentItemId, "\\n5580", "$ADE-Tue135-3/21-fid1-DAKR-MSZK");
 			}
-			
+			//Vierstellige, recherchierbare Abrufzeichen --> 8012
+			addLine(currentItemId, '\\nE* l01\\n8012 mszk");\napplication.activeWindow.pressButton("Enter");\n\n', "");
 			//notes > IxTheo-Notation K10plus: 6700 wird hochgezählt und nicht wiederholt, inkrementell ab z.B. 6800, 6801, 6802 etc.
 			if (item.notes) {
 				for (i in item.notes) {
@@ -714,7 +717,7 @@ function performExport() {
                         var notation = notation_splits[i].toLowerCase();
                         var notation_ppn = notes_to_ixtheo_notations.get(notation);
                         if (notation_ppn !== undefined) {
-							var field = 670 + i
+							var field = 9670 + i
 								 for (i=0; i<item.notes.length; i++) {
 								addLine(currentItemId, '\\n'+field, notation_ppn);
 							}
@@ -726,8 +729,6 @@ function performExport() {
 			//Signatur --> 7100
 			addLine(currentItemId, '\\n7100', '$Jn');
 			
-			//Vierstellige, recherchierbare Abrufzeichen --> 8012
-			addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 mszk");\napplication.activeWindow.pressButton("Enter");\n\n', "");
         }
     }
 
