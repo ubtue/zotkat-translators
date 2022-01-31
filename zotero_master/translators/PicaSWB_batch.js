@@ -237,7 +237,7 @@ function addLine(itemid, code, value) {
 		value = "Für Feld " +  code.replace(/\\n/, '') + " wurde kein Eintrag hinterlegt";
 		code = '\\nxxxx';
 	}
-    var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Reviews').replace('|f|Book Reviews, Book Review', '|f|Book Reviews').replace('https://doi.org/https://doi.org/', 'https://doi.org/').replace(/@\s/, '@').replace('abs1:', '').replace('doi:https://doi.org/', '').replace('handle:https://hdl.handle.net/', '');
+    var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Review').replace('|f|Book Reviews, Book Review', '|f|Book Review').replace('https://doi.org/https://doi.org/', 'https://doi.org/').replace(/@\s/, '@').replace('abs1:', '').replace('doi:https://doi.org/', '').replace('handle:https://hdl.handle.net/', '');
     itemsOutputCache[itemid].push(line);
 }
 
@@ -418,7 +418,7 @@ function performExport() {
 
         //1131 Art des Inhalts
         for (i=0; i<item.tags.length; i++) {
-			if (item.tags[i].tag.match(/RezensionstagPica|Book\s\Review(s)?,\s?Book\s?Review/gi)) {
+			if (item.tags[i].tag.match(/RezensionstagPica|Book\s\Reviews?|Book\s\Review(s)?,\s?Book\s?Review/gi)) {
 				addLine(currentItemId, "\\n1131", "!106186019!");
 			}
 		}
