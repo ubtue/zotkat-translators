@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-12-14 13:37:00"
+	"lastUpdated": "2022-02-02 17:54:00"
 }
 
 // Zotero Export Translator für das Pica Intern Format
@@ -418,7 +418,7 @@ function performExport() {
 
         //1131 Art des Inhalts
         for (i=0; i<item.tags.length; i++) {
-			if (item.tags[i].tag.match(/RezensionstagPica|Book\s\Reviews?|Book\s\Review(s)?,\s?Book\s?Review/gi)) {
+			if (item.tags[i].tag.match(/RezensionstagPica/gi)) {
 				addLine(currentItemId, "\\n1131", "!106186019!");
 			}
 		}
