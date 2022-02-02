@@ -9,13 +9,13 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-02-01 16:12:07"
+	"lastUpdated": "2022-02-02 16:37:50"
 }
 
 /*
 	***** BEGIN LICENSE BLOCK *****
 
-	Copyright © 2020 Universitätsbibliothek Tübingen All rights reserved.
+	Copyright © 2022 Universitätsbibliothek Tübingen All rights reserved.
 
 	This file is part of Zotero.
 
@@ -36,7 +36,10 @@
 */
 
 function detectWeb(doc, url) {
-	if (getSearchResults(doc, true)) {
+	if (url.includes('/object/')) {
+		return "journalArticle";
+	}
+	else if (getSearchResults(doc, true)) {
 		return "multiple";
 	}
 	return false;
@@ -98,132 +101,46 @@ function scrape(doc, url) {
 var testCases = [
 	{
 		"type": "web",
-		"url": "https://www.uni-muenster.de/Ejournals/index.php/thrv/issue/view/201",
-		"items": "multiple"
-	},
-	{
-		"type": "web",
-		"url": "https://www.uni-muenster.de/Ejournals/index.php/thrv/article/view/2731",
+		"url": "https://dial.uclouvain.be/pr/boreal/object/boreal:174097",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Mit der Islamischen Theologie im Gespräch. Zu einigen Neuerscheinungen aus dem Bereich der christlich-muslimischen Beziehungen",
+				"title": "Analyse littéraire et exégèse biblique",
 				"creators": [
 					{
-						"firstName": "Anja",
-						"lastName": "Middelbeck-Varwick",
+						"firstName": "Camille",
+						"lastName": "Focant",
 						"creatorType": "author"
 					}
 				],
-				"date": "2020/04/20",
-				"DOI": "10.17879/thrv-2020-2731",
-				"ISSN": "2699-5433",
-				"journalAbbreviation": "1",
-				"language": "de",
-				"libraryCatalog": "www.uni-muenster.de",
-				"publicationTitle": "Theologische Revue",
-				"rights": "Copyright (c) 2020",
-				"url": "https://www.uni-muenster.de/Ejournals/index.php/thrv/article/view/2731",
-				"volume": "116",
+				"date": "2014",
+				"ISSN": "0001-4133",
+				"abstractNote": "Cet article rappelle d'abord quelques étapes importantes des relations difficiles entre histoire et fiction dans l'approche de la Bible du 19e siècle à nos jours; il situe la démarche de l'auteur dans le champ de l'exégèse biblique telle qu'elle se développe aujourd'hui. Une seconde partie est consacrée à un exemple pratique de ce que peut apporter la lecture de l'évangile de Marc comme une œuvre littéraire en examinant son code architectural.",
+				"language": "en",
+				"libraryCatalog": "dial.uclouvain.be",
+				"pages": "47-64",
+				"publicationTitle": "Bulletin de la Classe des Lettres et des Sciences morales et politiques",
+				"url": "https://dial.uclouvain.be/pr/boreal/object/boreal:174097",
+				"volume": "6",
 				"attachments": [
 					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot"
-					}
-				],
-				"tags": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://www.uni-muenster.de/Ejournals/index.php/thrv/article/view/2689",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Hammann, Konrad: Rudolf Bultmann und seine Zeit. Biographische und theologische Konstellationen",
-				"creators": [
-					{
-						"firstName": "Matthias",
-						"lastName": "Dreher",
-						"creatorType": "author"
-					}
-				],
-				"date": "2020/04/20",
-				"DOI": "10.17879/thrv-2020-2689",
-				"ISSN": "2699-5433",
-				"journalAbbreviation": "1",
-				"language": "de",
-				"libraryCatalog": "www.uni-muenster.de",
-				"publicationTitle": "Theologische Revue",
-				"rights": "Copyright (c) 2020",
-				"shortTitle": "Hammann, Konrad",
-				"url": "https://www.uni-muenster.de/Ejournals/index.php/thrv/article/view/2689",
-				"volume": "116",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot"
+						"title": "Snapshot",
+						"mimeType": "text/html"
 					}
 				],
 				"tags": [
 					{
-						"tag": "Book Review"
-					}
-				],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://www.uni-muenster.de/Ejournals/index.php/thrv/article/view/2690",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Levering, Matthew: The Achievement of Hans Urs von Balthasar. An Introduction to His Trilogy",
-				"creators": [
-					{
-						"firstName": "Wolfgang",
-						"lastName": "Müller",
-						"creatorType": "author"
-					}
-				],
-				"date": "2020/04/20",
-				"DOI": "10.17879/thrv-2020-2690",
-				"ISSN": "2699-5433",
-				"journalAbbreviation": "1",
-				"language": "de",
-				"libraryCatalog": "www.uni-muenster.de",
-				"publicationTitle": "Theologische Revue",
-				"rights": "Copyright (c) 2020",
-				"shortTitle": "Levering, Matthew",
-				"url": "https://www.uni-muenster.de/Ejournals/index.php/thrv/article/view/2690",
-				"volume": "116",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
+						"tag": "analyse littéraire"
 					},
 					{
-						"title": "Snapshot"
+						"tag": "exégèse biblique"
 					}
 				],
-				"tags": [
+				"notes": [
 					{
-						"tag": "Book Review"
+						"note": "doi:http://hdl.handle.net/2078.1/174097"
 					}
 				],
-				"notes": [],
 				"seeAlso": []
 			}
 		]
