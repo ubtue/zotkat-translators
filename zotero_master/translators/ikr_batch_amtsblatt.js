@@ -233,7 +233,7 @@ function addLine(itemid, code, value) {
 	//call the function EscapeNonASCIICharacters
 	value = EscapeNonASCIICharacters(value);
     //Zeile zusammensetzen
-    var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Reviews').replace('|f|Book Reviews, Book Review', '|f|Book Reviews').replace( '|s|#n', '|f|Norm').replace( '|s|#r', '|f|Rechtsprechung').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1').replace('|s|17can', '|t|Codex Iuris Canonici (1917)').replace('|s|can', '|t|Codex Iuris Canonici (1983)').replace('|s|cceo','|t|Codex canonum ecclesiarum orientalium').replace('https://doi.org/https://doi.org/', 'https://doi.org/').replace(/@\s/, '@');
+    var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Reviews').replace('|f|Book Reviews, Book Review', '|f|Book Reviews').replace(/\|s\|#n/gim, '|f|Norm').replace(/\|s\|#r/gim, '|f|Rechtsprechung').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1').replace('|s|17can', '|t|Codex Iuris Canonici (1917)').replace('|s|can', '|t|Codex Iuris Canonici (1983)').replace('|s|cceo','|t|Codex canonum ecclesiarum orientalium').replace('https://doi.org/https://doi.org/', 'https://doi.org/').replace(/@\s/, '@');
     itemsOutputCache[itemid].push(line);
 }
 
