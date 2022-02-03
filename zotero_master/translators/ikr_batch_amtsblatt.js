@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2022-01-28 14:40:00"
+	"lastUpdated": "2022-02-03 17:20:00"
 }
 
 
@@ -248,7 +248,7 @@ function WriteItems() {
         if(index > 0) {
             Zotero.write("\n");
         }
-			Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + element.join("").replace('\\n6600 ', '\\n').replace(/\\n967/gm, '\\n67') + "\n");
+			Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + element.join("").replace("n66999E", "nE") + "\n");
     });
 }
 
@@ -705,8 +705,8 @@ function performExport() {
 			if(item.tags.length) {
 				addLine(currentItemId, "\\n5580", "$ADE-Tue135-3/21-fid1-DAKR-MSZK");
 			}
-			//Vierstellige, recherchierbare Abrufzeichen --> 8012
-			addLine(currentItemId, '\\nE* l01\\n8012 mszk");\napplication.activeWindow.pressButton("Enter");\n\n', "");
+			// Exemplardatensatz
+			addLine(currentItemId, "\\n66999E* l01", "");
 			//notes > IxTheo-Notation K10plus: 6700 wird hochgezählt und nicht wiederholt, inkrementell ab z.B. 6800, 6801, 6802 etc.
 			if (item.notes) {
 				for (i in item.notes) {
@@ -717,7 +717,7 @@ function performExport() {
                         var notation = notation_splits[i].toLowerCase();
                         var notation_ppn = notes_to_ixtheo_notations.get(notation);
                         if (notation_ppn !== undefined) {
-							var field = 9670 + i
+							var field = 670 + i
 								 for (i=0; i<item.notes.length; i++) {
 								addLine(currentItemId, '\\n'+field, notation_ppn);
 							}
@@ -728,7 +728,9 @@ function performExport() {
 			
 			//Signatur --> 7100
 			addLine(currentItemId, '\\n7100', '$Jn');
-			
+			//Vierstellige, recherchierbare Abrufzeichen --> 8012
+			addLine(currentItemId, '\\n8012 mszk");\napplication.activeWindow.pressButton("Enter");\n\n', "");
+
         }
     }
 
