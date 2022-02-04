@@ -662,7 +662,7 @@ function performExport() {
 
         //item.publicationTitle --> 4241 Beziehungen zur größeren Einheit
 		if (item.ISSN.match(/^[0-9]/)) {
-			addLine(currentItemId, "\\n4241", "Enthalten in!" + item.ISSN + "!");
+			addLine(currentItemId, "\\n4241", "Enthalten in" + superiorPPN);
 		} else if (item.ISSN.match(/^[A-Z]|[a-z]/)) {
 			addLine(currentItemId, "\\n4241", "Enthalten in" + item.ISSN );
 		}
