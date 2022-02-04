@@ -261,6 +261,8 @@ function performExport() {
         itemsOutputCache[currentItemId] = [];
 
 		var physicalForm = "A";//0500 Position 1
+		//Bei KNA Verknüpfung mit O-Aufnahme
+		if (item.publicationTitle === "583217141") physicalForm = "O";
 		var licenceField = ""; // 0500 Position 4 only for Open Access Items; http://swbtools.bsz-bw.de/cgi-bin/help.pl?cmd=kat&val=4085&regelwerk=RDA&verbund=SWB
 		var SsgField = "";
 		var superiorPPN = "";
@@ -683,8 +685,11 @@ function performExport() {
 			//Schlagwörter aus einem Thesaurus (Fremddaten) --> 5520 (oder alternativ siehe Mapping)
 			if (item.extra){
 				var parts = item.extra.replace(/#r\n/, '#r@').replace(/#n\n/, '#n@').replace(/\n|\t/g, '').trim().split("@");
+				//das Jahr automatisch hochzählen
+				let year = new Date();
+				let lastTwoDigitYear = year.getFullYear().toString().substr(-2);
 					for (index in parts){
-					addLine(currentItemId, "\\n5520", "|s|" + parts[index].trim() + '$ADE-Tue135-3/21-fid1-DAKR-MSZK');
+					addLine(currentItemId, "\\n5520", "|s|" + parts[index].trim() + '$ADE-Tue135-3/' + lastTwoDigitYear + '-fid1-DAKR-MSZK');
 				}
 			}
 
@@ -703,8 +708,12 @@ function performExport() {
 						
 			// Urheberkennung --> 5580
 			if(item.tags.length) {
-				addLine(currentItemId, "\\n5580", "$ADE-Tue135-3/21-fid1-DAKR-MSZK");
+				//das Jahr automatisch hochzählen
+				let year = new Date();
+				let lastTwoDigitYear = year.getFullYear().toString().substr(-2);
+				addLine(currentItemId, "\\n5580", "$ADE-Tue135-3/" + lastTwoDigitYear + "-fid1-DAKR-MSZK");
 			}
+			
 			// Exemplardatensatz
 			addLine(currentItemId, "\\n66999E* l01", "");
 			//notes > IxTheo-Notation K10plus: 6700 wird hochgezählt und nicht wiederholt, inkrementell ab z.B. 6800, 6801, 6802 etc.
