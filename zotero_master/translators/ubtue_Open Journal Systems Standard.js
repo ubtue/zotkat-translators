@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-01-28 13:24:40"
+	"lastUpdated": "2022-02-08 11:39:26"
 }
 
 /*
@@ -68,6 +68,12 @@ function invokeEMTranslator(doc) {
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
+		if (i.ISSN == undefined) i.ISSN = ZU.xpathText(doc, '//meta[@name="DC.Source.ISSN"]/@content');
+		if (i.issue == undefined) i.issue = ZU.xpathText(doc, '//meta[@name="DC.Source.Issue"]/@content');
+		if (i.volume == undefined) i.volume = ZU.xpathText(doc, '//meta[@name="DC.Source.Volume"]/@content');
+		if (i.pages == undefined) i.pages = ZU.xpathText(doc, '//meta[@name="DC.Identifier.Pagenumber"]/@content');
+		if (i.ISSN == "2521-6465") i.language = ZU.xpathText(doc, '//meta[@name="DC.Language"]/@content');
+		
 		if (doc.querySelector(".subtitle")) {
 			if (i.title.indexOf(doc.querySelector(".subtitle").textContent.trim()) == -1) {
  			i.title = i.title + ' ' + doc.querySelector(".subtitle").textContent.trim();
@@ -192,11 +198,15 @@ function invokeEMTranslator(doc) {
 				}
 			}
 		}
- 		if (i.pages !== undefined) {
+ 		if (i.pages == undefined) {
 			let pageNumberFromDC = ZU.xpathText(doc, '//meta[@name="DC.Identifier.pageNumber"]/@content');
 			//if the first page number matches the results of second page number (see regex "\1") e.g. 3-3,
 			//then replace the range with a first page number e.g 3 
-			i.pages = pageNumberFromDC.trim().replace(/^([^-]+)-\1$/, '$1');
+			if (pageNumberFromDC != null) i.pages = pageNumberFromDC.trim().replace(/^([^-]+)-\1$/, '$1');
+ 		}
+ 		if (i.date == undefined && ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content') != undefined) {
+ 			i.date = ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content').substr(0,4);
+ 		
  		}
  		if (ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content') && i.date.length !== 4 && i.ISSN == '1983-2850') {
 			i.date = ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content').substr(0, 4);
@@ -206,6 +216,7 @@ function invokeEMTranslator(doc) {
 		if (i.abstractNote == undefined) {
 			i.abstractNote = ZU.xpathText(doc, '//meta[@name="DC.Description"]/@content');
 		}
+		
 		if (i.abstractNote == null) {i.abstractNote = undefined}
 		if (i.abstractNote !== undefined) {
 			if (i.abstractNote.match(/No abstract available/)) delete i.abstractNote;
@@ -298,6 +309,28 @@ function invokeEMTranslator(doc) {
 			};
 			i.abstractNote = i.abstractNote.replace(/[^\\](\n)/g, " ");
 		}
+		if (i.ISSN == "2521-6465") {
+			i.abstractNote = "";
+			for (let abstractTag of ZU.xpath(doc, '//meta[@name="DC.Description"]/@content')) {
+				let abstractText = abstractTag.textContent;
+				i.abstractNote += abstractText.split(/(?:\nKey\s*words:\s)|(?:\nКлючевые\s+слова:\s)|(?:\nТүйін\s+сөздер:\s)/)[0] + "\\n4207 ";
+				let keyWords = abstractText.split(/(?:\nKey\s*words:\s)|(?:\nКлючевые\s+слова:\s)|(?:\nТүйін\s+сөздер:\s)/)[1];
+				if (keyWords != undefined) {
+					for (let keyWord of keyWords.split(/,\s+/)) {
+						i.tags.push(keyWord);
+					}
+			}
+		}
+		i.title = ZU.xpathText(doc, '//meta[@name="DC.Title"]/@content').trim();
+		for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"]/@content')) {
+			i.notes.push({'note': 'translatedTitle:' + parallelTitle.textContent.trim()});
+		}
+		for (let creator of ZU.xpath(doc, '//meta[@name="citation_author"]/@content')) {
+			i.creators.push(ZU.cleanAuthor(creator.textContent, "author", false));
+		}
+		}
+		
+		if (i.url.match(/\/article\/view/)) i.itemType = "journalArticle";
 		if (i.abstractNote == ', ' || i.abstractNote == ',') i.abstractNote = "";
 		let sansidoroAbstract = ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content');
 		if (sansidoroAbstract && sansidoroAbstract.match(/isidorianum\/article\/view/)) {
@@ -349,6 +382,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEMTranslator(doc, url);
 }
+
 
 
 
@@ -2389,6 +2423,107 @@ var testCases = [
 		"type": "web",
 		"url": "https://www.journals.us.edu.pl/index.php/EL/issue/view/1204",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://bulletin-religious.kaznu.kz/index.php/relig/issue/view/40",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://bulletin-religious.kaznu.kz/index.php/relig/article/view/414",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Manifestations and prerequisites of religious expansion in the spiritual sphere of modern Kazakhstan",
+				"creators": [
+					{
+						"firstName": "Zh",
+						"lastName": "Kantarbaeva",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "D.",
+						"lastName": "Utebayeva",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021",
+				"ISSN": "2521-6465",
+				"abstractNote": "The article deals with the problem of religious expansion, which is accompanied by a wave of globalization. In particular, the analysis of its prerequisites and its place in society and consequences is carried out, which are the basis for its widespread spread in an information, \"digitized\" digitized society. A description of the manifestations of evangelization and Islamization of religious expansion, which cover all spheres of spiritual life and enter through the conquest of human consciousness, is given, and the processes of their development in the information society are considered. \"I'm sorry,\" he said, «but I don't know what you're talking about, and I don't know what you're talking about, and I don't know what you're talking about, but I don't know what you're talking about\". And the possibilities of modern technologies are the basis for changing the forms and areas of use of sites of religious organizations. The article examines the social, economic, political, spiritual background and main objects of religious expansion of neo-Christian, new Islamic, neo-Christian movements, Religious Studies analysis of missionary activities carried out in the internet space and social networks, its factors contributing to the formation of religious consciousness of young people. At the same time, the features of religious expansion in cyberspace are revealed and a description of their manifestation in modern Kazakh society is given.\\n4207 В статье рассмотрена проблема религиозной экспансии, сопровождающаяся волной глобализации. Анализируются предпосылки и следствия&nbsp; его широкого распространения в информационном, «диджитализированном» (цифровом) обществе. Дается характеристика проявлений евангелизации и исламизации религиозной экспансии, охватывающей все сферы духовной жизни, завоевания человеческого сознания, рассматриваются процессы их развития в информационном обществе. Аперируя гуманистическими принципами благотворительности, знания и образования, бесплатного медицинского обслуживания и духовной помощи - религиозная экспансия охватывает все сферы человеческой жизнедеятельности, используя различные методы и приемы миссионерской деятельности и применяя самые новейшие технологии. А возможности современных технологий на сегодняшний день являются основой для изменения форм и сфер использования сайтов религиозных организаций. В статье проводится религиоведческий анализ миссионерских методов и технологий, проводимых в интернет-пространстве и социальных сетях, а также факторов влияния на формирование религиозного сознания молодежи. Рассматриваются социальные, экономические, политические, духовные предпосылки и основные объекты религиозной экспансии неохристианских, новых исламских, неориенталистских течений,. Кроме того, будут выявлены особенности религиозной экспансии в киберпространстве и дана характеристика их проявления в современном казахстанском обществе.\\n4207 Мақалада жаһандану толқынымен қатарласып келіп жатқан діни экспансия мәселесі қарастырылған. Әсіресе оның ақпараттық, «диджитализацияланған» цифрландырылған қоғамдағы кең етек жаюына негіз болып отырған алғышарттары мен қоғамдағы орны және салдарына талдау жасалынады. Рухани өмірдің жан-жақты салаларын қамтып, адам санасын жаулау арқылы кіріп жатқан діни экспансияның евангелизация мен исламдандыру көріністеріне сипаттама беріліп, олардың ақпараттық қоғамда даму үдерістері қарастырылады. Білім беру, қайырымдылық көмек, медициналық жәрдем беру сияқты гуманистік мақсаттарды алға қойған және діни сенімді таңдау еркіндігі сияқты ұстанымдарды ұран ете отырып, діни экспансияның адам санасын жаулауда түрлі әдістер мен тәсілдерді игеріп, жүзеге асыру үшін заманауи технологияларды да пайдалануда. Ал заманауи технологиялардың мүмкіндіктері діни ұйым сайттарының формалары мен пайдалану аумақтарының ауысып отыруына негіз болады. Мақалада неохристиандық, жаңа исламдық, неоориенталистік ағымдардың&nbsp;&nbsp; діни экспансиялауындағы әлеуметтік, экономикалық, саяси, рухани астарлары мен негізгі объектілері қарастырылып, интернет кеңістіктігі мен әлеуметтік желілерде жүргізетін миссионерлік әрекеттеріне, оның жастардың діни санасын қалыптастыруға ықпал ететін факторларына дінтанулық талдау жасалады. Сонымен қатар, киберкеңістіктегі діни экспансия ерекшеліктері айқындалып, олардың заманауи қазақстандық қоғамдағы көрінісіне сипаттама беріледі.\\n4207",
+				"issue": "4",
+				"language": "en",
+				"libraryCatalog": "bulletin-religious.kaznu.kz",
+				"pages": "11-18",
+				"url": "https://bulletin-religious.kaznu.kz/index.php/relig/article/view/414",
+				"volume": "28",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Islamization"
+					},
+					{
+						"tag": "cyberspace."
+					},
+					{
+						"tag": "evangelism"
+					},
+					{
+						"tag": "religious expansion"
+					},
+					{
+						"tag": "virtual services"
+					},
+					{
+						"tag": "виртуалды қызмет,&nbsp; киберкеңістік."
+					},
+					{
+						"tag": "виртуальная деятельность"
+					},
+					{
+						"tag": "діни экспансия"
+					},
+					{
+						"tag": "евангелизация"
+					},
+					{
+						"tag": "евангелизация"
+					},
+					{
+						"tag": "исламизация"
+					},
+					{
+						"tag": "исламизация"
+					},
+					{
+						"tag": "киберпространство."
+					},
+					{
+						"tag": "религиозная экспансия"
+					}
+				],
+				"notes": [
+					{
+						"note": "Zh. Kantarbaeva | orcid:0000-0002-7471-5127 | taken from website"
+					},
+					{
+						"note": "D. Utebayeva | orcid:0000-0001-5371-9738 | taken from website"
+					},
+					{
+						"note": "translatedTitle:Проявления и предпосылки религиозной экспансии в духовной сфере современного Казахстана"
+					},
+					{
+						"note": "translatedTitle:Қазіргі Қазақстанның рухани саласындағы діни экспансияның көріністері мен алғышарттары"
+					}
+				],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
