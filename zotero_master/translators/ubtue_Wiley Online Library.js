@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-20 15:05:54"
+	"lastUpdated": "2022-02-08 16:22:54"
 }
 
 /*
@@ -67,8 +67,8 @@ function getAuthorName(text) {
 
 function addBookReviewTag(doc, item) {
 	var primaryHeading = ZU.xpathText(doc, '//span[@class="primary-heading"]');
-	if (primaryHeading.match(/Book Review|Review Essays?|Reviews?/i)) {
-		item.tags.push('Book Review');
+	if (primaryHeading.match(/Book\s?Reviews?|Review\s?Essays?|Reviews?/i)) {
+		item.tags.push('RezensionstagPica');
 	}
 }
 
@@ -1260,7 +1260,7 @@ var testCases = [
 				],
 				"tags": [
 					{
-						"tag": "Book Review"
+						"tag": "RezensionstagPica"
 					}
 				],
 				"notes": [],
@@ -1272,6 +1272,47 @@ var testCases = [
 		"type": "web",
 		"url": "https://onlinelibrary.wiley.com/toc/17586623/2021/73/1",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://anthrosource.onlinelibrary.wiley.com/doi/full/10.1111/etho.12311",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Review of Beekers, Daan and DavidKloos, eds. Straying from the Straight Path: How Senses of Failure Invigorate Lived Religion. 2018. New York and Oxford: Berghahn Books. 146 pp",
+				"creators": [
+					{
+						"firstName": "Jack David",
+						"lastName": "Eller",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021",
+				"DOI": "10.1111/etho.12311",
+				"ISSN": "1548-1352",
+				"issue": "2",
+				"itemID": "https://doi.org/10.1111/etho.12311",
+				"language": "en",
+				"libraryCatalog": "ubtue_Wiley Online Library",
+				"publicationTitle": "Ethos",
+				"shortTitle": "Review of Beekers, Daan and DavidKloos, eds. Straying from the Straight Path",
+				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/etho.12311",
+				"volume": "49",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
