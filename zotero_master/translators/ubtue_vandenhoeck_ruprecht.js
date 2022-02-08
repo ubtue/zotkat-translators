@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-02-08 15:08:43"
+	"lastUpdated": "2022-02-08 15:21:57"
 }
 
 /*
@@ -168,7 +168,7 @@ var testCases = [
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "»Die Sprache, mit der ich Gott beschreiben könnte, gibt es nicht« ? Gedanken von Kindern, Jugendlichen und jungen Erwachsenen",
+				"title": "»Die Sprache, mit der ich Gott beschreiben könnte, gibt es nicht« – Gedanken von Kindern, Jugendlichen und jungen Erwachsenen",
 				"creators": [
 					{
 						"lastName": "Menne",
@@ -185,7 +185,6 @@ var testCases = [
 				"pages": "8-13",
 				"publicationTitle": "Jahrbuch der Religionspädagogik (JRP)",
 				"series": "Jahrbuch der Religionspädagogik (JRP)",
-				"shortTitle": "»Die Sprache, mit der ich Gott beschreiben könnte, gibt es nicht« ?",
 				"url": "https://www.vr-elibrary.de/doi/10.13109/9783666703034.8",
 				"volume": "37",
 				"attachments": [],

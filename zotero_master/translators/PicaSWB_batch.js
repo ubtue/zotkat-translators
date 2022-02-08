@@ -832,7 +832,11 @@ function performExport() {
 
             if (SsgField === "1" || SsgField === "0" || SsgField === "0$a1" || SsgField === "FID-KRIM-DE-21") { 
                 addLine(currentItemId, "\\n5056", SsgField);
-            } else {
+            } 
+			else if (SsgField == "NABZ") {
+				addLine(currentItemId, "\\n5056", '');
+			}
+			else {
                 addLine(currentItemId, "\\n5056", defaultSsgNummer);
             }
 			
@@ -873,10 +877,16 @@ function performExport() {
 				}
 			}
 			if (retrieve_sign == "") {
-			addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo', ""); 
+				if (SsgField == "NABZ") {
+					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo$aNABZ', ""); 
+				}
+				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo', "");
 			}
 			else if (retrieve_sign == "BILDI" || retrieve_sign == "KALDI") {
-				addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo', ""); 
+				if (SsgField == "NABZ") {
+					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo$aNABZ', ""); 
+				}
+				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo', "");
 			}
 			//K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
         }
