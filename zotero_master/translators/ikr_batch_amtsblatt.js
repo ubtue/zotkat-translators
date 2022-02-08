@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2021-06-30 11:10:00"
+	"lastUpdated": "2022-02-03 17:20:00"
 }
 
 
@@ -233,7 +233,7 @@ function addLine(itemid, code, value) {
 	//call the function EscapeNonASCIICharacters
 	value = EscapeNonASCIICharacters(value);
     //Zeile zusammensetzen
-    var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Reviews').replace('|f|Book Reviews, Book Review', '|f|Book Reviews').replace( '|s|#n', '|f|Norm').replace( '|s|#r', '|f|Rechtsprechung').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1').replace('|s|17can', '|t|Codex Iuris Canonici (1917)').replace('|s|can', '|t|Codex Iuris Canonici (1983)').replace('|s|cceo','|t|Codex canonum ecclesiarum orientalium').replace('https://doi.org/https://doi.org/', 'https://doi.org/').replace(/@\s/, '@');
+    var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Reviews').replace('|f|Book Reviews, Book Review', '|f|Book Reviews').replace(/\|s\|#n/gim, '|f|Norm').replace(/\|s\|#r/gim, '|f|Rechtsprechung').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1').replace('|s|17can', '|t|Codex Iuris Canonici (1917)').replace('|s|can', '|t|Codex Iuris Canonici (1983)').replace('|s|cceo','|t|Codex canonum ecclesiarum orientalium').replace('https://doi.org/https://doi.org/', 'https://doi.org/').replace(/@\s/, '@');
     itemsOutputCache[itemid].push(line);
 }
 
@@ -248,7 +248,7 @@ function WriteItems() {
         if(index > 0) {
             Zotero.write("\n");
         }
-			Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + element.join("").replace('\\n6600 ', '\\n') + "\n");
+			Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + element.join("").replace("n66999E", "nE") + "\n");
     });
 }
 
@@ -261,6 +261,8 @@ function performExport() {
         itemsOutputCache[currentItemId] = [];
 
 		var physicalForm = "A";//0500 Position 1
+		//Bei KNA Verknüpfung mit O-Aufnahme
+		if (item.publicationTitle === "583217141") physicalForm = "O";
 		var licenceField = ""; // 0500 Position 4 only for Open Access Items; http://swbtools.bsz-bw.de/cgi-bin/help.pl?cmd=kat&val=4085&regelwerk=RDA&verbund=SWB
 		var SsgField = "";
 		var superiorPPN = "";
@@ -383,10 +385,8 @@ function performExport() {
         }*/
 
         //1131 Art des Inhalts
-        for (i=0; i<item.tags.length; i++) {
-			if (item.tags[i].tag.match(/RezensionstagPica|Book Reviews/)) {
-				addLine(currentItemId, "1131", "!106186019!");
-			}
+		if (item.title.match(/^\[Rezension\s?von/)) {
+				addLine(currentItemId, "\\n1131", "!106186019!");
 		}
 
         // 1140 Veröffentlichungsart und Inhalt http://swbtools.bsz-bw.de/winibwhelp/Liste_1140.htm K10plus:1140 "uwre" entfällt. Das Feld wird folglich auch nicht mehr benötigt. Es sei denn es handelt sich um eines der folgenden Dokumente: http://swbtools.bsz-bw.de/cgi-bin/k10plushelp.pl?cmd=kat&val=1140&kattype=Standard
@@ -537,8 +537,10 @@ function performExport() {
                             if (ppn) {
                                 var authorValue = "!" + ppn.match(/^\d+X?/) + "!" + "$BVerfasserIn$4aut" + "\\n8910 $aixzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet\\n";
                                 addLine(threadParams["currentItemId"], threadParams["code"], authorValue);
-                            } else {
-                                addLine(threadParams["currentItemId"], threadParams["code"],  "!" + threadParams["authorName"] + "!$BVerfasserIn$4aut");
+                            } else if (threadParams["authorName"].match(/^\d+/g)){
+								addLine(threadParams["currentItemId"], threadParams["code"],  "!" + threadParams["authorName"] + "!$BVerfasserIn$4aut");
+							} else if (threadParams["authorName"].match(/^\w+/g)){
+                                addLine(threadParams["currentItemId"], threadParams["code"], threadParams["authorName"] + "$BVerfasserIn$4aut");
                             }
 
                             // separate onDone function not needed because we only call one url
@@ -661,8 +663,10 @@ function performExport() {
         if (item.itemType == "journalArticle" || item.itemType == "magazineArticle") {
             if (superiorPPN.length != 0) {
                 addLine(currentItemId, "\\n4241", "Enthalten in" + superiorPPN);
-            } else if (item.publicationTitle) {
+            } else if (item.publicationTitle.match(/^[0-9]/)) {
                 addLine(currentItemId, "\\n4241", "Enthalten in!" + item.publicationTitle + "!");
+            } else if (item.publicationTitle.match(/^[A-Z]|[a-z]/)) {
+                addLine(currentItemId, "\\n4241", "Enthalten in" + item.publicationTitle);
             }
 
             //4261 Themenbeziehungen (Beziehung zu der Veröffentlichung, die beschrieben wird)|case:magazineArticle
@@ -681,8 +685,11 @@ function performExport() {
 			//Schlagwörter aus einem Thesaurus (Fremddaten) --> 5520 (oder alternativ siehe Mapping)
 			if (item.extra){
 				var parts = item.extra.replace(/#r\n/, '#r@').replace(/#n\n/, '#n@').replace(/\n|\t/g, '').trim().split("@");
+				//das Jahr automatisch hochzählen
+				let year = new Date();
+				let lastTwoDigitYear = year.getFullYear().toString().substr(-2);
 					for (index in parts){
-					addLine(currentItemId, "\\n5520", "|s|" + parts[index].trim() + '$ADE-Tue135-3/21-fid1-DAKR-MSZK');
+					addLine(currentItemId, "\\n5520", "|s|" + parts[index].trim() + '$ADE-Tue135-3/' + lastTwoDigitYear + '-fid1-DAKR-MSZK');
 				}
 			}
 
@@ -701,9 +708,14 @@ function performExport() {
 						
 			// Urheberkennung --> 5580
 			if(item.tags.length) {
-				addLine(currentItemId, "\\n5580", "$ADE-Tue135-3/21-fid1-DAKR-MSZK");
+				//das Jahr automatisch hochzählen
+				let year = new Date();
+				let lastTwoDigitYear = year.getFullYear().toString().substr(-2);
+				addLine(currentItemId, "\\n5580", "$ADE-Tue135-3/" + lastTwoDigitYear + "-fid1-DAKR-MSZK");
 			}
 			
+			// Exemplardatensatz
+			addLine(currentItemId, "\\n66999E* l01", "");
 			//notes > IxTheo-Notation K10plus: 6700 wird hochgezählt und nicht wiederholt, inkrementell ab z.B. 6800, 6801, 6802 etc.
 			if (item.notes) {
 				for (i in item.notes) {
@@ -725,9 +737,9 @@ function performExport() {
 			
 			//Signatur --> 7100
 			addLine(currentItemId, '\\n7100', '$Jn');
-			
 			//Vierstellige, recherchierbare Abrufzeichen --> 8012
-			addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 mszk");\napplication.activeWindow.pressButton("Enter");\n\n', "");
+			addLine(currentItemId, '\\n8012 mszk");\napplication.activeWindow.pressButton("Enter");\n\n', "");
+
         }
     }
 
