@@ -46,10 +46,11 @@ var language_to_language_code = {};
 var notes_to_ixtheo_notations = {};
 var journal_title_to_ppn = {};
 var publication_title_to_physical_form = {};
+var issn_to_retrieve_sign = {};
 // Repository base URL
 var zts_enhancement_repo_url = 'https://raw.githubusercontent.com/ubtue/zotero-enhancement-maps/master/';
 var downloaded_map_files = 0;
-var max_map_files = 11;
+var max_map_files = 12;
 
 
 /*
@@ -145,6 +146,7 @@ function populateISSNMaps(mapData, url) {
             break;
         case "ISSN_to_physical_form.map":
             issn_to_physical_form = temp;
+			Z.debug("physical form");
             break;
         case "ISSN_to_SSG_zotkat.map":
             issn_to_ssg_zotkat = temp;
@@ -166,6 +168,10 @@ function populateISSNMaps(mapData, url) {
             break;
         case "publication_title_to_physical_form.map":
             publication_title_to_physical_form = temp;
+            break;
+		case "ISSN_to_Abrufzeichen_zotkat.map":
+			Z.debug("Abrufzeichen");
+            issn_to_retrieve_sign = temp;
             break;
         default:
             throw "Unknown map file: " + mapFilename;
@@ -300,7 +306,7 @@ function performExport() {
 		var superiorPPN = "";
 		var journalTitlePPN = "";
 		var issn_to_language = "";
-		
+		var retrieve_sign = "";
 		if (!item.ISSN)
 				item.ISSN = "";
 		item.ISSN = ZU.cleanISSN(item.ISSN);
@@ -342,7 +348,10 @@ function performExport() {
 			physicalForm = publication_title_to_physical_form.get(item.publicationTitle);
 			Z.debug("Found journalTitlePPN:" + physicalForm);
         }
-
+		if (issn_to_retrieve_sign.get(item.ISSN) != undefined) {
+			retrieve_sign = issn_to_retrieve_sign.get(item.ISSN);
+			Z.debug("Found retrieve_sign:" + retrieve_sign);
+		}
 
 		var article = false;
 		switch (item.itemType) {
@@ -396,6 +405,13 @@ function performExport() {
             default:
                 addLine(currentItemId, "\\n0503", "Online-Ressource$bcr");
         }
+		
+		if (retrieve_sign == "BILDI") {
+			addLine(currentItemId, "\\n0575", "BIIN");
+		}
+		else if (retrieve_sign == "KALDI") {
+			addLine(currentItemId, "\\n0575", "KALD");
+		}
         //item.date --> 1100
         var date = Zotero.Utilities.strToDate(item.date);
         if (date.year !== undefined) {
@@ -856,7 +872,12 @@ function performExport() {
 					if (item.notes[i].note.includes('orcid')) addLine(currentItemId, "\\n8910", '$aixzom$b'+item.notes[i].note);
 				}
 			}
+			if (retrieve_sign == "") {
 			addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo', ""); 
+			}
+			else if (retrieve_sign == "BILDI" || retrieve_sign == "KALDI") {
+				addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo', ""); 
+			}
 			//K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
         }
     }
@@ -883,6 +904,7 @@ function doExport() {
 			zts_enhancement_repo_url + "notes_to_ixtheo_notations.map",
 			zts_enhancement_repo_url + "journal_title_to_ppn.map",
 			zts_enhancement_repo_url + "publication_title_to_physical_form.map",
+			zts_enhancement_repo_url + "ISSN_to_Abrufzeichen_zotkat.map",
             ], function (responseText, request, url) {
                 switch (responseText) {
                     case "404: Not Found":

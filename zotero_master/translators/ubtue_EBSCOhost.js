@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsib",
-	"lastUpdated": "2022-01-28 13:34:39"
+	"lastUpdated": "2022-01-28 15:00:49"
 }
 
 /*
@@ -574,7 +574,7 @@ function doDelivery(doc, itemInfo) {
 	}
 	let languageMap = {"Afrikaans": "afr", "Arabic": "ara", "Danish": "dan", "Dutch": "dut", "German": "ger", "English": "eng", "French": "fre", "Greek": "gre", "Italian": "ita", "Malay": "may", "Portuguese": "por", "Romanian": "ron", "Russian": "rus", "Spanish": "spa", "Serbian": "srp", "Turkish": "tur"};
 	let newTest = ZU.xpathText(doc, '//div[@class="citation-wrapping-div "]');
-	let language = newTest.match(/Language:(.+?)(?:(?:Authors:)|(?:Language\s+Note:)|(?:Subjects:))/);
+	let language = newTest.match(/Language:(.+?)(?:(?:Authors:)|(?:Language\s+Note:)|(?:Subjects:)|(?:Related\s+Works:))/);
 	prefs.languageTag = '';
 	// Vorsicht, das kann zu Problemen führen!
 	if (language != null) {
