@@ -17,7 +17,7 @@
 	},
 	"inRepository": true,
 	"translatorType": 3,
-	"lastUpdated": "2021-11-03 15:42:16"
+	"lastUpdated": "2022-02-08 14:44:06"
 }
 
 function detectImport() {
@@ -1699,7 +1699,7 @@ function completeItem(item) {
 	let cleanNotes = [];
 	for (let note of item.notes) {
 		if (note['note'] != undefined) {
-			if (!note['note'].match(/doi: 10\..+\//)) {
+			if (!note['note'].match(/doi:\s*10\..+\//)) {
 				cleanNotes.push({'note': note});
 			}
 		}
@@ -1996,6 +1996,7 @@ var exports = {
 	"doImport": doImport,
 	"options": exportedOptions
 }
+
 
 
 /** BEGIN TEST CASES **/
