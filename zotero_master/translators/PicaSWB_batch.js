@@ -310,7 +310,6 @@ function performExport() {
 		if (!item.ISSN)
 				item.ISSN = "";
 		if (item.ISSN.substring(0,4) != "IXTH") item.ISSN = ZU.cleanISSN(item.ISSN);
-		Zotero.write("Item ISSN: " + item.ISSN);
 		//enrich items based on their ISSN
 		if (issn_to_language_code.get(item.ISSN) !== undefined) {
 			item.language = issn_to_language_code.get(item.ISSN);
@@ -322,7 +321,6 @@ function performExport() {
 		}
 		if (issn_to_ssg_zotkat.get(item.ISSN) !== undefined) {
 			SsgField = issn_to_ssg_zotkat.get(item.ISSN);
-			Zotero.write("Found ssg:" + SsgField);
 		}
 		if (!item.volume && issn_to_volume.get(item.ISSN) !== undefined) {
 			item.volume = issn_to_volume.get(item.ISSN) + item.volume;
