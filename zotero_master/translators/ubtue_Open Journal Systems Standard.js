@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-02-08 11:39:26"
+	"lastUpdated": "2022-02-11 13:15:36"
 }
 
 /*
@@ -198,12 +198,17 @@ function invokeEMTranslator(doc) {
 				}
 			}
 		}
+ 		
+ 		//clean pages e.g. pages": "6.-6." > 10.25786/cjbk.v0i01-02.631
+ 		if (i.pages != null) i.pages = i.pages.replace('S.', '').replace(/\./g, '').replace(/^([^-]+)-\1$/, '$1');;
+ 		
  		if (i.pages == undefined) {
 			let pageNumberFromDC = ZU.xpathText(doc, '//meta[@name="DC.Identifier.pageNumber"]/@content');
 			//if the first page number matches the results of second page number (see regex "\1") e.g. 3-3,
 			//then replace the range with a first page number e.g 3 
 			if (pageNumberFromDC != null) i.pages = pageNumberFromDC.trim().replace(/^([^-]+)-\1$/, '$1');
  		}
+
  		if (i.date == undefined && ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content') != undefined) {
  			i.date = ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content').substr(0,4);
  		
@@ -212,6 +217,8 @@ function invokeEMTranslator(doc) {
 			i.date = ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content').substr(0, 4);
 		}
 		if (i.issue === "0") delete i.issue;
+		//clean issue number starting with zero e.g. "number": "01-02" 10.25786/cjbk.v0i01-02.632
+		if(i.issue != null) i.issue = i.issue.replace(/^0|/g, '').replace(/-0/g, '-');
 		if (i.volume === "0") delete i.volume;
 		if (i.abstractNote == undefined) {
 			i.abstractNote = ZU.xpathText(doc, '//meta[@name="DC.Description"]/@content');
@@ -2521,6 +2528,49 @@ var testCases = [
 						"note": "translatedTitle:Қазіргі Қазақстанның рухани саласындағы діни экспансияның көріністері мен алғышарттары"
 					}
 				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://zfbeg.org/ojs/index.php/cjbk/article/view/631",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Vita: Elie Wiesel.",
+				"creators": [
+					{
+						"firstName": "Forschungsstelle Elie Wiesel Universität",
+						"lastName": "Tübingen",
+						"creatorType": "author"
+					}
+				],
+				"date": "2017",
+				"DOI": "10.25786/cjbk.v0i01-02.631",
+				"ISSN": "2513-1389",
+				"abstractNote": "30. September 1928Geboren in Sighet (Siebenbürgen, heute Rumänien)als Sohn von Schlomo Wiesel (Kaufmann) undSarah Wiesel, geborene Feig. Wiesel wächst ineiner chassidischen Familie auf.1934 bis 1944Elie Wiesel besucht den Cheder, die jüdische Religions-›Grundschule‹, dann die Jeschiwa, dieweiterführende Talmud-Schule. Daneben studierter bereits die jüdische Mystik und die Lehren derchassidischen Meister.Frühjahr 1944Nach der Einrichtung eines Ghettos in Sighet wirddie Familie Wiesel mit der gesamten jüdischenGemeinde nach Auschwitz deportiert. Die Mutterund die jüngere Schwester Tsiporah werden ermordet.Der Vater stirbt kurz vor Kriegsende inBuchenwald, wohin er und Elie Anfang 1945transportiert werden.11. April 1945Befreiung des Lagers Buchenwald. Elie Wieselwird vom Kinderhilfswerk OSE nach Frankreichgebracht. In Paris trifft er seine beiden älterenSchwestern wieder.1948 bis 1951Studium der Philosophie, der französischen Literaturund der Psychologie an der Sorbonne, Paris.Beginn der Tätigkeit als Journalist für israelischeZeitungen und Zeitschriften und als Berichterstatterder UNO.1956Veröffentlichung von …un di Welt hot geschwign.Er kommt in die Vereinigten Staatenund wird 1963 amerikanischer Staatsbürger.1958Die gekürzte und ins Französische übersetzte Versionvon …un di Welt hot geschwign erscheintals La Nuit in Paris.1960er JahreBeginn der umfangreichen schriftstellerischen Tätigkeitenund des Kampfes für Menschenrechte inaller Welt. Erste Ehrendoktorwürden an amerikanischenUniversitäten. Zahlreiche Aufenthalte inIsrael.1969Heirat mit Marion E. Rose, selbst Überlebendeder Shoah und Übersetzerin vieler Bücher ElieWiesels.1972Geburt des Sohnes Schlomo Elischa. Professur ander City University of New York, Department ofJewish Studies.1976 bis 2011Professur an der Boston University (Professor inthe Humanities, Department of Religion, Literatureand Philosophy).Das Gesamtwerk entsteht in vier großen Werkteilen:Autobiografien, Romane, biblisch-talmudisch-chassidische Schriften, Essaysammlungen.1986Verleihung des Friedensnobelpreises. Das Komiteebegründet die Verleihung mit den Worten:»Elie Wiesel ist einer der wichtigsten Führer undWegweiser unserer Zeit. Seine Worte verkündendie Botschaft des Friedens, der Versöhnung undder Menschenwürde.«2000Rede vor dem Deutschen Bundestag.2009Rede in der Gedenkstätte Buchenwald anlässlichdes gemeinsamen Besuchs Angela Merkels undBarack Obamas.2. Juli 2016Elie Wiesel stirbt in New York.",
+				"issue": "1-2",
+				"journalAbbreviation": "1",
+				"language": "de",
+				"libraryCatalog": "zfbeg.org",
+				"pages": "6",
+				"publicationTitle": "Zeitschrift für christlich-jüdische Begegnung im Kontext",
+				"rights": "Copyright (c) 2021 Zeitschrift für christlich-jüdische Begegnung im Kontext",
+				"shortTitle": "Vita",
+				"url": "https://zfbeg.org/ojs/index.php/cjbk/article/view/631",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
