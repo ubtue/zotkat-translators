@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-02-11 13:15:36"
+	"lastUpdated": "2022-02-11 16:25:08"
 }
 
 /*
@@ -199,8 +199,8 @@ function invokeEMTranslator(doc) {
 			}
 		}
  		
- 		//clean pages e.g. pages": "6.-6." > 10.25786/cjbk.v0i01-02.631
- 		if (i.pages != null) i.pages = i.pages.replace('S.', '').replace(/\./g, '').replace(/^([^-]+)-\1$/, '$1');;
+ 		//clean pages e.g. pages": "6.-6." > 10.25786/cjbk.v0i01-02.631; or "pages": "01-07" > 10.25786/zfbeg.v0i01-02.793
+ 		if (i.pages != null) i.pages = i.pages.replace('S.', '').replace(/\./g, '').replace(/^([^-]+)-\1$/, '$1')//.replace(/^0|/g, '').replace(/-0/g, '-');
  		
  		if (i.pages == undefined) {
 			let pageNumberFromDC = ZU.xpathText(doc, '//meta[@name="DC.Identifier.pageNumber"]/@content');
@@ -2559,6 +2559,48 @@ var testCases = [
 				"rights": "Copyright (c) 2021 Zeitschrift für christlich-jüdische Begegnung im Kontext",
 				"shortTitle": "Vita",
 				"url": "https://zfbeg.org/ojs/index.php/cjbk/article/view/631",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://zfbeg.org/ojs/index.php/cjbk/article/view/793",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Inhaltsverzeichnis | Hinweise | Editorial",
+				"creators": [
+					{
+						"firstName": "Verantwortliche",
+						"lastName": "Schriftleitung",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/09/23",
+				"DOI": "10.25786/zfbeg.v0i01-02.793",
+				"ISSN": "2513-1389",
+				"abstractNote": "Hinweise• Bereits in unserer letzten Ausgabe wurdedie Rubrik »Stuttgarter Lehrhaus« eingeführt,in welcher über die Aktivitäten der StiftungStuttgarter Lehrhaus1 berichtet wird undVorträge bzw. Beiträge aus den Veranstaltungenwiedergegeben werden.Die Stiftung Stuttgarter Lehrhaus für interreligiösenDialog stellt einen engen Kooperationspartnerund Förderer der ZfBeg dar.Mit dieser Kooperation findet eines der Zieledieser Zeitschrift seine institutionelle Verankerung,nämlich »das Verständnis zwischenChristen und Juden zu fördern« und gleichzeitig»den Dialog zu öffnen für andere Religionenund Gruppen, insbesondere mitMuslimen«. Nicht nur aus aktuellen gesellschaftlichenund politischen, sondern auchaus theologischen Gründen scheint uns dieverständigungsbereite Hinwendung auchzum Islam eine zentrale Aufgabe: Gesellschaft,Kirchen und Theologien öffnen sichfür den interreligiösen und interkulturellenDialog auf allen Ebenen.",
+				"issue": "1-2",
+				"journalAbbreviation": "1",
+				"language": "de",
+				"libraryCatalog": "zfbeg.org",
+				"pages": "01-07",
+				"publicationTitle": "Zeitschrift für christlich-jüdische Begegnung im Kontext",
+				"rights": "Copyright (c) 2021 Zeitschrift für christlich-jüdische Begegnung im Kontext",
+				"url": "https://zfbeg.org/ojs/index.php/cjbk/article/view/793",
 				"attachments": [
 					{
 						"title": "Full Text PDF",
