@@ -261,8 +261,11 @@ function performExport() {
         itemsOutputCache[currentItemId] = [];
 
 		var physicalForm = "A";//0500 Position 1
-		//Bei KNA Verknüpfung mit O-Aufnahme
-		if (item.publicationTitle === "583217141") physicalForm = "O";
+		//Verknüpfung mit O-Aufnahme bei Amtsblättern, die ausschließlich online erscheinen.
+		if (item.publicationTitle && ['583217141', '613737075', '856427438', '1677381620', '565627228', '1672844088', '1728922038', '1738254771', '1040236065', '1784545694', '167405470', '1789065429', '1663056943', '585796513', '1041373554', '683497839', '130125172', '735685517', '1751188191', '775920312'].includes(item.publicationTitle)) {
+			physicalForm = "O";
+		}
+		
 		var licenceField = ""; // 0500 Position 4 only for Open Access Items; http://swbtools.bsz-bw.de/cgi-bin/help.pl?cmd=kat&val=4085&regelwerk=RDA&verbund=SWB
 		var SsgField = "";
 		var superiorPPN = "";
