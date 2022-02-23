@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-02-23 15:41:44"
+	"lastUpdated": "2022-02-23 17:24:45"
 }
 
 /*
@@ -74,7 +74,7 @@ function invokeEMTranslator(doc) {
 		if (i.volume == undefined) i.volume = ZU.xpathText(doc, '//meta[@name="DC.Source.Volume"]/@content');
 		if (i.pages == undefined) i.pages = ZU.xpathText(doc, '//meta[@name="DC.Identifier.Pagenumber"]/@content');
 		if (i.ISSN == "2521-6465") i.language = ZU.xpathText(doc, '//meta[@name="DC.Language"]/@content');
-		
+
 		if (doc.querySelector(".subtitle")) {
 			if (i.title.indexOf(doc.querySelector(".subtitle").textContent.trim()) == -1) {
  			i.title = i.title + ' ' + doc.querySelector(".subtitle").textContent.trim();
@@ -84,12 +84,6 @@ function invokeEMTranslator(doc) {
  			let subTitle = ZU.xpathText(doc, '//article[@class="article-details"]//h1[@class="page-header"]/small');
  			if (subTitle) {
  				i.title += ': ' + subTitle.trim();
- 			}
- 		}
- 		if (i.ISSN=="2183-2803") {
- 			let abstract = ZU.xpathText(doc, '//meta[@name="DC.Description"]/@content');
- 			if (abstract) {
- 				i.abstractNote = abstract;
  			}
  		}
  		//title in other language for pica-field 4002
@@ -270,21 +264,22 @@ function invokeEMTranslator(doc) {
 		if (newCreators.length != 0) {
 			i.creators = newCreators;
 		}
-		
-		if (i.ISSN === "1893-4773") {
+		if (i.tags[0] == undefined) {
+			let tags = ZU.xpath(doc, '//meta[@name="citation_keywords"]');
+			for (let t in tags) {
+				if (!i.tags.includes(tags[t].content) 
+				&& !i.tags.includes(tags[t].content[0].toUpperCase() + tags[t].content.substring(1)))
+				i.tags.push(tags[t].content);
+			}
+		}
+ 		if (i.ISSN === "1893-4773") {
 			var articleType = ZU.xpath(doc, '//meta[@name = "DC.Type.articleType"]');
 			if (articleType) {
 				if (articleType[0]['content'] == "Bokanmeldelser"){
 					if (!i.tags.includes("RezensionstagPica")) {
 					i.tags.push("RezensionstagPica");
+					}
 				}
-				}
-			}
-			
-		}
-		if (i.ISSN == '2660-4418') {
-			if (i.abstractNote.indexOf("\nReferences\n") !== -1) {
-			i.abstractNote = i.abstractNote.substring(0, i.abstractNote.indexOf("\nReferences\n"));
 			}
 		}
 		if (['2617-3697', '2660-4418', '2748-6419', '2617-1953'].includes(i.ISSN)) {
@@ -293,15 +288,18 @@ function invokeEMTranslator(doc) {
 				subtitle = subtitle.replace(/(\n*\t*)/, '');
 				if (!i.title.match(subtitle)) {
 					i.title = i.title + ': ' + subtitle;
-			}
+				}
 			}
 		}
-		if (i.tags[0] == undefined) {
-			let tags = ZU.xpath(doc, '//meta[@name="citation_keywords"]');
-			for (let t in tags) {
-				if (!i.tags.includes(tags[t].content) 
-				&& !i.tags.includes(tags[t].content[0].toUpperCase() + tags[t].content.substring(1)))
-				i.tags.push(tags[t].content);
+ 		if (i.ISSN=="2183-2803") {
+ 			let abstract = ZU.xpathText(doc, '//meta[@name="DC.Description"]/@content');
+ 			if (abstract) {
+ 				i.abstractNote = abstract;
+ 			}
+ 		}
+		if (i.ISSN == '2660-4418') {
+			if (i.abstractNote.indexOf("\nReferences\n") !== -1) {
+			i.abstractNote = i.abstractNote.substring(0, i.abstractNote.indexOf("\nReferences\n"));
 			}
 		}
 		if (i.ISSN === '2312-3621' && i.abstractNote) {
@@ -327,17 +325,22 @@ function invokeEMTranslator(doc) {
 					for (let keyWord of keyWords.split(/,\s+/)) {
 						i.tags.push(keyWord);
 					}
+				}
+			}
+			i.title = ZU.xpathText(doc, '//meta[@name="DC.Title"]/@content').trim();
+			for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"]/@content')) {
+				i.notes.push({'note': 'translatedTitle:' + parallelTitle.textContent.trim()});
+			}
+			for (let creator of ZU.xpath(doc, '//meta[@name="citation_author"]/@content')) {
+				i.creators.push(ZU.cleanAuthor(creator.textContent, "author", false));
 			}
 		}
-		i.title = ZU.xpathText(doc, '//meta[@name="DC.Title"]/@content').trim();
-		for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"]/@content')) {
-			i.notes.push({'note': 'translatedTitle:' + parallelTitle.textContent.trim()});
+		if (i.ISSN == "2709-8435") {
+			let abstracts = ZU.xpath(doc, '//div[@class="abstract"]/p');
+			if (abstracts[1] != null) {
+			i.abstractNote = abstracts[0].textContent + '\\n4207 ' + abstracts[1].textContent;
+			}
 		}
-		for (let creator of ZU.xpath(doc, '//meta[@name="citation_author"]/@content')) {
-			i.creators.push(ZU.cleanAuthor(creator.textContent, "author", false));
-		}
-		}
-		
 		if (i.url.match(/\/article\/view/)) i.itemType = "journalArticle";
 		if (i.abstractNote == ', ' || i.abstractNote == ',') i.abstractNote = "";
 		let sansidoroAbstract = ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content');
@@ -2664,6 +2667,71 @@ var testCases = [
 		"type": "web",
 		"url": "https://ztp.jesuiten.org/index.php/ZTP/issue/view/319",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://ztp.jesuiten.org/index.php/ZTP/article/view/3677",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Transhumanistisches Glücksstreben und christliche Heilshoffnung. Ein Vergleich",
+				"creators": [
+					{
+						"firstName": "Tristan Samuel",
+						"lastName": "Dittrich",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/08/28",
+				"DOI": "10.35070/ztp.v143i3.3677",
+				"ISSN": "2709-8435",
+				"abstractNote": "Dem Menschen bieten sich im 21. Jahrhundert durch die Fortschritte in den Bio- und Informationstechnologien völlig neue Möglichkeiten, sein Streben nach einem glücklichen Leben voranzutreiben. Trans- und Posthumanismus greifen diese Tatsache auf und entwerfen sowohl moderate als auch radikale Visionen einer Selbstverwirklichung des Menschen, welche von der Optimierung von Körper, Geist und Psyche des Menschen bis hin zu Lebensverlängerung und technologischer Unsterblichkeit reichen. Während trans- und posthumanistische Vorstellungen implizieren, dass der Mensch ein erfülltes Leben selbst herstellen könne, meint Heil und Erlösung im christlichen Sinne immer die Gemeinschaft mit Gott. Diese äußert sich im konkreten Vollzug zwischenmenschlicher Beziehungen von voraussetzungsloser Liebe und Anerkennung, wie sie in Jesus Christus real geworden sind. So verstanden kann ein erfülltes Leben vom Menschen nicht selbst hergestellt werden, sondern ist ein gnadenvolles Geschenk.\\n4207 In the 21st century, advances in bio- and information technologies offer humans completely new possibilities to advance their striving for a happy life. Transand posthumanism draw on this fact and create both moderate and radical visions of human self-realization, which range from the optimization of the human body, mind, and psyche, to life extension and technological immortality. While trans- and posthumanist ideas imply that man can achieve a happy and fulfilled life by himself, salvation and redemption in the Christian sense always mean communion with God. This expresses itself in interpersonal relationships of unconditional love and recognition, as they have become real in Jesus Christ. Understood in this way, a fulfilled life cannot be produced by man himself, but is a gracious gift. This corresponds with the anthropological understanding of humans as relational beings.",
+				"issue": "3",
+				"journalAbbreviation": "ZTP",
+				"language": "de",
+				"libraryCatalog": "ztp.jesuiten.org",
+				"pages": "452-474",
+				"publicationTitle": "Zeitschrift für Theologie und Philosophie",
+				"rights": "Copyright (c) 2021 Zeitschrift für Theologie und Philosophie",
+				"url": "https://ztp.jesuiten.org/index.php/ZTP/article/view/3677",
+				"volume": "143",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Beziehung"
+					},
+					{
+						"tag": "Enhancement"
+					},
+					{
+						"tag": "Erlösung"
+					},
+					{
+						"tag": "Gnade"
+					},
+					{
+						"tag": "Heil"
+					},
+					{
+						"tag": "Posthumanismus"
+					},
+					{
+						"tag": "Transhumanismus"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
