@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-02-23 15:39:16"
+	"lastUpdated": "2022-02-23 15:41:44"
 }
 
 /*
@@ -2659,6 +2659,11 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://ztp.jesuiten.org/index.php/ZTP/issue/view/319",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
