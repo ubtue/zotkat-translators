@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-02-16 08:14:39"
+	"lastUpdated": "2022-02-23 15:39:16"
 }
 
 /*
@@ -36,7 +36,7 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, url) {
 	var items = {};
 	var found = false;
-	var rows = doc.querySelectorAll('.title a[href*="/view/"], .title a[href*="/catalog/"], \
+	var rows = doc.querySelectorAll('.title a[href*="/view/"], .summary_title, .title a[href*="/catalog/"], \
 		.tocTitle a[href*="/view/"], .tocArticleTitle a[href*="/view/"], .tocTitle a[href*="/catalog/"], .media-heading a[href*="/view/"]');
 	if (rows.length == 0 && url.match(/(otwsa-otssa)|(koersjournal)/)) {
 		rows = ZU.xpath(doc, '//div[@class="article-summary-title"]//a');
@@ -44,6 +44,7 @@ function getSearchResults(doc, url) {
 	if (rows.length == 0 && url.match(/(journals\.us\.edu)/)) {
 		rows = ZU.xpath(doc, '//h4[contains(@class, "article-summary-title")]//a');
 	}
+
 	for (let row of rows) {
 		let href = row.href;
 		let title = ZU.trimInternal(row.textContent).replace(/pdf/i, '');
