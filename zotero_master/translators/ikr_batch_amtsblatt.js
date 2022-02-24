@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2022-02-03 17:20:00"
+	"lastUpdated": "2022-02-24 12:20:00"
 }
 
 
@@ -492,10 +492,10 @@ function performExport() {
 
                 var code = 0;
                 if (i === 0) {
-                    code = "\\n3100";
+                    code = "\\n3000";
                     titleStatement;
                 } else {
-                    code = "\\n3110";
+                    code = "\\n3010";
                 }
 
                 i++;
@@ -661,7 +661,7 @@ function performExport() {
 			item.abstractNote = ZU.unescapeHTML(item.abstractNote);
 			addLine(currentItemId, "\\n4207", item.abstractNote.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract\s?:?/, '').replace(/Abstract  :/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, ''));
         }
-
+		
         //item.publicationTitle --> 4241 Beziehungen zur größeren Einheit
         if (item.itemType == "journalArticle" || item.itemType == "magazineArticle") {
             if (superiorPPN.length != 0) {
@@ -671,7 +671,14 @@ function performExport() {
             } else if (item.publicationTitle.match(/^[A-Z]|[a-z]/)) {
                 addLine(currentItemId, "\\n4241", "Enthalten in" + item.publicationTitle);
             }
-
+			// item.notes "PPN" > 4241 Beziehungen zur größeren Einheit bei Beiträgen aus Sammelwerken / Reihen
+			if (item.notes) {
+				for (let i in item.notes) {
+					if (item.notes[i].note.includes('PPN')) {
+						addLine(currentItemId, "\\n4241", "Enthalten in" +  ZU.unescapeHTML(item.notes[i].note.replace(/^ppn/i, '')));
+					} 
+				}
+			}
             //4261 Themenbeziehungen (Beziehung zu der Veröffentlichung, die beschrieben wird)|case:magazineArticle
             if (item.itemType == "magazineArticle") {
                 addLine(currentItemId, "\\n4261", "Rezension von" + item.publicationTitle); // zwischen den Ausrufezeichen noch die PPN des rezensierten Werkes manuell einfügen.
