@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2022-02-24 12:20:00"
+	"lastUpdated": "2022-02-24 16:50:00"
 }
 
 
@@ -492,10 +492,20 @@ function performExport() {
 
                 var code = 0;
                 if (i === 0) {
-                    code = "\\n3000";
-                    titleStatement;
+					if (['2520-0089'].includes(item.ISSN)){
+						code = "\\n3000";
+						titleStatement;
+					} 
+					else {
+						code = "\\n3100";
+						titleStatement;
+					}
                 } else {
-                    code = "\\n3010";
+					if (['2520-0089'].includes(item.ISSN)){
+						code = "\\n3010";
+					} else {
+						code = "\\n3110";	
+					}
                 }
 
                 i++;
@@ -675,13 +685,13 @@ function performExport() {
 			if (item.notes) {
 				for (let i in item.notes) {
 					if (item.notes[i].note.includes('PPN')) {
-						addLine(currentItemId, "\\n4241", "Enthalten in" +  ZU.unescapeHTML(item.notes[i].note.replace(/^ppn/i, '')));
+						addLine(currentItemId, "\\n4241", "Enthalten in!" +  ZU.unescapeHTML(item.notes[i].note.replace(/^ppn/i, '')) + "!");
 					} 
 				}
 			}
             //4261 Themenbeziehungen (Beziehung zu der Veröffentlichung, die beschrieben wird)|case:magazineArticle
             if (item.itemType == "magazineArticle") {
-                addLine(currentItemId, "\\n4261", "Rezension von" + item.publicationTitle); // zwischen den Ausrufezeichen noch die PPN des rezensierten Werkes manuell einfügen.
+                addLine(currentItemId, "\\n4261", "Rezension von!" + item.publicationTitle + "!"); // zwischen den Ausrufezeichen noch die PPN des rezensierten Werkes manuell einfügen.
             }
 
             //SSG bzw. FID-Nummer --> 5056 "0" = Religionwissenschaft | "1" = Theologie | "0; 1" = RW & Theol.
