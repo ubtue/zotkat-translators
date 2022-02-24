@@ -1,6 +1,6 @@
 {
-	"translatorID": "2edf7a1b-eded-48d7-ae11-7126fd1c1b01ikrbamts",
-	"label": "ikr_batch_amtsblatt",
+	"translatorID": "bd95c0c2-ee3c-41ae-a05c-cc9dd7867a3f",
+	"label": "ikr_batch",
 	"creator": "Philipp Zumstein, Timotheus Kim, Mario Trojan, Madeeswaran Kannan",
 	"target": "txt",
 	"minVersion": "3.0",
@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2022-02-24 16:50:00"
+	"lastUpdated": "2022-02-24 17:50:00"
 }
 
 
@@ -492,7 +492,8 @@ function performExport() {
 
                 var code = 0;
                 if (i === 0) {
-					if (['2520-0089'].includes(item.ISSN)){
+					//KNA und Kirchen- und Staatskirchenrecht hat keine ISSN. Fingierte ISSN eventuell noch nachtragen!
+					if (['2520-0089', '2366-6722', '1868-7369', '2304-4896', '0948-0471', '0034-9372', '2612-3746', '0022-6858', '2364-2416', '2450-4629', '0341-1915', '0721-880X', '0934-8603', '0943-7525', '0949-7137', '0179-7387', '2196-0119', '0514-6496', '2708-7417'].includes(item.ISSN)){
 						code = "\\n3000";
 						titleStatement;
 					} 
