@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-02-28 12:24:20"
+	"lastUpdated": "2022-02-28 12:47:00"
 }
 
 /*
@@ -82,12 +82,14 @@ function invokeEMTranslator(doc) {
  			i.title = i.title + ' ' + doc.querySelector(".subtitle").textContent.trim();
 			}
  		}
+ 		
  		if (i.ISSN=='1804-6444') {
  			let subTitle = ZU.xpathText(doc, '//article[@class="article-details"]//h1[@class="page-header"]/small');
  			if (subTitle) {
  				i.title += ': ' + subTitle.trim();
  			}
  		}
+ 		
  		//title in other language for pica-field 4002
  		var articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
  		if (articleType === "Artículos") {
@@ -346,6 +348,9 @@ function invokeEMTranslator(doc) {
 				}
 			}
 			i.title = ZU.xpathText(doc, '//meta[@name="DC.Title"]/@content').trim();
+			if (!i.title) {
+				i.title = ZU.xpathText(doc, '//meta[@name="DC.Title.Alternative"][1]/@content').trim();
+			}
 			for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"]/@content')) {
 				i.notes.push({'note': 'translatedTitle:' + parallelTitle.textContent.trim()});
 			}
