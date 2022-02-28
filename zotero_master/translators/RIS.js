@@ -17,7 +17,7 @@
 	},
 	"inRepository": true,
 	"translatorType": 3,
-	"lastUpdated": "2021-07-09 05:32:22"
+	"lastUpdated": "2022-02-28 11:51:16"
 }
 
 function detectImport() {
@@ -1731,9 +1731,15 @@ function completeItem(item) {
 			item.notes.push({note: note.trim(), tags: ['_RIS import']});
 		}
 	}
+	let newNotes = [];
+	for (let note of item.notes) {
+		if (note['note'].match(/^(?:<p>)?doi:/) == null) {
+			newNotes.push(note);
+		}
+	}
+	item.notes = newNotes;
 	item.unsupportedFields = undefined;
 	item.unknownFields = undefined;
-
 	return item.complete();
 }
 
@@ -2034,6 +2040,7 @@ var exports = {
 	"doImport": doImport,
 	"options": exportedOptions
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
