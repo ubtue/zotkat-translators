@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-02-28 12:18:04"
+	"lastUpdated": "2022-02-28 12:24:20"
 }
 
 /*
@@ -195,6 +195,22 @@ function invokeEMTranslator(doc) {
 				}
 			}
 		}
+		
+		//e.g. https://missionalia.journals.ac.za/pub/article/view/422
+	let orcidAuthorEntryCaseE = doc.querySelectorAll('.authorBio');//Z.debug(orcidAuthorEntryCaseC)
+  	if (orcidAuthorEntryCaseE) {
+  	 	for (let c of orcidAuthorEntryCaseE) {
+  			if (c && c.innerHTML.match(/\d+-\d+-\d+-\d+x?/gi)) {
+  				let orcid = ZU.xpathText(c, './/a[@class="orcid"]/@href', '');
+  				let author = ZU.xpathText(c, './/em', '');
+  				if (orcid != null && author != null) {
+  					author = ZU.unescapeHTML(ZU.trimInternal(author)).trim();
+  					orcid = ZU.unescapeHTML(ZU.trimInternal(orcid)).trim();
+  					i.notes.push({note: author + ' | ' + orcid.replace(/https?:\/\/orcid.org\//g, 'orcid:') + ' | taken from website'});
+  				}
+  			}
+  		}
+  	}
  		
  		//clean pages e.g. pages": "6.-6." > 10.25786/cjbk.v0i01-02.631; or "pages": "01-07" > 10.25786/zfbeg.v0i01-02.793
  		if (i.pages != null) i.pages = i.pages.replace('S.', '').replace(/\./g, '').replace(/^([^-]+)-\1$/, '$1').replace(/^0/g, '').replace(/-0/g, '-');
@@ -2626,48 +2642,6 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://zfbeg.org/ojs/index.php/cjbk/article/view/793",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Inhaltsverzeichnis | Hinweise | Editorial",
-				"creators": [
-					{
-						"firstName": "Verantwortliche",
-						"lastName": "Schriftleitung",
-						"creatorType": "author"
-					}
-				],
-				"date": "2021/09/23",
-				"DOI": "10.25786/zfbeg.v0i01-02.793",
-				"ISSN": "2513-1389",
-				"abstractNote": "Hinweise• Bereits in unserer letzten Ausgabe wurdedie Rubrik »Stuttgarter Lehrhaus« eingeführt,in welcher über die Aktivitäten der StiftungStuttgarter Lehrhaus1 berichtet wird undVorträge bzw. Beiträge aus den Veranstaltungenwiedergegeben werden.Die Stiftung Stuttgarter Lehrhaus für interreligiösenDialog stellt einen engen Kooperationspartnerund Förderer der ZfBeg dar.Mit dieser Kooperation findet eines der Zieledieser Zeitschrift seine institutionelle Verankerung,nämlich »das Verständnis zwischenChristen und Juden zu fördern« und gleichzeitig»den Dialog zu öffnen für andere Religionenund Gruppen, insbesondere mitMuslimen«. Nicht nur aus aktuellen gesellschaftlichenund politischen, sondern auchaus theologischen Gründen scheint uns dieverständigungsbereite Hinwendung auchzum Islam eine zentrale Aufgabe: Gesellschaft,Kirchen und Theologien öffnen sichfür den interreligiösen und interkulturellenDialog auf allen Ebenen.",
-				"issue": "1-2",
-				"journalAbbreviation": "1",
-				"language": "de",
-				"libraryCatalog": "zfbeg.org",
-				"pages": "1-7",
-				"publicationTitle": "Zeitschrift für christlich-jüdische Begegnung im Kontext",
-				"rights": "Copyright (c) 2021 Zeitschrift für christlich-jüdische Begegnung im Kontext",
-				"url": "https://zfbeg.org/ojs/index.php/cjbk/article/view/793",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
 		"url": "https://ztp.jesuiten.org/index.php/ZTP/issue/view/319",
 		"items": "multiple"
 	},
@@ -2732,6 +2706,70 @@ var testCases = [
 					}
 				],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://missionalia.journals.ac.za/pub/article/view/358",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "“Just City-making” in Cape Town: Liberating Theological Education",
+				"creators": [
+					{
+						"firstName": "Selena D.",
+						"lastName": "Headley",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/12/30",
+				"DOI": "10.7832/49-0-358",
+				"ISSN": "2312-878X",
+				"abstractNote": "Aspirational terms such as world-class, resilient, climate-friendly and a just city stand in contrast to adverse terms such unequal, divided, colonial, violent and segregated to describe the present and future state of the City of Cape Town. How do institutions offering tertiary qualifications in theology engage with the competing narratives of the city in the preparation of faith-based practitioners? The aim of this article is to explore the current landscape of theological education, offered in higher education institutions in Cape Town, in terms of an urban focus. The article will reflect how curricula, pedagogies and epistemologies engage the complexities of the urban context. The connection between theological education and ministry formation of faith-based practitioners will be explored in light of Cape Town’s urban futures.",
+				"language": "en",
+				"libraryCatalog": "missionalia.journals.ac.za",
+				"publicationTitle": "Missionalia: Southern African Journal of Missiology",
+				"rights": "Copyright (c) 2021 Missionalia: Southern African Journal of Missiology",
+				"shortTitle": "“Just City-making” in Cape Town",
+				"url": "https://missionalia.journals.ac.za/pub/article/view/358",
+				"volume": "49",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Cape Town"
+					},
+					{
+						"tag": "justice"
+					},
+					{
+						"tag": "pedagogy"
+					},
+					{
+						"tag": "theological education"
+					},
+					{
+						"tag": "theological formation"
+					},
+					{
+						"tag": "urban futures"
+					}
+				],
+				"notes": [
+					{
+						"note": "Selena D. Headley | orcid:0000-0001-8844-0278 | taken from website"
+					}
+				],
 				"seeAlso": []
 			}
 		]
