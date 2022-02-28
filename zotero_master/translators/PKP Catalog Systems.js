@@ -1,15 +1,15 @@
 {
 	"translatorID": "99b62ba4-065c-4e83-a5c0-d8cc0c75d388",
-	"translatorType": 4,
 	"label": "PKP Catalog Systems",
 	"creator": "Aurimas Vinckevicius and Abe Jellinek",
 	"target": "/(article|preprint|issue)/view/|/catalog/book/|/search/search|/index\\.php/default",
 	"minVersion": "2.1.9",
-	"maxVersion": null,
+	"maxVersion": "",
 	"priority": 200,
 	"inRepository": true,
+	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-09-19 22:05:00"
+	"lastUpdated": "2022-02-28 14:58:17"
 }
 
 /*
@@ -77,6 +77,20 @@ function getSearchResults(doc, checkOnly) {
 		if (checkOnly) return true;
 		found = true;
 		items[href] = title;
+	}
+	if (rows.length == 0) {
+		rows = doc.querySelectorAll('.tocArticle');
+		for (let row of rows) {
+			if (ZU.xpathText(row, './/div[@class="tocGalleys"]/a') != null) {
+				let href = ZU.xpathText(row, './/div[@class="tocGalleys"]/a/@href').replace(/\/[^\/]+$/, '');
+				let title = ZU.trimInternal(ZU.xpathText(row, './/div[@class="tocTitle"]'));
+				if (!href || !title) continue;
+				if (checkOnly) return true;
+				found = true;
+				items[href] = title;
+				}
+			
+		}
 	}
 	return found ? items : false;
 }
@@ -182,44 +196,12 @@ function scrape(doc, url) {
 			item.institution = '';
 		}
 		
-		var pdfAttachment = false;
-		
-		// some journals link to a PDF view page in the header, not the PDF itself
-		for (let i = 0; i < item.attachments.length; i++) {
-			if (item.attachments[i].mimeType == 'application/pdf') {
-				pdfAttachment = true;
-				item.attachments[i].url = item.attachments[i].url.replace('/view/', '/download/');
-			}
-			else if (item.attachments[i].title == 'Snapshot') {
-				item.attachments.splice(i--, 1); // delete it
+		if (ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content') != null) {
+			if (ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content').match(/(Recensioni)|(Recensiones)/) != null) {
+				item.tags.push("RezensionstagPica");
 			}
 		}
-		
-		var pdfUrl = doc.querySelector("a.pdf");
-		// add linked PDF if there isn't one listed in the header
-		if (!pdfAttachment && pdfUrl) {
-			pdfAttachment = true;
-			item.attachments.push({
-				title: "Full Text PDF",
-				mimeType: "application/pdf",
-				url: pdfUrl.href.replace('/view/', '/download/')
-			});
-		}
-		
-		// add linked PDF if there isn't one listed in the header
-		if (!pdfAttachment) {
-			for (let link of doc.querySelectorAll("a.obj_galley_link")) {
-				if (link.textContent.includes('PDF')) {
-					pdfAttachment = true;
-					item.attachments.push({
-						title: "Full Text PDF",
-						mimeType: "application/pdf",
-						url: link.href.replace('/view/', '/download/')
-					});
-					break;
-				}
-			}
-		}
+		item.attachments = [];
 		
 		item.complete();
 	});
@@ -229,6 +211,7 @@ function scrape(doc, url) {
 		trans.doWeb(doc, url);
 	});
 }
+
 
 
 /** BEGIN TEST CASES **/
