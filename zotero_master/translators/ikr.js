@@ -9,29 +9,27 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2022-02-25 13:45:00"
+	"lastUpdated": "2022-03-08 13:45:00"
 }
 
 
 
-// Zotero Export Translator für das Pica Intern Format
-// (wie es im SWB Verbund benutzt wird)
+// Zotero Export Translator für das Pica3-Format angepasst für DAKAR-Datenbank
 
 
 /*
 	***** BEGIN LICENSE BLOCK *****
-	Copyright © 2016 Philipp Zumstein
-	This file is part of Zotero.
-	Zotero is free software: you can redistribute it and/or modify
+	Copyright © 2020 Universitätsbibliothek Tübingen.  All rights reserved.
+	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
-	Zotero is distributed in the hope that it will be useful,
+	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Affero General Public License for more details.
 	You should have received a copy of the GNU Affero General Public License
-	along with Zotero. If not, see <http://www.gnu.org/licenses/>.
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	***** END LICENSE BLOCK *****
 */
 
@@ -262,7 +260,7 @@ function performExport() {
 
 		var physicalForm = "A";//0500 Position 1
 		//Verknüpfung mit O-Aufnahme bei Amtsblättern, die ausschließlich online erscheinen.
-		if (item.publicationTitle && ['583217141', '613737075', '856427438', '1677381620', '565627228', '1672844088', '1728922038', '1738254771', '1040236065', '1784545694', '175696663X', '1789065429', '1663056943', '585796513', '1041373554', '683497839', '736118896', '735685517', '1751188191', '775920312'].includes(item.publicationTitle)) {
+		if (item.publicationTitle && ['583217141', '613737075', '856427438', '1677381620', '565627228', '1672844088', '1728922038', '1738254771', '1040236065', '1784545694', '175696663X', '1789065429', '1663056943', '1789070287', '1041373554', '683497839', '736118896', '735685517', '1751188191', '775920312'].includes(item.publicationTitle)) {
 			physicalForm = "O";
 		}
 		
@@ -492,8 +490,8 @@ function performExport() {
 
                 var code = 0;
                 if (i === 0) {
-					//KNA und Kirchen- und Staatskirchenrecht hat keine ISSN. Fingierte ISSN eventuell noch nachtragen!
-					if (['2520-0089', '2366-6722', '1868-7369', '2304-4896', '0948-0471', '0034-9372', '2612-3746', '0022-6858', '2364-2416', '2450-4629', '0341-1915', '0721-880X', '0934-8603', '0943-7525', '0949-7137', '0179-7387', '2196-0119', '0514-6496', '2708-7417', '2248-9789', '0341-1915', '0721-1937', '0947-8094', '1120-6462', '0026-976X', '0044-2690', '0323-4142', '0946-3178'].includes(item.ISSN)){
+					//Bei "Kirchen- und Staatskirchenrecht" statt ISSN - keine vorhanden - PPN im Feld "Publikation" noch nachtragen!
+					if (['2520-0089', '2366-6722', '1868-7369', '2304-4896', '0948-0471', '0034-9372', '2612-3746', '0022-6858', '2364-2416', '2450-4629', '0341-1915', '0721-880X', '0934-8603', '0943-7525', '0949-7137', '0179-7387', '2196-0119', '0514-6496', '2708-7417', '2248-9789', '0341-1915', '0721-1937', '0947-8094', '1120-6462', '0026-976X', '0044-2690', '0323-4142', '0946-3178'].includes(item.ISSN) || ['583217141'].includes(item.publicationTitle)){
 						code = "\\n3000";
 						titleStatement;
 					} 
@@ -502,7 +500,7 @@ function performExport() {
 						titleStatement;
 					}
                 } else {
-					if (['2520-0089', '2366-6722', '1868-7369', '2304-4896', '0948-0471', '0034-9372', '2612-3746', '0022-6858', '2364-2416', '2450-4629', '0341-1915', '0721-880X', '0934-8603', '0943-7525', '0949-7137', '0179-7387', '2196-0119', '0514-6496', '2708-7417', '2248-9789', '0341-1915', '0721-1937', '0947-8094', '1120-6462', '0026-976X', '0044-2690', '0323-4142', '0946-3178'].includes(item.ISSN)){
+					if (['2520-0089', '2366-6722', '1868-7369', '2304-4896', '0948-0471', '0034-9372', '2612-3746', '0022-6858', '2364-2416', '2450-4629', '0341-1915', '0721-880X', '0934-8603', '0943-7525', '0949-7137', '0179-7387', '2196-0119', '0514-6496', '2708-7417', '2248-9789', '0341-1915', '0721-1937', '0947-8094', '1120-6462', '0026-976X', '0044-2690', '0323-4142', '0946-3178'].includes(item.ISSN) || ['583217141'].includes(item.publicationTitle)){
 						code = "\\n3010";
 					} else {
 						code = "\\n3110";	
