@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-02-08 15:21:57"
+	"lastUpdated": "2022-03-09 14:15:41"
 }
 
 /*
@@ -152,6 +152,14 @@ function scrape(doc, url) {
 							item.title = ZU.xpathText(doc, '//title').replace(/\s+\|\s+Jahrbuch\s+der\s+Religionspädagogik\s+\(JRP\)$/, '');
 							}
 						}
+						
+						let newNotes = [];
+						for (let note of item.notes) {
+							if (note['note'].match(/^(?:<p>)?doi:/) == null) {
+								newNotes.push(note);
+							}
+						}
+						item.notes = newNotes;
 						item.complete();
 					});
 				//item.complete();
