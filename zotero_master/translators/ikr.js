@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2022-03-08 13:45:00"
+	"lastUpdated": "2022-03-10 17:31:00"
 }
 
 
@@ -491,7 +491,7 @@ function performExport() {
                 var code = 0;
                 if (i === 0) {
 					//Bei "Kirchen- und Staatskirchenrecht" statt ISSN - keine vorhanden - PPN im Feld "Publikation" noch nachtragen!
-					if (['2520-0089', '2366-6722', '1868-7369', '2304-4896', '0948-0471', '0034-9372', '2612-3746', '0022-6858', '2364-2416', '2450-4629', '0341-1915', '0721-880X', '0934-8603', '0943-7525', '0949-7137', '0179-7387', '2196-0119', '0514-6496', '2708-7417', '2248-9789', '0341-1915', '0721-1937', '0947-8094', '1120-6462', '0026-976X', '0044-2690', '0323-4142', '0946-3178'].includes(item.ISSN) || ['583217141'].includes(item.publicationTitle)){
+					if (['2520-0089', '2366-6722', '1868-7369', '2304-4896', '0948-0471', '0034-9372', '2612-3746', '0022-6858', '2364-2416', '2450-4629', '0341-1915', '0721-880X', '0934-8603', '0943-7525', '0949-7137', '0179-7387', '2196-0119', '0514-6496', '2708-7417', '2248-9789', '0341-1915', '0721-1937', '0947-8094', '1120-6462', '0026-976X', '0044-2690', '0323-4142', '0946-3178', '0556-7378'].includes(item.ISSN) || ['583217141'].includes(item.publicationTitle)){
 						code = "\\n3000";
 						titleStatement;
 					} 
@@ -500,7 +500,7 @@ function performExport() {
 						titleStatement;
 					}
                 } else {
-					if (['2520-0089', '2366-6722', '1868-7369', '2304-4896', '0948-0471', '0034-9372', '2612-3746', '0022-6858', '2364-2416', '2450-4629', '0341-1915', '0721-880X', '0934-8603', '0943-7525', '0949-7137', '0179-7387', '2196-0119', '0514-6496', '2708-7417', '2248-9789', '0341-1915', '0721-1937', '0947-8094', '1120-6462', '0026-976X', '0044-2690', '0323-4142', '0946-3178'].includes(item.ISSN) || ['583217141'].includes(item.publicationTitle)){
+					if (['2520-0089', '2366-6722', '1868-7369', '2304-4896', '0948-0471', '0034-9372', '2612-3746', '0022-6858', '2364-2416', '2450-4629', '0341-1915', '0721-880X', '0934-8603', '0943-7525', '0949-7137', '0179-7387', '2196-0119', '0514-6496', '2708-7417', '2248-9789', '0341-1915', '0721-1937', '0947-8094', '1120-6462', '0026-976X', '0044-2690', '0323-4142', '0946-3178', '0556-7378'].includes(item.ISSN) || ['583217141'].includes(item.publicationTitle)){
 						code = "\\n3010";
 					} else {
 						code = "\\n3110";	
@@ -689,7 +689,7 @@ function performExport() {
 				}
 			}
             //4261 Themenbeziehungen (Beziehung zu der Veröffentlichung, die beschrieben wird)|case:magazineArticle
-            if (item.itemType == "magazineArticle") {
+            if (item.itemType == "magazineArticle" && item.publicationTitle) {
                 addLine(currentItemId, "\\n4261", "Rezension von!" + item.publicationTitle + "!"); // zwischen den Ausrufezeichen noch die PPN des rezensierten Werkes manuell einfügen.
             }
 
