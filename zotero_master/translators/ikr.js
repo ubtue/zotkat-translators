@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2022-03-10 17:31:00"
+	"lastUpdated": "2022-03-11 13:48:00"
 }
 
 
@@ -260,7 +260,7 @@ function performExport() {
 
 		var physicalForm = "A";//0500 Position 1
 		//Verknüpfung mit O-Aufnahme bei Amtsblättern, die ausschließlich online erscheinen.
-		if (item.publicationTitle && ['583217141', '613737075', '856427438', '1677381620', '565627228', '1672844088', '1728922038', '1738254771', '1040236065', '1784545694', '175696663X', '1789065429', '1663056943', '1789070287', '1041373554', '683497839', '736118896', '735685517', '1751188191', '775920312'].includes(item.publicationTitle)) {
+		if (item.publicationTitle && ['583217141', '613737075', '856427438', '1677381620', '565627228', '1672844088', '1728922038', '1738254771', '1040236065', '1784545694', '175696663X', '1789065429', '1663056943', '1789070287', '1041373554', '683497839', '736118896', '735685517', '1751188191', '775920312', '867167459'].includes(item.publicationTitle)) {
 			physicalForm = "O";
 		}
 		
