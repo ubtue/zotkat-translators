@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-03-09 14:17:14"
+	"lastUpdated": "2022-03-11 08:33:56"
 }
 
 /*
@@ -152,6 +152,10 @@ function scrape(doc, url) {
 							item.title = ZU.xpathText(doc, '//title').replace(/\s+\|\s+Jahrbuch\s+der\s+Religionspädagogik\s+\(JRP\)$/, '');
 							}
 						}
+						let splitIndex = item.title.indexOf("| Jahrbuch der Religionspädagogik (JRP)");
+						if (splitIndex != -1) {
+							item.title = item.title.substring(0, splitIndex);
+						}
 						
 						let newNotes = [];
 						for (let note of item.notes) {
@@ -206,6 +210,38 @@ var testCases = [
 		"type": "web",
 		"url": "https://www.vr-elibrary.de/doi/book/10.13109/9783666703034",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://www.vr-elibrary.de/doi/10.13109/9783666703034.8",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "»Die Sprache, mit der ich Gott beschreiben könnte, gibt es nicht« – Gedanken von Kindern, Jugendlichen und jungen Erwachsenen",
+				"creators": [
+					{
+						"lastName": "Menne",
+						"firstName": "Andreas",
+						"creatorType": "author"
+					}
+				],
+				"date": "September 5, 2021",
+				"DOI": "10.13109/9783666703034.8",
+				"ISSN": "2567-9384",
+				"extra": "DOI: 10.13109/9783666703034.8",
+				"language": "de",
+				"libraryCatalog": "ubtue_vandenhoeck_ruprecht",
+				"pages": "8-13",
+				"publicationTitle": "Jahrbuch der Religionspädagogik (JRP)",
+				"series": "Jahrbuch der Religionspädagogik (JRP)",
+				"url": "https://www.vr-elibrary.de/doi/10.13109/9783666703034.8",
+				"volume": "37",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
