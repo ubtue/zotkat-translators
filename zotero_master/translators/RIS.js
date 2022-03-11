@@ -1731,9 +1731,9 @@ function completeItem(item) {
 			item.notes.push({note: note.trim(), tags: ['_RIS import']});
 		}
 	}
+	
 	item.unsupportedFields = undefined;
 	item.unknownFields = undefined;
-
 	return item.complete();
 }
 
@@ -2034,6 +2034,7 @@ var exports = {
 	"doImport": doImport,
 	"options": exportedOptions
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
