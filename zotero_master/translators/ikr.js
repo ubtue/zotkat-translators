@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2022-03-11 13:48:00"
+	"lastUpdated": "2022-03-15 09:18:00"
 }
 
 
@@ -259,11 +259,6 @@ function performExport() {
         itemsOutputCache[currentItemId] = [];
 
 		var physicalForm = "A";//0500 Position 1
-		//Verknüpfung mit O-Aufnahme bei Amtsblättern, die ausschließlich online erscheinen.
-		if (item.publicationTitle && ['583217141', '613737075', '856427438', '1677381620', '565627228', '1672844088', '1728922038', '1738254771', '1040236065', '1784545694', '175696663X', '1789065429', '1663056943', '1789070287', '1041373554', '683497839', '736118896', '735685517', '1751188191', '775920312', '867167459'].includes(item.publicationTitle)) {
-			physicalForm = "O";
-		}
-		
 		var licenceField = ""; // 0500 Position 4 only for Open Access Items; http://swbtools.bsz-bw.de/cgi-bin/help.pl?cmd=kat&val=4085&regelwerk=RDA&verbund=SWB
 		var SsgField = "";
 		var superiorPPN = "";
@@ -271,7 +266,7 @@ function performExport() {
 		
 		if (!item.ISSN)
 				item.ISSN = "";
-		item.ISSN = ZU.cleanISSN(item.ISSN);
+		//item.ISSN = ZU.cleanISSN(item.ISSN);
 		Z.debug("Item ISSN: " + item.ISSN);
 		//enrich items based on their ISSN
 		if (!item.language && issn_to_language_code.get(item.ISSN) !== undefined) {
@@ -288,6 +283,10 @@ function performExport() {
 		}
 		if (issn_to_physical_form.get(item.ISSN) !== undefined) {
 			physicalForm = issn_to_physical_form.get(item.ISSN); // position 1 http://swbtools.bsz-bw.de/winibwhelp/Liste_0500.htm
+			Z.debug("Found physicalForm:" + physicalForm);
+		}
+		if (issn_to_physical_form.get(item.publicationTitle) !== undefined) {
+			physicalForm = issn_to_physical_form.get(item.publicationTitle); // position 1 http://swbtools.bsz-bw.de/winibwhelp/Liste_0500.htm
 			Z.debug("Found physicalForm:" + physicalForm);
 		}
 		if (issn_to_license.get(item.ISSN) !== undefined) {
@@ -490,8 +489,8 @@ function performExport() {
 
                 var code = 0;
                 if (i === 0) {
-					//Bei "Kirchen- und Staatskirchenrecht" statt ISSN - keine vorhanden - PPN im Feld "Publikation" noch nachtragen!
-					if (['2520-0089', '2366-6722', '1868-7369', '2304-4896', '0948-0471', '0034-9372', '2612-3746', '0022-6858', '2364-2416', '2450-4629', '0341-1915', '0721-880X', '0934-8603', '0943-7525', '0949-7137', '0179-7387', '2196-0119', '0514-6496', '2708-7417', '2248-9789', '0341-1915', '0721-1937', '0947-8094', '1120-6462', '0026-976X', '0044-2690', '0323-4142', '0946-3178', '0556-7378'].includes(item.ISSN) || ['583217141'].includes(item.publicationTitle)){
+					//ISSN Konkordanz für die Steuerung der 30xx-Felder für die Zeitschrift > 3000 bzw. Amtsblatt > 3100
+					if (['2520-0089', '2366-6722', '1868-7369', '2304-4896', '0948-0471', '0034-9372', '2612-3746', '0022-6858', '2364-2416', '2450-4629', '0341-1915', '0721-880X', '0934-8603', '0943-7525', '0949-7137', '0179-7387', '2196-0119', '0514-6496', '2708-7417', '2248-9789', '0341-1915', '0721-1937', '0947-8094', '1120-6462', '0026-976X', '0044-2690', '0323-4142', '0946-3178', '0556-7378', '1981-7096', '2629-804X'].includes(item.ISSN) || ['583217141'].includes(item.publicationTitle)){
 						code = "\\n3000";
 						titleStatement;
 					} 
@@ -500,7 +499,7 @@ function performExport() {
 						titleStatement;
 					}
                 } else {
-					if (['2520-0089', '2366-6722', '1868-7369', '2304-4896', '0948-0471', '0034-9372', '2612-3746', '0022-6858', '2364-2416', '2450-4629', '0341-1915', '0721-880X', '0934-8603', '0943-7525', '0949-7137', '0179-7387', '2196-0119', '0514-6496', '2708-7417', '2248-9789', '0341-1915', '0721-1937', '0947-8094', '1120-6462', '0026-976X', '0044-2690', '0323-4142', '0946-3178', '0556-7378'].includes(item.ISSN) || ['583217141'].includes(item.publicationTitle)){
+					if (['2520-0089', '2366-6722', '1868-7369', '2304-4896', '0948-0471', '0034-9372', '2612-3746', '0022-6858', '2364-2416', '2450-4629', '0341-1915', '0721-880X', '0934-8603', '0943-7525', '0949-7137', '0179-7387', '2196-0119', '0514-6496', '2708-7417', '2248-9789', '0341-1915', '0721-1937', '0947-8094', '1120-6462', '0026-976X', '0044-2690', '0323-4142', '0946-3178', '0556-7378', '1981-7096', '2629-804X'].includes(item.ISSN) || ['583217141'].includes(item.publicationTitle)){
 						code = "\\n3010";
 					} else {
 						code = "\\n3110";	
