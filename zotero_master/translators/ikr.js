@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2022-03-15 16:22:00"
+	"lastUpdated": "2022-03-16 10:33:00"
 }
 
 
@@ -51,12 +51,10 @@ var zts_enhancement_repo_url = 'https://raw.githubusercontent.com/ubtue/zotero-e
 var downloaded_map_files = 0;
 var max_map_files = 11;
 
-
 /*
     The following maps DO NOT have a corresponding file in the zts_enhancement_maps repository.
     Until they are added somewhere online for downloading, we'll use the hardcoded maps that follow:
 */
-// Mapping für JournalTitle missing ISSN >PPN
 
 // Mapping JournalTitle>Language
 var journal_title_to_language_code = {
@@ -70,11 +68,9 @@ var journal_title_to_language_code = {
 var defaultSsgNummer = "";
 var defaultLanguage = "";
 
-//lokaldatensatz z.B. \\n6700 !372049834!\\n6700 !37205241X!\\n6700 !372053025!\\n6700!37205319X!
-
 //item.type --> 0500 Bibliographische Gattung und Status
 //http://swbtools.bsz-bw.de/winibwhelp/Liste_0500.htm
-// TODO: check if the folowing 3 variables are being used correctly
+
 var cataloguingStatus = "n";//0500 Position 3
 var cataloguingStatusO = "n";//0500 Position 3
 
@@ -379,7 +375,7 @@ function performExport() {
 				addLine(currentItemId, '\\n0500', physicalForm+"s"+cataloguingStatus);
 				break;
 			default:
-				addLine(currentItemId, '\\n0500', undefined); // //z.B. Aou, Oou, Oox etc.
+				addLine(currentItemId, '\\n0500', undefined);
 			}
         //item.type --> 0501 Inhaltstyp
         addLine(currentItemId, "\\n0501", "Text$btxt");
@@ -397,7 +393,6 @@ function performExport() {
         }
 
         //item.type --> 0503 Datenträgertyp
-
         switch (physicalForm) {
             case "A":
                 addLine(currentItemId, "\\n0503", "Band$bnc");
@@ -418,6 +413,7 @@ function performExport() {
 		else if (retrieve_sign == "DAKR") {
 			addLine(currentItemId, "\\n0575", "DAKR");
 		}*/
+		
 		// 0575 DAKR
 		addLine(currentItemId, "\\n0575", "DAKR");
 		
@@ -428,7 +424,7 @@ function performExport() {
         }
 
         //1131 Art des Inhalts
-		if (item.title.match(/^\[Rezension\s?von/)) {
+		if (item.title.match(/^\[?Rezension\s?von/)) {
 				addLine(currentItemId, "\\n1131", "!106186019!");
 		}
 		
@@ -523,7 +519,7 @@ function performExport() {
 
                 var code = 0;
                 if (i === 0) {
-					//ISSN Konkordanz für die Steuerung der 30xx-Felder für die Zeitschrift > 3000 bzw. Amtsblatt > 3100
+					//wenn die "ISSN_to_physical_form.map" die PPN des Publikation-Zoterofeldes enthält UND das ISSN-Zoterofeld leer ist, wird das Autorenfeld als Körperschaft ins 3100-Feld exportiert. Bei Amtsblättern werden im Autorenfeld grundsätzlich PPN eines Körperschaftnamens eingetragen: 30xx-Felder fürs Amtsblatt > 3100, ansonsten als Default für Zeitschrift > 3000 
 					if (checkPPN === "O" || checkPPN === "A" && item.ISSN.length == 0){
 						code = "\\n3100";
 						titleStatement;
@@ -609,7 +605,6 @@ function performExport() {
                     );
                 }
             }
-
             //TODO: editors, other contributors...
         }
 
@@ -629,7 +624,7 @@ function performExport() {
         }
 
 
-        //4070 $v Bandzählung $j Jahr $h Heftnummer $p Seitenzahl K10Plus:4070 aus $h wird $a
+        //volumeyearissuepage -->4070 
         if (item.itemType == "journalArticle" || item.itemType == "magazineArticle") {
             var volumeyearissuepage = "";
 			if (item.volume) { volumeyearissuepage += "$v" + item.volume.replace("Tome ", "").replace(/\s\(Number\s\d+-?\d+\)/, "").replace(/^\d.\w..\s\w\w.\s/, ""); }
@@ -640,18 +635,18 @@ function performExport() {
             addLine(currentItemId, "\\n4070", volumeyearissuepage);
         }
 
-        //URL --> 4085 nur bei Dokumenttyp "magazineArticle" für Rezension im Feld 0500 K10Plus:aus 4085 wird 4950 
+        //URL --> 4950 nur bei Dokumenttyp "magazineArticle" für Rezension 
         if (item.url && item.itemType == "magazineArticle") {
-            addLine(currentItemId, "\\n4950", item.url + "$xR"); //K10Plus:wird die URL aus dem DOI, einem handle oder einem urn gebildet, sollte es $xR heißen und nicht $xH
+            addLine(currentItemId, "\\n4950", item.url + "$xR");
         }
 
-		//URL --> 4085 nur bei Satztyp "O.." im Feld 0500 K10Plus:aus 4085 wird 4950
+		//URL --> 4950 nur bei Satztyp "O.." im Feld 0500
 		switch (true) {
 			case item.url && item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "l": 
-				addLine(currentItemId, "\\n4950", item.url + "$xR$3Volltext$4LF$534");//K10Plus:0500 das "l" an der vierten Stelle entfällt, statt dessen wird $4LF in 4950 gebildet
+				addLine(currentItemId, "\\n4950", item.url + "$xR$3Volltext$4LF$534");
 				break;
 			case item.url && !item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "l": 
-				addLine(currentItemId, "\\n4950", item.url + "$xH$3Volltext$4LF$534");//K10Plus:0500 das "l" an der vierten Stelle entfällt, statt dessen wird $4LF in 4950 gebildet
+				addLine(currentItemId, "\\n4950", item.url + "$xH$3Volltext$4LF$534");
 				break;
 			case item.url && item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "kw":
 				addLine(currentItemId, "\\n4950", item.url + "$xR$3Volltext$4KW$534");
@@ -687,7 +682,7 @@ function performExport() {
 			}
 
         //Reihe --> 4110
-        if (!article) {
+        /*if (!article) {
             var seriesStatement = "";
             if (item.series) {
                 seriesStatement += item.series;
@@ -696,7 +691,7 @@ function performExport() {
                 seriesStatement += " ; " + item.seriesNumber;
             }
             addLine(currentItemId, "\\n4110", seriesStatement);
-        }
+        }*/
 
         //Inhaltliche Zusammenfassung --> 4207
         if (item.abstractNote) {
@@ -712,9 +707,6 @@ function performExport() {
 				addLine(currentItemId, "\\n4261", item.publicationTitle);//item.publicationTitle return undefined for warning message "Für Feld xxxx wurde kein Eintrag hinterlegt"
 			}
 		}
-
-
-
 		
         //item.publicationTitle --> 4241 Beziehungen zur größeren Einheit
         if (item.itemType == "journalArticle" || item.itemType == "magazineArticle") {
@@ -734,9 +726,9 @@ function performExport() {
 				}
 			}
 
-            //SSG bzw. FID-Nummer --> 5056 "0" = Religionwissenschaft | "1" = Theologie | "0; 1" = RW & Theol.
+            //SSG bzw. FID-Nummer --> 5056 "0" = Religionwissenschaft | "1" = Theologie | "0$a1" = RW & Theol; mehrere SSG-Nummern werden durch $a getrennt
 
-            if (SsgField === "1" ||SsgField === "0" || SsgField === "0$a1" || SsgField === "FID-KRIM-DE-21") { //K10plus: 5056 mehrere SSG-Nummern werden durch $a getrennt: aus 5056 0;1 wird 5056 0$a1
+            if (SsgField === "1" ||SsgField === "0" || SsgField === "0$a1" || SsgField === "FID-KRIM-DE-21") {
                 addLine(currentItemId, "\\n5056", SsgField);
             } else {
                 addLine(currentItemId, "\\n5056", undefined);
