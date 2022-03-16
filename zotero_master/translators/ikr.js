@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2022-03-16 10:33:00"
+	"lastUpdated": "2022-03-16 15:21:00"
 }
 
 
@@ -65,7 +65,7 @@ var journal_title_to_language_code = {
 
 /* =============================================================================================================== */
 // ab hier Programmcode
-var defaultSsgNummer = "";
+var defaultSsgNummer = "1";
 var defaultLanguage = "";
 
 //item.type --> 0500 Bibliographische Gattung und Status
@@ -313,6 +313,10 @@ function performExport() {
 			SsgField = issn_to_ssg_zotkat.get(item.ISSN);
 			Z.debug("Found ssg:" + SsgField);
 		}
+		if (issn_to_ssg_zotkat.get(item.publicationTitle) !== undefined) {
+			SsgField = issn_to_ssg_zotkat.get(item.publicationTitle);
+			Z.debug("Found ssg:" + SsgField);
+		}
 		if (issn_to_physical_form.get(item.publicationTitle) !== undefined) {
 			checkPPN = issn_to_physical_form.get(item.publicationTitle);
 			Z.debug("Found checkPPN:" + checkPPN);
@@ -368,7 +372,7 @@ function performExport() {
 			case physicalForm === "A":
 				addLine(currentItemId, '\\n0500', physicalForm+"s"+cataloguingStatus);
 				break;
-			case physicalForm === "O" && licenceField === "l": // 0500 das "l" an der vierten Stelle entfällt, statt dessen wird $4LF in 4950 gebildet
+			case physicalForm === "O": // 0500 das "l" an der vierten Stelle entfällt, statt dessen wird $4LF in 4950 gebildet
 				addLine(currentItemId, '\\n0500', physicalForm+"s"+cataloguingStatus);
 				break;
 			case physicalForm === "O" && licenceField === "kw":
@@ -429,7 +433,7 @@ function performExport() {
 		}
 		
         //item.language --> 1500 Sprachcodes
-		if (item.itemType == "journalArticle") {
+		if (item.itemType == "journalArticle" || item.itemType == "magazineArticle") {
             if (language_to_language_code.get(item.language)) {
                 item.language = language_to_language_code.get(item.language);
             }
@@ -529,7 +533,7 @@ function performExport() {
 						titleStatement;
 					}
                 } else {
-					if (checkPPN === "O" || checkPPN === "A" && !item.ISSN.length == 0){
+					if (checkPPN === "O" || checkPPN === "A" && item.ISSN.length == 0){
 						code = "\\n3110";
 					} else {
 						code = "\\n3010";	
@@ -731,7 +735,7 @@ function performExport() {
             if (SsgField === "1" ||SsgField === "0" || SsgField === "0$a1" || SsgField === "FID-KRIM-DE-21") {
                 addLine(currentItemId, "\\n5056", SsgField);
             } else {
-                addLine(currentItemId, "\\n5056", undefined);
+                addLine(currentItemId, "\\n5056", defaultSsgNummer);
             }
 			
 			//Schlagwörter aus einem Thesaurus (Fremddaten) --> 5520 (oder alternativ siehe Mapping)
