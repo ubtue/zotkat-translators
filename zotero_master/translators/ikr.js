@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2022-03-15 09:18:00"
+	"lastUpdated": "2022-03-15 16:22:00"
 }
 
 
@@ -67,8 +67,8 @@ var journal_title_to_language_code = {
 
 /* =============================================================================================================== */
 // ab hier Programmcode
-var defaultSsgNummer = "1";
-var defaultLanguage = "eng";
+var defaultSsgNummer = "";
+var defaultLanguage = "";
 
 //lokaldatensatz z.B. \\n6700 !372049834!\\n6700 !37205241X!\\n6700 !372053025!\\n6700!37205319X!
 
@@ -167,6 +167,9 @@ function populateISSNMaps(mapData, url) {
         case "publication_title_to_physical_form.map":
             publication_title_to_physical_form = temp;
             break;
+		case "ISSN_to_Abrufzeichen_zotkat.map":
+            issn_to_retrieve_sign = temp;
+            break;
         default:
             throw "Unknown map file: " + mapFilename;
     }
@@ -228,9 +231,11 @@ function EscapeNonASCIICharacters(unescaped_string) {
 
 function addLine(itemid, code, value) {
 	
-	//call the function EscapeNonASCIICharacters
-	value = EscapeNonASCIICharacters(value);
     //Zeile zusammensetzen
+	if (value == undefined) {
+		value = "Für Feld " +  code.replace(/\\n/, '') + " wurde kein Eintrag hinterlegt";
+		code = '\\nxxxx';
+	}
     var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('|s|RezensionstagPica', '').replace(/\t/g, '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Reviews').replace('|f|Book Reviews, Book Review', '|f|Book Reviews').replace(/\|s\|#n/gim, '|f|Norm').replace(/\|s\|#r/gim, '|f|Rechtsprechung').replace('|s|Peer reviewed','|f|Peer reviewed').replace(/!([^0-9]+)!/g, '$1').replace('|s|17can', '|t|Codex Iuris Canonici (1917)').replace('|s|can', '|t|Codex Iuris Canonici (1983)').replace('|s|cceo','|t|Codex canonum ecclesiarum orientalium').replace('https://doi.org/https://doi.org/', 'https://doi.org/').replace(/@\s/, '@');
     itemsOutputCache[itemid].push(line);
 }
@@ -238,15 +243,44 @@ function addLine(itemid, code, value) {
 // this should be called at end of each element,
 // and also when all async calls are finished (only when runningThreadCount == 0)
 function WriteItems() {
+	var batchUpload = false;
+	if (itemsOutputCache.length > 1) batchUpload = true;
+	let errorString = "";
     itemsOutputCache.forEach(function(element, index) {
         // sort first, codes might be unsorted due to async stuff
         element.sort();
-
+		//remove sorting characters from fields 3000 and 3010
+		var cleanElement = [];
+		for (let line of element) {
+			let toDelete = line.match(/30\d{2}( ##\d{3}##)/);
+			if (toDelete != null) {
+				line = line.replace(toDelete[1], '');
+			}
+			if (line.match(/\\nxxxx /) != null) {
+				errorString += line.substring(7, line.length) + '\\n';
+			}
+			cleanElement.push(line);
+		}
         // implode + write
         if(index > 0) {
             Zotero.write("\n");
         }
-			Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + element.join("").replace("n66999E", "nE") + "\n");
+		if (batchUpload) {
+			let writeString = cleanElement.join("").replace("n66999E", "nE");
+			writeString = EscapeNonASCIICharacters(writeString);
+			if (errorString != "") {
+				Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + writeString + '");')
+				Zotero.write("application.messageBox('Fehler beim Export aus Zotero', '" + errorString + "', 'error-icon')");
+			}
+			else {
+			Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + writeString + '");\napplication.activeWindow.pressButton("Enter");\n\n');
+			}
+		}
+		else {
+			var elementString = cleanElement.join("");
+			elementString = elementString.replace(/\\n/g, '\n').replace(/\\"/g, '"').replace('66999', '');
+			Zotero.write(elementString);
+		}
     });
 }
 
@@ -258,24 +292,34 @@ function performExport() {
         currentItemId++;
         itemsOutputCache[currentItemId] = [];
 
-		var physicalForm = "A";//0500 Position 1
+		var physicalForm = "";//0500 Position 1
 		var licenceField = ""; // 0500 Position 4 only for Open Access Items; http://swbtools.bsz-bw.de/cgi-bin/help.pl?cmd=kat&val=4085&regelwerk=RDA&verbund=SWB
 		var SsgField = "";
 		var superiorPPN = "";
 		var journalTitlePPN = "";
-		
+		var issn_to_language = "";
+		var checkPPN = "";
+		//var retrieve_sign = "";
 		if (!item.ISSN)
 				item.ISSN = "";
 		//item.ISSN = ZU.cleanISSN(item.ISSN);
 		Z.debug("Item ISSN: " + item.ISSN);
 		//enrich items based on their ISSN
-		if (!item.language && issn_to_language_code.get(item.ISSN) !== undefined) {
+		if (issn_to_language_code.get(item.ISSN) !== undefined) {
 			item.language = issn_to_language_code.get(item.ISSN);
+			Z.debug("Found lang:" + item.language);
+		}
+		if (language_to_language_code.get(item.ISSN) !== undefined) {
+			item.language = language_to_language_code.get(item.ISSN);
 			Z.debug("Found lang:" + item.language);
 		}
 		if (issn_to_ssg_zotkat.get(item.ISSN) !== undefined) {
 			SsgField = issn_to_ssg_zotkat.get(item.ISSN);
 			Z.debug("Found ssg:" + SsgField);
+		}
+		if (issn_to_physical_form.get(item.publicationTitle) !== undefined) {
+			checkPPN = issn_to_physical_form.get(item.publicationTitle);
+			Z.debug("Found checkPPN:" + checkPPN);
 		}
 		if (!item.volume && issn_to_volume.get(item.ISSN) !== undefined) {
 			item.volume = issn_to_volume.get(item.ISSN) + item.volume;
@@ -305,6 +349,10 @@ function performExport() {
 			physicalForm = publication_title_to_physical_form.get(item.publicationTitle);
 			Z.debug("Found journalTitlePPN:" + physicalForm);
         }
+		/*if (issn_to_retrieve_sign.get(item.ISSN) != undefined) {
+			retrieve_sign = issn_to_retrieve_sign.get(item.ISSN);
+			Z.debug("Found retrieve_sign:" + retrieve_sign);
+		}*/
 
 
 		var article = false;
@@ -331,7 +379,7 @@ function performExport() {
 				addLine(currentItemId, '\\n0500', physicalForm+"s"+cataloguingStatus);
 				break;
 			default:
-				addLine(currentItemId, '\\n0500', physicalForm+"s"+cataloguingStatus); // //z.B. Aou, Oou, Oox etc.
+				addLine(currentItemId, '\\n0500', undefined); // //z.B. Aou, Oou, Oox etc.
 			}
         //item.type --> 0501 Inhaltstyp
         addLine(currentItemId, "\\n0501", "Text$btxt");
@@ -361,6 +409,15 @@ function performExport() {
                 addLine(currentItemId, "\\n0503", "Online-Ressource$bcr");
         }
 		
+		/*if (retrieve_sign == "BILDI") {
+			addLine(currentItemId, "\\n0575", "BIIN");
+		}
+		else if (retrieve_sign == "KALDI") {
+			addLine(currentItemId, "\\n0575", "KALD");
+		}
+		else if (retrieve_sign == "DAKR") {
+			addLine(currentItemId, "\\n0575", "DAKR");
+		}*/
 		// 0575 DAKR
 		addLine(currentItemId, "\\n0575", "DAKR");
 		
@@ -370,43 +427,20 @@ function performExport() {
             addLine(currentItemId, "\\n1100", date.year.toString());
         }
 
-        //1130 Datenträger K10Plus:1130 alle Codes entfallen, das Feld wird folglich nicht mehr benötigt
-        //http://swbtools.bsz-bw.de/winibwhelp/Liste_1130.htm
-
-        /*switch (physicalForm) {
-            case "A":
-                addLine(currentItemId, "1130", "druck");
-                break;
-            case "O":
-                addLine(currentItemId, "1130", "cofz");
-                break;
-            default:
-                addLine(currentItemId, "1130", "");
-        }*/
-
         //1131 Art des Inhalts
 		if (item.title.match(/^\[Rezension\s?von/)) {
 				addLine(currentItemId, "\\n1131", "!106186019!");
 		}
-
-        // 1140 Veröffentlichungsart und Inhalt http://swbtools.bsz-bw.de/winibwhelp/Liste_1140.htm K10plus:1140 "uwre" entfällt. Das Feld wird folglich auch nicht mehr benötigt. Es sei denn es handelt sich um eines der folgenden Dokumente: http://swbtools.bsz-bw.de/cgi-bin/k10plushelp.pl?cmd=kat&val=1140&kattype=Standard
-        /*if (item.itemType == "magazineArticle") {
-            addLine(currentItemId, "1140", "uwre");
-        }*/
-
-				// 1140 text nur bei Online-Aufsätzen (Satztyp O), aber fakultativ
-		/*if (physicalForm === "O") {
-			addLine(currentItemId, "1140", "text");
-		}*/
 		
         //item.language --> 1500 Sprachcodes
-        if (item.language) {
+		if (item.itemType == "journalArticle") {
             if (language_to_language_code.get(item.language)) {
                 item.language = language_to_language_code.get(item.language);
             }
             addLine(currentItemId, "\\n1500", item.language);
         } else {
-            addLine(currentItemId, "\\n1500", defaultLanguage);
+			item.language = issn_to_language_code.get(item.language);
+            addLine(currentItemId, "\\n1500", item.language);
         }
 
         //1505 Katalogisierungsquelle
@@ -490,19 +524,19 @@ function performExport() {
                 var code = 0;
                 if (i === 0) {
 					//ISSN Konkordanz für die Steuerung der 30xx-Felder für die Zeitschrift > 3000 bzw. Amtsblatt > 3100
-					if (['2520-0089', '2366-6722', '1868-7369', '2304-4896', '0948-0471', '0034-9372', '2612-3746', '0022-6858', '2364-2416', '2450-4629', '0341-1915', '0721-880X', '0934-8603', '0943-7525', '0949-7137', '0179-7387', '2196-0119', '0514-6496', '2708-7417', '2248-9789', '0341-1915', '0721-1937', '0947-8094', '1120-6462', '0026-976X', '0044-2690', '0323-4142', '0946-3178', '0556-7378', '1981-7096', '2629-804X'].includes(item.ISSN) || ['583217141'].includes(item.publicationTitle)){
-						code = "\\n3000";
+					if (checkPPN === "O" || checkPPN === "A" && item.ISSN.length == 0){
+						code = "\\n3100";
 						titleStatement;
 					} 
 					else {
-						code = "\\n3100";
+						code = "\\n3000";
 						titleStatement;
 					}
                 } else {
-					if (['2520-0089', '2366-6722', '1868-7369', '2304-4896', '0948-0471', '0034-9372', '2612-3746', '0022-6858', '2364-2416', '2450-4629', '0341-1915', '0721-880X', '0934-8603', '0943-7525', '0949-7137', '0179-7387', '2196-0119', '0514-6496', '2708-7417', '2248-9789', '0341-1915', '0721-1937', '0947-8094', '1120-6462', '0026-976X', '0044-2690', '0323-4142', '0946-3178', '0556-7378', '1981-7096', '2629-804X'].includes(item.ISSN) || ['583217141'].includes(item.publicationTitle)){
-						code = "\\n3010";
+					if (checkPPN === "O" || checkPPN === "A" && !item.ISSN.length == 0){
+						code = "\\n3110";
 					} else {
-						code = "\\n3110";	
+						code = "\\n3010";	
 					}
                 }
 
@@ -669,6 +703,18 @@ function performExport() {
 			item.abstractNote = ZU.unescapeHTML(item.abstractNote);
 			addLine(currentItemId, "\\n4207", item.abstractNote.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract\s?:?/, '').replace(/Abstract  :/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, ''));
         }
+		//4261 Themenbeziehungen (Beziehung zu der Veröffentlichung, die beschrieben wird)|case:magazineArticle
+		if (item.itemType == "magazineArticle" && item.ISSN) {
+			if (item.publicationTitle) {
+				addLine(currentItemId, "\\n4261", "Rezension von!" + item.publicationTitle + "!");
+			}
+			else if(item.publicationTitle == null) {
+				addLine(currentItemId, "\\n4261", item.publicationTitle);//item.publicationTitle return undefined for warning message "Für Feld xxxx wurde kein Eintrag hinterlegt"
+			}
+		}
+
+
+
 		
         //item.publicationTitle --> 4241 Beziehungen zur größeren Einheit
         if (item.itemType == "journalArticle" || item.itemType == "magazineArticle") {
@@ -687,17 +733,13 @@ function performExport() {
 					} 
 				}
 			}
-            //4261 Themenbeziehungen (Beziehung zu der Veröffentlichung, die beschrieben wird)|case:magazineArticle
-            if (item.itemType == "magazineArticle" && item.publicationTitle) {
-                addLine(currentItemId, "\\n4261", "Rezension von!" + item.publicationTitle + "!"); // zwischen den Ausrufezeichen noch die PPN des rezensierten Werkes manuell einfügen.
-            }
 
             //SSG bzw. FID-Nummer --> 5056 "0" = Religionwissenschaft | "1" = Theologie | "0; 1" = RW & Theol.
 
-            if (SsgField === "0" || SsgField === "0$a1" || SsgField === "FID-KRIM-DE-21") { //K10plus: 5056 mehrere SSG-Nummern werden durch $a getrennt: aus 5056 0;1 wird 5056 0$a1
+            if (SsgField === "1" ||SsgField === "0" || SsgField === "0$a1" || SsgField === "FID-KRIM-DE-21") { //K10plus: 5056 mehrere SSG-Nummern werden durch $a getrennt: aus 5056 0;1 wird 5056 0$a1
                 addLine(currentItemId, "\\n5056", SsgField);
             } else {
-                addLine(currentItemId, "\\n5056", defaultSsgNummer);
+                addLine(currentItemId, "\\n5056", undefined);
             }
 			
 			//Schlagwörter aus einem Thesaurus (Fremddaten) --> 5520 (oder alternativ siehe Mapping)
@@ -756,7 +798,7 @@ function performExport() {
 			//Signatur --> 7100
 			addLine(currentItemId, '\\n7100', '$Jn');
 			//Vierstellige, recherchierbare Abrufzeichen --> 8012
-			addLine(currentItemId, '\\n8012 mszk");\napplication.activeWindow.pressButton("Enter");\n\n', "");
+			addLine(currentItemId, '\\n8012 mszk', "");
 
         }
     }
@@ -783,6 +825,7 @@ function doExport() {
 			zts_enhancement_repo_url + "notes_to_ixtheo_notations.map",
 			zts_enhancement_repo_url + "journal_title_to_ppn.map",
 			zts_enhancement_repo_url + "publication_title_to_physical_form.map",
+			//zts_enhancement_repo_url + "ISSN_to_Abrufzeichen_zotkat.map",
             ], function (responseText, request, url) {
                 switch (responseText) {
                     case "404: Not Found":
