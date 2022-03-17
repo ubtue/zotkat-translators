@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-24 09:53:52"
+	"lastUpdated": "2022-03-17 11:19:18"
 }
 
 /*
@@ -85,12 +85,12 @@ function invokeEMTranslator(doc, url) {
 		for (let row of rows) {
 			var abstractsEntry = row.innerText.replace(/^abstract/i, '');
 			if (abstractsEntry) {
-				var abstractsOneTwoThree = abstractsEntry.split('\n\n');
+				var abstractsOneTwoThree = abstractsEntry.split(/\n\n/g);
 				if (abstractsOneTwoThree[2]) {
-					i.abstractNote = abstractsOneTwoThree[0] + abstractsOneTwoThree[1] + ' Abstract: ' + abstractsOneTwoThree[2];
+					i.abstractNote = abstractsOneTwoThree[0] + '\\n4207 ' + abstractsOneTwoThree[1] + '\\n4207 ' + abstractsOneTwoThree[2];
 				}
 				else if (abstractsOneTwoThree[1]) {
-					i.abstractNote = abstractsOneTwoThree[0] + abstractsOneTwoThree[1];
+					i.abstractNote = abstractsOneTwoThree[0] + '\\n4207 ' + abstractsOneTwoThree[1];
 				}
 				else if (!abstractsOneTwoThree[1]) {
 					i.abstractNote = abstractsOneTwoThree[0];
@@ -103,7 +103,7 @@ function invokeEMTranslator(doc, url) {
 		
 		if (i.reportType === "book-review") i.tags.push('RezensionstagPica') && delete i.abstractNote;	
 		let pagesEntry = text(doc, '.publicationContentPages');
-		i.pages = pagesEntry.match(/\s\d+\w?-\d+/)[0];
+		if (pagesEntry.match(/\s\d+\w?-\d+/) != null) i.pages = pagesEntry.match(/\s\d+\w?-\d+/)[0];
 		let volumes = text(doc, '.breadcrumbs');
 		if (volumes) i.volume = volumes.match(/Volume\s?\d+/)[0].replace('Volume', '');
 		let issue = text(doc, '.breadcrumbs');
@@ -124,6 +124,7 @@ function invokeEMTranslator(doc, url) {
 	});
 	translator.translate();
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
