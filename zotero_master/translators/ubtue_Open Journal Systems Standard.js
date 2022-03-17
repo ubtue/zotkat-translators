@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-03-17 10:26:58"
+	"lastUpdated": "2022-03-17 10:30:53"
 }
 
 /*
@@ -386,9 +386,6 @@ function invokeEMTranslator(doc) {
 				abstractNum += 1;
 			}
 		}
-		Z.debug(i.tags);
-		
-		//"Fraternidad", "Gestión de bienes", "Constituciones."
 		if (i.url.match(/\/article\/view/)) i.itemType = "journalArticle";
 		if (i.abstractNote == ', ' || i.abstractNote == ',') i.abstractNote = "";
 		let sansidoroAbstract = ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content');
