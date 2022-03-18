@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-03-18 14:16:04"
+	"lastUpdated": "2022-03-18 15:22:49"
 }
 
 /*
@@ -55,7 +55,7 @@ function getSearchResults(doc) {
 		found = true;
 		items[href] = title;
 	}
-	let sections = ZU.xpath(doc, '//div[@class="titled_issues"][contains(h4, "Bokmeldinger")]');
+	let sections = ZU.xpath(doc, '//div[@class="titled_issues"][contains(h4, "Bokmeldinger") or contains(h4, "book review")]');
 	for (let i = 0; i < sections.length; i++) {
 		let rows = ZU.xpath(sections[i], './/div[@class="issue-item__title"]/a');
 		for (let i = 0; i < rows.length; i++) {
@@ -66,11 +66,6 @@ function getSearchResults(doc) {
 }
 
 function postProcess(item, doc) {
-	let newCreators = [];
-	for (let creator of item.creators) {
-		newCreators.push(ZU.cleanAuthor(creator.lastName, 'author', true));
-	}
-	Z.debug(newCreators);
 	item.creators = [];
 	for (let a of ZU.xpath(doc, '//div[@property="author"]')) {
 		let creator = {"firstName": "", "lastName": "", "creatorType": "author"};
@@ -97,8 +92,8 @@ function postProcess(item, doc) {
 		}
 	
 	if (typeof item.abstractNote == 'undefined') {
-		let absNO = ZU.xpathText(doc, '//div[@data-core-tabs="abstracts"]//section[@id="abstract"]/div[@role="paragraph"]');
-		let absEN = ZU.xpathText(doc, '//div[@data-core-tabs="abstracts"]//section[@id="abstract-en"]/div[@role="paragraph"]');
+		let absNO = ZU.xpathText(doc, '//section[@id="abstract"]/div[@role="paragraph"]');
+		let absEN = ZU.xpathText(doc, '//section[@id="abstract-en"]/div[@role="paragraph"]');
 		if (absEN != null && absNO != null) {
 			item.abstractNote = absNO + '\\n4207' + absEN;
 		}
@@ -129,19 +124,20 @@ function postProcess(item, doc) {
 		let newNotes = [];
 		for (let note of item.notes) {
 			if (note.note.match(/^(?:<p>)?doi:/) == null) {
-				Z.debug(note);
+				newNotes.push(note);
 			}
 		}
+		item.notes = newNotes;
 		for (let keyWordTag of ZU.xpath(doc, '//section[@property="keywords"]/ol//a')) {
 			item.tags.push(keyWordTag.textContent);
 		}
+		if (item.date == undefined || item.date == "") item.date = ZU.xpathText(doc, '//span[@property="datePublished"]').match(/\d{4}/)[0];
 		item.complete();
 	}
 
 function invokeRISTranslator(doc, url) {
 	let doi = url.match(/\/doi\/(.+$)/)[1];
 	risURL = "https://www.idunn.no/action/downloadCitation?doi=" + doi + "&format=ris"
-	Z.debug(risURL);
 	ZU.doGet(risURL, function (text) {
 		var translator = Zotero.loadTranslator("import");
 		translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
@@ -183,7 +179,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://www.idunn.no/nordic_journal_of_religion_and_society/2020/02/who_is_baptized_a_study_of_socioeconomic_regional_and_gen",
+		"url": "https://www.idunn.no/doi/10.18261/issn.1890-7008-2020-02-01",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -207,15 +203,15 @@ var testCases = [
 				],
 				"date": "2020",
 				"DOI": "10.18261/issn.1890-7008-2020-02-01",
-				"ISSN": "1890-7008, 0809-7291",
+				"ISSN": "1890-7008",
 				"abstractNote": "In less than 15 years, child baptism has gone from being a mainstream tradition to a minority practice. This decline is a result of both high unaffiliation, especially with the Church of Sweden, and a more diversified religious society due to migration. Using microdata from parents of children born in 2005 and 2015, we were able to discern that differences in the practice of child baptism in the Church of Sweden are positively associated with the parents’ relation to the church, residence in rural areas, and income. Our LPM analysis shows that the probability of a child being baptized are mainly determined by the parents’ relation to the church when controlling for all the other variables. The most influential factors are the mother’s affiliation and an urban lifestyle. Parents’ marital status and socioeconomic circumstances have a strong effect on the decision to baptize a child, therefore affecting who becomes a future member of the church.",
 				"issue": "2",
-				"language": "en",
-				"libraryCatalog": "www.idunn.no",
+				"journalAbbreviation": "Nordic Journal of Religion and Society",
+				"libraryCatalog": "ubtue_Idunn",
 				"pages": "72-86",
 				"publicationTitle": "Nordic Journal of Religion and Society",
 				"shortTitle": "Who is Baptized?",
-				"url": "https://www.idunn.no/nordic_journal_of_religion_and_society/2020/02/who_is_baptized_a_study_of_socioeconomic_regional_and_gen",
+				"url": "https://doi.org/10.18261/issn.1890-7008-2020-02-01",
 				"volume": "33",
 				"attachments": [],
 				"tags": [
@@ -235,9 +231,7 @@ var testCases = [
 						"tag": "secularization"
 					}
 				],
-				"notes": [
-					"LF:"
-				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
@@ -249,7 +243,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://www.idunn.no/tt/2021/02/da_gud_forlot_gud_jesu_vei_til_doeden_og_dens_betydning_for",
+		"url": "https://www.idunn.no/doi/10.18261/issn.1893-0271-2021-02-02",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -263,26 +257,17 @@ var testCases = [
 				],
 				"date": "2021",
 				"DOI": "10.18261/issn.1893-0271-2021-02-02",
-				"ISSN": "1893-0271, 1893-0263",
-				"abstractNote": "Ifølge NT er Faderen og Sønnen ett, samtidig som Faderen forlater Sønnen på korset. Hvordan blir\nvår gudsforståelse om vi antar at denne motsetningen uttrykker kjernen i Guds vesen? Ifølge Bibelen\nstår mennesker under Guds vrede fordi de har gjort urett mot sitt medmenneske. Jesus identifiserer\nseg med denne plasseringen, men bæres likevel gjennom døden til oppstandelsen. Heller ikke under\nGuds vrede faller en ut av det frelsende gudsforhold. Dette betinger isolert sett en\nverdensrettferdiggjørelse, men tvetydigheten i gudsbildet fastholdes ved at frelse formidles i form\nav en utvelgelseslære som fastholder dommens to utganger.\\n4207According to the NT, the Father and the Son are one, but still the Father leaves the Son on the\ncross. What are the implications of considering this as the essence of divinity? In the Bible,\nhumans are placed under the wrath of God because they have sinned against their neighbours. Jesus\naccepts this as the truth even of his own life, but is still carried through death to the\nresurrection. This could lead to a doctrine of apocatastasis, but the ambiguity in the image of God\nis retained through the idea of an eternal judgment with two different outcomes.",
+				"ISSN": "1893-0271",
+				"abstractNote": "Ifølge NT er Faderen og Sønnen ett, samtidig som Faderen forlater Sønnen på korset. Hvordan blir vår gudsforståelse om vi antar at denne motsetningen uttrykker kjernen i Guds vesen? Ifølge Bibelen står mennesker under Guds vrede fordi de har gjort urett mot sitt medmenneske. Jesus identifiserer seg med denne plasseringen, men bæres likevel gjennom døden til oppstandelsen. Heller ikke under Guds vrede faller en ut av det frelsende gudsforhold. Dette betinger isolert sett en verdensrettferdiggjørelse, men tvetydigheten i gudsbildet fastholdes ved at frelse formidles i form av en utvelgelseslære som fastholder dommens to utganger.\\n4207According to the NT, the Father and the Son are one, but still the Father leaves the Son on the cross. What are the implications of considering this as the essence of divinity? In the Bible, humans are placed under the wrath of God because they have sinned against their neighbours. Jesus accepts this as the truth even of his own life, but is still carried through death to the resurrection. This could lead to a doctrine of apocatastasis, but the ambiguity in the image of God is retained through the idea of an eternal judgment with two different outcomes.",
 				"issue": "2",
-				"language": "no-NO",
-				"libraryCatalog": "www.idunn.no",
+				"journalAbbreviation": "Teologisk tidsskrift",
+				"libraryCatalog": "ubtue_Idunn",
 				"pages": "64-75",
 				"publicationTitle": "Teologisk tidsskrift",
 				"shortTitle": "Da Gud forlot Gud",
-				"url": "https://www.idunn.no/tt/2021/02/da_gud_forlot_gud_jesu_vei_til_doeden_og_dens_betydning_for",
+				"url": "https://doi.org/10.18261/issn.1893-0271-2021-02-02",
 				"volume": "10",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Atonement"
@@ -313,7 +298,9 @@ var testCases = [
 					{
 						"note": "Paralleltitel:When God left God: The significance of the death of Jesus"
 					},
-					"LF:"
+					{
+						"note": "LF:"
+					}
 				],
 				"seeAlso": []
 			}
@@ -321,11 +308,11 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://www.idunn.no/tt/2021/02/endringsledelse_i_kirken_krever_nye_teologiske_modeller",
+		"url": "https://www.idunn.no/doi/10.18261/issn.1893-0271-2021-02-03",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Endringsledelse i kirken krever nye teologiske modeller",
+				"title": "Endringsledelse i kirken krever nye teologiske modeller: Forhandlinger om ekklesiologi i ledelsen av prester",
 				"creators": [
 					{
 						"firstName": "Angela",
@@ -335,25 +322,17 @@ var testCases = [
 				],
 				"date": "2021",
 				"DOI": "10.18261/issn.1893-0271-2021-02-03",
-				"ISSN": "1893-0271, 1893-0263",
+				"ISSN": "1893-0271",
 				"abstractNote": "Omorganiseringer stiller store krav til refleksjon, ledelse og nytenkning. En ny kirkestruktur krever også ny teologi, en refleksjon rundt ekklesiologi og praksis. Hvis ikke kirkens ledelse kan gi endringene en god teologisk begrunnelse, skaper det støy og motvilje i organisasjonen. Men dette kan også være fruktbart dersom støyen utfordrer pastorale ledere til nytenkning og kritisk refleksjon: Skal det tenkes lokalt eller regionalt? Er «kirke» stedsavgrenset (menighet), eller anerkjennes også tidsbestemte møter med evangeliet? Intervjuene viser at biskoper, proster og sokneprester argumenterer ulikt: Prostene bidrar til realistisk nytenkning, mens sokneprester og biskoper ofte faller tilbake på kjente modeller. Hva kan dette skyldes?\\n4207Reorganisation of the church requires critical reflection, leadership and innovation concerning theology and praxis. If church leaders are unable to give good theological reasons for structural changes, it causes disturbances and reluctance in the organisation. However, disturbance can be fruitful if it provokes critical reflection upon ecclesiology: Should they think locally or regionally? Is «church» limited to a specific place (parish) or also recognised as temporal encounters with the gospel throughout a lifetime? My interviews show that bishops, deans and ministers argue differently: The deans offer critical and innovative reflection, whereas ministers and bishops often return to well-established models. Why?",
 				"issue": "2",
-				"language": "no-NO",
-				"libraryCatalog": "www.idunn.no",
+				"journalAbbreviation": "Teologisk tidsskrift",
+				"libraryCatalog": "ubtue_Idunn",
 				"pages": "76-91",
 				"publicationTitle": "Teologisk tidsskrift",
-				"url": "https://www.idunn.no/tt/2021/02/endringsledelse_i_kirken_krever_nye_teologiske_modeller",
+				"shortTitle": "Endringsledelse i kirken krever nye teologiske modeller",
+				"url": "https://doi.org/10.18261/issn.1893-0271-2021-02-03",
 				"volume": "10",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Church reform"
@@ -388,9 +367,11 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Paralleltitel:\n\nTransformative leadership in church requires new theological models"
+						"note": "Paralleltitel:Transformative leadership in church requires new theological models"
 					},
-					"LF:"
+					{
+						"note": "LF:"
+					}
 				],
 				"seeAlso": []
 			}
