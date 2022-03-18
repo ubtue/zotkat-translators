@@ -1,6 +1,6 @@
 {
 	"translatorID": "4b0cdfd0-2bb1-4cde-8535-939df5e93c92",
-	"label": "ubtue_Nordic Journal of Religion and Society",
+	"label": "ubtue_Idunn",
 	"creator": "Helena Nebel",
 	"target": "idunn\\.no",
 	"minVersion": "3.0",
@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-12 16:48:24"
+	"lastUpdated": "2022-03-18 14:16:04"
 }
 
 /*
@@ -38,16 +38,16 @@ var reviewURLs = [];
 function detectWeb(doc, url) {
 	// except for "multiple", the return values of this function are placeholders that
 	// will be replaced by the Embedded Metadata translator's results
-	if (/\/\d{4}\/\d{2}\/.+/.test(url))
+	if (/\/doi\/.+/.test(url))
 		return "journalArticle";
-	else if (/\/\d{4}\/\d{2}/.test(url))
+	else if (/\/toc\/.+/.test(url))
 		return "multiple";
 }
 
 function getSearchResults(doc) {
 	let items = {};
 	let found = false;
-	let rows = ZU.xpath(doc, '//div[@class="artTitle"]/a');
+	let rows = ZU.xpath(doc, '//div[@class="issue-item__title"]/a');
 	for (let i = 0; i < rows.length; i++) {
 		let href = rows[i].href;
 		let title = ZU.trimInternal(rows[i].textContent);
@@ -55,9 +55,9 @@ function getSearchResults(doc) {
 		found = true;
 		items[href] = title;
 	}
-	let sections = ZU.xpath(doc, '//div[@class="block"][contains(./div[@class="sectionHeading"], "review")]');
+	let sections = ZU.xpath(doc, '//div[@class="titled_issues"][contains(h4, "Bokmeldinger")]');
 	for (let i = 0; i < sections.length; i++) {
-		let rows = ZU.xpath(sections[i], './div[@class="element"]/div[@class="artTitle"]/a');
+		let rows = ZU.xpath(sections[i], './/div[@class="issue-item__title"]/a');
 		for (let i = 0; i < rows.length; i++) {
 			reviewURLs.push(rows[i].href);
 		}
@@ -66,12 +66,26 @@ function getSearchResults(doc) {
 }
 
 function postProcess(item, doc) {
+	let newCreators = [];
+	for (let creator of item.creators) {
+		newCreators.push(ZU.cleanAuthor(creator.lastName, 'author', true));
+	}
+	Z.debug(newCreators);
+	item.creators = [];
+	for (let a of ZU.xpath(doc, '//div[@property="author"]')) {
+		let creator = {"firstName": "", "lastName": "", "creatorType": "author"};
+		if (ZU.xpathText(a, './/span[@property="givenName"]') != null) creator.firstName = ZU.xpathText(a, './/span[@property="givenName"]');
+		if (ZU.xpathText(a, './/span[@property="familyName"]') != null) creator.lastName = ZU.xpathText(a, './/span[@property="familyName"]');
+		item.creators.push(creator);
+	}
  	//Paralleltitel --> 4002
- 	let parallelTitel = ZU.xpathText(doc, '//div[@class="trans-title"]');
+ 	let parallelTitel = ZU.xpathText(doc, '//div[(@property="name" and @lang="en")]');
  	if (parallelTitel) {
  		parallelTitel = ZU.trimInternal(parallelTitel);
  		item.notes.push({note: 'Paralleltitel:' + parallelTitel});
  	}
+ 	if (ZU.xpathText(doc, '//span[@class="subtitle"]') != null) item.title = item.title + ": " + ZU.xpathText(doc, '//span[@class="subtitle"]');
+ 	
 	// sanitize page number ranges
 	if (item.pages) {
 		let pages = item.pages.trim();
@@ -81,9 +95,10 @@ function postProcess(item, doc) {
 				item.pages = matched[1];
 			}
 		}
+	
 	if (typeof item.abstractNote == 'undefined') {
-		let absNO = ZU.xpathText(doc, '//div[@class="abstract articleBody"]//p[@class="first"]');
-		let absEN = ZU.xpathText(doc, '//div[@data-ng-show="abstract.expanded == \'en\'"]//p[@class="first"]');
+		let absNO = ZU.xpathText(doc, '//div[@data-core-tabs="abstracts"]//section[@id="abstract"]/div[@role="paragraph"]');
+		let absEN = ZU.xpathText(doc, '//div[@data-core-tabs="abstracts"]//section[@id="abstract-en"]/div[@role="paragraph"]');
 		if (absEN != null && absNO != null) {
 			item.abstractNote = absNO + '\\n4207' + absEN;
 		}
@@ -94,41 +109,53 @@ function postProcess(item, doc) {
 			item.abstractNote = absEN;
 		}
 			}
-		let openAccessTag = ZU.xpathText(doc, '//a[@href="/info/openaccess"]');
+		let openAccessTag = ZU.xpathText(doc, '//i[@class="icon-open_access"]');
 		if (openAccessTag != null) {
-			if (openAccessTag.match(/Åpen tilgang/i)) {
-				item.notes.push('LF:');
+				item.notes.push({'note': 'LF:'});
+		}
+		if (reviewURLs.includes(item.url.replace("https://doi.org/", "https://www.idunn.no/doi/"))) {
+			item.tags.push('RezensionstagPica');
+			item.abstractNote = '';
+			}
+		let issn_list = ['1893-0271', '1890-7008'];
+		for (let issn of issn_list) {
+			if (item.url.match(issn) != null) item.ISSN = issn;
+		}
+		item.attachments = [];
+		//on the website, a note says "The journal only publishes articles in English"
+		if (item.issue[0] == '0') {
+			item.issue = item.issue.substring(1, item.issue.length);
+		}
+		let newNotes = [];
+		for (let note of item.notes) {
+			if (note.note.match(/^(?:<p>)?doi:/) == null) {
+				Z.debug(note);
 			}
 		}
-	//if <a href="/info/openaccess">Åpen tilgang</a>
-	if (item.publicationTitle == 'Nordic Journal of Religion and Society') {
-	if (reviewURLs.includes(item.url)) {
-		item.tags.push('RezensionstagPica');
-		item.abstractNote = '';
-			}
-	item.attachments = [];
-	//on the website, a note says "The journal only publishes articles in English"
-	item.language = 'en';
-	}
-	if (item.issue[0] == '0') {
-		item.issue = item.issue.substring(1, item.issue.length);
-	}
-	item.complete();
+		for (let keyWordTag of ZU.xpath(doc, '//section[@property="keywords"]/ol//a')) {
+			item.tags.push(keyWordTag.textContent);
+		}
+		item.complete();
 	}
 
-function invokeEmbeddedMetadataTranslator(doc) {
-	let translator = Zotero.loadTranslator("web");
-	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
-	translator.setDocument(doc);
-	translator.setHandler("itemDone", function (t, i) {
-		postProcess(i, doc);
+function invokeRISTranslator(doc, url) {
+	let doi = url.match(/\/doi\/(.+$)/)[1];
+	risURL = "https://www.idunn.no/action/downloadCitation?doi=" + doi + "&format=ris"
+	Z.debug(risURL);
+	ZU.doGet(risURL, function (text) {
+		var translator = Zotero.loadTranslator("import");
+		translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
+		translator.setString(text);
+		translator.setHandler("itemDone", function (obj, item) {
+			postProcess(item, doc);
+		});
+		translator.translate();
 	});
-	translator.translate();
 }
 
 function scrape(doc, url) {
 	let content = doc.contentDocument;
-	invokeEmbeddedMetadataTranslator(doc);
+	invokeRISTranslator(doc, url);
 }
 
 function doWeb(doc, url) {
