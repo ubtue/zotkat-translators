@@ -252,8 +252,8 @@ function addLine(itemid, code, value) {
 function WriteItems() {
 	var batchUpload = false;
 	if (itemsOutputCache.length > 1) batchUpload = true;
-	let errorString = "";
     itemsOutputCache.forEach(function(element, index) {
+		let errorString = "";
         // sort first, codes might be unsorted due to async stuff
         element.sort();
 		//remove sorting characters from fields 3000 and 3010

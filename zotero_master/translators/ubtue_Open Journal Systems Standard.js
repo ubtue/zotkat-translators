@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-02-28 12:47:00"
+	"lastUpdated": "2022-03-17 10:30:53"
 }
 
 /*
@@ -362,6 +362,28 @@ function invokeEMTranslator(doc) {
 			let abstracts = ZU.xpath(doc, '//div[@class="abstract"]/p');
 			if (abstracts[1] != null) {
 			i.abstractNote = abstracts[0].textContent + '\\n4207 ' + abstracts[1].textContent;
+			}
+		}
+		if (i.ISSN == "2605-3357") {
+			let abstractTags = ZU.xpath(doc, '//meta[@name="DC.Description"]/@content');
+			let abstractNum = 0;
+			let abstractSplitters = ["\n&nbsp;\nKeywords:", "\n&nbsp;\nParole chiave:", "\n&nbsp;\nPalabras clave:"]
+			for (let abstractTag of abstractTags) {
+				let foundAbstractSplitter = false;
+				abstractTag = abstractTag.textContent;
+				for (let abstractSplitter of abstractSplitters) {
+					if (abstractTag.match(abstractSplitter) != null) {
+						let abstract = abstractTag.split(abstractSplitter)[0];
+						let keywords = abstractTag.split(abstractSplitter)[1];
+						if (abstractNum == 0) i.abstractNote = abstract;
+						else i.notes.push({'note': 'abs:' + abstract});
+						for (let keyword of keywords.split(/\s*[,;]\s*/)) {
+							i.tags.push(keyword.trim());
+						}
+						break
+					}
+				}
+				abstractNum += 1;
 			}
 		}
 		if (i.url.match(/\/article\/view/)) i.itemType = "journalArticle";
