@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2022-03-16 15:21:00"
+	"lastUpdated": "2022-03-22 16:55:00"
 }
 
 
@@ -72,7 +72,6 @@ var defaultLanguage = "";
 //http://swbtools.bsz-bw.de/winibwhelp/Liste_0500.htm
 
 var cataloguingStatus = "n";//0500 Position 3
-var cataloguingStatusO = "n";//0500 Position 3
 
 /*
     WICHTIG - ERST LESEN UND !!!VERSTEHEN!!! BEVOR ÄNDERUNGEN GEMACHT WERDEN
@@ -288,7 +287,7 @@ function performExport() {
         currentItemId++;
         itemsOutputCache[currentItemId] = [];
 
-		var physicalForm = "";//0500 Position 1
+		var physicalForm = "A";//0500 Position 1
 		var licenceField = ""; // 0500 Position 4 only for Open Access Items; http://swbtools.bsz-bw.de/cgi-bin/help.pl?cmd=kat&val=4085&regelwerk=RDA&verbund=SWB
 		var SsgField = "";
 		var superiorPPN = "";
@@ -378,6 +377,8 @@ function performExport() {
 			case physicalForm === "O" && licenceField === "kw":
 				addLine(currentItemId, '\\n0500', physicalForm+"s"+cataloguingStatus);
 				break;
+			case item.itemType == "bookSection":
+				addLine(currentItemId, '\\n0500', physicalForm+"s"+cataloguingStatus);
 			default:
 				addLine(currentItemId, '\\n0500', undefined);
 			}
@@ -433,7 +434,7 @@ function performExport() {
 		}
 		
         //item.language --> 1500 Sprachcodes
-		if (item.itemType == "journalArticle" || item.itemType == "magazineArticle") {
+		if (item.itemType == "journalArticle" || item.itemType == "magazineArticle" || item.itemType == "bookSection") {
             if (language_to_language_code.get(item.language)) {
                 item.language = language_to_language_code.get(item.language);
             }
@@ -713,7 +714,7 @@ function performExport() {
 		}
 		
         //item.publicationTitle --> 4241 Beziehungen zur größeren Einheit
-        if (item.itemType == "journalArticle" || item.itemType == "magazineArticle") {
+        if (item.itemType == "journalArticle" || item.itemType == "magazineArticle" || item.itemType == "bookSection") {
             if (superiorPPN.length != 0) {
                 addLine(currentItemId, "\\n4241", "Enthalten in" + superiorPPN);
             } else if (item.publicationTitle.match(/^[0-9]/)) {
@@ -721,14 +722,6 @@ function performExport() {
             } else if (item.publicationTitle.match(/^[A-Z]|[a-z]/)) {
                 addLine(currentItemId, "\\n4241", "Enthalten in" + item.publicationTitle);
             }
-			// item.notes "PPN" > 4241 Beziehungen zur größeren Einheit bei Beiträgen aus Sammelwerken / Reihen
-			if (item.notes) {
-				for (let i in item.notes) {
-					if (item.notes[i].note.includes('PPN')) {
-						addLine(currentItemId, "\\n4241", "Enthalten in!" +  ZU.unescapeHTML(item.notes[i].note.replace(/^ppn/i, '')) + "!");
-					} 
-				}
-			}
 
             //SSG bzw. FID-Nummer --> 5056 "0" = Religionwissenschaft | "1" = Theologie | "0$a1" = RW & Theol; mehrere SSG-Nummern werden durch $a getrennt
 
