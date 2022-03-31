@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-05-17 08:15:12"
+	"lastUpdated": "2022-03-31 15:14:24"
 }
 
 /*
@@ -74,9 +74,9 @@ function postProcess(item, docURL) {
 		var parser = new DOMParser();
 			var html = parser.parseFromString(text, "text/html");
 			item.abstractNote = ZU.xpathText(html, '//div[@id="articleAbstract"]/div');
-		if (item.abstractNote.startsWith("Editorial"))
-		item.abstractNote = "";
-
+		if (item.abstractNote != null) {
+		if (item.abstractNote.startsWith("Editorial")) item.abstractNote = "";
+		}
 		// HTML escape sequences occasionally sneak into the abstract
 		if (item.abstractNote)
 			item.abstractNote = ZU.unescapeHTML(item.abstractNote)
