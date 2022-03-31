@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-03-31 15:19:20"
+	"lastUpdated": "2022-03-31 15:25:39"
 }
 
 /*
@@ -172,7 +172,9 @@ function scrape(doc, url) {
 								let creators = creatorString[1].trim().split(/\s+and\s+/);
 								let newCreators = [];
 								for (let creator of creators) {
-									newCreators.push(ZU.cleanAuthor(creator, 'author'));
+									let inverse = false;
+									if (item.url.match(/\/weme/) != null) inverse = true;
+									newCreators.push(ZU.cleanAuthor(creator, 'author', inverse));
 								}
 								item.creators = newCreators;
 							}
