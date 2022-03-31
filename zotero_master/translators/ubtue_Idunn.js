@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-03-18 15:22:49"
+	"lastUpdated": "2022-03-31 14:04:33"
 }
 
 /*
@@ -95,7 +95,7 @@ function postProcess(item, doc) {
 		let absNO = ZU.xpathText(doc, '//section[@id="abstract"]/div[@role="paragraph"]');
 		let absEN = ZU.xpathText(doc, '//section[@id="abstract-en"]/div[@role="paragraph"]');
 		if (absEN != null && absNO != null) {
-			item.abstractNote = absNO + '\\n4207' + absEN;
+			item.abstractNote = absNO + '\\n4207 ' + absEN;
 		}
 		else if (absNO != null) {
 			item.abstractNote = absNO;
