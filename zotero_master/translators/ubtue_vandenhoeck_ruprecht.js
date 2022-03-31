@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-03-31 15:25:39"
+	"lastUpdated": "2022-03-31 15:27:17"
 }
 
 /*
@@ -52,7 +52,6 @@ function getSearchResults(doc) {
 }
 
 function doWeb(doc, url) {
-	Z.debug(detectWeb(doc, url));
 	if (detectWeb(doc, url) === "multiple") {
 		Zotero.selectItems(getSearchResults(doc), function (items) {
 			if (!items) {
@@ -251,6 +250,49 @@ var testCases = [
 				"series": "Jahrbuch der Religionspädagogik (JRP)",
 				"url": "https://www.vr-elibrary.de/doi/10.13109/9783666703034.8",
 				"volume": "37",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.vr-elibrary.de/toc/weme/74/1",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://www.vr-elibrary.de/doi/10.13109/weme.2022.74.1.20",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Deutungsassistenz: Empirische Analysen zur Rolle der Krankenhausseelsorger*innen                im säkularen Kontext",
+				"creators": [
+					{
+						"firstName": "Dennis",
+						"lastName": "Bock",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Emilia",
+						"lastName": "Handke",
+						"creatorType": "author"
+					}
+				],
+				"date": "January 14, 2022",
+				"DOI": "10.13109/weme.2022.74.1.20",
+				"ISSN": "0043-2040",
+				"abstractNote": "Das Krankenhaus ist ein Ort, der beispielhaft für eine sich immer stärker säkularisierende Umwelt steht. Für die religiöse Kommunikation der seelsorgenden Pastor*innen ergeben sich damit spezifische kreative Übersetzungsherausforderungen. Wie diese gelöst werden, zeigt der vorliegende Aufsatz am Beispiel von Interviews mit Krankenhausseelsorgenden, die 2019 in Hamburg geführt wurden.",
+				"issue": "1",
+				"language": "de",
+				"libraryCatalog": "ubtue_vandenhoeck_ruprecht",
+				"pages": "20-33",
+				"publicationTitle": "Wege zum Menschen",
+				"shortTitle": "Deutungsassistenz",
+				"url": "https://www.vr-elibrary.de/doi/10.13109/weme.2022.74.1.20",
+				"volume": "74",
 				"attachments": [],
 				"tags": [],
 				"notes": [],
