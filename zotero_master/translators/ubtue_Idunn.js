@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-03-31 14:07:47"
+	"lastUpdated": "2022-03-31 14:59:31"
 }
 
 /*
@@ -116,6 +116,7 @@ function postProcess(item, doc) {
 		for (let issn of issn_list) {
 			if (item.url.match(issn) != null) item.ISSN = issn;
 		}
+		if (item.url.match(/\/njrs/) != null) item.ISSN = '1890-7008';
 		item.attachments = [];
 		//on the website, a note says "The journal only publishes articles in English"
 		if (item.issue[0] == '0') {
@@ -373,6 +374,60 @@ var testCases = [
 						"note": "LF:"
 					}
 				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.idunn.no/doi/10.18261/njrs.34.2.1",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Muslim Attitudes Towards Islamic Finance in Sweden: The Case of Loans with Interest",
+				"creators": [
+					{
+						"firstName": "Göran",
+						"lastName": "Larsson",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Erika",
+						"lastName": "Willander",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022",
+				"DOI": "10.18261/njrs.34.2.1",
+				"ISSN": "1890-7008",
+				"abstractNote": "Financial systems uphold sets of ideas and norms which individuals are expected to internalize and live by. This is what Aitken (2007) refers to as ‘economic citizenshipʼ. In this article, we depart from the framework of ‘economic citizenshipʼ to justify the subjective side of economic decisions rooted in Islamic principles. Specifically, we contrast the “Swedish financial system” based on values that promote loans based on interest with the “Islamic system”, which is based on religious values that, for instance, reject interest. While Islamic finance is often associated with Islamic banking, this article asks two questions: To what extent are mosque attendees in Sweden informed by Islamic norms and ethics when making financial decisions for themselves and their families? Do they take out a loan and own their flat or house? The analysis for this article is based on data collected by the FINEX project in 2018 (n = 339). Our findings suggest that a majority of mosque attendees refrain from taking bank loans with interest (76 percent of the sample). We also find associations between both time in Sweden and socioeconomic factors and refraining from having loans with interest. Thus, we stipulate that that this choice is practically and religiously motivated. We conclude that future research needs to broaden the scope, include a larger number of Muslims, and aim to sample in order to generalize findings to the Swedish population.",
+				"issue": "2",
+				"journalAbbreviation": "Nordic Journal of Religion and Society",
+				"libraryCatalog": "ubtue_Idunn",
+				"pages": "76-88",
+				"publicationTitle": "Nordic Journal of Religion and Society",
+				"shortTitle": "Muslim Attitudes Towards Islamic Finance in Sweden",
+				"url": "https://doi.org/10.18261/njrs.34.2.1",
+				"volume": "34",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Islam"
+					},
+					{
+						"tag": "Islamic finance"
+					},
+					{
+						"tag": "Muslims"
+					},
+					{
+						"tag": "Sweden"
+					},
+					{
+						"tag": "financial behaviour"
+					}
+				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
