@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-07-05 15:35:26"
+	"lastUpdated": "2022-04-01 07:39:10"
 }
 
 /*
@@ -105,6 +105,9 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		extractIssueAndYearFromURL(item, url);
 		let itemAbstract = doc.querySelector('#base_0_area1main_0_aZusammenfassung');
 		if(itemAbstract) item.abstractNote = itemAbstract.textContent;
+		if (item.abstractNote != null) {
+			item.abstractNote = item.abstractNote.replace(/(?:Zusammenfassung\s*\/\s*Summary(?:\n\s*)*)|\n/g, "");
+		}
 		item.pages = extractPages(doc);
 		let publicationTitle = ZU.xpathText(doc, '//*[(@id = "ctl02_imgLogo")]/@alt');
 		if (publicationTitle) item.publicationTitle = publicationTitle;
