@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-04-01 07:46:06"
+	"lastUpdated": "2022-04-01 07:47:39"
 }
 
 /*
@@ -117,7 +117,11 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		if (pageTitle.trim().match(item.title + ': ')) {
 			item.title += pageTitle.split(item.title)[1];
 		}
-		if (item.publicationTitle == "Biblische Notizen") item.ISSN = "2628-5762";
+		if (item.publicationTitle == "Biblische Notizen") {
+			item.ISSN = "2628-5762";
+			item.volume = item.issue;
+			item.issue = "";
+		}
 		item.complete();
 	});
 	translator.translate();
