@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-06-21 15:14:55"
+	"lastUpdated": "2022-04-01 10:17:56"
 }
 
 /*
@@ -111,21 +111,16 @@ function scrape(doc, url) {
 			if (docType === "book-review" || docType === "review-article" || docType === "First Page")
 				item.tags.push("RezensionstagPica");
 			
-			var pdfurl = ZU.xpath(doc, '//div[@class="article_link"]/a')[0];
-			if (pdfurl) {
-				pdfurl = pdfurl.href;
-				item.attachments.push({
-					url: pdfurl,
-					title: "EUP PDF fulltext",
-					mimeType: "application/pdf"
-				});
+			if (ZU.xpathText(doc, '//img[contains(@title, "Free Access") or contains(@title, "Open Access")]') !== null) {
+				item.notes.push({'note': 'LF'});
 			}
 
 			item.complete();
 		});
 		translator.translate();
 	});
-}/** BEGIN TEST CASES **/
+}
+/** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "web",
@@ -141,7 +136,7 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "March 24, 2020",
+				"date": "April 1, 2020",
 				"DOI": "10.3366/sch.2020.0019",
 				"ISSN": "2516-6298",
 				"abstractNote": "The 1843 Disruption of the Church of Scotland, which split the national church in two, was one of the most important events in Victorian Britain. The evangelical ministers who seceded from the Kirk to form the Free Church of Scotland did so in protest against the British state's intrusion in the church's affairs. The anti-English and patriotic rhetoric of the Disruption has led historians such as David Bebbington to argue that it represented something close to a nationalist movement. This paper questions this claim by assessing the nationalist characteristics of the Disruption and their role in shaping the political ‘unionist-nationalism’ of the mid-nineteenth century. It examines the kind of nationalist sentiment, if any, evident at the Disruption, the role of Free Church members in the National Association for the Vindication of Scottish Rights, the short-lived proto-nationalist pressure group, and the nationalism of the Free Church minister James Begg, who called for Home Rule for Scotland in 1850. By assessing the influence of the Disruption's constructionist critique of the union on political nationalism, the paper argues that the religious nationalism evident in 1843 failed to translate to a political context in the mid-nineteenth century. The new religiously pluralist environment of the post-Disruption period saw the Free Church turn inwards and begin to focus upon its own denominational fortunes as a single Scottish national identity was replaced by a variety of competing confessional identities, each with their own claim to nationhood.",
@@ -194,7 +189,7 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "March 24, 2020",
+				"date": "April 1, 2020",
 				"DOI": "10.3366/sch.2020.0020",
 				"ISSN": "2516-6298",
 				"abstractNote": "In 1755, William Robertson delivered a sermon before the Society in Scotland for Propagating Christian Knowledge, entitled The Situation of the World at the Time of Christ's Appearance…. He addresses British imperial expansion and its prospects for civil and moral improvement, while denouncing the moral decay manifest in the growth of slavery and exploitation of natives. Through advocating a considered balance between submission to revealed religious principles and the exercise of reason, Robertson stresses the necessity of both for promoting virtue and preventing vice. The SSPCK, an organisation dedicated to spreading ‘reformed Christianity’ as a catalyst of cultural progress (and thus the growth of virtue) among rural Scots and Natives in North America, was responding to a perceived lack of government commitment to this very task. Empire provided the framework for mission, yet the government's secular agenda often outweighed religious commitments. This article makes use of SSPCK sermons from the eighteenth century to trace the attitudes of Scottish churchmen and missionaries towards the institutions and motives driving empire, in a period when they too were among its most prominent agents. This will shed light on the Scottish church's developing views on empire, evangelism, race, improvability and the role of government.",
@@ -249,7 +244,7 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "March 24, 2020",
+				"date": "April 1, 2020",
 				"DOI": "10.3366/sch.2020.0021",
 				"ISSN": "2516-6298",
 				"abstractNote": "It has been widely assumed that academic education lay at the heart of nineteenth century Scottish missions in Africa. This article will argue that a particular form of education that included artisan skills-based, commercial and industrial training was the basis of the Livingstonia expedition led by Robert Laws in Nyasaland from 1875. Inspired by Dr James Stewart of Lovedale, financed by Free Church businessmen from Glasgow and led by teams of tradesmen, the aim of this mission was to establish small settlements that would create a network of trading centres from which commerce, civilisation and Christianity would spread across Africa. The ambitions and character of these first missionaries, not least Laws, exercised a fundamental influence upon the nature and purpose of this enterprise. Livingstonia was the most industrial mission of the modern era in Africa. A practical skills-based education was central to the gospel according to Robert Laws.",
@@ -307,7 +302,7 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "March 24, 2020",
+				"date": "April 1, 2020",
 				"DOI": "10.3366/sch.2020.0022",
 				"ISSN": "2516-6298",
 				"issue": "1",
@@ -346,7 +341,7 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "March 24, 2020",
+				"date": "April 1, 2020",
 				"DOI": "10.3366/sch.2020.0023",
 				"ISSN": "2516-6298",
 				"issue": "1",
@@ -386,7 +381,7 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "March 24, 2020",
+				"date": "April 1, 2020",
 				"DOI": "10.3366/sch.2020.0024",
 				"ISSN": "2516-6298",
 				"issue": "1",
@@ -413,7 +408,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://www.euppublishing.com/doi/abs/10.3366/more.2021.0092",
+		"url": "https://www.euppublishing.com/doi/full/10.3366/more.2021.0092",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -425,7 +420,7 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "May 26, 2021",
+				"date": "June 1, 2021",
 				"DOI": "10.3366/more.2021.0092",
 				"ISSN": "0047-8105",
 				"abstractNote": "In this article, I intend to show how Thomas More's use of a seemingly obscure episode from Livy's Ab Urbe Condita in his Apology provides important insights into the major themes of the polemical project that was to consume his final years. More's adaptation of the episode situates him among other Renaissance luminaries who saw in it a means to explore how group dynamics affect individual judgement and shape common opinion. The adaptation also serves to provide thematic cohesion in a polemic long considered excessively excursive and without merit, literary or otherwise. This exploration will further shed light upon the ways in which Renaissance authors appropriated classical histories to address contemporary concern.\\n4207 Dans cet article, je souhaite montrer comment l'usage par Thomas More dans son Apologie d'un épisode apparemment obscur du Ab Urbe Condita de Tite-Live fournit un éclairage important sur les thèmes majeurs du projet polémique qui allait accaparer les ultimes années de sa vie. L'adaptation que fait More de cet épisode le place au rang d'autres penseurs de la Renaissance qui y ont vu un moyen d’étudier comment la dynamique de groupe affecte le jugement individuel et façonne l'opinion générale. Cette adaptation sert également à fournir une cohésion thématique dans une polémique considérée depuis longtemps excessivement digressive et sans mérite, littéraire ou autre. Cette exploration s'intéressera en outre à la façon dont les auteurs de la Renaissance se sont appropriés les histoires de l'Antiquité pour traiter leurs problèmes contemporains.",
@@ -434,7 +429,7 @@ var testCases = [
 				"pages": "53-74",
 				"publicationTitle": "Moreana",
 				"shortTitle": "An Exemplary Defense",
-				"url": "https://www.euppublishing.com/doi/abs/10.3366/more.2021.0092",
+				"url": "https://www.euppublishing.com/doi/full/10.3366/more.2021.0092",
 				"volume": "58",
 				"attachments": [
 					{
@@ -493,6 +488,57 @@ var testCases = [
 					}
 				],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.euppublishing.com/doi/full/10.3366/jqs.2022.0489",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Approaches to the Investigation of Speech Genres in the Qur'an",
+				"creators": [
+					{
+						"lastName": "Stewart",
+						"firstName": "Devin J.",
+						"creatorType": "author"
+					}
+				],
+				"date": "February 1, 2022",
+				"DOI": "10.3366/jqs.2022.0489",
+				"ISSN": "1465-3591",
+				"abstractNote": "This contribution provides a methodological overview of the investigation of speech genres in the Qur’an. Drawing on Biblical form criticism, the ethnography of speech, and Bakhtin's theory of speech genres, as well as recent studies devoted to the form criticism of the Qur’an and earlier Qur’anic studies scholarship on individual genres, it points out the importance of generic conventions for the interpretation of Qur’anic passages, highlights the types of evidence on which investigators ought to focus in the investigation of genres, and identifies oversights and pitfalls that have affected earlier scholarship and should be taken into account in future work. Close attention must be paid to generic labels, meta-generic discourse, repeated elements, conventional features of individual genres such as introductory formulas, concluding formulas, and characteristic words, phrases, and constructions. The discussion highlights the ways in which texts that belong to individual genres are embedded in suras or longer passages within suras and points out that the Qur’an not only draws on pre-existing genres but also modifies and transforms them.",
+				"issue": "1",
+				"journalAbbreviation": "J Qur'anic Studies",
+				"libraryCatalog": "ubtue_Edinburgh University Press Journals",
+				"pages": "1-45",
+				"publicationTitle": "Journal of Qur'anic Studies",
+				"url": "https://www.euppublishing.com/doi/full/10.3366/jqs.2022.0489",
+				"volume": "24",
+				"attachments": [
+					{
+						"title": "EUP Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Formulas"
+					},
+					{
+						"tag": "Generic labels"
+					},
+					{
+						"tag": "Speech genres"
+					}
+				],
+				"notes": [
+					{
+						"note": "LF"
+					}
+				],
 				"seeAlso": []
 			}
 		]
