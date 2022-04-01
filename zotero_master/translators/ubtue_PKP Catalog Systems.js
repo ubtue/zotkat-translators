@@ -5,11 +5,11 @@
 	"target": "/(article|preprint|issue)/view/|/catalog/book/|/search/search|/index\\.php/default",
 	"minVersion": "2.1.9",
 	"maxVersion": "",
-	"priority": 98,
+	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-03-28 14:25:10"
+	"lastUpdated": "2022-04-01 09:41:08"
 }
 
 /*
@@ -211,6 +211,7 @@ function scrape(doc, url) {
 		trans.doWeb(doc, url);
 	});
 }
+
 
 
 

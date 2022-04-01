@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-03-31 13:59:08"
+	"lastUpdated": "2022-04-01 09:57:49"
 }
 
 /*
@@ -27,6 +27,8 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	***** END LICENSE BLOCK *****
 */
+
+var reviewURLs = [];
 
 function detectWeb(doc, url) {
 	if (url.match(/\/article\/view/)) return "journalArticle";
@@ -58,6 +60,11 @@ function getSearchResults(doc, url) {
 		if (!href || !title) continue;
 		found = true;
 		items[href] = title;
+	}
+	for (let section of ZU.xpath(doc, '//table[@class="tocArticle" and preceding-sibling::h4[@class="tocSectionTitle" and contains(., "Book Review")]]')) {
+		for (let link of ZU.xpath(section, './/a/@href')) {
+			reviewURLs.push(link.textContent);
+		}
 	}
 	return found ? items : false;
 }
@@ -258,7 +265,9 @@ function invokeEMTranslator(doc) {
 				i.tags.push('RezensionstagPica');
 			}
 		}
-		
+		if (["2159-6875"].includes(i.ISSN)) {
+			if (reviewURLs.includes(i.url)) i.tags.push("RezensionstagPica");
+		}
 		if (['2617-3697', '2660-4418', '2748-6419', '1988-3269', '1804-6444', '2391-4327'].includes(i.ISSN)) {
 			if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')) {
 				if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')[0].content.match(/(Media reviews)|(Rezensionen)|(Reseñas)|(Part\s+Two:\s+Reviews)/i)) {
