@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-03-17 12:13:35"
+	"lastUpdated": "2022-03-31 14:53:46"
 }
 
 /*
@@ -33,6 +33,8 @@
 	***** END LICENSE BLOCK *****
 */
 
+var openAccesArticles = [];
+
 function detectWeb(doc, url) {
 	if (url.match(/\/toc\//))
 		return "multiple";
@@ -45,13 +47,18 @@ function detectWeb(doc, url) {
 function getSearchResults(doc) {
 	var items = {};
 	var found = false;
-	var rows = ZU.xpath(doc, '//div[@class="art_title linkable"]/a')
+	var rows = ZU.xpath(doc, '//div[@class="art_title linkable"]/a');
 	for (let i=0; i<rows.length; i++) {
 		let href = rows[i].href;
 		let title = ZU.trimInternal(rows[i].textContent);
 		if (!href || !title) continue;
 		found = true;
 		items[href] = title;
+	}
+	for (let tag of ZU.xpath(doc, '//table[@class="articleEntry"]')) {
+		if (ZU.xpathText(tag, './/img[@title="Open Access"]/@title') != null) {
+			openAccesArticles.push(ZU.xpathText(tag, './/div[@class="art_title linkable"]/a/@href'));
+		}
 	}
 	return found ? items : false;
 }
@@ -84,6 +91,9 @@ function postProcess(doc, item) {
 	if (ZU.xpathText(doc, '//meta[@name="dc.Type"]/@content') == "book-review")  item.tags.push("RezensionstagPica");
 	let publicationTitle = ZU.xpathText(doc, '//meta[@name="citation_journal_title"]/@content');
 	item.ISSN  = mapTitleIssn(publicationTitle); //Z.debug(item.ISSN)
+	if (openAccesArticles.includes(item.url.replace("https://www.utpjournals.press", ""))) {
+		item.notes.push('LF:');
+	}
 	item.complete();
 }
 
@@ -151,7 +161,7 @@ var testCases = [
 				"publicationTitle": "Toronto Journal of Theology",
 				"rights": "Toronto Institute of Theology 2019",
 				"shortTitle": "Quantum Mechanics and Salvation",
-				"url": "https://utpjournals.press/doi/abs/10.3138/tjt-2020-0003",
+				"url": "https://utpjournals.press/doi/full/10.3138/tjt-2020-0003",
 				"volume": "36",
 				"attachments": [
 					{
@@ -212,7 +222,7 @@ var testCases = [
 				"publicationTitle": "The Journal of Religion and Popular Culture",
 				"rights": "© University of Toronto Press",
 				"shortTitle": "A Shift in Mithya",
-				"url": "https://www.utpjournals.press/doi/abs/10.3138/jrpc.2017-0034",
+				"url": "https://www.utpjournals.press/doi/full/10.3138/jrpc.2017-0034",
 				"volume": "31",
 				"attachments": [
 					{
@@ -269,7 +279,7 @@ var testCases = [
 				"publicationTitle": "The Journal of Religion and Popular Culture",
 				"rights": "© University of Toronto Press",
 				"shortTitle": "A Charlie Brown Religion",
-				"url": "https://www.utpjournals.press/doi/abs/10.3138/jrpc.2017-0068",
+				"url": "https://www.utpjournals.press/doi/full/10.3138/jrpc.2017-0068",
 				"volume": "31",
 				"attachments": [
 					{
@@ -312,7 +322,7 @@ var testCases = [
 				"pages": "125-137",
 				"publicationTitle": "Toronto Journal of Theology",
 				"rights": "Toronto Institute of Theology 2020",
-				"url": "https://utpjournals.press/doi/abs/10.3138/tjt-2020-0085",
+				"url": "https://utpjournals.press/doi/full/10.3138/tjt-2020-0085",
 				"volume": "36",
 				"attachments": [
 					{
@@ -341,6 +351,11 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.utpjournals.press/toc/tjt/37/2",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/

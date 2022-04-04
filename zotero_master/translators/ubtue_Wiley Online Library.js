@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-03-17 12:50:53"
+	"lastUpdated": "2022-04-01 11:13:19"
 }
 
 /*
@@ -264,7 +264,7 @@ function scrapeBibTeX(doc, url) {
 		translator.setString(text);
 
 		translator.setHandler('itemDone', function(obj, item) {
-			
+			if (item.title == undefined) item.title = ZU.xpathText(doc, '//meta[@name="citation_title"]/@content');
 			//fix author case
 			for (var i=0, n=item.creators.length; i<n; i++) {
 				item.creators[i].firstName = fixCase(item.creators[i].firstName);
@@ -356,11 +356,6 @@ function scrapeBibTeX(doc, url) {
 			addArticleNumber(doc, item);
 			addPages(doc, item);
 			//attachments
-			item.attachments = [{
-				title: 'Snapshot',
-				document: doc,
-				mimeType: 'text/html'
-			}];
 
 			addBookReviewTag(doc, item);
 			// adding author(s) for Short Reviews
@@ -560,18 +555,13 @@ function doWeb(doc, url) {
 var testCases = [
 	{
 		"type": "web",
-		"url": "https://onlinelibrary.wiley.com/action/doSearch?AfterMonth=&AfterYear=&BeforeMonth=&BeforeYear=&Ppub=&field1=AllField&field2=AllField&field3=AllField&text1=zotero&text2=&text3=",
-		"items": "multiple"
-	},
-	{
-		"type": "web",
 		"url": "https://onlinelibrary.wiley.com/doi/10.1002/9781118269381.notes",
 		"items": [
 			{
 				"itemType": "bookSection",
 				"title": "Endnotes",
 				"creators": [],
-				"date": "2012-01-11",
+				"date": "2011",
 				"ISBN": "9781118269381",
 				"bookTitle": "The World is Open",
 				"extra": "DOI: 10.1002/9781118269381.notes",
@@ -581,12 +571,7 @@ var testCases = [
 				"pages": "427-467",
 				"publisher": "John Wiley & Sons, Ltd",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/9781118269381.notes",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [],
 				"notes": [],
 				"seeAlso": []
@@ -622,12 +607,7 @@ var testCases = [
 				"pages": "1-20",
 				"publisher": "John Wiley & Sons, Ltd",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/9781444304794.ch1",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "1897"
@@ -725,12 +705,7 @@ var testCases = [
 				"publicationTitle": "PROTEOMICS",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/pmic.201100327",
 				"volume": "12",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Post-translational modification"
@@ -857,12 +832,7 @@ var testCases = [
 				"publicationTitle": "PROTEOMICS",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/pmic.201100327",
 				"volume": "12",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Post-translational modification"
@@ -923,12 +893,7 @@ var testCases = [
 				"publicationTitle": "PROTEOMICS",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/pmic.201100327",
 				"volume": "12",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Post-translational modification"
@@ -978,12 +943,7 @@ var testCases = [
 				"pages": "365-370",
 				"publisher": "John Wiley & Sons, Ltd",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/3527603018.ch17",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "β-Rezeptorenblocker"
@@ -1025,12 +985,7 @@ var testCases = [
 				"publicationTitle": "Journal of Applied Philosophy",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1468-5930.2011.00548.x",
 				"volume": "29",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [],
 				"notes": [
 					"LF:"
@@ -1071,12 +1026,7 @@ var testCases = [
 				"shortTitle": "Volume for Winners and Losers",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-6261.1986.tb04559.x",
 				"volume": "41",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [],
 				"notes": [],
 				"seeAlso": []
@@ -1115,12 +1065,7 @@ var testCases = [
 				"shortTitle": "Phosphane-Free Palladium-Catalyzed Coupling Reactions",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/%28SICI%291521-3773%2820000103%2939%3A1%3C165%3A%3AAID-ANIE165%3E3.0.CO%3B2-B",
 				"volume": "39",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "C−C coupling"
@@ -1171,12 +1116,7 @@ var testCases = [
 				"publicationTitle": "Journal of Heterocyclic Chemistry",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/jhet.5570200408",
 				"volume": "20",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [],
 				"notes": [],
 				"seeAlso": []
@@ -1214,12 +1154,7 @@ var testCases = [
 				"publicationTitle": "New Directions for Evaluation",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/ev.20077",
 				"volume": "2014",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [],
 				"notes": [],
 				"seeAlso": []
@@ -1257,12 +1192,7 @@ var testCases = [
 				"shortTitle": "SACRED MISINTERPRETATION",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/rsr.14681",
 				"volume": "46",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "RezensionstagPica"
@@ -1303,12 +1233,7 @@ var testCases = [
 				"shortTitle": "Review of Beekers, Daan and DavidKloos, eds. Straying from the Straight Path",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/etho.12311",
 				"volume": "49",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "RezensionstagPica"

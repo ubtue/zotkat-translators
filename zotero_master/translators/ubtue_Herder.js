@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-07-05 15:35:26"
+	"lastUpdated": "2022-04-01 07:50:27"
 }
 
 /*
@@ -105,6 +105,9 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		extractIssueAndYearFromURL(item, url);
 		let itemAbstract = doc.querySelector('#base_0_area1main_0_aZusammenfassung');
 		if(itemAbstract) item.abstractNote = itemAbstract.textContent;
+		if (item.abstractNote != null) {
+			item.abstractNote = item.abstractNote.replace(/(?:Zusammenfassung\s*\/\s*Summary(?:\n\s*)*)|\n/g, "");
+		}
 		item.pages = extractPages(doc);
 		let publicationTitle = ZU.xpathText(doc, '//*[(@id = "ctl02_imgLogo")]/@alt');
 		if (publicationTitle) item.publicationTitle = publicationTitle;
@@ -114,7 +117,11 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		if (pageTitle.trim().match(item.title + ': ')) {
 			item.title += pageTitle.split(item.title)[1];
 		}
-		Z.debug(item.title);
+		if (item.publicationTitle == "Biblische Notizen") {
+			item.ISSN = "2628-5762";
+			item.volume = item.issue;
+			item.issue = "";
+		}
 		item.complete();
 	});
 	translator.translate();
@@ -151,14 +158,15 @@ var testCases = [
 					}
 				],
 				"date": "2021",
-				"abstractNote": "Zusammenfassung / Summary\n                    \n                    Den bisher nicht restlos überzeugenden Lösungsversuchen, weshalb die Frohbotschaft des Engels von der Geburt Jesu im Lukasevangelium ausgerechnet an Hirten ergeht, legt der Autor mit der nicht nur in der Bibel überlieferten, sondern auch in der Umwelt des Alten und Neuen Testaments geläufigen sowie heute noch bekannten Metapher des Hirten als König oder Herrscher eine neue Deutung vor. Kontextgemäß können dann die Hirten, die während des von Augustus anlässlich der Eingliederung Judäas in die Provinz Syria angeordneten und von seinem Statthalter Quirinius durchgeführten Zensus „in demselben Land“ (χώρα: 2,8) waren, nur die genannten römischen Machthaber sein, die – so die lukanische Utopie nach alttestamentlichen Vorbildern, wo in der messianischen Heilszeit fremde Könige zum Zion ziehen – sich dem neugeborenen davidischen Herrscher unterwerfen und den Gott Israels loben. Anfänglich aber knechten und unterdrücken sie ihre Herde / das Volk (sichtbarer Ausdruck dafür ist der Zensus sowie in 2,8 φυλάσσοντες φυλακὰς = „bewachen“ im Sinne von Freiheitsberaubung), wobei Lukas unter anderem die bekannteste Prophezeiung von der Geburt des davidischen Friedensherrschers aus Jes 9,1-6 aktualisiert, wo gleichermaßen die Geburt während einer Notzeit (nachts!), unter einer militärischen Besatzermacht, stattfindet.",
-				"issue": "188",
+				"ISSN": "2628-5762",
+				"abstractNote": "Den bisher nicht restlos überzeugenden Lösungsversuchen, weshalb die Frohbotschaft des Engels von der Geburt Jesu im Lukasevangelium ausgerechnet an Hirten ergeht, legt der Autor mit der nicht nur in der Bibel überlieferten, sondern auch in der Umwelt des Alten und Neuen Testaments geläufigen sowie heute noch bekannten Metapher des Hirten als König oder Herrscher eine neue Deutung vor. Kontextgemäß können dann die Hirten, die während des von Augustus anlässlich der Eingliederung Judäas in die Provinz Syria angeordneten und von seinem Statthalter Quirinius durchgeführten Zensus „in demselben Land“ (χώρα: 2,8) waren, nur die genannten römischen Machthaber sein, die – so die lukanische Utopie nach alttestamentlichen Vorbildern, wo in der messianischen Heilszeit fremde Könige zum Zion ziehen – sich dem neugeborenen davidischen Herrscher unterwerfen und den Gott Israels loben. Anfänglich aber knechten und unterdrücken sie ihre Herde / das Volk (sichtbarer Ausdruck dafür ist der Zensus sowie in 2,8 φυλάσσοντες φυλακὰς = „bewachen“ im Sinne von Freiheitsberaubung), wobei Lukas unter anderem die bekannteste Prophezeiung von der Geburt des davidischen Friedensherrschers aus Jes 9,1-6 aktualisiert, wo gleichermaßen die Geburt während einer Notzeit (nachts!), unter einer militärischen Besatzermacht, stattfindet.",
 				"language": "de",
 				"libraryCatalog": "www.herder.de",
 				"pages": "3-26",
 				"publicationTitle": "Biblische Notizen",
 				"shortTitle": "„Und es waren Hirten in demselben Land...“",
 				"url": "https://www.herder.de/bn-nf/hefte/archiv/2021/188-2021/und-es-waren-hirten-in-demselben-land-vom-verstaendnis-der-hirten-zu-einer-neuen-hermeneutik-der-lukanischen-weihnachtsgeschichte-teil-2/",
+				"volume": "188",
 				"attachments": [
 					{
 						"title": "Snapshot",

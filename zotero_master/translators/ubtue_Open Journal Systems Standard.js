@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-03-31 16:30:53"
+	"lastUpdated": "2022-04-01 10:01:40"
 }
 
 /*
@@ -27,6 +27,8 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	***** END LICENSE BLOCK *****
 */
+
+var reviewURLs = [];
 
 function detectWeb(doc, url) {
 	if (url.match(/\/article\/view/)) return "journalArticle";
@@ -58,6 +60,11 @@ function getSearchResults(doc, url) {
 		if (!href || !title) continue;
 		found = true;
 		items[href] = title;
+	}
+	for (let section of ZU.xpath(doc, '//table[@class="tocArticle" and preceding-sibling::h4[@class="tocSectionTitle" and contains(., "Book Review")]]')) {
+		for (let link of ZU.xpath(section, './/a/@href')) {
+			reviewURLs.push(link.textContent);
+		}
 	}
 	return found ? items : false;
 }
@@ -258,7 +265,9 @@ function invokeEMTranslator(doc) {
 				i.tags.push('RezensionstagPica');
 			}
 		}
-		
+		if (["2159-6875"].includes(i.ISSN)) {
+			if (reviewURLs.includes(i.url)) i.tags.push("RezensionstagPica");
+		}
 		if (['2617-3697', '2660-4418', '2748-6419', '1988-3269', '1804-6444', '2391-4327'].includes(i.ISSN)) {
 			if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')) {
 				if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')[0].content.match(/(Media reviews)|(Rezensionen)|(Reseñas)|(Part\s+Two:\s+Reviews)/i)) {
@@ -2506,6 +2515,7 @@ var testCases = [
 					}
 				],
 				"date": "2021",
+				"DOI": "10.26577//EJRS.2021.v28.i4.r2",
 				"ISSN": "2521-6465",
 				"abstractNote": "The article deals with the problem of religious expansion, which is accompanied by a wave of globalization. In particular, the analysis of its prerequisites and its place in society and consequences is carried out, which are the basis for its widespread spread in an information, \"digitized\" digitized society. A description of the manifestations of evangelization and Islamization of religious expansion, which cover all spheres of spiritual life and enter through the conquest of human consciousness, is given, and the processes of their development in the information society are considered. \"I'm sorry,\" he said, «but I don't know what you're talking about, and I don't know what you're talking about, and I don't know what you're talking about, but I don't know what you're talking about\". And the possibilities of modern technologies are the basis for changing the forms and areas of use of sites of religious organizations. The article examines the social, economic, political, spiritual background and main objects of religious expansion of neo-Christian, new Islamic, neo-Christian movements, Religious Studies analysis of missionary activities carried out in the internet space and social networks, its factors contributing to the formation of religious consciousness of young people. At the same time, the features of religious expansion in cyberspace are revealed and a description of their manifestation in modern Kazakh society is given.\\n4207 В статье рассмотрена проблема религиозной экспансии, сопровождающаяся волной глобализации. Анализируются предпосылки и следствия&nbsp; его широкого распространения в информационном, «диджитализированном» (цифровом) обществе. Дается характеристика проявлений евангелизации и исламизации религиозной экспансии, охватывающей все сферы духовной жизни, завоевания человеческого сознания, рассматриваются процессы их развития в информационном обществе. Аперируя гуманистическими принципами благотворительности, знания и образования, бесплатного медицинского обслуживания и духовной помощи - религиозная экспансия охватывает все сферы человеческой жизнедеятельности, используя различные методы и приемы миссионерской деятельности и применяя самые новейшие технологии. А возможности современных технологий на сегодняшний день являются основой для изменения форм и сфер использования сайтов религиозных организаций. В статье проводится религиоведческий анализ миссионерских методов и технологий, проводимых в интернет-пространстве и социальных сетях, а также факторов влияния на формирование религиозного сознания молодежи. Рассматриваются социальные, экономические, политические, духовные предпосылки и основные объекты религиозной экспансии неохристианских, новых исламских, неориенталистских течений,. Кроме того, будут выявлены особенности религиозной экспансии в киберпространстве и дана характеристика их проявления в современном казахстанском обществе.\\n4207 Мақалада жаһандану толқынымен қатарласып келіп жатқан діни экспансия мәселесі қарастырылған. Әсіресе оның ақпараттық, «диджитализацияланған» цифрландырылған қоғамдағы кең етек жаюына негіз болып отырған алғышарттары мен қоғамдағы орны және салдарына талдау жасалынады. Рухани өмірдің жан-жақты салаларын қамтып, адам санасын жаулау арқылы кіріп жатқан діни экспансияның евангелизация мен исламдандыру көріністеріне сипаттама беріліп, олардың ақпараттық қоғамда даму үдерістері қарастырылады. Білім беру, қайырымдылық көмек, медициналық жәрдем беру сияқты гуманистік мақсаттарды алға қойған және діни сенімді таңдау еркіндігі сияқты ұстанымдарды ұран ете отырып, діни экспансияның адам санасын жаулауда түрлі әдістер мен тәсілдерді игеріп, жүзеге асыру үшін заманауи технологияларды да пайдалануда. Ал заманауи технологиялардың мүмкіндіктері діни ұйым сайттарының формалары мен пайдалану аумақтарының ауысып отыруына негіз болады. Мақалада неохристиандық, жаңа исламдық, неоориенталистік ағымдардың&nbsp;&nbsp; діни экспансиялауындағы әлеуметтік, экономикалық, саяси, рухани астарлары мен негізгі объектілері қарастырылып, интернет кеңістіктігі мен әлеуметтік желілерде жүргізетін миссионерлік әрекеттеріне, оның жастардың діни санасын қалыптастыруға ықпал ететін факторларына дінтанулық талдау жасалады. Сонымен қатар, киберкеңістіктегі діни экспансия ерекшеліктері айқындалып, олардың заманауи қазақстандық қоғамдағы көрінісіне сипаттама беріледі.\\n4207",
 				"issue": "4",
