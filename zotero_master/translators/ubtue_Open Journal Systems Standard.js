@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-04-25 11:44:50"
+	"lastUpdated": "2022-04-25 18:11:23"
 }
 
 /*
@@ -116,8 +116,13 @@ function invokeEMTranslator(doc) {
   		if (orcidAuthorEntryCaseA && ['2748-6419'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
   				if (a && a.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
-  					let author = a.innerText;//Z.debug(author + '   AAA1')
-  					i.notes.push({note: ZU.unescapeHTML(ZU.trimInternal(author)).replace(/https?:\/\/orcid.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
+  					let orcidTag = ZU.trimInternal(a.innerHTML);
+					  if (orcidTag.match(/<strong>(.+?)<\/strong>.+?<a href="http:\/\/orcid.org\/(.+?)" target="_blank">/g) != null) {
+						  for (o of orcidTag.match(/<strong>(.+?)<\/strong>.+?<a href="http:\/\/orcid.org\/(.+?)" target="_blank">/g)) {
+							  i.notes.push({note: o.match(/<strong>(.+?)<\/strong>/)[1] + ' | orcid:' + o.match(/<a href="http:\/\/orcid.org\/(.+?)" target="_blank">/)[1] + ' | taken from website'});
+						  }
+						}
+  					
   				}
   			}
   		 }
@@ -136,15 +141,6 @@ function invokeEMTranslator(doc) {
   				}
   			}
   		 }
-  		 //e.g. https://aabner.org/ojs/index.php/beabs/article/view/781
-  		 if (orcidAuthorEntryCaseA && ['2748-6419'].includes(i.ISSN)) {
-  		 	for (let a of orcidAuthorEntryCaseA) {
-  				if (a && a.innerHTML.match(/(<span>.*<\/span>.*https?:\/\/orcid\.org\/\d+-\d+-\d+-\d+x?)/gi)) {
-  					let author = a.innerHTML.match(/(<span>.*<\/span>.*https?:\/\/orcid\.org\/\d+-\d+-\d+-\d+x?)/gi).toString().replace('<a class="orcidImage" href="', '');//Z.debug(author + '   AAA2')
- 					i.notes.push({note: ZU.unescapeHTML(ZU.trimInternal(author)).replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
-  				}
-  			}
-  		}
   		//e.g.  https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/785
   		if (orcidAuthorEntryCaseA && !orcidAuthorEntryCaseB && i.ISSN !== "2660-7743") {
   			for (let a of orcidAuthorEntryCaseA) {
@@ -1387,7 +1383,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Sebastian Fink Universität Innsbruck  | orcid:0000-0002-6270-8368 Mark S. Smith Princeton Theological Seminary | taken from website"
+						"note": "Sebastian Fink | orcid:0000-0002-6270-8368 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -1462,7 +1458,16 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Izaak Jozias de Hulster  | orcid:0000-0003-0706-4480 Valérie Nicolet Institut Protestant de Théologie  | orcid:0000-0001-9070-0585 Ronit Nikolsky University of Groningen  | orcid:0000-0002-3771-8062 Jason M. Silverman University of Helsinki  | orcid:0000-0002-0240-9219 | taken from website"
+						"note": "Izaak Jozias de Hulster | orcid:0000-0003-0706-4480 | taken from website"
+					},
+					{
+						"note": "Valérie Nicolet | orcid:0000-0001-9070-0585 | taken from website"
+					},
+					{
+						"note": "Ronit Nikolsky | orcid:0000-0002-3771-8062 | taken from website"
+					},
+					{
+						"note": "Jason M. Silverman | orcid:0000-0002-0240-9219 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -1905,7 +1910,16 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Izaak Jozias de Hulster  | orcid:0000-0003-0706-4480 Valérie Nicolet Institut Protestant de Théologie  | orcid:0000-0001-9070-0585 Ronit Nikolsky University of Groningen  | orcid:0000-0002-3771-8062 Jason M. Silverman University of Helsinki  | orcid:0000-0002-0240-9219 | taken from website"
+						"note": "Izaak Jozias de Hulster | orcid:0000-0003-0706-4480 | taken from website"
+					},
+					{
+						"note": "Valérie Nicolet | orcid:0000-0001-9070-0585 | taken from website"
+					},
+					{
+						"note": "Ronit Nikolsky | orcid:0000-0002-3771-8062 | taken from website"
+					},
+					{
+						"note": "Jason M. Silverman | orcid:0000-0002-0240-9219 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -1980,7 +1994,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Sebastian Fink Universität Innsbruck  | orcid:0000-0002-6270-8368 Mark S. Smith Princeton Theological Seminary | taken from website"
+						"note": "Sebastian Fink | orcid:0000-0002-6270-8368 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -2053,7 +2067,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Joanna Töyräänvuori University of Helsinki  | orcid:0000-0003-4932-8755 | taken from website"
+						"note": "Joanna Töyräänvuori | orcid:0000-0003-4932-8755 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -2882,6 +2896,11 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://bildungsforschung.org/ojs/index.php/beabs/issue/view/v01i02",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
