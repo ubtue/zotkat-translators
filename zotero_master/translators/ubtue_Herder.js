@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-04-01 07:50:27"
+	"lastUpdated": "2022-04-25 12:01:37"
 }
 
 /*
@@ -57,9 +57,12 @@ function getSearchResults(doc) {
 }
 
 function extractAuthors(doc) {
-	let authorsElement = doc.querySelector('span.byline > a');
-	if (authorsElement)
-		return authorsElement ? authorsElement.innerText.split(',') : '';
+	let authorsElement = ZU.xpath(doc, '//span[@class="byline"]/a');
+	if (authorsElement.length > 0) {
+	let authors = [];
+	for (let author of authorsElement) authors.push(author.textContent);
+		return authors;
+	}
 	return false;
 }
 
@@ -141,6 +144,7 @@ function doWeb(doc, url) {
 		});
 	} else invokeEmbeddedMetadataTranslator(doc, url);
 }
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -183,6 +187,47 @@ var testCases = [
 		"type": "web",
 		"url": "https://www.herder.de/gd/hefte/archiv/2021/13-2021/",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://www.herder.de/bn-nf/hefte/archiv/2022/192-2022/the-annunciation-narrative-luke-127-38-read-in-times-of-metoo/",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "The Annunciation Narrative (Luke 1:27-38) Read in Times of #MeToo",
+				"creators": [
+					{
+						"firstName": "Bart J.",
+						"lastName": "Koet",
+						"creatorType": "authors"
+					},
+					{
+						"firstName": "Bert Jan Lietaert",
+						"lastName": "Peerbolte",
+						"creatorType": "authors"
+					}
+				],
+				"date": "2022",
+				"ISSN": "2628-5762",
+				"abstractNote": "In diesem Artikel beurteilen wir die von Michael Pope in seinem Beitrag in JBL 137 aufgestellte Behauptung, dass die Verkündigungserzählung in Lukas 1 sexuelle Sprache widerspiegelt und eine Implikation enthält, dass Maria Opfer einer Vergewaltigung durch den Engel Gabriel wurde. Das Ergebnis unserer Untersuchung ist klar: Wir finden die Beweise für diese Behauptung nicht überzeugend. Die Elemente, die zu Gunsten von Popes Argument verwendet werden, spiegeln bestenfalls Indizien wider und überzeugen uns nicht. Die Vorstellung Marias als Jungfrau, die Verwendung des Verbs εἰσέρχομαι, die Begegnung mit einem Engelswesen als solche und die für Maria verwendete δούλη -Terminologie bilden auch in ihrer Gesamtheit keinen ausreichenden Grund, die besprochene Passage als Beschreibung einer Vergewaltigung zu interpretieren. Schließlich ist das Gespräch zwischen Maria und Gabriel in 1,34-35 das ultimative Argument gegen seine Lesart: Wäre in 1,28 eine Vergewaltigung angedeutet worden, wäre Marias Frage in V.34 sinnlos gewesen, und Gabriel hätte in V.35 nicht mit einem Futur geantwortet. Damit ist der Fall erledigt und es zeigt sich, dass Popes Lesart eher das #metoo-Setting des 21. Jahrhunderts widerspiegelt als den Diskurs des ersten Jahrhunderts bei Lukas.",
+				"language": "de",
+				"libraryCatalog": "www.herder.de",
+				"pages": "91-103",
+				"publicationTitle": "Biblische Notizen",
+				"shortTitle": "The Annunciation Narrative (Luke 1",
+				"url": "https://www.herder.de/bn-nf/hefte/archiv/2022/192-2022/the-annunciation-narrative-luke-127-38-read-in-times-of-metoo/",
+				"volume": "192",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
