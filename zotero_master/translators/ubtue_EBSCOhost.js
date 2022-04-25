@@ -8,8 +8,8 @@
 	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
-	"browserSupport": "gcsib",
-	"lastUpdated": "2022-01-28 15:00:49"
+	"browserSupport": "gcsibv",
+	"lastUpdated": "2022-04-25 17:05:20"
 }
 
 /*
@@ -130,6 +130,7 @@ function downloadFunction(text, url, prefs) {
 				item.title = ZU.capitalizeTitle(item.title, true);
 			}
 			item.language = prefs.languageTag;
+			item.publicationTitle = prefs.source;
 			if (subtitle) {
 				item.title += `: ${subtitle}`;
 			}
@@ -192,6 +193,10 @@ function downloadFunction(text, url, prefs) {
 		item.publicationTitle = item.journalAbbreviation;
 		if (item.ISSN == "05801400") item.publicationTitle = "Münchener Theologische Zeitschrift";
 		if (item.ISSN == "0043941X") item.publicationTitle = "Worship";
+		if (item.ISSN == undefined) item.ISSN = prefs.ISSN;
+		if (item.ISSN == "IXTH-0002") {
+		item.publicationTitle = "Journal of the Grace Evangelical Society";
+		}
 		if (item.url) {
 			// Trim the ⟨=cs suffix -- EBSCO can't find the record with it!
 			item.url = item.url.replace(/(AN=[0-9]+)⟨=[a-z]{2}/, "$1")
@@ -583,6 +588,13 @@ function doDelivery(doc, itemInfo) {
 			prefs.languageTag = languageMap[languageName];
 		}
 	}
+	prefs.source = '';
+	let source = newTest.match(/Source:(.+?)(?:(?:Authors:)|(?:Language\s+Note:)|(?:Subjects:)|(?:Related\s+Works:)|(?:Document\s+Type:))/);
+	if (source != null) {
+		if (source[1].match(/Journal of the Grace Evangelical Society./) != null) {
+			prefs.ISSN = "IXTH-0002";
+		}
+	}
 
 	var postURL = ZU.xpathText(doc, '//form[@id="aspnetForm"]/@action');
 	if (!postURL) {
@@ -600,6 +612,7 @@ function doDelivery(doc, itemInfo) {
 		downloadFunction(text, postURL, prefs);
 	});
 }
+
 
 
 /** BEGIN TEST CASES **/
