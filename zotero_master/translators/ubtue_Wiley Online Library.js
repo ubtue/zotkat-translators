@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-04-01 11:13:19"
+	"lastUpdated": "2022-04-25 12:20:10"
 }
 
 /*
@@ -185,14 +185,18 @@ function scrapeEM(doc, url) {
 			//this is not great for summary, but will do for now
 			item.abstractNote = ZU.xpathText(doc, '//div[@id="abstract"]/div[@class="para"]//p', null, "\n");
 		} else {
-			var keywords = ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content');
-			if (keywords) {
-				item.tags = keywords.split(', ');
-			}
+			
 			item.rights = ZU.xpathText(doc, '//div[@id="titleMeta"]//p[@class="copyright"]');
 			item.abstractNote = ZU.xpathText(doc, '//div[@id="abstract"]/div[@class="para"]', null, "\n");
 		}
-
+		if (item.tags.length == 0) {
+			Z.debug('Snargle')
+			var keywords = ZU.xpath(doc, '//meta[@name="citation_keywords"]/@content');
+			for (let keyword of keywords) {
+				if (keywords.length == 1) item.tags = keywords.split(', ');
+				else item.tags.push(keyword.textContent);
+			}
+		}
 		//set correct print publication date
 		if (date) item.date = date;
 
@@ -313,13 +317,14 @@ function scrapeBibTeX(doc, url) {
 			}
 
 			//tags
-			if (!item.tags.length) {
-				var keywords = ZU.xpathText(doc,
-					'//meta[@name="citation_keywords"][1]/@content');
-				if (keywords) {
-					item.tags = keywords.split(', ');
-				}
+			if (item.tags.length == 0) {
+			Z.debug('Snargle')
+			var keywords = ZU.xpath(doc, '//meta[@name="citation_keywords"]/@content');
+			for (let keyword of keywords) {
+				if (keywords.length == 1) item.tags = keywords.split(', ');
+				else item.tags.push(keyword.textContent);
 			}
+		}
 
 			//abstract should not start with "Abstract"
 			if (item.abstractNote) {
@@ -378,6 +383,12 @@ function scrapeBibTeX(doc, url) {
 			addFreeAccessTag(doc, item);
 			getORCID(doc, item);
 			if (item.issue != undefined) item.issue = item.issue.replace(/-/g, "/");
+			if (item.creators.length == 0) {
+				let creatorTags = ZU.xpath(doc, '//meta[@name="citation_author"]/@content');
+				for (let creatorTag of creatorTags) {
+					item.creators.push(ZU.cleanAuthor(creatorTag.textContent, 'author'));
+				}
+			}
 			item.complete();
 		});
 
@@ -550,6 +561,7 @@ function doWeb(doc, url) {
 		}
 	}
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
@@ -766,12 +778,7 @@ var testCases = [
 				"publicationTitle": "PROTEOMICS",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/pmic.201100327",
 				"volume": "12",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Post-translational modification"
@@ -1240,6 +1247,63 @@ var testCases = [
 					}
 				],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://onlinelibrary.wiley.com/doi/10.1111/dial.12675",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Becoming society again: Reimagining new social contracts through Scandinavian creation theology",
+				"creators": [
+					{
+						"firstName": "Elisabeth",
+						"lastName": "Gerle",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021",
+				"DOI": "10.1111/dial.12675",
+				"ISSN": "1540-6385",
+				"issue": "2",
+				"itemID": "https://doi.org/10.1111/dial.12675",
+				"language": "en",
+				"libraryCatalog": "ubtue_Wiley Online Library",
+				"pages": "167-176",
+				"publicationTitle": "Dialog",
+				"shortTitle": "Becoming society again",
+				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/dial.12675",
+				"volume": "60",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "\"neoliberalism\""
+					},
+					{
+						"tag": "New Public Management"
+					},
+					{
+						"tag": "Scandinavian Creation Theology"
+					},
+					{
+						"tag": "Social justice"
+					},
+					{
+						"tag": "bodies"
+					},
+					{
+						"tag": "defending welfare states"
+					},
+					{
+						"tag": "planet"
+					}
+				],
+				"notes": [
+					"LF:"
+				],
 				"seeAlso": []
 			}
 		]
