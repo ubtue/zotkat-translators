@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-04-01 10:01:40"
+	"lastUpdated": "2022-04-25 11:44:50"
 }
 
 /*
@@ -368,7 +368,7 @@ function invokeEMTranslator(doc) {
 			}
 		}
 		if (i.ISSN == "2709-8435") {
-			let abstracts = ZU.xpath(doc, '//div[@class="abstract"]/p');
+			let abstracts = ZU.xpath(doc, '//meta[@name="DC.Description"]/@content');
 			if (abstracts[1] != null) {
 			i.abstractNote = abstracts[0].textContent + '\\n4207 ' + abstracts[1].textContent;
 			}
@@ -387,7 +387,7 @@ function invokeEMTranslator(doc) {
 						if (abstractNum == 0) i.abstractNote = abstract;
 						else i.notes.push({'note': 'abs:' + abstract});
 						for (let keyword of keywords.split(/\s*[,;]\s*/)) {
-							i.tags.push(keyword.trim());
+							i.tags.push(keyword.replace(/.$/, '').trim());
 						}
 						break
 					}
@@ -447,6 +447,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEMTranslator(doc, url);
 }
+
 
 
 
@@ -2805,6 +2806,77 @@ var testCases = [
 				"notes": [
 					{
 						"note": "Selena D. Headley | orcid:0000-0001-8844-0278 | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://vergentis.ucam.edu/index.php/vergentis/article/view/234",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Administración de bienes temporales de la Orden de Hermanos Menores en la Regla de 1223 y en las Constituciones (1955,1979,2010)",
+				"creators": [
+					{
+						"firstName": "Rosario Celdrán",
+						"lastName": "Hernández",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021",
+				"ISSN": "2605-3357",
+				"abstractNote": "This article presents various relevant social and economic aspects that influenced the society in which Francisco was immersed. A society that abandons the old feudal system and gives way to a new society where money is increasingly imposed both in politics and in social relations. Francisco lives a new social era where relationships cease to be one of subordination and dependence. But the Church remains feudal and this caused discomfort to the humble people. Francisco, due to the life he chose, rejected everything that prevented living evangelical poverty. Francisco tries to regulate the life of the brothers through the Rules. The study of Rule 1223 and the Constitutions of 1955, 1974 and 2010 will allow us to analyze the evolution and importance that the administration of property acquires in them, being faithful to the charism of Francis of Assisi.",
+				"issue": "13",
+				"journalAbbreviation": "Vergentis",
+				"language": "es",
+				"libraryCatalog": "vergentis.ucam.edu",
+				"pages": "187-220",
+				"publicationTitle": "Revista de Investigación de la Cátedra Internacional conjunta Inocencio III",
+				"rights": "Copyright (c) 2021 Revista de Investigación de la Cátedra Internacional conjunta Inocencio III",
+				"url": "https://vergentis.ucam.edu/index.php/vergentis/article/view/234",
+				"volume": "1",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Constituciones"
+					},
+					{
+						"tag": "Constitutions"
+					},
+					{
+						"tag": "Fraternida"
+					},
+					{
+						"tag": "Fraternit"
+					},
+					{
+						"tag": "Friars Mino"
+					},
+					{
+						"tag": "Gestión de biene"
+					},
+					{
+						"tag": "Hermanos menore"
+					},
+					{
+						"tag": "Property Managemen"
+					}
+				],
+				"notes": [
+					{
+						"note": "abs:Este artículo presenta diversos aspectos sociales y económicos relevantes que influyeron en sociedad en la que Francisco se vio inmerso. Una sociedad que abandona el antiguo sistema feudal y da paso a una nueva sociedad donde el dinero se impone cada vez más tanto en la política como el plano de las relaciones sociales. Francisco vive una nueva era social donde las relaciones dejan de ser de subordinación y dependencia. Pero la Iglesia se mantiene feudal y esto generó malestar al pueblo humilde. Francisco debido a la vida que eligió rechazó todo aquello que impidiera vivir la pobreza evangélica. Francisco intenta regular la vida de los hermanos a través de las Reglas. El estudio de la Regla 1223 y Constituciones de 1955,1974 y 2010 nos permitirán analizar la evolución y la importancia que adquieren en las mismas la administración de los bienes siendo fieles al carisma de Francisco de Asís."
 					}
 				],
 				"seeAlso": []
