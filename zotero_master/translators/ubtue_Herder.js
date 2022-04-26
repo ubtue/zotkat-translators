@@ -5,11 +5,11 @@
 	"target": "https://www.herder.de/[a-zA-Z]+",
 	"minVersion": "3.0",
 	"maxVersion": "",
-	"priority": 100,
+	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-04-25 12:01:37"
+	"lastUpdated": "2022-04-26 07:58:13"
 }
 
 /*
@@ -67,7 +67,12 @@ function extractAuthors(doc) {
 }
 
 function extractIssueAndYearFromURL(item, url) {
-	if (url.match(/\/(\d+)-\d{4}\//)) {
+	if (url.match(/\/[^\/]+-\d{4}\/[^\/]+-\d{4}\//) != null) {
+		item.issue = url.match(/\/[^\/]+-\d{4}\/([^\/]+)-\d{4}\//)[1].replace('-', '/');
+		item.volume = url.match(/\/([^\/]+)-\d{4}\/[^\/]+-\d{4}\//)[1];
+		item.date = url.match(/\/[^\/]+-(\d{4})\/[^\/]+-\d{4}\//)[1];
+	}
+	else if (url.match(/\/(\d+)-\d{4}\//)) {
 	item.issue = url.match(/\/(\d+)-\d{4}\//)[1];
 	item.date = url.match(/\/\d+-(\d{4})\//)[1];
 	}
@@ -103,13 +108,13 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		if (extractAuthors(doc)) {
 			item.creators = [];
 			for (let author of extractAuthors(doc))
-				item.creators.push(ZU.cleanAuthor(author.replace(/prof|dr/gi, ''), "authors"));
+				item.creators.push(ZU.cleanAuthor(author.replace(/prof\b|dr\b/gi, ''), "authors"));
 		}
 		extractIssueAndYearFromURL(item, url);
 		let itemAbstract = doc.querySelector('#base_0_area1main_0_aZusammenfassung');
 		if(itemAbstract) item.abstractNote = itemAbstract.textContent;
 		if (item.abstractNote != null) {
-			item.abstractNote = item.abstractNote.replace(/(?:Zusammenfassung\s*\/\s*Summary(?:\n\s*)*)|\n/g, "");
+			item.abstractNote = item.abstractNote.replace(/(?:Zusammenfassung\s*\/\s*(?:Summary|Abstract)(?:\n\s*)*)|\n/g, "");
 		}
 		item.pages = extractPages(doc);
 		let publicationTitle = ZU.xpathText(doc, '//*[(@id = "ctl02_imgLogo")]/@alt');
@@ -124,6 +129,9 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			item.ISSN = "2628-5762";
 			item.volume = item.issue;
 			item.issue = "";
+		}
+		if (item.publicationTitle == "Römische Quartalschrift") {
+			item.ISSN = "0035-7812";
 		}
 		item.complete();
 	});
@@ -217,6 +225,43 @@ var testCases = [
 				"shortTitle": "The Annunciation Narrative (Luke 1",
 				"url": "https://www.herder.de/bn-nf/hefte/archiv/2022/192-2022/the-annunciation-narrative-luke-127-38-read-in-times-of-metoo/",
 				"volume": "192",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.herder.de/rq/hefte/archiv/116-2021/1-2-2021/augustins-predigten-dokumente-prallen-lebens-animation-zu-frischer-lektuere/",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Augustins Predigten: \"Dokumente prallen Lebens\". Animation zu frischer Lektüre",
+				"creators": [
+					{
+						"firstName": "Hubertus R.",
+						"lastName": "Drobner",
+						"creatorType": "authors"
+					}
+				],
+				"date": "2021",
+				"ISSN": "0035-7812",
+				"abstractNote": "Augustine’s Sermons: ‘Documents of Abundant Life’. Animation for fresh reading” – The discovery of 26 new sermons of Augustine in Mainz changed research in many ways, not so much because they contained revolutionary new insights into Augustine’s theology, but because they provided the impetus to read all his sermons with new eyes, also with regard to the everyday life of his time. For if one accuses the medieval editors of having been interested only in Augustine’s “timeless theological themes” and not in the details of daily life, one cannot entirely absolve modernity of this either, and one can only wish that current research will increasingly read Augustine’s sermons for what they are: not only sources for Augustine’s thought, but documents of the life of his time.",
+				"issue": "1/2",
+				"language": "de",
+				"libraryCatalog": "www.herder.de",
+				"pages": "1-13",
+				"publicationTitle": "Römische Quartalschrift",
+				"shortTitle": "Augustins Predigten",
+				"url": "https://www.herder.de/rq/hefte/archiv/116-2021/1-2-2021/augustins-predigten-dokumente-prallen-lebens-animation-zu-frischer-lektuere/",
+				"volume": "116",
 				"attachments": [
 					{
 						"title": "Snapshot",
