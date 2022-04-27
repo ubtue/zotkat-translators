@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-02-03 18:14:28"
+	"lastUpdated": "2022-04-26 07:35:28"
 }
 
 /*
@@ -48,7 +48,7 @@ function getSearchResults(doc, checkOnly) {
 	var rows = doc.querySelectorAll('.w3-padding-32 div:nth-child(1)');
 	for (let i=0; i<rows.length; i++) {
 		let href = i+1;
-		var title = rows[i].innerText.match(/.*n°.*/) + rows[i].innerHTML.match(/data-show-.*pub=.*/);
+		var title = rows[i].innerText.replace(/(?:\n)|(?:Référence\s+complète)|(?:\s+\s+)/g, '').match(/.*n°.*/) + rows[i].innerHTML.match(/data-show-.*pub=.*/);
 		if (!href || !title) continue;
 		if (checkOnly) return true;
 		found = true;
@@ -77,7 +77,8 @@ function scrape(doc, text) {
 	//Z.debug(text)
 	var item = new Zotero.Item('journalArticle');
 	//wegen type error "split is not a function"
-	var str = text.toString(); //Z.debug(str)
+	var str = text.toString(); 
+	Z.debug(str)
 	// trenner trennt zwischen Abstract und bibliographischen Angaben
 	var trenner = str.split('Résumé');
 	// metadata mit Komma getrennt für bibliographische Angaben
@@ -103,7 +104,7 @@ function scrape(doc, text) {
 	let cleanMetadata = trenner[0].replace(/(\.[\w].*)/, '').replace(/\.?$/, '');
 	let pages = cleanMetadata.split('p.');
 	item.pages = pages[1];
-	if (trenner[1] && trenner[1] !== 'null') item.abstractNote = trenner[1].replace('Summary', '\\n4207').replace(/Détails Auteur.*$/, '').replace(/\"\d+\",\d+/, '').replace(/"\d+">$/, '').replace(/data-show-extract-pub=.*/, '');
+	if (trenner[1] && trenner[1] !== 'null') item.abstractNote = trenner[1].replace('Summary', '\\n4207 ').replace(/Détails Auteur.*$/, '').replace(/\"\d+\",\d+/, '').replace(/"\d+">$/, '').replace(/data-show-extract-pub=.*/, '');
 	item.volume = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "w3-section", " " )) and (((count(preceding-sibling::*) + 1) = 2) and parent::*)]//*[contains(concat( " ", @class, " " ), concat( " ", "w3-xlarge", " " ))]');
 	item.date = ZU.xpathText(doc, '//*[(((count(preceding-sibling::*) + 1) = 1) and parent::*)]//*[contains(concat( " ", @class, " " ), concat( " ", "w3-xlarge", " " ))]');
 	item.issue = ZU.xpathText(doc,'//*[contains(concat( " ", @class, " " ), concat( " ", "m2", " " )) and (((count(preceding-sibling::*) + 1) = 3) and parent::*)]//*[contains(concat( " ", @class, " " ), concat( " ", "w3-xlarge", " " ))]');
@@ -114,7 +115,8 @@ function scrape(doc, text) {
 	item.url = item.url.replace(/"/g, '');
 	item.complete();
 	
-}/** BEGIN TEST CASES **/
+}
+/** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "web",

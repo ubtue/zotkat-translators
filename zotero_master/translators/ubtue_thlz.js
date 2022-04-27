@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-04-01 11:30:40"
+	"lastUpdated": "2022-04-25 16:30:31"
 }
 
 /*
@@ -54,9 +54,19 @@ function scrape(doc, url) {
 	if (ZU.xpathText(doc, '//div[@id="inhalt"]//tr').match(/Rezensent(?:in)?:\s/) != null) is_bookreview = true;
 	for (let row of ZU.xpath(doc, '//div[@id="inhalt"]//tr')) {
 		if (ZU.xpathText(row, './td[1]').match(/^Titel/)) i.title = ZU.xpathText(row, './td[2]');
-		if (ZU.xpathText(row, './td[1]').match(/^Rezensent/)) i.creators.push(ZU.cleanAuthor(ZU.xpathText(row, './td[2]'), 'author', true));
+		
+		
+		if (ZU.xpathText(row, './td[1]').match(/^Rezensent/)) {
+			let creator = ZU.cleanAuthor(ZU.xpathText(row, './td[2]'), 'author', true);
+			if (creator.firstName != undefined) i.creators.push(creator);
+			else i.creators.push(ZU.cleanAuthor(ZU.xpathText(row, './td[2]'), 'author'));
+		}
 		if (!is_bookreview) {
-			if (ZU.xpathText(row, './td[1]').match(/^Autor\/Hrsg\./)) i.creators.push(ZU.cleanAuthor(ZU.xpathText(row, './td[2]'), 'author', true));
+			if (ZU.xpathText(row, './td[1]').match(/^Autor\/Hrsg\./)) {
+				let creator = ZU.cleanAuthor(ZU.xpathText(row, './td[2]'), 'author', true);
+				if (creator.firstName != undefined) i.creators.push(creator);
+				else i.creators.push(ZU.cleanAuthor(ZU.xpathText(row, './td[2]'), 'author'));
+			}
 		}
 		if (ZU.xpathText(row, './td[1]').match(/^Spalte/)) i.pages = ZU.xpathText(row, './td[2]');
 		if (ZU.xpathText(row, './td[1]').match(/^Ausgabe/)) i.date = ZU.xpathText(row, './td[2]').match(/\d{4}/)[0];
@@ -69,7 +79,12 @@ function scrape(doc, url) {
 	if (is_bookreview) {
 		i.tags.push("RezensionstagPica");
 	}
-	
+	let month_dict = {'Januar': '1', 'Februar': '2', 'März': '3', 'April': '4', 'Mai': '5',
+               'Juni': '6', 'Juli': '7', 'Juli/August': '7/8', 'August': '8', 'September': '9', 
+			   'Oktober': '10', 'November': '11', 'Dezember': '12'}
+	i.issue = month_dict[i.issue];
+	i.volume = String(Number(i.volume)-1875);
+	i.abstractNote = ZU.xpathText(doc, '//div[@class="views-field views-field-body"]');
 	i.url = url;
 	i.language = "ger";
 	i.ISSN = "0040-5671";
@@ -95,40 +110,31 @@ function doWeb(doc, url) {
 		scrape(doc, url);
 	}
 }
-
-
-
-
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "web",
-		"url": "http://www.thlz.com/inhaltsverzeichnisse/?heft=1876_24",
-		"items": "multiple"
-	},
-	{
-		"type": "web",
-		"url": "http://www.thlz.com/seiten/1876/322/443/?inhalt=heft%3D1876_24%23r2",
+		"url": "http://www.thlz.com/artikel/14986",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Adami gesta Hammaburgensis ecclesiae pontificum ex recensione Lappenbergii. In usum scholarum ex monumentis Germaniae historicis recusa. Editio altera 1876",
+				"title": "Öffentliche Kirche für Europa. Eine Studie zum Beitrag der christlichen Kirchen zum gesellschaftlichen Zusammenhalt in Europa.",
 				"creators": [
 					{
-						"firstName": "Carl",
-						"lastName": "Bertheau",
+						"firstName": "Christian",
+						"lastName": "Polke",
 						"creatorType": "author"
 					}
 				],
-				"date": "1876",
+				"date": "2012",
 				"ISSN": "0040-5671",
-				"issue": "24",
+				"issue": "3",
 				"language": "ger",
 				"libraryCatalog": "ubtue_thlz",
-				"pages": "623-624",
+				"pages": "277–279",
 				"publicationTitle": "Theologische Literaturzeitung (ThLZ)",
-				"url": "http://www.thlz.com/seiten/1876/322/443/?inhalt=heft%3D1876_24%23r2",
-				"volume": "1876",
+				"url": "http://www.thlz.com/artikel/14986",
+				"volume": "137",
 				"attachments": [],
 				"tags": [
 					{
@@ -139,6 +145,11 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "http://www.thlz.com/inhaltsverzeichnisse/?heft=2022_4",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/

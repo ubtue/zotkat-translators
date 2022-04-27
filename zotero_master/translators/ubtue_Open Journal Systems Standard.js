@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-04-01 10:01:40"
+	"lastUpdated": "2022-04-26 07:15:50"
 }
 
 /*
@@ -116,8 +116,13 @@ function invokeEMTranslator(doc) {
   		if (orcidAuthorEntryCaseA && ['2748-6419'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
   				if (a && a.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
-  					let author = a.innerText;//Z.debug(author + '   AAA1')
-  					i.notes.push({note: ZU.unescapeHTML(ZU.trimInternal(author)).replace(/https?:\/\/orcid.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
+  					let orcidTag = ZU.trimInternal(a.innerHTML);
+					  if (orcidTag.match(/<strong>(.+?)<\/strong>.+?<a href="http:\/\/orcid.org\/(.+?)" target="_blank">/g) != null) {
+						  for (o of orcidTag.match(/<strong>(.+?)<\/strong>.+?<a href="http:\/\/orcid.org\/(.+?)" target="_blank">/g)) {
+							  i.notes.push({note: o.match(/<strong>(.+?)<\/strong>/)[1] + ' | orcid:' + o.match(/<a href="http:\/\/orcid.org\/(.+?)" target="_blank">/)[1] + ' | taken from website'});
+						  }
+						}
+  					
   				}
   			}
   		 }
@@ -136,15 +141,6 @@ function invokeEMTranslator(doc) {
   				}
   			}
   		 }
-  		 //e.g. https://aabner.org/ojs/index.php/beabs/article/view/781
-  		 if (orcidAuthorEntryCaseA && ['2748-6419'].includes(i.ISSN)) {
-  		 	for (let a of orcidAuthorEntryCaseA) {
-  				if (a && a.innerHTML.match(/(<span>.*<\/span>.*https?:\/\/orcid\.org\/\d+-\d+-\d+-\d+x?)/gi)) {
-  					let author = a.innerHTML.match(/(<span>.*<\/span>.*https?:\/\/orcid\.org\/\d+-\d+-\d+-\d+x?)/gi).toString().replace('<a class="orcidImage" href="', '');//Z.debug(author + '   AAA2')
- 					i.notes.push({note: ZU.unescapeHTML(ZU.trimInternal(author)).replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
-  				}
-  			}
-  		}
   		//e.g.  https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/785
   		if (orcidAuthorEntryCaseA && !orcidAuthorEntryCaseB && i.ISSN !== "2660-7743") {
   			for (let a of orcidAuthorEntryCaseA) {
@@ -368,7 +364,7 @@ function invokeEMTranslator(doc) {
 			}
 		}
 		if (i.ISSN == "2709-8435") {
-			let abstracts = ZU.xpath(doc, '//div[@class="abstract"]/p');
+			let abstracts = ZU.xpath(doc, '//meta[@name="DC.Description"]/@content');
 			if (abstracts[1] != null) {
 			i.abstractNote = abstracts[0].textContent + '\\n4207 ' + abstracts[1].textContent;
 			}
@@ -387,7 +383,7 @@ function invokeEMTranslator(doc) {
 						if (abstractNum == 0) i.abstractNote = abstract;
 						else i.notes.push({'note': 'abs:' + abstract});
 						for (let keyword of keywords.split(/\s*[,;]\s*/)) {
-							i.tags.push(keyword.trim());
+							i.tags.push(keyword.replace(/.$/, '').trim());
 						}
 						break
 					}
@@ -395,8 +391,20 @@ function invokeEMTranslator(doc) {
 				abstractNum += 1;
 			}
 		}
+		if (i.ISSN == "2748-6419") {
+			i.abstractNote = "";
+			let abstractNum = 0;
+			for (let abstract of ZU.xpath(doc, '//meta[@name="DC.Description"]/@content')) {
+				if ((abstract.textContent != "S. Abstract auf Englisch!") && abstract.textContent != "") {
+					if (abstractNum == 0) i.abstractNote = abstract.textContent.replace(/&nbsp;/g, '');
+					else i.notes.push({'note': 'abs:' + abstract.textContent.replace(/&nbsp;/g, '')});
+					abstractNum += 1;
+				}
+			}
+		}
 		if (i.url.match(/\/article\/view/)) i.itemType = "journalArticle";
 		if (i.abstractNote == ', ' || i.abstractNote == ',') i.abstractNote = "";
+		i.attachments = [];
 		let sansidoroAbstract = ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content');
 		if (sansidoroAbstract && sansidoroAbstract.match(/isidorianum\/article\/view/)) {
 		//multi language abstract e.g. https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/147
@@ -452,6 +460,7 @@ function doWeb(doc, url) {
 
 
 
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -482,16 +491,7 @@ var testCases = [
 				"shortTitle": "“The message to the people of South Africa” in contemporary context",
 				"url": "https://ojs.reformedjournals.co.za/stj/article/view/1969",
 				"volume": "5",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [],
 				"notes": [],
 				"seeAlso": []
@@ -521,12 +521,7 @@ var testCases = [
 				"publicationTitle": "Zwingliana",
 				"rights": "Copyright (c)",
 				"url": "https://www.zwingliana.ch/index.php/zwa/article/view/2516",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [],
 				"notes": [],
 				"seeAlso": []
@@ -561,16 +556,7 @@ var testCases = [
 				"shortTitle": "Becoming “Indians”",
 				"url": "https://jps.library.utoronto.ca/index.php/renref/article/view/34078",
 				"volume": "43",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [],
 				"notes": [],
 				"seeAlso": []
@@ -612,16 +598,7 @@ var testCases = [
 				"rights": "Both JSRI and the authors holds the copyright of all published materials. In addition, authors have the right to use all or part of their texts and abstracts for their own personal use and for their teaching purposes.   Authors have the right to use all or part of the text and abstract, in the preparation of derivative works, extension of the article into book-length or in other works, and the right to include the article in full or in part in a thesis or dissertation or books. Authors are kindly asked to provide acknowledgement of the original publication in JSRI, including the title of the article, the journal name, volume, issue number, page numbers, and year of publication.   For use in non-commercial situations there is no need for authors to apply for written permission from JSRI in advance.",
 				"url": "http://jsri.ro/ojs/index.php/jsri/article/view/1194",
 				"volume": "19",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Marriage"
@@ -682,16 +659,7 @@ var testCases = [
 				"rights": "Both JSRI and the authors holds the copyright of all published materials. In addition, authors have the right to use all or part of their texts and abstracts for their own personal use and for their teaching purposes.   Authors have the right to use all or part of the text and abstract, in the preparation of derivative works, extension of the article into book-length or in other works, and the right to include the article in full or in part in a thesis or dissertation or books. Authors are kindly asked to provide acknowledgement of the original publication in JSRI, including the title of the article, the journal name, volume, issue number, page numbers, and year of publication.   For use in non-commercial situations there is no need for authors to apply for written permission from JSRI in advance.",
 				"url": "http://jsri.ro/ojs/index.php/jsri/article/view/1212",
 				"volume": "19",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "conservation"
@@ -735,16 +703,7 @@ var testCases = [
 				"rights": "Copyright (c) 2017 Pieter de Waal Neethling Trust, Stellenbosch",
 				"url": "https://ojs.reformedjournals.co.za/stj/article/view/1743",
 				"volume": "3",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Christology"
@@ -803,16 +762,7 @@ var testCases = [
 				"shortTitle": "Renewal, Renaissance, Reformation, or Revolution?",
 				"url": "https://ojs.reformedjournals.co.za/stj/article/view/1731",
 				"volume": "3",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Diagnostics"
@@ -879,16 +829,7 @@ var testCases = [
 				"shortTitle": "“Battle is over, raise we the cry of victory”. Study of Revelation 19",
 				"url": "https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/147",
 				"volume": "29",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Ap 19"
@@ -939,16 +880,7 @@ var testCases = [
 				"shortTitle": "Sustaining Abundance",
 				"url": "https://journal.equinoxpub.com/JSRNC/article/view/19598",
 				"volume": "14",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Zoroastrianism"
@@ -1026,16 +958,7 @@ var testCases = [
 				"shortTitle": "Razões para peregrinar",
 				"url": "https://periodicos.uem.br/ojs/index.php/RbhrAnpuh/article/view/54840",
 				"volume": "13",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Catolicismo"
@@ -1083,16 +1006,7 @@ var testCases = [
 				"shortTitle": "Dark Green Religion",
 				"url": "https://journal.equinoxpub.com/JSRNC/article/view/19606",
 				"volume": "14",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Avatar"
@@ -1141,16 +1055,7 @@ var testCases = [
 				"shortTitle": "Book Review. Christopher Ocker / Susanne Elm (eds.), Material Christianity",
 				"url": "https://jrfm.eu/index.php/ojs_jrfm/article/view/256",
 				"volume": "7",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "RezensionstagPica"
@@ -1199,16 +1104,7 @@ var testCases = [
 				"rights": "Derechos de autor 2017 Archivo Ibero-Americano",
 				"url": "https://revistasfranciscanas.org/index.php/ArchivoIberoAmericano/article/view/117",
 				"volume": "77",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Edad Media"
@@ -1266,16 +1162,7 @@ var testCases = [
 				"shortTitle": "Review of",
 				"url": "https://jeac.de/ojs/index.php/jeac/article/view/297",
 				"volume": "2",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Angst"
@@ -1340,7 +1227,7 @@ var testCases = [
 				"date": "2021/06/29",
 				"DOI": "10.35068/aabner.v1i1.785",
 				"ISSN": "2748-6419",
-				"abstractNote": "Der hier vorliegende Artikel untersucht das Konzept eines göttlichen&nbsp;(Entscheidungs-)Tages, speziell des „Sturm-Tages“, in der sumerischen und akkadischen Literatur des ersten und zweiten Jahrtausends und vergleicht dieses&nbsp;mit dem „Tag Jahwehs“ im Alten Testament.",
+				"abstractNote": "Der hier vorliegende Artikel untersucht das Konzept eines göttlichen(Entscheidungs-)Tages, speziell des „Sturm-Tages“, in der sumerischen und akkadischen Literatur des ersten und zweiten Jahrtausends und vergleicht diesesmit dem „Tag Jahwehs“ im Alten Testament.",
 				"issue": "1",
 				"journalAbbreviation": "1",
 				"language": "en",
@@ -1351,16 +1238,7 @@ var testCases = [
 				"shortTitle": "The Day Storm in Mesopotamian Literature",
 				"url": "https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/785",
 				"volume": "1",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Akkadian literature"
@@ -1386,7 +1264,10 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Sebastian Fink Universität Innsbruck  | orcid:0000-0002-6270-8368 Mark S. Smith Princeton Theological Seminary | taken from website"
+						"note": "Sebastian Fink | orcid:0000-0002-6270-8368 | taken from website"
+					},
+					{
+						"note": "abs:This article explores the conception of divine (decision) days, especially the“day-storm” in second- and first-millennium Sumerian and Akkadian literatureand finally compares it to the “the day of Yahweh” in the Hebrew Bible."
 					}
 				],
 				"seeAlso": []
@@ -1425,7 +1306,7 @@ var testCases = [
 				"date": "2021/06/18",
 				"DOI": "10.35068/aabner.v1i1.781",
 				"ISSN": "2748-6419",
-				"abstractNote": "Die Chefredaktion von AABNER beschreibt die Schwächen und Probleme des&nbsp;traditionellen ‚Double-Blind-Peer-Review‘ und bietet eine innovative Lösung:&nbsp;den von uns weiterentwickelten ‚Forum-Peer-Review‘.",
+				"abstractNote": "Die Chefredaktion von AABNER beschreibt die Schwächen und Probleme destraditionellen ‚Double-Blind-Peer-Review‘ und bietet eine innovative Lösung:den von uns weiterentwickelten ‚Forum-Peer-Review‘.",
 				"issue": "1",
 				"journalAbbreviation": "1",
 				"language": "en",
@@ -1435,16 +1316,7 @@ var testCases = [
 				"rights": "Copyright (c) 2021 Izaak J. de Hulster, Valérie Nicolet, Ronit Nikolsky, Jason M. Silverman",
 				"url": "https://aabner.org/ojs/index.php/beabs/article/view/781",
 				"volume": "1",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Peer review"
@@ -1461,7 +1333,22 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Izaak Jozias de Hulster  | orcid:0000-0003-0706-4480 Valérie Nicolet Institut Protestant de Théologie  | orcid:0000-0001-9070-0585 Ronit Nikolsky University of Groningen  | orcid:0000-0002-3771-8062 Jason M. Silverman University of Helsinki  | orcid:0000-0002-0240-9219 | taken from website"
+						"note": "Izaak Jozias de Hulster | orcid:0000-0003-0706-4480 | taken from website"
+					},
+					{
+						"note": "Valérie Nicolet | orcid:0000-0001-9070-0585 | taken from website"
+					},
+					{
+						"note": "Ronit Nikolsky | orcid:0000-0002-3771-8062 | taken from website"
+					},
+					{
+						"note": "Jason M. Silverman | orcid:0000-0002-0240-9219 | taken from website"
+					},
+					{
+						"note": "abs:The AABNER founding editors-in-chief describe some of the problems with traditional double-blind peer review and describe our solution for them, forum peerreview, which we have developed for use within AABNER."
+					},
+					{
+						"note": "abs:L’équipe de rédaction en chef initiale d’AABNER décrit quelques problèmes liésau système traditionnel de la “double-blind peer review” et propose une solution, le système “forum peer review”, développé et mis en place pour la créationd’AABNER."
 					}
 				],
 				"seeAlso": []
@@ -1501,16 +1388,7 @@ var testCases = [
 				"shortTitle": "Homosexuality and Liminality in Sodom",
 				"url": "https://ote-journal.otwsa-otssa.org.za/index.php/journal/article/view/433",
 				"volume": "34",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Abraham"
@@ -1585,16 +1463,7 @@ var testCases = [
 				"shortTitle": "Renewal, Renaissance, Reformation, or Revolution?",
 				"url": "https://ojs.reformedjournals.co.za/stj/article/view/1731",
 				"volume": "3",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Diagnostics"
@@ -1662,16 +1531,7 @@ var testCases = [
 				"shortTitle": "Teaching Preaching",
 				"url": "https://jebs.eu/ojs/index.php/jebs/article/view/697",
 				"volume": "21",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "practical theology"
@@ -1721,16 +1581,7 @@ var testCases = [
 				"shortTitle": "Antimodernismus als Autoritarismus?",
 				"url": "https://limina-graz.eu/index.php/limina/article/view/103",
 				"volume": "4",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "(katholischer) Fundamentalismus"
@@ -1789,16 +1640,7 @@ var testCases = [
 				"shortTitle": "Spirituality as relationality of reasonability",
 				"url": "https://revistas.agustinosvalladolid.es/index.php/estudio/article/view/9",
 				"volume": "56",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Absoluto"
@@ -1868,7 +1710,7 @@ var testCases = [
 				"date": "2021/06/18",
 				"DOI": "10.35068/aabner.v1i1.781",
 				"ISSN": "2748-6419",
-				"abstractNote": "Die Chefredaktion von AABNER beschreibt die Schwächen und Probleme des&nbsp;traditionellen ‚Double-Blind-Peer-Review‘ und bietet eine innovative Lösung:&nbsp;den von uns weiterentwickelten ‚Forum-Peer-Review‘.",
+				"abstractNote": "Die Chefredaktion von AABNER beschreibt die Schwächen und Probleme destraditionellen ‚Double-Blind-Peer-Review‘ und bietet eine innovative Lösung:den von uns weiterentwickelten ‚Forum-Peer-Review‘.",
 				"issue": "1",
 				"journalAbbreviation": "1",
 				"language": "en",
@@ -1878,16 +1720,7 @@ var testCases = [
 				"rights": "Copyright (c) 2021 Izaak J. de Hulster, Valérie Nicolet, Ronit Nikolsky, Jason M. Silverman",
 				"url": "https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/781",
 				"volume": "1",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Peer review"
@@ -1904,7 +1737,22 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Izaak Jozias de Hulster  | orcid:0000-0003-0706-4480 Valérie Nicolet Institut Protestant de Théologie  | orcid:0000-0001-9070-0585 Ronit Nikolsky University of Groningen  | orcid:0000-0002-3771-8062 Jason M. Silverman University of Helsinki  | orcid:0000-0002-0240-9219 | taken from website"
+						"note": "Izaak Jozias de Hulster | orcid:0000-0003-0706-4480 | taken from website"
+					},
+					{
+						"note": "Valérie Nicolet | orcid:0000-0001-9070-0585 | taken from website"
+					},
+					{
+						"note": "Ronit Nikolsky | orcid:0000-0002-3771-8062 | taken from website"
+					},
+					{
+						"note": "Jason M. Silverman | orcid:0000-0002-0240-9219 | taken from website"
+					},
+					{
+						"note": "abs:The AABNER founding editors-in-chief describe some of the problems with traditional double-blind peer review and describe our solution for them, forum peerreview, which we have developed for use within AABNER."
+					},
+					{
+						"note": "abs:L’équipe de rédaction en chef initiale d’AABNER décrit quelques problèmes liésau système traditionnel de la “double-blind peer review” et propose une solution, le système “forum peer review”, développé et mis en place pour la créationd’AABNER."
 					}
 				],
 				"seeAlso": []
@@ -1933,7 +1781,7 @@ var testCases = [
 				"date": "2021/06/29",
 				"DOI": "10.35068/aabner.v1i1.785",
 				"ISSN": "2748-6419",
-				"abstractNote": "Der hier vorliegende Artikel untersucht das Konzept eines göttlichen&nbsp;(Entscheidungs-)Tages, speziell des „Sturm-Tages“, in der sumerischen und akkadischen Literatur des ersten und zweiten Jahrtausends und vergleicht dieses&nbsp;mit dem „Tag Jahwehs“ im Alten Testament.",
+				"abstractNote": "Der hier vorliegende Artikel untersucht das Konzept eines göttlichen(Entscheidungs-)Tages, speziell des „Sturm-Tages“, in der sumerischen und akkadischen Literatur des ersten und zweiten Jahrtausends und vergleicht diesesmit dem „Tag Jahwehs“ im Alten Testament.",
 				"issue": "1",
 				"journalAbbreviation": "1",
 				"language": "en",
@@ -1944,16 +1792,7 @@ var testCases = [
 				"shortTitle": "The Day Storm in Mesopotamian Literature",
 				"url": "https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/785",
 				"volume": "1",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Akkadian literature"
@@ -1979,7 +1818,10 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Sebastian Fink Universität Innsbruck  | orcid:0000-0002-6270-8368 Mark S. Smith Princeton Theological Seminary | taken from website"
+						"note": "Sebastian Fink | orcid:0000-0002-6270-8368 | taken from website"
+					},
+					{
+						"note": "abs:This article explores the conception of divine (decision) days, especially the“day-storm” in second- and first-millennium Sumerian and Akkadian literatureand finally compares it to the “the day of Yahweh” in the Hebrew Bible."
 					}
 				],
 				"seeAlso": []
@@ -2003,7 +1845,7 @@ var testCases = [
 				"date": "2021/06/29",
 				"DOI": "10.35068/aabner.v1i1.787",
 				"ISSN": "2748-6419",
-				"abstractNote": "Dieser Aufsatz bespricht die Ikonographie des vergöttlichten Mittelmeers&nbsp;in der syrischen Glyptik der mittleren und späten Bronzezeit im Lichte der&nbsp;textlichen Zeugnisse aus der Stadt Ugarit (Ras Shamra). Die Arbeit von&nbsp;Paolo Matthiae zur Erkennung des visuellen Vokabulars der Darstellung der&nbsp;Gottheit weiterführend, argumentiert der Aufsatz, dass der Grund für die&nbsp;Darstellung des Meeresgottes als geflügelte Gottheit in der antiken semitischen&nbsp;Vorstellung lag, wo er ein Rolle als Vermittler zwischen dem himmlischen und dem irdischen Ozean hat. Der Artikel liefert auch eine Heuristik für&nbsp;die Unterscheidung von Darstellungen des geflügelten Meeresgottes von den&nbsp;Darstellungen der geflügelten Göttin die zusammen mit Wasservögeln und&nbsp;Fischen abgebildet wird.",
+				"abstractNote": "Dieser Aufsatz bespricht die Ikonographie des vergöttlichten Mittelmeersin der syrischen Glyptik der mittleren und späten Bronzezeit im Lichte dertextlichen Zeugnisse aus der Stadt Ugarit (Ras Shamra). Die Arbeit vonPaolo Matthiae zur Erkennung des visuellen Vokabulars der Darstellung derGottheit weiterführend, argumentiert der Aufsatz, dass der Grund für dieDarstellung des Meeresgottes als geflügelte Gottheit in der antiken semitischenVorstellung lag, wo er ein Rolle als Vermittler zwischen dem himmlischen und dem irdischen Ozean hat. Der Artikel liefert auch eine Heuristik fürdie Unterscheidung von Darstellungen des geflügelten Meeresgottes von denDarstellungen der geflügelten Göttin die zusammen mit Wasservögeln undFischen abgebildet wird.",
 				"issue": "1",
 				"journalAbbreviation": "1",
 				"language": "en",
@@ -2014,16 +1856,7 @@ var testCases = [
 				"shortTitle": "Wings, Weapons, and the Horned Tiara",
 				"url": "https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/787",
 				"volume": "1",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Bronze Age"
@@ -2052,7 +1885,10 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Joanna Töyräänvuori University of Helsinki  | orcid:0000-0003-4932-8755 | taken from website"
+						"note": "Joanna Töyräänvuori | orcid:0000-0003-4932-8755 | taken from website"
+					},
+					{
+						"note": "abs:This article discusses the iconography of the deified Mediterranean Sea in Syrian glyptic from the Middle and Late Bronze Ages in light of textual evidence from the city of Ugarit (Ras Shamra). Building on the work of Paolo Matthiae in recognizing the visual vocabulary of the representation of the deity, the article argues that the reason for the depiction of the sea god as a winged deity was due to its role as a mediator between the celestial and terrestial oceans in ancient semitic conception. The article also provides a heuristic for separating depictions of the winged sea god from the representations of the winged goddess in the presence of water birds and fish in its visual vocabulary."
 					}
 				],
 				"seeAlso": []
@@ -2091,16 +1927,7 @@ var testCases = [
 				"shortTitle": "A vez dos eleitos",
 				"url": "https://periodicos.uem.br/ojs/index.php/RbhrAnpuh/article/view/52641",
 				"volume": "13",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Comportamento eleitoral"
@@ -2151,16 +1978,7 @@ var testCases = [
 				"publicationTitle": "Ethik und Gesellschaft",
 				"rights": "Copyright (c) 2021 Ethik und Gesellschaft",
 				"url": "https://open-journals.uni-tuebingen.de/ojs/index.php/eug/article/view/1-2021-rez-1",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "RezensionstagPica"
@@ -2195,16 +2013,7 @@ var testCases = [
 				"publicationTitle": "Ethik und Gesellschaft",
 				"rights": "Copyright (c) 2021 Ethik und Gesellschaft",
 				"url": "https://open-journals.uni-tuebingen.de/ojs/index.php/eug/article/view/1-2021-art-1",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [],
 				"notes": [],
 				"seeAlso": []
@@ -2242,16 +2051,7 @@ var testCases = [
 				"publicationTitle": "Teocomunicação",
 				"url": "https://revistaseletronicas.pucrs.br/index.php/teo/article/view/36941",
 				"volume": "51",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Catolicismo"
@@ -2308,16 +2108,7 @@ var testCases = [
 				"shortTitle": "Por uma ética do encontro",
 				"url": "https://revistaseletronicas.pucrs.br/index.php/teo/article/view/41089",
 				"volume": "51",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Diálogo"
@@ -2375,16 +2166,7 @@ var testCases = [
 				"shortTitle": "Álvarez-Pedrosa Núñez, J. A. (ed. y coord.), Fuentes para el estudio de la religión eslava precristiana. Zaragoza, Libros Pórtico, 2017, 505 pp. ISBN",
 				"url": "https://revistas.ucm.es/index.php/ILUR/article/view/75207",
 				"volume": "24",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Ciencias de las Religiones"
@@ -2440,16 +2222,7 @@ var testCases = [
 				"rights": "Copyright (c) 2021 Ecumeny and Law",
 				"url": "https://www.journals.us.edu.pl/index.php/EL/article/view/13012",
 				"volume": "9",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Pope Francis"
@@ -2524,12 +2297,7 @@ var testCases = [
 				"pages": "11-18",
 				"url": "https://bulletin-religious.kaznu.kz/index.php/relig/article/view/414",
 				"volume": "28",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Islamization"
@@ -2619,16 +2387,7 @@ var testCases = [
 				"rights": "Copyright (c) 2021 Zeitschrift für christlich-jüdische Begegnung im Kontext",
 				"shortTitle": "Vita",
 				"url": "https://zfbeg.org/ojs/index.php/cjbk/article/view/631",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [],
 				"notes": [],
 				"seeAlso": []
@@ -2661,16 +2420,7 @@ var testCases = [
 				"publicationTitle": "Zeitschrift für christlich-jüdische Begegnung im Kontext",
 				"rights": "Copyright (c) 2021 Zeitschrift für christlich-jüdische Begegnung im Kontext",
 				"url": "https://zfbeg.org/ojs/index.php/cjbk/article/view/793",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [],
 				"notes": [],
 				"seeAlso": []
@@ -2709,16 +2459,7 @@ var testCases = [
 				"rights": "Copyright (c) 2021 Zeitschrift für Theologie und Philosophie",
 				"url": "https://ztp.jesuiten.org/index.php/ZTP/article/view/3677",
 				"volume": "143",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Beziehung"
@@ -2772,16 +2513,7 @@ var testCases = [
 				"shortTitle": "“Just City-making” in Cape Town",
 				"url": "https://missionalia.journals.ac.za/pub/article/view/358",
 				"volume": "49",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Cape Town"
@@ -2810,6 +2542,73 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://vergentis.ucam.edu/index.php/vergentis/article/view/234",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Administración de bienes temporales de la Orden de Hermanos Menores en la Regla de 1223 y en las Constituciones (1955,1979,2010)",
+				"creators": [
+					{
+						"firstName": "Rosario Celdrán",
+						"lastName": "Hernández",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021",
+				"ISSN": "2605-3357",
+				"abstractNote": "This article presents various relevant social and economic aspects that influenced the society in which Francisco was immersed. A society that abandons the old feudal system and gives way to a new society where money is increasingly imposed both in politics and in social relations. Francisco lives a new social era where relationships cease to be one of subordination and dependence. But the Church remains feudal and this caused discomfort to the humble people. Francisco, due to the life he chose, rejected everything that prevented living evangelical poverty. Francisco tries to regulate the life of the brothers through the Rules. The study of Rule 1223 and the Constitutions of 1955, 1974 and 2010 will allow us to analyze the evolution and importance that the administration of property acquires in them, being faithful to the charism of Francis of Assisi.",
+				"issue": "13",
+				"journalAbbreviation": "Vergentis",
+				"language": "es",
+				"libraryCatalog": "vergentis.ucam.edu",
+				"pages": "187-220",
+				"publicationTitle": "Revista de Investigación de la Cátedra Internacional conjunta Inocencio III",
+				"rights": "Copyright (c) 2021 Revista de Investigación de la Cátedra Internacional conjunta Inocencio III",
+				"url": "https://vergentis.ucam.edu/index.php/vergentis/article/view/234",
+				"volume": "1",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Constituciones"
+					},
+					{
+						"tag": "Constitutions"
+					},
+					{
+						"tag": "Fraternida"
+					},
+					{
+						"tag": "Fraternit"
+					},
+					{
+						"tag": "Friars Mino"
+					},
+					{
+						"tag": "Gestión de biene"
+					},
+					{
+						"tag": "Hermanos menore"
+					},
+					{
+						"tag": "Property Managemen"
+					}
+				],
+				"notes": [
+					{
+						"note": "abs:Este artículo presenta diversos aspectos sociales y económicos relevantes que influyeron en sociedad en la que Francisco se vio inmerso. Una sociedad que abandona el antiguo sistema feudal y da paso a una nueva sociedad donde el dinero se impone cada vez más tanto en la política como el plano de las relaciones sociales. Francisco vive una nueva era social donde las relaciones dejan de ser de subordinación y dependencia. Pero la Iglesia se mantiene feudal y esto generó malestar al pueblo humilde. Francisco debido a la vida que eligió rechazó todo aquello que impidiera vivir la pobreza evangélica. Francisco intenta regular la vida de los hermanos a través de las Reglas. El estudio de la Regla 1223 y Constituciones de 1955,1974 y 2010 nos permitirán analizar la evolución y la importancia que adquieren en las mismas la administración de los bienes siendo fieles al carisma de Francisco de Asís."
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://bildungsforschung.org/ojs/index.php/beabs/issue/view/v01i02",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
