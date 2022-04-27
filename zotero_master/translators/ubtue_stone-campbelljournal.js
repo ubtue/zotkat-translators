@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-04-27 09:13:45"
+	"lastUpdated": "2022-04-27 12:14:40"
 }
 
 /*
@@ -75,7 +75,6 @@ function doWeb(doc, url) {
 				return true;
 			}
 			for (var i in items) {
-				Z.debug(i);
 				scrape(doc, articleData[i]);
 			}
 		});
@@ -90,10 +89,7 @@ function scrape(doc, text) {
 	var item = new Zotero.Item('journalArticle');
 	item.title = ZU.xpathText(text, './/div[@class="articletitle"]');
 	
-	Z.debug(text)
-	
 	item.url = "http://www.stone-campbelljournal.com/" + ZU.xpathText(text, './/div[@class="articletitle"]/a/@href');
-	Z.debug(item.url);
 	item.abstractNote = ZU.xpathText(text, './/div[@class="articleabstract"]');
 	
 	for (let creators of ZU.xpath(text, './/div[@class="articleauthor"]')) {
