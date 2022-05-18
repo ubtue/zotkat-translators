@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-04-01 10:54:46"
+	"lastUpdated": "2022-05-18 13:24:37"
 }
 
 /*
@@ -116,7 +116,9 @@ function scrape(doc) {
 				item.tags.push("RezensionstagPica");
 			}
 			if (item.publicationTitle == "Buddhist-Christian Studies") item.issue = "";
-			
+			if (item.pages.split('-').length > 1) {
+				if (item.pages.split[0] == item.pages.split[1]) item.pages = item.pages.split('-')[0];
+			}
 			item.notes = [];
 			item.complete();
 		});
