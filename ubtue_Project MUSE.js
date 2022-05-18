@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-18 13:31:13"
+	"lastUpdated": "2022-05-18 13:34:05"
 }
 
 /*
@@ -117,7 +117,7 @@ function scrape(doc) {
 			}
 			if (item.publicationTitle == "Buddhist-Christian Studies") item.issue = "";
 			if (item.pages.split('-').length > 1) {
-				if (item.pages.split[0] == item.pages.split[1]) item.pages = item.pages.split('-')[0];
+				if (item.pages.split('-')[0] == item.pages.split('-')[1]) item.pages = item.pages.split('-')[0];
 			}
 			item.notes = [];
 			item.complete();
@@ -425,6 +425,30 @@ var testCases = [
 						"tag": "RezensionstagPica"
 					}
 				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://muse.jhu.edu/article/837448",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Public Statement in Solidarity with Persons of Asian and Pacific Island Descent: Executive Committee of the SBCS",
+				"creators": [],
+				"date": "2021",
+				"DOI": "10.1353/bcs.2021.0027",
+				"ISSN": "1527-9472",
+				"libraryCatalog": "ubtue_Project MUSE",
+				"pages": "297",
+				"publicationTitle": "Buddhist-Christian Studies",
+				"shortTitle": "Public Statement in Solidarity with Persons of Asian and Pacific Island Descent",
+				"url": "https://muse.jhu.edu/article/837448",
+				"volume": "41",
+				"attachments": [],
+				"tags": [],
 				"notes": [],
 				"seeAlso": []
 			}
