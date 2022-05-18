@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-12-16 11:50:18"
+	"lastUpdated": "2022-05-18 15:59:44"
 }
 
 /*
@@ -41,14 +41,13 @@ function attr(docOrElem,selector,attr,index){var elem=index?docOrElem.querySelec
 
 function detectWeb(doc, url) {
 	// See if this is a search results page or Issue content
-	if (doc.title == "JSTOR: Search Results" || url.includes('www.jstor.org/stable/')) {
+	if (doc.title == "JSTOR: Search Results") {
 		return getSearchResults(doc, true) ? "multiple" : false;
 	}
 	else if (/stable|pss/.test(url) // Issues with DOIs can't be identified by URL
 		&& getSearchResults(doc, true)) {
 		return "multiple";
 	}
-	
 	// If this is a view page, find the link to the citation
 	var favLink = getFavLink(doc);
 	if ((favLink && getJID(favLink.href)) || getJID(url)) {
@@ -63,7 +62,6 @@ function detectWeb(doc, url) {
 }
 
 function getKeyWords(item) {
-	Z.debug(item.url);
 	if (item.DOI) {
 		ZU.doGet('https://doi.org/' + encodeURIComponent(item.DOI),
 		function (text) {
@@ -94,20 +92,18 @@ function getKeyWords(item) {
 }
 
 function getSearchResults(doc, checkOnly) {
-	var resultsBlock = doc.querySelectorAll('.media-body.media-object-section');
-	if (!resultsBlock.length) {
-		resultsBlock = doc.querySelectorAll('.search-result-item-grid');
-	}
-	if (!resultsBlock.length) return false;
+	var resultsBlock = ZU.xpath(doc, '//div[@class="toc-item"]')
+	if (!resultsBlock) return false;
 	var items = {}, found = false;
-	for (let i = 0; i < resultsBlock.length; i++) {
-		let title = text(resultsBlock[i], '.title, .small-heading').trim();
-		let jid = getJID(attr(resultsBlock[i], 'a', 'href'));
-		if (!jid || !title) continue;
+	for (let i=0; i<resultsBlock.length; i++) {
+		let node = resultsBlock[i];
+		let link = ZU.xpath(node, './/*[@data-qa="content title"]');
+		let href = ZU.xpathText(link[0], './@href');
+		let title = link[0].textContent.trim();
+		if (!href || !title) continue;
 		if (checkOnly) return true;
 		found = true;
-		items[jid] = title;
-		// Zotero.debug("Found title "+ title +" with JID "+ jid);
+		items[href] = title;
 	}
 	return found ? items : false;
 }
@@ -137,40 +133,51 @@ function getJID(url) {
 function doWeb(doc, url) {
 	if (detectWeb(doc, url) == 'multiple') {
 		Zotero.selectItems(getSearchResults(doc), function (selectedItems) {
-			if (selectedItems) {
-				var jids = [];
-				for (var j in selectedItems) {
-					jids.push(j);
-				}
-				scrape(jids);
+			if (!selectedItems) {
+				return true;
 			}
+			let hrefsAndDoi = [];
+			for (let j in selectedItems) {
+				hrefsAndDoi.push([j, selectedItems[j][1]]);
+			}
+			scrapeMultiplePages(hrefsAndDoi)
 		});
 	}
 	else {
 		// If this is a view page, find the link to the citation
-		var favLink = getFavLink(doc);
-		var jid;
+		let favLink = getFavLink(doc);
+		let jid;
 		if (favLink && (jid = getJID(favLink.href))) {
 			Zotero.debug("JID found 1 " + jid);
-			scrape([jid]);
+			scrapeSinglePage(doc, favLink.href);
 		}
 		else if ((jid = getJID(url))) {
 			Zotero.debug("JID found 2 " + jid);
-			scrape([jid]);
+			scrapeSinglePage(doc, url);
 		}
 	}
 }
 
-function scrape(jids) {
-	var risURL = "/citation/ris/";
-	(function next() {
-		if (!jids.length) return;
-		var jid = jids.shift();
-		ZU.doGet(risURL + jid, function (text) {
-			processRIS(text, jid);
-			next();
+var risURL = "/citation/ris/";
+
+function scrapeSinglePage(doc, url) {
+	let jid = getJID(url);
+	ZU.doGet(risURL + jid, function(text) {
+		processRIS(text, jid, doc);
+	});
+}
+
+function scrapeMultiplePages(urlsAndDois) {
+	for (let i in urlsAndDois) {
+		let urlToFetch = urlsAndDois[i][0];
+
+		ZU.processDocuments([urlToFetch], function(doc, url) {
+			let jid = getJID(url);
+			ZU.doGet(risURL + jid, function(text, obj, url) {
+				processRIS(text, jid, doc);
+			});
 		});
-	})();
+	}
 }
 
 function convertCharRefs(string) {
@@ -314,6 +321,7 @@ function finalizeItem(item, onDone) {
 	onDone(item));
 }
 	
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
