@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-04-26 07:58:13"
+	"lastUpdated": "2022-05-24 16:57:51"
 }
 
 /*
@@ -132,6 +132,14 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		}
 		if (item.publicationTitle == "Römische Quartalschrift") {
 			item.ISSN = "0035-7812";
+		}
+		if (item.publicationTitle == "Herder Korrespondenz") {
+			if (ZU.xpathText(doc, '//img[contains(@alt, "Jahrgang")]') != null) {
+				if (ZU.xpathText(doc, '//img[contains(@alt, "Jahrgang")]/@alt').match(/\s+(\d+)\.\s+Jahrgang/)) {
+					item.volume = ZU.xpathText(doc, '//img[contains(@alt, "Jahrgang")]/@alt').match(/\s+(\d+)\.\s+Jahrgang/)[1];
+				}
+			}
+			item.ISSN = "0018-0645";
 		}
 		item.complete();
 	});
@@ -262,6 +270,43 @@ var testCases = [
 				"shortTitle": "Augustins Predigten",
 				"url": "https://www.herder.de/rq/hefte/archiv/116-2021/1-2-2021/augustins-predigten-dokumente-prallen-lebens-animation-zu-frischer-lektuere/",
 				"volume": "116",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.herder.de/hk/hefte/archiv/2022/5-2022/synodale-illusionen-doppeltes-lehramt-von-bischoefen-und-theologen/",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Synodale Illusionen: Doppeltes Lehramt von Bischöfen und Theologen?",
+				"creators": [
+					{
+						"firstName": "Martin",
+						"lastName": "Rhonheimer",
+						"creatorType": "authors"
+					}
+				],
+				"date": "2022",
+				"ISSN": "0018-0645",
+				"abstractNote": "Der Orientierungstext des Synodalen Weges beruft sich auf historische Konstruktionen, die sich bei genauerer Betrachtung als haltlos erweisen.",
+				"issue": "5",
+				"language": "de",
+				"libraryCatalog": "www.herder.de",
+				"pages": "48-51",
+				"publicationTitle": "Herder Korrespondenz",
+				"shortTitle": "Synodale Illusionen",
+				"url": "https://www.herder.de/hk/hefte/archiv/2022/5-2022/synodale-illusionen-doppeltes-lehramt-von-bischoefen-und-theologen/",
+				"volume": "76",
 				"attachments": [
 					{
 						"title": "Snapshot",
