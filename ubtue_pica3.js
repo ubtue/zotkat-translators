@@ -784,6 +784,14 @@ function performExport() {
 							addLine(currentItemId, "\\n4950", 'http://nbn-resolving.de/' + ZU.unescapeHTML(item.notes[i].note + "$xR$3Volltext$4ZZ$534"));
 						}
 					}
+					if (item.notes[i].note.indexOf('URI:') == 0) {
+						if (licenceField === "l") {
+						addLine(currentItemId, "\\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/URI:/, '') + "$xR$3Volltext$4LF$534"));
+						}
+						else {
+							addLine(currentItemId, "\\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/URI:/i, '') + "$xR$3Volltext$4ZZ$534"));
+						}
+					}
 				}
 			}
 
