@@ -1,15 +1,15 @@
 {
 	"translatorID": "8f0d9d23-f26e-4504-a022-6e39c9274744",
-	"label": "ubtue_georgefox",
+	"label": "ubtue_georgefox_tudublin",
 	"creator": "Helena Nebel",
-	"target": "georgefox.edu\\/.+\\/vol.+\\/iss.+\\/",
+	"target": "(georgefox.edu|arrow.tudublin.ie)\\/.+\\/vol.+\\/iss.+\\/",
 	"minVersion": "3.0.4",
 	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-25 09:39:09"
+	"lastUpdated": "2022-05-25 09:44:15"
 }
 
 /*
@@ -72,7 +72,7 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 					i.notes.push({note:  author + ' | orcid:' + orcid + ' | ' + 'taken from website'});
 		}
 		}
-		if (i.ISSN == "2693-2148") {
+		if (i.ISSN == "2693-2148" || i.ISSN == "2009-7379") {
 			i.notes.push('artikelID:' + i.pages);
 			i.pages = '';
 			if (i.title.match(/^Book\s+review/gi) != null) i.tags.push('RezensionstagPica');
@@ -131,6 +131,102 @@ var testCases = [
 				"volume": "42",
 				"attachments": [],
 				"tags": [],
+				"notes": [
+					"artikelID:2"
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://digitalcommons.georgefox.edu/ree/vol42/iss1/7/",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Book Review: Anna Niedźwiedź and Kaja Kajder, eds., Mapy miasta: Dziedzictwa i sacrum w przestrzeni Krakowa / Maps of the City: Heritages and the Sacred within Kraków’s Cityscape.",
+				"creators": [
+					{
+						"firstName": "Christopher",
+						"lastName": "Garbowski",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022",
+				"DOI": "10.55221/2693-2148.2320",
+				"ISSN": "2693-2148",
+				"abstractNote": "The book Maps of the City is the result of an exhibition at The Seweryn Udziela Ethnographic Museum in Kraków that was held between November 2017 and February 2018. As the subtitle makes clear, the exhibition focused on the place of heritage and the sacred within Kraków’s cityscape, together with the relationship between the two, both for the city’s residents and visitors. The latter group includes pilgrims. The curator of the exhibition was Anna Niedźwiedź, a cultural anthropologist at Jagiellonian University and author of The Image and the Figure: Our Lady of Częstochowa in Polish Culture and Popular Religion (2010). She is also one of the editors of the book. This richly illustrated volume is no mere catalogue of a museum exhibition. The editors, together with their team of anthropologists, have written essays based on original research that forms the basis of the exhibition and the chapters of the book. What we have in the end is a book that is both for the broader reading public and the scholar, and due to its bilingual form, both for Polish and English readers.",
+				"issue": "1",
+				"language": "en",
+				"libraryCatalog": "digitalcommons.georgefox.edu",
+				"publicationTitle": "Occasional Papers on Religion in Eastern Europe",
+				"shortTitle": "Book Review",
+				"url": "https://digitalcommons.georgefox.edu/ree/vol42/iss1/7",
+				"volume": "42",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [
+					"artikelID:7"
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://arrow.tudublin.ie/ijrtp/vol10/iss1/2/",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Religious Servicescape: Does Convenience Matter for Revisit Intentions and Positive Word of Mouth?",
+				"creators": [
+					{
+						"firstName": "Ghada Talat",
+						"lastName": "Alhothali",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Islam",
+						"lastName": "Elgammal",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Felix T.",
+						"lastName": "Mavondo",
+						"creatorType": "author"
+					}
+				],
+				"ISSN": "2009-7379",
+				"abstractNote": "Umrah is an optional holy ritual that is highly rewarded when performed in the month of Ramadan. Hence, managing such an event is a challenging mission facing stakeholders. However, limited studies have examined the quality of services provided in the Umrah site (i.e., the Holy Mosque in the city of Makkah, Saudi Arabia) from the pilgrims’ perspective. The current study examines the influence of religious servicescape on service convenience and investigates whether service convenience matters to pilgrims. Further, the study tests the role of religious attractiveness (i.e., of the Kaaba) on pilgrims’ behavioural outcomes (i.e. intention to revisit and Positive Word of Mouth (PWOM). A Mixed-method approach is followed to collect rich data (i.e., quantitative and qualitative). The findings demonstrate that religious servicescape has a critical impact on service convenience. The results also show that service convenience is also a significant mediator between servicescape and PWOM. However, service convenience does not mediate the relationship between religious servicescape and intention to revisit. Consequently, service convenience in the religious context matters to pilgrims and the service provider. Further, Kaaba attractiveness creates a ‘halo’ effect.",
+				"issue": "1",
+				"language": "en",
+				"libraryCatalog": "arrow.tudublin.ie",
+				"publicationTitle": "International Journal of Religious Tourism and Pilgrimage",
+				"shortTitle": "Religious Servicescape",
+				"url": "https://arrow.tudublin.ie/ijrtp/vol10/iss1/2",
+				"volume": "10",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Kaaba"
+					},
+					{
+						"tag": "Saudi Arabia"
+					},
+					{
+						"tag": "Umrah"
+					},
+					{
+						"tag": "religious servicescape"
+					},
+					{
+						"tag": "service convenience"
+					}
+				],
 				"notes": [
 					"artikelID:2"
 				],
