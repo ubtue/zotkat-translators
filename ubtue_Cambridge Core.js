@@ -1,5 +1,5 @@
 {
-	"translatorID": "850f4c5f-71fb-4669-b7da-7fb7a95500ef",
+	"translatorID": "45c7c5b1-0aef-4728-8fda-c41c234993a4",
 	"label": "ubtue_Cambridge Core",
 	"creator": "Sebastian Karcher",
 	"target": "^https?://www\\.cambridge\\.org/core/(search\\?|journals/|books/|.+/listing?)",
@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-09-20 12:15:20"
+	"lastUpdated": "2022-05-25 12:42:55"
 }
 
 /*
