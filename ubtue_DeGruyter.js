@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-02-16 10:24:08"
+	"lastUpdated": "2022-05-25 11:24:06"
 }
 
 /*
@@ -77,17 +77,26 @@ function invokeEMTranslator(doc) {
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
+		if (i.abstractNote != null) i.abstractNote = i.abstractNote.replace(/^Zusammenfassung\s+/, '');
 		if (i.title.match(/ISBN/) || i.publicationTitle === 'Verkündigung und Forschung') i.tags.push('RezensionstagPica') && delete i.abstractNote;
 		let transAbstract = ZU.xpathText(doc, '//*[(@id = "transAbstract")]//p');
+		if (transAbstract == null) transAbstract = ZU.xpathText(doc, '//div[@class="abstract-en"]/p');
 		if (i.abstractNote && transAbstract) i.abstractNote += '\\n4207 ' + transAbstract;
 		let pseudoabstract = i.title;
+		if (ZU.xpathText(doc, '//span[contains(., "Open Access") and contains(@class, "OpenAccess")]')) i.notes.push('LF:');
 		if (i.abstractNote === undefined) i.abstractNote = '';
+		if (ZU.xpathText(doc, '//h2[@class="subtitle productSubtitleMainContent"]') != null) {
+			if (ZU.xpathText(doc, '//h2[@class="subtitle productSubtitleMainContent"]') != "") {
+				i.title += ': ' + ZU.xpathText(doc, '//h2[@class="subtitle productSubtitleMainContent"]');
+			}
+		} 
 		if (i.abstractNote.match(pseudoabstract) || i.abstractNote.match(/^Der Artikel/)) delete i.abstractNote;
 		if (!i.ISSN) i.ISSN = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "onlineissn", " " )) and contains(concat( " ", @class, " " ), concat( " ", "text-metadata-value", " " ))]');
 		i.complete();
 	});
 	translator.translate();
 }
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
