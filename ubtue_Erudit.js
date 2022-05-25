@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-18 15:32:22"
+	"lastUpdated": "2022-05-25 10:53:07"
 }
 
 /*
@@ -53,7 +53,7 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = doc.querySelectorAll('.result h3 a, .article-item h6 a');
+	var rows = ZU.xpath(doc, '//h6[@class="bib-record__title"]/a');
 	for (let i=0; i<rows.length; i++) {
 		let href = rows[i].href;
 		let title = ZU.trimInternal(rows[i].textContent);
@@ -103,6 +103,11 @@ function scrape(doc, url) {
 		if (item.publicationTitle) {
 			item.publicationTitle = ZU.unescapeHTML(item.publicationTitle);
 		}
+		if (ZU.xpathText(doc, '//a[contains(@href, "https://id.erudit.org/")]/@href') != null) item.notes.push('URI:' + ZU.xpathText(doc, '//a[contains(@href, "https://id.erudit.org/")]/@href'));
+		if (ZU.xpathText(doc, '//span[@class="inter-surtitre"]') != null) {
+			Z.debug(ZU.xpathText(doc, '//span[@class="inter-surtitre"]'))
+			if (ZU.xpathText(doc, '//span[@class="inter-surtitre"]') == "Recensions") item.tags.push('RezensionstagPica');
+		}
 		item.complete();
 	});
 
@@ -151,7 +156,9 @@ var testCases = [
 				"volume": "44",
 				"attachments": [],
 				"tags": [],
-				"notes": [],
+				"notes": [
+					"URI:https://id.erudit.org/iderudit/050499ar"
+				],
 				"seeAlso": []
 			}
 		]
@@ -185,31 +192,99 @@ var testCases = [
 				"volume": "61",
 				"attachments": [],
 				"tags": [],
-				"notes": [],
+				"notes": [
+					"URI:https://id.erudit.org/iderudit/1032808ar"
+				],
 				"seeAlso": []
 			}
 		]
 	},
 	{
 		"type": "web",
-		"url": "https://www.erudit.org/fr/recherche/?basic_search_term=zotero&basic_search_field=all&advanced_search_operator1=AND&advanced_search_term1=&advanced_search_field1=all&advanced_search_operator2=AND&advanced_search_term2=&advanced_search_field2=all&advanced_search_operator3=AND&advanced_search_term3=&advanced_search_field3=all&advanced_search_operator4=AND&advanced_search_term4=&advanced_search_field4=all&advanced_search_operator5=AND&advanced_search_term5=&advanced_search_field5=all&pub_year_start=1900&pub_year_end=2017",
+		"url": "https://www.erudit.org/fr/revues/ltp/2020-v76-n3-ltp06576/",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
-		"url": "https://www.erudit.org/fr/revues/memoires/2016-v8-n1-memoires02805/",
+		"url": "https://www.erudit.org/fr/revues/ltp/2020-v76-n3-ltp06576/1084145ar/",
 		"items": [
 			{
-				"itemType": "webpage",
-				"title": "La littérature sauvage. Volume 8, numéro 1, automne 2016 – Mémoires du livre / Studies in Book Culture",
-				"creators": [],
-				"abstractNote": "Consultez le sommaire de ce numéro de la revue Mémoires du livre / Studies in Book Culture sur la plateforme Érudit. Discipline : Études littéraires, Histoire.",
+				"itemType": "journalArticle",
+				"title": "Thomas Alferi, Fred Poché, Frédérique Poulet, dir., Langage et religion. Vers un nouveau paradigme ? Strasbourg, Presses universitaires de Strasbourg (coll. « CERIT/Centre d’études et de recherches interdisciplinaires en théologie »), 2017, 230 p.",
+				"creators": [
+					{
+						"firstName": "Ângelo",
+						"lastName": "Cardita",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020",
+				"DOI": "10.7202/1084145ar",
+				"ISSN": "0023-9054, 1703-8804",
+				"abstractNote": "Un article de la revue Laval théologique et philosophique, diffusée par la plateforme Érudit.",
+				"issue": "3",
+				"journalAbbreviation": "ltp",
 				"language": "fr",
-				"url": "https://www.erudit.org/fr/revues/memoires/2016-v8-n1-memoires02805/",
-				"websiteTitle": "Érudit",
+				"libraryCatalog": "www.erudit.org",
+				"pages": "497-504",
+				"publicationTitle": "Laval théologique et philosophique",
+				"shortTitle": "Thomas Alferi, Fred Poché, Frédérique Poulet, dir., Langage et religion. Vers un nouveau paradigme ?",
+				"url": "https://www.erudit.org/fr/revues/ltp/2020-v76-n3-ltp06576/1084145ar/",
+				"volume": "76",
 				"attachments": [],
-				"tags": [],
-				"notes": [],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [
+					"URI:https://id.erudit.org/iderudit/1084145ar"
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.erudit.org/fr/revues/memoires/2016-v8-n1-memoires02805/",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://www.erudit.org/fr/revues/ltp/2020-v76-n3-ltp06576/1084145ar/",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Thomas Alferi, Fred Poché, Frédérique Poulet, dir., Langage et religion. Vers un nouveau paradigme ? Strasbourg, Presses universitaires de Strasbourg (coll. « CERIT/Centre d’études et de recherches interdisciplinaires en théologie »), 2017, 230 p.",
+				"creators": [
+					{
+						"firstName": "Ângelo",
+						"lastName": "Cardita",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020",
+				"DOI": "10.7202/1084145ar",
+				"ISSN": "0023-9054, 1703-8804",
+				"abstractNote": "Un article de la revue Laval théologique et philosophique, diffusée par la plateforme Érudit.",
+				"issue": "3",
+				"journalAbbreviation": "ltp",
+				"language": "fr",
+				"libraryCatalog": "www.erudit.org",
+				"pages": "497-504",
+				"publicationTitle": "Laval théologique et philosophique",
+				"shortTitle": "Thomas Alferi, Fred Poché, Frédérique Poulet, dir., Langage et religion. Vers un nouveau paradigme ?",
+				"url": "https://www.erudit.org/fr/revues/ltp/2020-v76-n3-ltp06576/1084145ar/",
+				"volume": "76",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [
+					"URI:https://id.erudit.org/iderudit/1084145ar"
+				],
 				"seeAlso": []
 			}
 		]
