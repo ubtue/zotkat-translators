@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-30 13:03:10"
+	"lastUpdated": "2022-05-30 13:14:33"
 }
 
 /*
@@ -75,13 +75,14 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		item.tags = ZU.xpath(doc, '//div[@id="entries"]//div[@class="index ltr"]//a | //div[@id="entries"]//div[@class="index"]//a').map(x => x.textContent.trim());
 		if (item.issue) {
 			let issueAndVol = item.issue.match(/(\d+)\/(\d+)/);
+			
 			if (issueAndVol) {
 				item.volume = issueAndVol[1];
 				item.issue = issueAndVol[2];
 			}
 		}
 		//issue number as volume
-		if (item.issue && item.ISSN == '1972-2516') {
+		if (item.issue && ['1972-2516', '0776-3824'].includes(item.ISSN)) {
 			item.volume = item.issue;
 			delete item.issue;
 		}
