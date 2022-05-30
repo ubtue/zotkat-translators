@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-04-26 07:15:50"
+	"lastUpdated": "2022-05-30 14:18:16"
 }
 
 /*
@@ -61,9 +61,15 @@ function getSearchResults(doc, url) {
 		found = true;
 		items[href] = title;
 	}
-	for (let section of ZU.xpath(doc, '//table[@class="tocArticle" and preceding-sibling::h4[@class="tocSectionTitle" and contains(., "Book Review")]]')) {
+		for (let section of ZU.xpath(doc, '//table[@class="tocArticle" and preceding-sibling::h4[@class="tocSectionTitle" and contains(., "Book Review")]]')) {
+		let reviewTitle = ZU.xpathText(section, './/div[@class="tocTitle"]');
 		for (let link of ZU.xpath(section, './/a/@href')) {
 			reviewURLs.push(link.textContent);
+			if (items[link.textContent.replace(/\/\d+?$/, "")] == undefined) {
+				items[link.textContent.replace(/\/\d+?$/, "")] = reviewTitle;
+				reviewURLs.push(link.textContent.replace(/\/\d+?$/, ""));
+			}
+			else reviewURLs.push(link.textContent);
 		}
 	}
 	return found ? items : false;
@@ -126,7 +132,7 @@ function invokeEMTranslator(doc) {
   				}
   			}
   		 }
-  		 if (orcidAuthorEntryCaseA && ['2627-6062'].includes(i.ISSN)) {
+  		 if (orcidAuthorEntryCaseA && ['2627-6062', '0718-4727', '2617-1953'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
   				let name_to_orcid = {};
   				let tgs = ZU.xpath(a, './/*[self::strong or self::a]');
@@ -141,6 +147,18 @@ function invokeEMTranslator(doc) {
   				}
   			}
   		 }
+		//e.g. https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/42867
+		   if (orcidAuthorEntryCaseA && ['2174-0887'].includes(i.ISSN)) {
+			   let allORCIDs = [];
+  			for (let a of orcidAuthorEntryCaseA) {
+
+				let name = ZU.xpathText(a, './/strong');
+				let orcid = ZU.xpathText(a, './/a[contains(@href, "orcid.org")]/@href');
+				if (!allORCIDs.includes(orcid)) i.notes.push({note: ZU.trimInternal(name) + orcid.replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
+				allORCIDs.push(orcid);
+  			}
+  		 }
+
   		//e.g.  https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/785
   		if (orcidAuthorEntryCaseA && !orcidAuthorEntryCaseB && i.ISSN !== "2660-7743") {
   			for (let a of orcidAuthorEntryCaseA) {
@@ -242,6 +260,7 @@ function invokeEMTranslator(doc) {
 			i.abstractNote = ZU.xpathText(doc, '//meta[@name="DC.Description"]/@content');
 		}
 		
+		else if (i.ISSN == "0555-9308") i.abstractNote = i.abstractNote.replace(/\n/, "\\4207");
 		if (i.abstractNote == null) {i.abstractNote = undefined}
 		if (i.abstractNote !== undefined) {
 			if (i.abstractNote.match(/No abstract available/)) delete i.abstractNote;
@@ -264,7 +283,7 @@ function invokeEMTranslator(doc) {
 		if (["2159-6875"].includes(i.ISSN)) {
 			if (reviewURLs.includes(i.url)) i.tags.push("RezensionstagPica");
 		}
-		if (['2617-3697', '2660-4418', '2748-6419', '1988-3269', '1804-6444', '2391-4327'].includes(i.ISSN)) {
+		if (['2617-3697', '2660-4418', '2748-6419', '1988-3269', '1804-6444', '2391-4327', '2174-0887'].includes(i.ISSN)) {
 			if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')) {
 				if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')[0].content.match(/(Media reviews)|(Rezensionen)|(Reseñas)|(Part\s+Two:\s+Reviews)/i)) {
 					i.tags.push("RezensionstagPica");
@@ -293,7 +312,7 @@ function invokeEMTranslator(doc) {
 			let tags = ZU.xpath(doc, '//meta[@name="citation_keywords"]');
 			for (let t in tags) {
 				if (!i.tags.includes(tags[t].content) 
-				&& !i.tags.includes(tags[t].content[0].toUpperCase() + tags[t].content.substring(1)))
+				&& !i.tags.includes(tags[t].content[0].toUpperCase() + tags[t].content.substring(1)) && tags[t].content != '.')
 				i.tags.push(tags[t].content);
 			}
 		}
@@ -455,6 +474,8 @@ function doWeb(doc, url) {
 	} else
 		invokeEMTranslator(doc, url);
 }
+
+
 
 
 
@@ -1046,7 +1067,7 @@ var testCases = [
 				"DOI": "10.25364/05.7:2021.1.11",
 				"ISSN": "2617-3697",
 				"issue": "1",
-				"journalAbbreviation": "1",
+				"journalAbbreviation": "JRFM",
 				"language": "en",
 				"libraryCatalog": "jrfm.eu",
 				"pages": "197–199",
@@ -2609,6 +2630,75 @@ var testCases = [
 		"type": "web",
 		"url": "https://bildungsforschung.org/ojs/index.php/beabs/issue/view/v01i02",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://www.uni-muenster.de/Ejournals/index.php/zpth/article/view/3178",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "\"Normal halt ...\": Pastoraltheologie in säkularen Zeiten",
+				"creators": [
+					{
+						"firstName": "Christian",
+						"lastName": "Bauer",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020",
+				"ISSN": "0555-9308",
+				"abstractNote": "Die ‚multiplen Säkularitäten’ der Gegenwart fordern die Theologie dazu heraus, im Kontext einer ‚dritten Ökumene’ mit religiös indifferenten Zeitgenossinnen und Zeitgenossen die säkulare Bedeutung des Evangeliums zu entdecken – und damit auch die immanente Transzendenz bzw. profane Heiligkeit der Präsenz Gottes im Rahmen säkular gelebten Lebens.\\4207Present-day “multiple secularities” are challenging theology to discover the secular meaning of the Gospel within the context of a “third ecumenism”shared with religiously indifferent contemporaries. This includes unearthing the immanent transcendence or profane holiness of God’s presence in the framework of a secularly lived life.",
+				"issue": "2",
+				"journalAbbreviation": "ZPTh",
+				"language": "de",
+				"libraryCatalog": "www.uni-muenster.de",
+				"publicationTitle": "Zeitschrift für Pastoraltheologie (ZPTh)",
+				"rights": "Copyright (c) 0",
+				"shortTitle": "\"Normal halt ...\"",
+				"url": "https://www.uni-muenster.de/Ejournals/index.php/zpth/article/view/3178",
+				"volume": "40",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/42868",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Congreso internacional «Historia del Opus Dei (1939-1962)» (Madrid, 16-17 junio de 2021)",
+				"creators": [
+					{
+						"firstName": "Fernando",
+						"lastName": "Crovetto",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022/04/22",
+				"ISSN": "2174-0887",
+				"abstractNote": "&nbsp;\n&nbsp;",
+				"journalAbbreviation": "1",
+				"language": "es",
+				"libraryCatalog": "revistas.unav.edu",
+				"pages": "532",
+				"publicationTitle": "Anuario de Historia de la Iglesia",
+				"rights": "Derechos de autor 2022",
+				"url": "https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/42868",
+				"volume": "31",
+				"attachments": [],
+				"tags": [],
+				"notes": [
+					{
+						"note": "Fernando Crovetto | orcid:0000-0002-9751-095X | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/

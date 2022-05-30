@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-04-27 07:47:01"
+	"lastUpdated": "2022-05-25 15:39:28"
 }
 
 /*
@@ -86,7 +86,7 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			i.tags.push(keyword.textContent);
 		}
 		if (articleData.articleType == "book-review") i.tags.push("RezensionstagPica");
-		
+		if (ZU.xpathText(doc, '//h1/article-title') != null) i.title = ZU.xpathText(doc, '//h1/article-title');
 		
 		i.attachments = [];
 		i.complete();
@@ -122,7 +122,7 @@ var testCases = [
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Pantheistic versus Participatory Christologies: A Critical Analysis of Richard Rohr’s in Light of Thomas Aquinas’s",
+				"title": "Pantheistic versus Participatory Christologies: A Critical Analysis of Richard Rohr’s Universal Christ in Light of Thomas Aquinas’s Commentary on John",
 				"creators": [
 					{
 						"firstName": "Michael A.",
@@ -292,6 +292,61 @@ var testCases = [
 					},
 					{
 						"tag": "Quran"
+					}
+				],
+				"notes": [
+					"LF:"
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.sciendo.com/article/10.2478/perc-2021-0022",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "On Roach’s Presuppositional Response to Licona’s New Historiographical Approach",
+				"creators": [
+					{
+						"firstName": "Jacobus",
+						"lastName": "Erasmus",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Michael R.",
+						"lastName": "Licona",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/12/01",
+				"DOI": "10.2478/perc-2021-0022",
+				"ISSN": "2284-7308",
+				"abstractNote": "In a recent article, William C. Roach (2019) offers a presuppositional critique, which is inspired by Carl F. H. Henry, of Michael R. Licona’s (2010) so-called New Historiographical Approach (NHA) to defending the resurrection. More precisely, Roach attempts to defend six key theses, namely, that (1) the NHA is an evidentialist approach, (2) the NHA is a deductive argument, (3) the NHA is an insufficient approach, (4) believers and unbelievers share no common ground, (5) the NHA does not embrace a correspondence theory of truth, and (6) the presupposition of divine revelation is necessary for apologetics. We respond to each of Roach’s arguments, respectively.",
+				"issue": "4",
+				"language": "en",
+				"libraryCatalog": "www.sciendo.com",
+				"pages": "21-33",
+				"publicationTitle": "Perichoresis",
+				"url": "https://www.sciendo.com/article/10.2478/perc-2021-0022",
+				"volume": "19",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Michael R. Licona"
+					},
+					{
+						"tag": "New Historiographical Approach"
+					},
+					{
+						"tag": "William C. Roach"
+					},
+					{
+						"tag": "evidentialism"
+					},
+					{
+						"tag": "presuppositionalism"
 					}
 				],
 				"notes": [
