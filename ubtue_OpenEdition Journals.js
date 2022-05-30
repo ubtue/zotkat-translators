@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-30 13:14:33"
+	"lastUpdated": "2022-05-30 13:17:42"
 }
 
 /*
@@ -284,13 +284,13 @@ var testCases = [
 				"DOI": "10.4000/kernos.3913",
 				"ISSN": "0776-3824",
 				"abstractNote": "The last half century has seen a dazzling array of new approaches in the study of Greek polytheism. Moving away from a polis-centred model into which every student of Greek religion was once initiated, scholars have now advocated alternative frameworks ranging from ‘personal’ and ‘lived’ religion, to ‘network’ analyses, comparative perspectives, and the application of cognitive theories. Pirenne-Delforge’s latest book is a nuanced response to recent shifts in scholarly trends, and a critical ...",
-				"issue": "34",
 				"language": "en",
 				"libraryCatalog": "journals.openedition.org",
 				"pages": "290-293",
 				"publicationTitle": "Kernos. Revue internationale et pluridisciplinaire de religion grecque antique",
 				"rights": "Kernos",
 				"url": "http://journals.openedition.org/kernos/3913",
+				"volume": "34",
 				"attachments": [
 					{
 						"title": "Full Text PDF",
