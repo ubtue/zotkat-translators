@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-30 14:06:16"
+	"lastUpdated": "2022-05-30 14:12:25"
 }
 
 /*
@@ -61,9 +61,15 @@ function getSearchResults(doc, url) {
 		found = true;
 		items[href] = title;
 	}
-	for (let section of ZU.xpath(doc, '//table[@class="tocArticle" and preceding-sibling::h4[@class="tocSectionTitle" and contains(., "Book Review")]]')) {
+		for (let section of ZU.xpath(doc, '//table[@class="tocArticle" and preceding-sibling::h4[@class="tocSectionTitle" and contains(., "Book Review")]]')) {
+		let reviewTitle = ZU.xpathText(section, './/div[@class="tocTitle"]');
 		for (let link of ZU.xpath(section, './/a/@href')) {
 			reviewURLs.push(link.textContent);
+			if (items[link.textContent.replace(/\/\d+?$/, "")] == undefined) {
+				items[link.textContent.replace(/\/\d+?$/, "")] = reviewTitle;
+				reviewURLs.push(link.textContent.replace(/\/\d+?$/, ""));
+			}
+			else reviewURLs.push(link.textContent);
 		}
 	}
 	return found ? items : false;
@@ -126,7 +132,7 @@ function invokeEMTranslator(doc) {
   				}
   			}
   		 }
-  		 if (orcidAuthorEntryCaseA && ['2627-6062', '0718-4727'].includes(i.ISSN)) {
+  		 if (orcidAuthorEntryCaseA && ['2627-6062', '0718-4727', '2617-1953'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
   				let name_to_orcid = {};
   				let tgs = ZU.xpath(a, './/*[self::strong or self::a]');
@@ -141,6 +147,18 @@ function invokeEMTranslator(doc) {
   				}
   			}
   		 }
+		//e.g. https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/42867
+		   if (orcidAuthorEntryCaseA && ['2174-0887'].includes(i.ISSN)) {
+			   let allORCIDs = [];
+  			for (let a of orcidAuthorEntryCaseA) {
+
+				let name = ZU.xpathText(a, './/strong');
+				let orcid = ZU.xpathText(a, './/a[contains(@href, "orcid.org")]/@href');
+				if (!allORCIDs.includes(orcid)) i.notes.push({note: ZU.trimInternal(name) + orcid.replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
+				allORCIDs.push(orcid);
+  			}
+  		 }
+
   		//e.g.  https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/785
   		if (orcidAuthorEntryCaseA && !orcidAuthorEntryCaseB && i.ISSN !== "2660-7743") {
   			for (let a of orcidAuthorEntryCaseA) {
