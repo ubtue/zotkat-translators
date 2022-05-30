@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-30 11:27:11"
+	"lastUpdated": "2022-04-26 07:15:50"
 }
 
 /*
@@ -62,16 +62,10 @@ function getSearchResults(doc, url) {
 		items[href] = title;
 	}
 	for (let section of ZU.xpath(doc, '//table[@class="tocArticle" and preceding-sibling::h4[@class="tocSectionTitle" and contains(., "Book Review")]]')) {
-		let reviewTitle = ZU.xpathText(section, './/div[@class="tocTitle"]');
 		for (let link of ZU.xpath(section, './/a/@href')) {
-			if (items[link.textContent.replace(/\/\d+?$/, "")] == undefined) {
-				items[link.textContent.replace(/\/\d+?$/, "")] = reviewTitle;
-				reviewURLs.push(link.textContent.replace(/\/\d+?$/, ""));
-			}
-			else reviewURLs.push(link.textContent);
+			reviewURLs.push(link.textContent);
 		}
 	}
-	
 	return found ? items : false;
 }
 
@@ -267,7 +261,7 @@ function invokeEMTranslator(doc) {
 				i.tags.push('RezensionstagPica');
 			}
 		}
-		if (["2159-6875", "1527-6457"].includes(i.ISSN)) {
+		if (["2159-6875"].includes(i.ISSN)) {
 			if (reviewURLs.includes(i.url)) i.tags.push("RezensionstagPica");
 		}
 		if (['2617-3697', '2660-4418', '2748-6419', '1988-3269', '1804-6444', '2391-4327'].includes(i.ISSN)) {
@@ -1052,7 +1046,7 @@ var testCases = [
 				"DOI": "10.25364/05.7:2021.1.11",
 				"ISSN": "2617-3697",
 				"issue": "1",
-				"journalAbbreviation": "JRFM",
+				"journalAbbreviation": "1",
 				"language": "en",
 				"libraryCatalog": "jrfm.eu",
 				"pages": "197–199",
@@ -2614,11 +2608,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://bildungsforschung.org/ojs/index.php/beabs/issue/view/v01i02",
-		"items": "multiple"
-	},
-	{
-		"type": "web",
-		"url": "http://www.globalbuddhism.org/jgb/index.php/jgb/issue/view/38",
 		"items": "multiple"
 	}
 ]
