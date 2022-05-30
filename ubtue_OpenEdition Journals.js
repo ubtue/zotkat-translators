@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-12-16 10:27:34"
+	"lastUpdated": "2022-05-30 13:03:10"
 }
 
 /*
@@ -98,8 +98,11 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			}
 		let section = ZU.xpathText(doc, '//div[contains(@class, "souspartie")]//span[@class="title"]');
 		if (section && section.match(/Recensions/))
-			item.tags.push("Book Review");
-
+			item.tags.push("RezensionstagPica");
+		if (item.DOI == undefined) {
+			Z.debug(ZU.xpathText(doc, '//div[@id="doi"]/a'));
+			if (ZU.xpathText(doc, '//div[@id="doi"]/a') != null) item.DOI = ZU.xpathText(doc, '//div[@id="doi"]/a').replace(/https?:\/\/doi.org\//, "");
+		}
 		item.complete();
 	});
 	translator.translate();
@@ -237,6 +240,7 @@ var testCases = [
 					}
 				],
 				"date": "2021/12/15",
+				"DOI": "10.4000/mythos.3818",
 				"ISSN": "1972-2516",
 				"abstractNote": "Qual è il ruolo delle immagini nelle dinamiche religiose, e come occorre valutarne l’importanza? Creare l’immagine di una divinità o renderla visibile ha un impatto sulla prassi, sulla devozione religiosa e sulla più vasta riflessione che le accompagna e le sostiene; conferisce inoltre all’essere divino un grado di presenza nella dimensione materiale. Il linguaggio delle immagini, gli elementi iconografici, le concezioni spaziali e l’uso stesso dello spazio creano modalità di visibilità, di p...",
 				"language": "it",
@@ -245,6 +249,47 @@ var testCases = [
 				"rights": "Mythos",
 				"url": "http://journals.openedition.org/mythos/3818",
 				"volume": "15",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://journals.openedition.org/kernos/3913",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Le Polythéisme grec à l’épreuve d’Hérodote",
+				"creators": [
+					{
+						"firstName": "Theodora Suk Fong",
+						"lastName": "Jim",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/12/31",
+				"DOI": "10.4000/kernos.3913",
+				"ISSN": "0776-3824",
+				"abstractNote": "The last half century has seen a dazzling array of new approaches in the study of Greek polytheism. Moving away from a polis-centred model into which every student of Greek religion was once initiated, scholars have now advocated alternative frameworks ranging from ‘personal’ and ‘lived’ religion, to ‘network’ analyses, comparative perspectives, and the application of cognitive theories. Pirenne-Delforge’s latest book is a nuanced response to recent shifts in scholarly trends, and a critical ...",
+				"issue": "34",
+				"language": "en",
+				"libraryCatalog": "journals.openedition.org",
+				"pages": "290-293",
+				"publicationTitle": "Kernos. Revue internationale et pluridisciplinaire de religion grecque antique",
+				"rights": "Kernos",
+				"url": "http://journals.openedition.org/kernos/3913",
 				"attachments": [
 					{
 						"title": "Full Text PDF",
