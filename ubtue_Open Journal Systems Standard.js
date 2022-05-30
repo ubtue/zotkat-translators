@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-30 12:51:22"
+	"lastUpdated": "2022-05-30 13:30:28"
 }
 
 /*
@@ -242,6 +242,7 @@ function invokeEMTranslator(doc) {
 			i.abstractNote = ZU.xpathText(doc, '//meta[@name="DC.Description"]/@content');
 		}
 		
+		else if (i.ISSN == "0555-9308") i.abstractNote = i.abstractNote.replace(/\n/, "\\4207");
 		if (i.abstractNote == null) {i.abstractNote = undefined}
 		if (i.abstractNote !== undefined) {
 			if (i.abstractNote.match(/No abstract available/)) delete i.abstractNote;
@@ -2610,6 +2611,39 @@ var testCases = [
 		"type": "web",
 		"url": "https://bildungsforschung.org/ojs/index.php/beabs/issue/view/v01i02",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://www.uni-muenster.de/Ejournals/index.php/zpth/article/view/3178",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "\"Normal halt ...\": Pastoraltheologie in säkularen Zeiten",
+				"creators": [
+					{
+						"firstName": "Christian",
+						"lastName": "Bauer",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020",
+				"ISSN": "0555-9308",
+				"abstractNote": "Die ‚multiplen Säkularitäten’ der Gegenwart fordern die Theologie dazu heraus, im Kontext einer ‚dritten Ökumene’ mit religiös indifferenten Zeitgenossinnen und Zeitgenossen die säkulare Bedeutung des Evangeliums zu entdecken – und damit auch die immanente Transzendenz bzw. profane Heiligkeit der Präsenz Gottes im Rahmen säkular gelebten Lebens.\\4207Present-day “multiple secularities” are challenging theology to discover the secular meaning of the Gospel within the context of a “third ecumenism”shared with religiously indifferent contemporaries. This includes unearthing the immanent transcendence or profane holiness of God’s presence in the framework of a secularly lived life.",
+				"issue": "2",
+				"journalAbbreviation": "ZPTh",
+				"language": "de",
+				"libraryCatalog": "www.uni-muenster.de",
+				"publicationTitle": "Zeitschrift für Pastoraltheologie (ZPTh)",
+				"rights": "Copyright (c) 0",
+				"shortTitle": "\"Normal halt ...\"",
+				"url": "https://www.uni-muenster.de/Ejournals/index.php/zpth/article/view/3178",
+				"volume": "40",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
