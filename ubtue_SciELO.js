@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-12-14 12:59:13"
+	"lastUpdated": "2022-05-30 10:20:27"
 }
 
 /*
@@ -44,8 +44,7 @@ function getTitle(item) {
 					item.notes.push("Paralleltitel:" + ZU.trimInternal(item.title));
 					item.title = ZU.trimInternal(i.title);
 				}
-			item.complete();
-				
+				item.complete();
 			});
 			translator.translate(); 
 		});
@@ -54,29 +53,32 @@ function getTitle(item) {
 }
 
 function detectWeb(doc,url) {
-	if (ZU.xpathText(doc, '//meta[@name="citation_journal_title"]/@content')) {
+	if (url.indexOf("script=sci_issuetoc")!=-1 && getSearchResults(doc, true)) {
+		return "multiple";
+	}
+	else if (ZU.xpathText(doc, '//meta[@name="citation_journal_title"]/@content')) {
 		return "journalArticle";
 	}
 	else if (url.indexOf("search.")!=-1 && getSearchResults(doc, true)){
 		return "multiple";
 	}
-	else if (url.indexOf("script=sci_issuetoc")!=-1 && getSearchResults(doc, true)) {
-		return "multiple";
-	}
+	
 }
 
 
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = ZU.xpath(doc, '//div[contains(@class, "results")]//div[contains(@class, "line")]/a[strong[contains(@class, "title")]]');
+	var rows =  ZU.xpath(doc, '//td//tr/td');
 	for (var i=0; i<rows.length; i++) {
-		var href = rows[i].href;
-		var title = ZU.trimInternal(rows[i].textContent);
+		if (ZU.xpathText(rows[i], './/a[contains(@href, "sci_arttext")]') != null) {
+		var href = ZU.xpathText(rows[i], './/a[contains(@href, "sci_arttext")]/@href');
+		var title = ZU.trimInternal(ZU.xpathText(rows[i], './/font/b'));
 		if (!href || !title) continue;
 		if (checkOnly) return true;
 		found = true;
 		items[href] = title;
+	}
 	}
 	if (rows.length == 0) {
 		//http://www.scielo.cl/scielo.php?script=sci_arttext&amp;
@@ -168,7 +170,7 @@ function scrape(doc, url) {
 	
 	//duduplicate all keywords
 	item.tags = [...new Set(item.tags.map(x => x))];
-	
+	item.attachments = [];			
 	let citationVolume = ZU.xpathText(doc, '//meta[@name="citation_volume"]/@content');
 	if (item.ISSN == "0718-9273" && citationVolume.length == 0) {
 		item.volume = item.issue;
@@ -181,10 +183,28 @@ function scrape(doc, url) {
 	if (item.pages && item.pages.match(/^0/)) {
 		item.pages = item.pages.replace(/^0/, '');
 	}
+	let pid = url.match(/&pid=(.+?)&/);
+	if (pid != null) {
+		pid=pid[1];
+		let xmlURL = 'http://www.scielo.org.za/scieloOrg/php/articleXML.php?pid=' + pid;
+		ZU.doGet(xmlURL,
+		function (text) {
+			var parser = new DOMParser();
+			var html = parser.parseFromString(text, "text/html");
+			let abstract = ZU.xpath(html, '//abstract/p');
+			if (abstract[0] != undefined) {
+			abstract = abstract[0].innerHTML;
+			item.abstractNote = abstract.replace(/(<!--\[CDATA\[)|(\]\]-->)/g, "");
+			}
+		item.complete();
+		});
+	
+	}
 	else item.complete();
 	});
 	translator.translate();
 }
+
 
 
 /** BEGIN TEST CASES **/
