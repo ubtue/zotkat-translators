@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-30 14:12:25"
+	"lastUpdated": "2022-05-30 14:18:16"
 }
 
 /*
@@ -1067,7 +1067,7 @@ var testCases = [
 				"DOI": "10.25364/05.7:2021.1.11",
 				"ISSN": "2617-3697",
 				"issue": "1",
-				"journalAbbreviation": "1",
+				"journalAbbreviation": "JRFM",
 				"language": "en",
 				"libraryCatalog": "jrfm.eu",
 				"pages": "197–199",
@@ -2660,6 +2660,42 @@ var testCases = [
 				"attachments": [],
 				"tags": [],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/42868",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Congreso internacional «Historia del Opus Dei (1939-1962)» (Madrid, 16-17 junio de 2021)",
+				"creators": [
+					{
+						"firstName": "Fernando",
+						"lastName": "Crovetto",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022/04/22",
+				"ISSN": "2174-0887",
+				"abstractNote": "&nbsp;\n&nbsp;",
+				"journalAbbreviation": "1",
+				"language": "es",
+				"libraryCatalog": "revistas.unav.edu",
+				"pages": "532",
+				"publicationTitle": "Anuario de Historia de la Iglesia",
+				"rights": "Derechos de autor 2022",
+				"url": "https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/42868",
+				"volume": "31",
+				"attachments": [],
+				"tags": [],
+				"notes": [
+					{
+						"note": "Fernando Crovetto | orcid:0000-0002-9751-095X | taken from website"
+					}
+				],
 				"seeAlso": []
 			}
 		]
