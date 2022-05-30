@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-30 14:01:45"
+	"lastUpdated": "2022-05-30 14:06:16"
 }
 
 /*
@@ -294,7 +294,7 @@ function invokeEMTranslator(doc) {
 			let tags = ZU.xpath(doc, '//meta[@name="citation_keywords"]');
 			for (let t in tags) {
 				if (!i.tags.includes(tags[t].content) 
-				&& !i.tags.includes(tags[t].content[0].toUpperCase() + tags[t].content.substring(1)))
+				&& !i.tags.includes(tags[t].content[0].toUpperCase() + tags[t].content.substring(1)) && tags[t].content != '.')
 				i.tags.push(tags[t].content);
 			}
 		}
