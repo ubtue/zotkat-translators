@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-04-26 07:15:50"
+	"lastUpdated": "2022-05-30 12:51:22"
 }
 
 /*
@@ -126,7 +126,7 @@ function invokeEMTranslator(doc) {
   				}
   			}
   		 }
-  		 if (orcidAuthorEntryCaseA && ['2627-6062'].includes(i.ISSN)) {
+  		 if (orcidAuthorEntryCaseA && ['2627-6062', '0718-4727'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
   				let name_to_orcid = {};
   				let tgs = ZU.xpath(a, './/*[self::strong or self::a]');
@@ -455,6 +455,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEMTranslator(doc, url);
 }
+
 
 
 
