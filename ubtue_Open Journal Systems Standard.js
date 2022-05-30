@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-30 13:30:28"
+	"lastUpdated": "2022-05-30 13:55:24"
 }
 
 /*
@@ -126,12 +126,14 @@ function invokeEMTranslator(doc) {
   				}
   			}
   		 }
-  		 if (orcidAuthorEntryCaseA && ['2627-6062', '0718-4727'].includes(i.ISSN)) {
+  		 if (orcidAuthorEntryCaseA && ['2627-6062', '0718-4727', '2617-1953'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
+				Z.debug(a.innerHTML);
   				let name_to_orcid = {};
   				let tgs = ZU.xpath(a, './/*[self::strong or self::a]');
   				let tg_nr = 0;
   				for (let t of tgs) {
+					  Z.debug(t.innerHTML);
   					if (t.textContent.match(/orcid/) != null) {
   						name_to_orcid[tgs[tg_nr -1].textContent] = t.textContent.trim();
   						let author = name_to_orcid[tgs[tg_nr -1].textContent];
@@ -139,6 +141,17 @@ function invokeEMTranslator(doc) {
   					}
   					tg_nr += 1;
   				}
+  			}
+  		 }
+			//e.g. https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/42867
+		   if (orcidAuthorEntryCaseA && ['2174-0887'].includes(i.ISSN)) {
+			   let allORCIDs = [];
+  			for (let a of orcidAuthorEntryCaseA) {
+				  
+				let name = ZU.xpathText(a, './/strong');
+				let orcid = ZU.xpathText(a, './/a[contains(@href, "orcid.org")]/@href');
+				if (!allORCIDs.includes(orcid)) i.notes.push({note: ZU.trimInternal(name) + orcid.replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
+				allORCIDs.push(orcid);
   			}
   		 }
   		//e.g.  https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/785
