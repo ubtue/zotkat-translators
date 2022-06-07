@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-24 16:57:51"
+	"lastUpdated": "2022-06-07 14:08:25"
 }
 
 /*
@@ -119,10 +119,10 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		item.pages = extractPages(doc);
 		let publicationTitle = ZU.xpathText(doc, '//*[(@id = "ctl02_imgLogo")]/@alt');
 		if (publicationTitle) item.publicationTitle = publicationTitle;
-		let pageTitle = ZU.xpathText(doc, '//title').trim();
+		let pageTitle = ZU.xpathText(doc, '//title').trim().replace(/\s+/g, ' ');
 		if (pageTitle.match(/^Buchrezension/))
 			item.tags.push('RezensionstagPica');
-		if (pageTitle.trim().match(item.title + ': ')) {
+		if (pageTitle.trim().match(item.title.trim().replace(/\s+/g, ' ') + ': ')) {
 			item.title += pageTitle.split(item.title)[1];
 		}
 		if (item.publicationTitle == "Biblische Notizen") {
