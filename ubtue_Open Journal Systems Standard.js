@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-30 14:18:16"
+	"lastUpdated": "2022-06-08 13:40:36"
 }
 
 /*
@@ -38,7 +38,7 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, url) {
 	var items = {};
 	var found = false;
-	var rows = doc.querySelectorAll('.title a[href*="/view/"], .summary_title, .title a[href*="/catalog/"], \
+	var rows = doc.querySelectorAll('.title a[href*="/view/"], .article__title a[href*="/view/"], .summary_title, .title a[href*="/catalog/"], \
 		.tocTitle a[href*="/view/"], .tocArticleTitle a[href*="/view/"], .tocTitle a[href*="/catalog/"], .media-heading a[href*="/view/"]');
 	if (rows.length == 0 && url.match(/(otwsa-otssa)|(koersjournal)/)) {
 		rows = ZU.xpath(doc, '//div[@class="article-summary-title"]//a');
@@ -423,6 +423,9 @@ function invokeEMTranslator(doc) {
 		}
 		if (i.url.match(/\/article\/view/)) i.itemType = "journalArticle";
 		if (i.abstractNote == ', ' || i.abstractNote == ',') i.abstractNote = "";
+		if (i.abstractNote != null) {
+			i.abstractNote = i.abstractNote.replace(/(?:^|\n)(?:RESUME|ABSTRACT):\s+/g, '\\n4207 ');
+		}
 		i.attachments = [];
 		let sansidoroAbstract = ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content');
 		if (sansidoroAbstract && sansidoroAbstract.match(/isidorianum\/article\/view/)) {
@@ -2686,7 +2689,7 @@ var testCases = [
 				"libraryCatalog": "revistas.unav.edu",
 				"pages": "532",
 				"publicationTitle": "Anuario de Historia de la Iglesia",
-				"rights": "Derechos de autor 2022",
+				"rights": "Derechos de autor",
 				"url": "https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/42868",
 				"volume": "31",
 				"attachments": [],
