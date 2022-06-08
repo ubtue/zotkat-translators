@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-06-08 15:32:56"
+	"lastUpdated": "2022-06-08 15:37:57"
 }
 
 /*
@@ -161,6 +161,9 @@ function scrape(doc, url) {
 					item.notes.push({note: "orcid:" + orcid + ' | ' + author});
 				}
 				
+			}
+			if (item.pages) {
+				if (item.pages.split('-')[0] == item.pages.split('-')[1]) item.pages = item.pages.split('-')[0];
 			}
 			item.complete();
 		});
@@ -528,6 +531,102 @@ var testCases = [
 						"note": "orcid:0000-0002-0540-8000 | CHRISTOPHE DE RAY"
 					}
 				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.cambridge.org/core/journals/church-history/article/literary-echoes-of-the-fourth-lateran-council-in-england-and-france-12151405-edited-by-maureen-b-m-boulton-papers-in-mediaeval-studies-31-toronto-pontifical-institute-of-mediaeval-studies-2019-x-322-pp-9500-cloth/B5484BE8F944D1042F200A91F4F1EBF1",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Literary Echoes of the Fourth Lateran Council in England and France, 1215–1405. Edited by Maureen B. M. Boulton. Papers in Mediaeval Studies 31. Toronto: Pontifical Institute of Mediaeval Studies, 2019. x + 322 pp. $95.00 cloth.",
+				"creators": [
+					{
+						"firstName": "Richard",
+						"lastName": "Newhauser",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/09",
+				"DOI": "10.1017/S0009640721002407",
+				"ISSN": "0009-6407, 1755-2613",
+				"issue": "3",
+				"language": "en",
+				"libraryCatalog": "Cambridge University Press",
+				"pages": "681",
+				"publicationTitle": "Church History",
+				"shortTitle": "Literary Echoes of the Fourth Lateran Council in England and France, 1215–1405. Edited by Maureen B. M. Boulton. Papers in Mediaeval Studies 31. Toronto",
+				"url": "https://www.cambridge.org/core/journals/church-history/article/literary-echoes-of-the-fourth-lateran-council-in-england-and-france-12151405-edited-by-maureen-b-m-boulton-papers-in-mediaeval-studies-31-toronto-pontifical-institute-of-mediaeval-studies-2019-x-322-pp-9500-cloth/B5484BE8F944D1042F200A91F4F1EBF1",
+				"volume": "90",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.cambridge.org/core/journals/church-history/article/when-the-canaanite-conquest-met-the-enlightenment-how-christian-apologists-of-the-english-enlightenment-harmonized-the-biblical-canaanite-conquest-with-the-moral-values-of-the-eighteenth-century/B6F5369FA32050606052C4F38C6380FF",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "When the Canaanite Conquest Met the Enlightenment: How Christian Apologists of the English Enlightenment Harmonized the Biblical Canaanite Conquest with the Moral Values of the Eighteenth Century",
+				"creators": [
+					{
+						"firstName": "Daniel K.",
+						"lastName": "Williams",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/09",
+				"DOI": "10.1017/S0009640721002146",
+				"ISSN": "0009-6407, 1755-2613",
+				"abstractNote": "This article examines British and American Christian apologists’ reinterpretation of the biblical account of the Canaanite conquest in response to concerns about natural rights and ethical behavior that emerged from the English Enlightenment. Because of Enlightenment-era assumptions about universal rights, a new debate emerged in Britain and America in the eighteenth century about whether the divine order for the biblical Israelites to slaughter the Canaanites was morally right. The article argues that intellectually minded Christians’ appropriation of Enlightenment values to reframe their interpretation of the biblical narrative (often in response to skeptical attacks from writers classified as deists) demonstrates that in the English-speaking world, Enlightenment rationalism and Christian orthodoxy frequently reinforced each other and were not opposing forces. Though many orthodox Christians repudiated traditional Calvinist interpretations of the biblical Canaanite conquest, they defended the authority of the biblical narrative by drawing on Enlightenment-era assumptions about natural rights to provide justifications for what some skeptics considered morally objectionable divine orders in the Bible. By doing so, they set the framework for the continued synthesis of natural rights and rationality with a biblically centered Protestantism in the early nineteenth-century English-speaking world and especially in the United States.",
+				"issue": "3",
+				"language": "en",
+				"libraryCatalog": "Cambridge University Press",
+				"pages": "579-602",
+				"publicationTitle": "Church History",
+				"shortTitle": "When the Canaanite Conquest Met the Enlightenment",
+				"url": "https://www.cambridge.org/core/journals/church-history/article/when-the-canaanite-conquest-met-the-enlightenment-how-christian-apologists-of-the-english-enlightenment-harmonized-the-biblical-canaanite-conquest-with-the-moral-values-of-the-eighteenth-century/B6F5369FA32050606052C4F38C6380FF",
+				"volume": "90",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Christian Apologetics"
+					},
+					{
+						"tag": "Deism"
+					},
+					{
+						"tag": "History of biblical studies"
+					},
+					{
+						"tag": "Religion in the Englightenment"
+					}
+				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
