@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-06-08 13:32:16"
+	"lastUpdated": "2022-06-08 13:40:36"
 }
 
 /*
@@ -423,7 +423,9 @@ function invokeEMTranslator(doc) {
 		}
 		if (i.url.match(/\/article\/view/)) i.itemType = "journalArticle";
 		if (i.abstractNote == ', ' || i.abstractNote == ',') i.abstractNote = "";
-		i.abstractNote = i.abstractNote.replace(/(?:^|\n)(?:RESUME|ABSTRACT):\s+/g, '\\n4207 ');
+		if (i.abstractNote != null) {
+			i.abstractNote = i.abstractNote.replace(/(?:^|\n)(?:RESUME|ABSTRACT):\s+/g, '\\n4207 ');
+		}
 		i.attachments = [];
 		let sansidoroAbstract = ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content');
 		if (sansidoroAbstract && sansidoroAbstract.match(/isidorianum\/article\/view/)) {
@@ -2687,7 +2689,7 @@ var testCases = [
 				"libraryCatalog": "revistas.unav.edu",
 				"pages": "532",
 				"publicationTitle": "Anuario de Historia de la Iglesia",
-				"rights": "Derechos de autor 2022",
+				"rights": "Derechos de autor",
 				"url": "https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/42868",
 				"volume": "31",
 				"attachments": [],
