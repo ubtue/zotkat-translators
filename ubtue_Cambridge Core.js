@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-25 12:42:55"
+	"lastUpdated": "2022-06-08 15:32:56"
 }
 
 /*
@@ -70,6 +70,12 @@ function getSearchResults(doc, checkOnly) {
 	return found ? items : false;
 }
 
+function addOpenAccessTag (doc, item) {
+	let tagEntry = ZU.xpathText(doc, '//span[@class="open-access"]');
+	if (tagEntry && tagEntry.match(/Open Access/i)) {
+		item.notes.push('LF:');
+	}
+}
 
 function doWeb(doc, url) {
 	if (detectWeb(doc, url) == "multiple") {
@@ -145,6 +151,17 @@ function scrape(doc, url) {
 			
 			item.title = ZU.unescapeHTML(item.title);
 			item.libraryCatalog = "Cambridge University Press";
+			addOpenAccessTag(doc, item);
+			let orcid_tags = ZU.xpath(doc, '//a[@class="app-link contributor-type__contributor__orcid app-link__icon app-link--"]');
+			for (let o in orcid_tags) {
+				let orcid = orcid_tags[o].href;
+				if (orcid != null) {
+					let author = ZU.xpathText(orcid_tags[o], './/@data-test-orcid');
+					orcid = orcid.replace("https://orcid.org/", "");
+					item.notes.push({note: "orcid:" + orcid + ' | ' + author});
+				}
+				
+			}
 			item.complete();
 		});
 
@@ -164,7 +181,7 @@ function scrape(doc, url) {
 var testCases = [
 	{
 		"type": "web",
-		"url": "https://www.cambridge.org/core/journals/journal-of-american-studies/article/abs/samo-as-an-escape-clause-jean-michel-basquiats-engagement-with-a-commodified-american-africanism/1E4368D610A957B84F6DA3A58B8BF164",
+		"url": "https://www.cambridge.org/core/journals/journal-of-american-studies/article/samo-as-an-escape-clause-jean-michel-basquiats-engagement-with-a-commodified-american-africanism/1E4368D610A957B84F6DA3A58B8BF164",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -186,7 +203,7 @@ var testCases = [
 				"pages": "227-243",
 				"publicationTitle": "Journal of American Studies",
 				"shortTitle": "“SAMO© as an Escape Clause”",
-				"url": "https://www.cambridge.org/core/journals/journal-of-american-studies/article/abs/samo-as-an-escape-clause-jean-michel-basquiats-engagement-with-a-commodified-american-africanism/1E4368D610A957B84F6DA3A58B8BF164",
+				"url": "https://www.cambridge.org/core/journals/journal-of-american-studies/article/samo-as-an-escape-clause-jean-michel-basquiats-engagement-with-a-commodified-american-africanism/1E4368D610A957B84F6DA3A58B8BF164",
 				"volume": "45",
 				"attachments": [
 					{
@@ -206,7 +223,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/article/abs/high-resolution-simulations-of-cylindrical-density-currents/30D62864BDED84A6CC81F5823950767B",
+		"url": "https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/article/high-resolution-simulations-of-cylindrical-density-currents/30D62864BDED84A6CC81F5823950767B",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -236,7 +253,7 @@ var testCases = [
 				"libraryCatalog": "Cambridge University Press",
 				"pages": "437-469",
 				"publicationTitle": "Journal of Fluid Mechanics",
-				"url": "https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/article/abs/high-resolution-simulations-of-cylindrical-density-currents/30D62864BDED84A6CC81F5823950767B",
+				"url": "https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/article/high-resolution-simulations-of-cylindrical-density-currents/30D62864BDED84A6CC81F5823950767B",
 				"volume": "590",
 				"attachments": [
 					{
@@ -265,30 +282,6 @@ var testCases = [
 		"type": "web",
 		"url": "https://www.cambridge.org/core/journals/american-political-science-review/issue/F6F2E8238A6D139A91D343A62AB2CECC",
 		"items": "multiple"
-	},
-	{
-		"type": "web",
-		"url": "https://www.cambridge.org/core/search?q=labor&sort=&aggs%5BonlyShowAvailable%5D%5Bfilters%5D=&aggs%5BopenAccess%5D%5Bfilters%5D=&aggs%5BproductTypes%5D%5Bfilters%5D=JOURNAL_ARTICLE&aggs%5BproductDate%5D%5Bfilters%5D=&aggs%5BproductSubject%5D%5Bfilters%5D=&aggs%5BproductJournal%5D%5Bfilters%5D=&aggs%5BproductPublisher%5D%5Bfilters%5D=&aggs%5BproductSociety%5D%5Bfilters%5D=&aggs%5BproductPublisherSeries%5D%5Bfilters%5D=&aggs%5BproductCollection%5D%5Bfilters%5D=&showJackets=&filters%5BauthorTerms%5D=&filters%5BdateYearRange%5D%5Bfrom%5D=&filters%5BdateYearRange%5D%5Bto%5D=&hideArticleGraphicalAbstracts=true",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Search",
-				"creators": [],
-				"abstractNote": "Welcome to Cambridge Core",
-				"language": "en",
-				"libraryCatalog": "Cambridge University Press",
-				"url": "https://www.cambridge.org/core/search?q=labor&sort=&aggs%5BonlyShowAvailable%5D%5Bfilters%5D=&aggs%5BopenAccess%5D%5Bfilters%5D=&aggs%5BproductTypes%5D%5Bfilters%5D=JOURNAL_ARTICLE&aggs%5BproductDate%5D%5Bfilters%5D=&aggs%5BproductSubject%5D%5Bfilters%5D=&aggs%5BproductJournal%5D%5Bfilters%5D=&aggs%5BproductPublisher%5D%5Bfilters%5D=&aggs%5BproductSociety%5D%5Bfilters%5D=&aggs%5BproductPublisherSeries%5D%5Bfilters%5D=&aggs%5BproductCollection%5D%5Bfilters%5D=&showJackets=&filters%5BauthorTerms%5D=&filters%5BdateYearRange%5D%5Bfrom%5D=&filters%5BdateYearRange%5D%5Bto%5D=&hideArticleGraphicalAbstracts=true",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
 	},
 	{
 		"type": "web",
@@ -454,7 +447,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://www.cambridge.org/core/journals/journal-of-ecclesiastical-history/article/abs/cashaway-psalmody-transatlantic-religion-and-music-in-colonial-carolina-by-stephen-a-marini-music-in-american-life-pp-xii-466-incl-42-ills-1-map-and-7-tables-chicago-university-of-illinois-press-2020-54-978-0-252-04284-3/4F35B5C0F70F6D5F6438883DB6B16A2A#",
+		"url": "https://www.cambridge.org/core/journals/journal-of-ecclesiastical-history/article/cashaway-psalmody-transatlantic-religion-and-music-in-colonial-carolina-by-stephen-a-marini-music-in-american-life-pp-xii-466-incl-42-ills-1-map-and-7-tables-chicago-university-of-illinois-press-2020-54-978-0-252-04284-3/4F35B5C0F70F6D5F6438883DB6B16A2A",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -475,7 +468,7 @@ var testCases = [
 				"pages": "677-678",
 				"publicationTitle": "The Journal of Ecclesiastical History",
 				"shortTitle": "The Cashaway psalmody. Transatlantic religion and music in colonial Carolina. By Stephen A. Marini. (Music in American Life.) Pp. xii + 466 incl. 42 ills, 1 map and 7 tables. Chicago",
-				"url": "https://www.cambridge.org/core/journals/journal-of-ecclesiastical-history/article/abs/cashaway-psalmody-transatlantic-religion-and-music-in-colonial-carolina-by-stephen-a-marini-music-in-american-life-pp-xii-466-incl-42-ills-1-map-and-7-tables-chicago-university-of-illinois-press-2020-54-978-0-252-04284-3/4F35B5C0F70F6D5F6438883DB6B16A2A#",
+				"url": "https://www.cambridge.org/core/journals/journal-of-ecclesiastical-history/article/cashaway-psalmody-transatlantic-religion-and-music-in-colonial-carolina-by-stephen-a-marini-music-in-american-life-pp-xii-466-incl-42-ills-1-map-and-7-tables-chicago-university-of-illinois-press-2020-54-978-0-252-04284-3/4F35B5C0F70F6D5F6438883DB6B16A2A",
 				"volume": "72",
 				"attachments": [
 					{
@@ -489,6 +482,52 @@ var testCases = [
 				],
 				"tags": [],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.cambridge.org/core/journals/religious-studies/article/new-epistemological-case-for-theism/2DB0673A95B5D023B187B77071E7C93C",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "A new epistemological case for theism",
+				"creators": [
+					{
+						"firstName": "Christophe De",
+						"lastName": "Ray",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022/06",
+				"DOI": "10.1017/S0034412520000529",
+				"ISSN": "0034-4125, 1469-901X",
+				"abstractNote": "Relying on inference to the best explanation (IBE) requires one to hold the intuition that the world is ‘intelligible’, that is, such that states of affairs at least generally have explanations for their obtaining. I argue that metaphysical naturalists are rationally required to withhold this intuition, unless they cease to be naturalists. This is because all plausible naturalistic aetiologies of the intuition entail that the intuition and the state of affairs which it represents are not causally connected in an epistemically appropriate way. Given that one ought to rely on IBE, naturalists are forced to pick the latter and change their world-view. Traditional theists, in contrast, do not face this predicament. This, I argue, is strong grounds for preferring traditional theism to naturalism.",
+				"issue": "2",
+				"language": "en",
+				"libraryCatalog": "Cambridge University Press",
+				"pages": "379-400",
+				"publicationTitle": "Religious Studies",
+				"url": "https://www.cambridge.org/core/journals/religious-studies/article/new-epistemological-case-for-theism/2DB0673A95B5D023B187B77071E7C93C",
+				"volume": "58",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [
+					"LF:",
+					{
+						"note": "orcid:0000-0002-0540-8000 | CHRISTOPHE DE RAY"
+					}
+				],
 				"seeAlso": []
 			}
 		]
