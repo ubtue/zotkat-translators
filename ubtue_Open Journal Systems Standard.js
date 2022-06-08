@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-30 14:18:16"
+	"lastUpdated": "2022-06-08 13:07:49"
 }
 
 /*
@@ -423,6 +423,7 @@ function invokeEMTranslator(doc) {
 		}
 		if (i.url.match(/\/article\/view/)) i.itemType = "journalArticle";
 		if (i.abstractNote == ', ' || i.abstractNote == ',') i.abstractNote = "";
+		i.abstractNote = i.abstractNote.replace(/(?:^|\n)(?:RESUME|ABSTRACT):\s+/g, '\\n4207 ');
 		i.attachments = [];
 		let sansidoroAbstract = ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content');
 		if (sansidoroAbstract && sansidoroAbstract.match(/isidorianum\/article\/view/)) {

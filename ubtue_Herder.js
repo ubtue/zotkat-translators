@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-06-07 14:08:25"
+	"lastUpdated": "2022-06-08 06:48:52"
 }
 
 /*
@@ -122,8 +122,10 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		let pageTitle = ZU.xpathText(doc, '//title').trim().replace(/\s+/g, ' ');
 		if (pageTitle.match(/^Buchrezension/))
 			item.tags.push('RezensionstagPica');
-		if (pageTitle.trim().match(item.title.trim().replace(/\s+/g, ' ') + ': ')) {
-			item.title += pageTitle.split(item.title)[1];
+		Z.debug(pageTitle);
+		Z.debug(item.title.trim().replace(/\s+/g, ' '));
+		if (pageTitle.match(item.title.trim().replace(/\s+/g, ' '))) {
+			item.title = pageTitle;
 		}
 		if (item.publicationTitle == "Biblische Notizen") {
 			item.ISSN = "2628-5762";
