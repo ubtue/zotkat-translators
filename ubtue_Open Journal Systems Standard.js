@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-06-08 13:40:36"
+	"lastUpdated": "2022-07-04 15:42:08"
 }
 
 /*
@@ -112,6 +112,7 @@ function invokeEMTranslator(doc) {
  				delete i.archiveLocation;
  			}
  		}
+		if (articleType.match(/^(Book Reviews?)/) != null) i.tags.push("RezensionstagPica");
 
  		//orcid for pica-field 8910
    		let orcidAuthorEntryCaseA = doc.querySelectorAll('.authors');//Z.debug(orcidAuthorEntryCaseA)
@@ -509,7 +510,7 @@ var testCases = [
 				"journalAbbreviation": "STJ",
 				"language": "en",
 				"libraryCatalog": "ojs.reformedjournals.co.za",
-				"pages": "13–40",
+				"pages": "13-40",
 				"publicationTitle": "STJ – Stellenbosch Theological Journal",
 				"rights": "Copyright (c) 2020 Pieter de Waal Neethling Trust, Stellenbosch",
 				"shortTitle": "“The message to the people of South Africa” in contemporary context",
@@ -722,7 +723,7 @@ var testCases = [
 				"journalAbbreviation": "STJ",
 				"language": "en",
 				"libraryCatalog": "ojs.reformedjournals.co.za",
-				"pages": "299–317",
+				"pages": "299-317",
 				"publicationTitle": "STJ – Stellenbosch Theological Journal",
 				"rights": "Copyright (c) 2017 Pieter de Waal Neethling Trust, Stellenbosch",
 				"url": "https://ojs.reformedjournals.co.za/stj/article/view/1743",
@@ -780,7 +781,7 @@ var testCases = [
 				"journalAbbreviation": "STJ",
 				"language": "en",
 				"libraryCatalog": "ojs.reformedjournals.co.za",
-				"pages": "11–40",
+				"pages": "11-40",
 				"publicationTitle": "STJ – Stellenbosch Theological Journal",
 				"rights": "Copyright (c) 2017 Pieter de Waal Neethling Trust, Stellenbosch",
 				"shortTitle": "Renewal, Renaissance, Reformation, or Revolution?",
@@ -843,13 +844,14 @@ var testCases = [
 				"date": "2020/11/20",
 				"DOI": "10.46543/ISID.2029.1054",
 				"ISSN": "2660-7743",
-				"abstractNote": "Using some of the tools of narrative criticism, this article studies the final battle and victory which is achieved by God’s envoy. By unpacking the network of relationship in the text the envoy is identified with the Christ of God, who has been present in the book from the beginning. The article shows how the Rider on the white horse summarises what the book of Revelation has said about Jesus., Usando elementos del análisis narrativo, este artículo examina la batalla final y la victoria que se consigue a través del enviado de Dios, un jinete en un caballo blanco. Desenredando la red de relaciones en el texto, el jinete en el caballo blanco se identifica con el Cristo de Dios, que ha estado presente en el libro desde el inicio. El artículo muestra como el Jinete en el caballo blanco resume en sí mismo todo lo que el Apocalipsis dice sobre Jesús.",
+				"abstractNote": "Using some of the tools of narrative criticism, this article studies the final battle and victory which is achieved by God’s envoy. By unpacking the network of relationship in the text the envoy is identified with the Christ of God, who has been present in the book from the beginning. The article shows how the Rider on the white horse summarises what the book of Revelation has said about Jesus.",
 				"issue": "2",
 				"journalAbbreviation": "1",
-				"language": "es-ES",
+				"language": "es",
 				"libraryCatalog": "www.sanisidoro.net",
 				"pages": "37-60",
 				"publicationTitle": "Isidorianum",
+				"rights": "Derechos de autor 2020 Isidorianum",
 				"shortTitle": "“Battle is over, raise we the cry of victory”. Study of Revelation 19",
 				"url": "https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/147",
 				"volume": "29",
@@ -1073,7 +1075,7 @@ var testCases = [
 				"journalAbbreviation": "JRFM",
 				"language": "en",
 				"libraryCatalog": "jrfm.eu",
-				"pages": "197–199",
+				"pages": "197-199",
 				"publicationTitle": "Journal for Religion, Film and Media (JRFM)",
 				"rights": "Copyright (c) 2021 Daria Pezzoli-Olgiati",
 				"shortTitle": "Book Review. Christopher Ocker / Susanne Elm (eds.), Material Christianity",
@@ -1481,7 +1483,7 @@ var testCases = [
 				"journalAbbreviation": "STJ",
 				"language": "en",
 				"libraryCatalog": "ojs.reformedjournals.co.za",
-				"pages": "11–40",
+				"pages": "11-40",
 				"publicationTitle": "STJ – Stellenbosch Theological Journal",
 				"rights": "Copyright (c) 2017 Pieter de Waal Neethling Trust, Stellenbosch",
 				"shortTitle": "Renewal, Renaissance, Reformation, or Revolution?",
