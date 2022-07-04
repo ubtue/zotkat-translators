@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-07-04 15:42:08"
+	"lastUpdated": "2022-07-04 15:44:57"
 }
 
 /*
@@ -2701,6 +2701,43 @@ var testCases = [
 						"note": "Fernando Crovetto | orcid:0000-0002-9751-095X | taken from website"
 					}
 				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "http://www.globalbuddhism.org/jgb/index.php/jgb/article/view/368/310",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "From Indra’s Net to Internet: Communication, Technology, and the Evolution of Buddhist Ideas, by Daniel Veidlinger",
+				"creators": [
+					{
+						"firstName": "Louise",
+						"lastName": "Connelly",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/12/20",
+				"ISSN": "1527-6457",
+				"abstractNote": "From Indra’s Net to Internet: Communication, Technology, and the Evolution of Buddhist Ideas, by Daniel Veidlinger",
+				"issue": "2",
+				"language": "en-US",
+				"libraryCatalog": "www.globalbuddhism.org",
+				"pages": "442-446",
+				"publicationTitle": "Journal of Global Buddhism",
+				"rights": "Copyright (c) 2021 Louise Connelly",
+				"shortTitle": "From Indra’s Net to Internet",
+				"url": "http://www.globalbuddhism.org/jgb/index.php/jgb/article/view/368",
+				"volume": "22",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
