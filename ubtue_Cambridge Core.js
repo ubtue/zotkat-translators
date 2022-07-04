@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-06-08 15:37:57"
+	"lastUpdated": "2022-07-04 15:56:31"
 }
 
 /*
@@ -164,6 +164,9 @@ function scrape(doc, url) {
 			}
 			if (item.pages) {
 				if (item.pages.split('-')[0] == item.pages.split('-')[1]) item.pages = item.pages.split('-')[0];
+			}
+			if (ZU.xpathText(doc, '//dd[@class="col content" and contains(., "Book Review")]') != null) {
+				item.tags.push("RezensionstagPica");
 			}
 			item.complete();
 		});
