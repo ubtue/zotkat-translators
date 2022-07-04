@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-30 11:02:19"
+	"lastUpdated": "2022-07-04 15:19:12"
 }
 
 /*
@@ -94,6 +94,7 @@ function scrape(doc, url) {
 		if (item.ISSN == "2053-6712") {
 			item.notes.push("artikelID:" + item.pages);
 			item.pages = "";
+			item.issue = "";
 		}
 		for (let authorTag of ZU.xpath(doc, '//div[@class="author-block"]')) {
 			if (ZU.xpathText(authorTag, './/a[@class="orcid"]') != null) {
@@ -143,7 +144,6 @@ var testCases = [
 				"DOI": "10.5334/snr.151",
 				"ISSN": "2053-6712",
 				"abstractNote": "In the United States, nonreligious people face stigma, prejudice, and discrimination because they are viewed as immoral and distrustful. This is partly because of othering, by which nonreligious people are subjugated to a minority status. Othering also occurs in academic research and writing. Applying feminist principles can improve research about nonreligious populations. Grounded in results of a US-based online study, we recommend two feminist principles to facilitate the study of nonreligion: (1) rejecting othering of minority groups, and (2) intersectionality. As a result of applying these principles, the nuanced differences between nonreligious groups can be better understood and the complex identities of nonreligious people can be more accurately represented. Researchers benefit from increased accuracy and understanding of nonreligion via better informed theoretical and methodological decisions and nonreligious people benefit from their more accurate representation in academic research.",
-				"issue": "1",
 				"language": "en",
 				"libraryCatalog": "secularismandnonreligion.org",
 				"publicationTitle": "Secularism and Nonreligion",
@@ -187,6 +187,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://secularismandnonreligion.org/10/volume/10/issue/1/",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://secularismandnonreligion.org/11/volume/11/issue/1/",
 		"items": "multiple"
 	}
 ]
