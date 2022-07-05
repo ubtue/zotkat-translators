@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-07-05 08:42:15"
+	"lastUpdated": "2022-07-05 09:16:45"
 }
 
 /*
@@ -95,6 +95,18 @@ function invokeEMTranslator(doc) {
 		if (i.abstractNote.match(pseudoabstract) || i.abstractNote.match(/^Der Artikel/)) delete i.abstractNote;
 		for (let keyWord of ZU.xpath(doc, '//div[contains(@class, "keywords")]/a')) {
 			if (!i.tags.includes(keyWord.textContent)) i.tags.push(keyWord.textContent);
+		}
+		for (let authorTag of ZU.xpath(doc, '//span[contains(@class, "metadataAndContributors")]')) {
+			authorTag = authorTag.innerHTML.replace(/\n+|\s\s+/g, '');
+			let orcidInfo = authorTag.match(/<span class="contributor".*?>([^<]+?)<\/span><span class="orcidLink"[^<]*?><a href="https:\/\/orcid.org\/(.+?)"/g);
+			if (orcidInfo != null) {
+				for (let singleOrcidInfo of orcidInfo) {
+					singleOrcidInfo = singleOrcidInfo.match(/<span class="contributor".*?>([^<]+?)<\/span><span class="orcidLink"[^<]*?><a href="https:\/\/orcid.org\/(.+?)"/);
+					let name = singleOrcidInfo[1];
+					let orcid = singleOrcidInfo[2];
+					i.notes.push({note: name + ' | orcid:' + orcid + ' | taken from website'});
+				}
+			}
 		}
 		if (!i.ISSN) i.ISSN = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "onlineissn", " " )) and contains(concat( " ", @class, " " ), concat( " ", "text-metadata-value", " " ))]');
 		i.complete();
@@ -420,6 +432,212 @@ var testCases = [
 				"tags": [],
 				"notes": [
 					"LF:"
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.degruyter.com/document/doi/10.1515/spircare-2021-0066/html",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Thomas Wild (2021) Seelsorge in Krisen. Zur Eigentümlichkeit pastoralpsychologischer Praxis. Göttingen: Vandenhoeck & Ruprecht. ISBN: 978-3-525-6245-4; 270 Seiten; Preis D 23,99 €",
+				"creators": [
+					{
+						"firstName": "Ruth",
+						"lastName": "Mächler",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022/05/31",
+				"DOI": "10.1515/spircare-2021-0066",
+				"ISSN": "2365-8185",
+				"issue": "2",
+				"language": "en",
+				"libraryCatalog": "www.degruyter.com",
+				"pages": "186-187",
+				"publicationTitle": "Spiritual Care",
+				"shortTitle": "Thomas Wild (2021) Seelsorge in Krisen. Zur Eigentümlichkeit pastoralpsychologischer Praxis. Göttingen",
+				"url": "https://www.degruyter.com/document/doi/10.1515/spircare-2021-0066/html",
+				"volume": "11",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [
+					{
+						"note": "Ruth Mächler | orcid:0000-0002-8029-9633 | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.degruyter.com/document/doi/10.1515/abitech-2019-2004/html?lang=de",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Die Rolle der ORCID iD in der Wissenschaftskommunikation: Der Beitrag des ORCID-Deutschland-Konsortiums und das ORCID-DE-Projekt",
+				"creators": [
+					{
+						"firstName": "Britta",
+						"lastName": "Dreyer",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Stephanie",
+						"lastName": "Hagemann-Wilholt",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Paul",
+						"lastName": "Vierkant",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Dorothea",
+						"lastName": "Strecker",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Stephanie",
+						"lastName": "Glagla-Dietz",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Friedrich",
+						"lastName": "Summann",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Heinz",
+						"lastName": "Pampel",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Marleen",
+						"lastName": "Burger",
+						"creatorType": "author"
+					}
+				],
+				"date": "2019/07/01",
+				"DOI": "10.1515/abitech-2019-2004",
+				"ISSN": "2191-4664",
+				"abstractNote": "ORCID schafft mit Services wie der eindeutigen Verknüpfung von Forschenden und ihren Publikationen die Basis moderner Wissenschaftskommunikation. Das ORCID-Deutschland-Konsortium bietet eine kostenreduzierte ORCID-Premiummitgliedschaft an und unterstützt die Mitglieder bei der erfolgreichen ORCID-Integration. Diese umfasst neben einer Dialogplattform mit deutschsprachigen Informationsmaterialien weitere Supportleistungen. Ein wichtiger Erfolgsfaktor ist außerdem eine umfassende Kommunikationsstrategie der ORCID-Implementierung. Hier können die Mitglieder auf etablierte Kommunikationskanäle innerhalb ihrer Einrichtungen zurückgreifen. Gemeinsam leisten sie mit der Unterstützung des ORCID-DE-Projekts einen wesentlichen Beitrag zur erfolgreichen Verbreitung von ORCID in Deutschland.\\n4207 ORCID’s services such as the unambiguous linking of researchers and their research output form the basis of modern scholarly communication. The ORCID Germany Consortium offers a reduced ORCID premium membership fee and supports its members during ORCID integration. Services include a dialogue platform that provides German-language information and additional support services. Another major success factor is an all-encompassing communication strategy: members of the ORCID implementation can resort to established organizational communication channels. Together and with the support of the ORCID DE project they contribute significantly to the successful distribution of ORCID in Germany.",
+				"issue": "2",
+				"language": "en",
+				"libraryCatalog": "www.degruyter.com",
+				"pages": "112-121",
+				"publicationTitle": "ABI Technik",
+				"shortTitle": "Die Rolle der ORCID iD in der Wissenschaftskommunikation",
+				"url": "https://www.degruyter.com/document/doi/10.1515/abitech-2019-2004/html?lang=de",
+				"volume": "39",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Autorenidentifikation"
+					},
+					{
+						"tag": "ORCID"
+					},
+					{
+						"tag": "Persistent Identifier"
+					},
+					{
+						"tag": "Persistenter Identifikator"
+					},
+					{
+						"tag": "Researcher Identification"
+					}
+				],
+				"notes": [
+					"LF:",
+					{
+						"note": "Britta Dreyer | orcid:0000-0002-0687-5460 | taken from website"
+					},
+					{
+						"note": "Stephanie Hagemann-Wilholt | orcid:0000-0002-0474-2410 | taken from website"
+					},
+					{
+						"note": "Paul Vierkant | orcid:0000-0003-4448-3844 | taken from website"
+					},
+					{
+						"note": "Dorothea Strecker | orcid:0000-0002-9754-3807 | taken from website"
+					},
+					{
+						"note": "Stephanie Glagla-Dietz | orcid:0000-0001-8762-3005 | taken from website"
+					},
+					{
+						"note": "Friedrich Summann | orcid:0000-0002-6297-3348 | taken from website"
+					},
+					{
+						"note": "Heinz Pampel | orcid:0000-0003-3334-2771 | taken from website"
+					},
+					{
+						"note": "Marleen Burger | orcid:0000-0001-6836-1193 | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.degruyter.com/document/doi/10.1515/spircare-2021-0065/html",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Hartmut Rosa über den Umgang mit Sterben, Tod und Trauer: Ein Gespräch mit dem Soziologen und Begründer der Resonanztheorie Prof. Dr. Hartmut Rosa, Friedrich-Schiller-Universität Jena",
+				"creators": [
+					{
+						"firstName": "Heidi",
+						"lastName": "Müller",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Daniel",
+						"lastName": "Berthold",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022/05/31",
+				"DOI": "10.1515/spircare-2021-0065",
+				"ISSN": "2365-8185",
+				"issue": "2",
+				"language": "en",
+				"libraryCatalog": "www.degruyter.com",
+				"pages": "114-118",
+				"publicationTitle": "Spiritual Care",
+				"shortTitle": "Hartmut Rosa über den Umgang mit Sterben, Tod und Trauer",
+				"url": "https://www.degruyter.com/document/doi/10.1515/spircare-2021-0065/html",
+				"volume": "11",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [
+					{
+						"note": "Heidi Müller</span> and <span class=\"contributor\" data-bs-toggle=\"tooltip\" data-placement=\"bottom\" title=\"Universitätsklinikum Gießen und Marburg, Standort Gießen Internistische Onkologie und Palliativmedizin Gießen Deutschland; daniel.berthold@innere.med.uni-giessen.de\">Daniel Berthold | orcid:0000-0001-9816-8650 | taken from website"
+					}
 				],
 				"seeAlso": []
 			}
