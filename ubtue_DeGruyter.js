@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-25 11:24:06"
+	"lastUpdated": "2022-07-05 08:27:09"
 }
 
 /*
@@ -80,7 +80,7 @@ function invokeEMTranslator(doc) {
 		if (i.abstractNote != null) i.abstractNote = i.abstractNote.replace(/^Zusammenfassung\s+/, '');
 		if (i.title.match(/ISBN/) || i.publicationTitle === 'Verkündigung und Forschung') i.tags.push('RezensionstagPica') && delete i.abstractNote;
 		let transAbstract = ZU.xpathText(doc, '//*[(@id = "transAbstract")]//p');
-		if (transAbstract == null) transAbstract = ZU.xpathText(doc, '//div[@class="abstract-en"]/p');
+		if (transAbstract == null) transAbstract = ZU.xpathText(doc, '//div[contains(@class,"abstract-")]/p');
 		if (i.abstractNote && transAbstract) i.abstractNote += '\\n4207 ' + transAbstract;
 		let pseudoabstract = i.title;
 		if (ZU.xpathText(doc, '//span[contains(., "Open Access") and contains(@class, "OpenAccess")]')) i.notes.push('LF:');
@@ -91,6 +91,9 @@ function invokeEMTranslator(doc) {
 			}
 		} 
 		if (i.abstractNote.match(pseudoabstract) || i.abstractNote.match(/^Der Artikel/)) delete i.abstractNote;
+		for (let keyWord of ZU.xpath(doc, '//div[contains(@class, "keywords")]/a')) {
+			if (!i.tags.includes(keyWord.textContent)) i.tags.push(keyWord.textContent);
+		}
 		if (!i.ISSN) i.ISSN = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "onlineissn", " " )) and contains(concat( " ", @class, " " ), concat( " ", "text-metadata-value", " " ))]');
 		i.complete();
 	});
@@ -250,6 +253,67 @@ var testCases = [
 				"tags": [
 					{
 						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [
+					"LF:"
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.degruyter.com/document/doi/10.1515/nzsth-2022-0006/html",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Philosophical Optimism and Philosophy of Historical Progress in Slovak Lutheran Ethics in the First Half of the 19th Century",
+				"creators": [
+					{
+						"firstName": "Vasil",
+						"lastName": "Gluchman",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022/05/01",
+				"DOI": "10.1515/nzsth-2022-0006",
+				"ISSN": "1612-9520",
+				"abstractNote": "The author studies the form of philosophical optimism in Slovak Lutheran ethics in the first half of the 19 th century in the views of Ján Kollár and Ján Chalupka. Herder’s philosophy of history and his philosophy of historical progress significantly influenced Slovak Lutheran ethics of the given period. In the author’s view, Kollár and Chalupka mainly appreciated human history as progress in all parts of life and refused glorification of the past. However, they did not limit their assessment to a positive evaluation of the present; they used one’s own mistakes and faults to appeal to moral development of man and placed to the forefront the belief in a better future of mankind in the form of humanity.\\n4207 Der Autor untersucht die Form des philosophischen Optimismus in der slowakischen lutherischen Ethik in der ersten Hälfte des 19. Jahrhunderts nach den Ansichten von Ján Kollár und Ján Chalupka. Herders Geschichtsphilosophie und seine Philosophie des historischen Fortschritts haben die slowakisch-lutherische Ethik dieser Zeit maßgeblich beeinflusst. Nach Ansicht des Autors bewerten Kollár und Chalupka die Menschheitsgeschichte vor allem als Fortschritt in allen Lebensbereichen und lehnen eine Verherrlichung der Vergangenheit ab. Sie beschränkten ihre Einschätzung jedoch nicht auf eine positive Bewertung der Gegenwart; sie benutzten eigene und sonstige Fehler, um an die moralische Entwicklung des Menschen zu appellieren und stellen den Glauben an eine bessere Zukunft der Menschheit in Form von Humanität in den Vordergrund.",
+				"issue": "1",
+				"language": "en",
+				"libraryCatalog": "www.degruyter.com",
+				"pages": "124-138",
+				"publicationTitle": "Neue Zeitschrift für Systematische Theologie und Religionsphilosophie",
+				"url": "https://www.degruyter.com/document/doi/10.1515/nzsth-2022-0006/html",
+				"volume": "64",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Chalupka"
+					},
+					{
+						"tag": "Herder"
+					},
+					{
+						"tag": "Kollár"
+					},
+					{
+						"tag": "Philosophie des historischen Fortschritts"
+					},
+					{
+						"tag": "Philosophischer Optimismus"
+					},
+					{
+						"tag": "philosophical optimism"
+					},
+					{
+						"tag": "philosophy of historical progress"
 					}
 				],
 				"notes": [],
