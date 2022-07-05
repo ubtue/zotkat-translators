@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-03-17 12:00:54"
+	"lastUpdated": "2022-07-05 08:02:08"
 }
 
 /*
@@ -29,7 +29,6 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
 
 function detectWeb(doc, url) {
 	var xpath='//meta[@name="citation_journal_title"]';
@@ -92,6 +91,12 @@ function scrape(doc, url) {
 				i++;
 			}
 		}
+		let newTags = [];
+		for (let tag of item.tags) {
+			newTags.push(tag.replace(/<\/?.+?>/g, ''));
+		}
+		item.tags = newTags;
+		
 		//all mdpi url include issn
 		if (!item.ISSN) item.ISSN = item.url.match(/\d{4}-\d{3}(\d|x)/i)[0];
 		delete item.extra;
@@ -99,10 +104,27 @@ function scrape(doc, url) {
 			item.notes.push({'note': 'artikelID:' + item.pages});
 				item.pages = "";
 		}
+		for (let authorSpan of ZU.xpath(doc, '//div[contains(@class, "art-authors")]/span')) {
+			let name = ZU.xpathText(authorSpan, './/span[contains(@class, "__name")]');
+			let orcid = ZU.xpathText(authorSpan, './/a[contains(@href, "orcid")]/@href');
+			if (orcid != null) {
+					item.notes.push({note: name + ' | orcid:' + orcid.match(/https?:\/\/orcid.org\/(.+)$/)[1] + ' | taken from website'});
+				}
+			}
+		let toReplace = (item.title + item.abstractNote).match(/(&#\d+;)/g);
+		if (toReplace != null) {
+		for (let charCode of toReplace) {
+			let char = String.fromCharCode(parseInt(charCode.match(/\d+/)[0]));
+			item.title = item.title.replace(charCode, char);
+			item.abstractNote = item.title.replace(charCode, char);
+		}
+		}
+		item.title = item.title.replace(/&[lr][sd]quo;/g, "'");
 		item.complete();
 	});
 	translator.translate();
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
@@ -276,7 +298,17 @@ var testCases = [
 						"tag": "toxic effect"
 					}
 				],
-				"notes": [],
+				"notes": [
+					{
+						"note": "Dorin Harpaz | orcid:0000-0003-4119-6284 | taken from website"
+					},
+					{
+						"note": "Alfred I. Y. Tok | orcid:0000-0003-3546-7180 | taken from website"
+					},
+					{
+						"note": "Evgeni Eltzov | orcid:0000-0002-3047-9425 | taken from website"
+					}
+				],
 				"seeAlso": []
 			}
 		]
@@ -336,6 +368,152 @@ var testCases = [
 				"notes": [
 					{
 						"note": "artikelID:368"
+					},
+					{
+						"note": "Maznah Mohamad | orcid:0000-0002-0756-3434 | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.mdpi.com/2077-1444/13/6/474",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Translation and Interaction: A New Examination of the Controversy over the Translation and Authenticity of the Śūraṃgama-sūtra",
+				"creators": [
+					{
+						"firstName": "Jinhua",
+						"lastName": "Jia",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022/6",
+				"DOI": "10.3390/rel13060474",
+				"ISSN": "2077-1444",
+				"abstractNote": "Translation and Interaction: A New Examination of the Controversy over the Translation and Authenticity of the Śūraṃgama-sūtra",
+				"issue": "6",
+				"language": "en",
+				"libraryCatalog": "www.mdpi.com",
+				"publicationTitle": "Religions",
+				"rights": "http://creativecommons.org/licenses/by/3.0/",
+				"shortTitle": "Translation and Interaction",
+				"url": "https://www.mdpi.com/2077-1444/13/6/474",
+				"volume": "13",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Chan Buddhism"
+					},
+					{
+						"tag": "Chinese Buddhism"
+					},
+					{
+						"tag": "Fang Rong"
+					},
+					{
+						"tag": "Huaidi"
+					},
+					{
+						"tag": "Zhisheng"
+					},
+					{
+						"tag": "Śūraṃgama-sūtra"
+					}
+				],
+				"notes": [
+					{
+						"note": "artikelID:474"
+					},
+					{
+						"note": "Jinhua Jia | orcid:0000-0003-3398-909X | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.mdpi.com/2077-1444/13/6/561",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Sexual Complexity: A Comparison between Men and Women in a Sexual Minority Sample of Members of the Church of Jesus Christ of Latter-day Saints",
+				"creators": [
+					{
+						"firstName": "William S.",
+						"lastName": "Bradshaw",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "John P.",
+						"lastName": "Dehlin",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Renee V.",
+						"lastName": "Galliher",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022/6",
+				"DOI": "10.3390/rel13060561",
+				"ISSN": "2077-1444",
+				"abstractNote": "We report here some of the results from an online survey of 1612 LGBTQ members and former members of the Church of Jesus Christ of Latter-day Saints (CJCLDS, Mormon). The data permitted an exploration of diversity&mdash;individual similarities and differences within and between the sexes. Men and women were compared with respect to sexual identity self-labeling and behavior (i.e., identity development, disclosure, activity), orientation change efforts, marital relationships, and psychosocial health&mdash;these variables in the context of their religious lives. More women than men self-identified in the bisexual range of the sexual attraction continuum. Both men and women had engaged in extensive effort to change their sexual orientation. Only about 4% of the respondents claimed that those efforts had been successful, and the claims were for outcomes other than an alteration in erotic feeling. In general, only those who identified as bisexual reported success in maintaining a mixed-orientation marriage and continuing activity in the church. For both men and women, measures of psychosocial and sexual health were higher for those in same-sex relationships and those disaffiliated from the church.",
+				"issue": "6",
+				"language": "en",
+				"libraryCatalog": "www.mdpi.com",
+				"publicationTitle": "Religions",
+				"rights": "http://creativecommons.org/licenses/by/3.0/",
+				"shortTitle": "Sexual Complexity",
+				"url": "https://www.mdpi.com/2077-1444/13/6/561",
+				"volume": "13",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "LDS/Mormon"
+					},
+					{
+						"tag": "LGBTQ"
+					},
+					{
+						"tag": "gender"
+					},
+					{
+						"tag": "religion"
+					},
+					{
+						"tag": "sexuality"
+					}
+				],
+				"notes": [
+					{
+						"note": "artikelID:561"
+					},
+					{
+						"note": "William S. Bradshaw | orcid:0000-0002-4252-510X | taken from website"
 					}
 				],
 				"seeAlso": []
