@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-02-04 12:57:08"
+	"lastUpdated": "2022-07-05 13:07:07"
 }
 
 /*
@@ -106,33 +106,27 @@ function parseAbstract(doc, item) {
 
 	if (textParts && textParts.length > 0) {
 		item.abstractNote = "";
-
 		let fullAbstract = "";
 		let i = 0, j = 0;
-		do {
-			let text = textParts[i].textContent;
-			if (text && text.length > 0)
-				fullAbstract += text;
-
-			if (j < italicsParts.length) {
-				let text = italicsParts[j].textContent;
-				if (text && text.length > 0)
-					fullAbstract += text;
-				++j;
+		while (i < textParts.length) {
+			let text = textParts[i].textContent.replace(/\n|\s\s+/g, '');
+			if (text.length == 0) {
+				fullAbstract += '\\n4207';
 			}
-
+			if (text && text.length > 0) {
+				fullAbstract += text;
+				if (j < italicsParts.length) {
+					let text = italicsParts[j].textContent;
+					if (textParts[i+1].textContent.replace(/\n|\s\s+/g, '').length > 0) {
+						fullAbstract += text;
+						++j;
+						}
+					}
+			}
 			++i;
-		} while (i < textParts.length);
-		//split abstracts
-		let multipleAbstractList = fullAbstract.split(/\.(\n\n)/g).filter(arrayItem => arrayItem !== "\n\n");
-		item.abstractNote = ZU.trimInternal(multipleAbstractList[0]);
-		let absIndex = 0;
-		for (let abs of multipleAbstractList.splice(1)) {
-				item.notes.push({
-					note: "abs"+ (absIndex !== 0 ? absIndex : '') + ":" + ZU.trimInternal(abs),
-				});
-				++absIndex;
 		}
+		//split abstracts
+		item.abstractNote = fullAbstract.replace(/(?:\\n4207)+$|^(?:\\n4207)+/g, '');
 	}
 }
 
@@ -195,6 +189,9 @@ function scrape(doc, url) {
 			item.complete();
 		});
 	}
+	if (item.ISSN == '') {
+		if (item.publicationTitle == 'Studia Canonica') item.ISSN = '2295-3027';
+	}
 	// fixup date
 	if (item.date) {
 		var match = item.date.match(/^numéro [0-9]+, ([0-9]{4})/);
@@ -202,6 +199,7 @@ function scrape(doc, url) {
 			item.date = match[1];
 	}
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
@@ -671,38 +669,6 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://poj.peeters-leuven.be/content.php?url=article&id=630100&journal_code=EP",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "An Ethical Agenda for Europe:  Fundamental Problems on Practical Ethics in a Christian Perspective",
-				"creators": [
-					{
-						"creatorType": "author",
-						"lastName": "Verstraeten",
-						"firstName": " Johan"
-					}
-				],
-				"date": "March 1994",
-				"DOI": "10.2143/EP.1.1.630100",
-				"ISSN": "1783-1431",
-				"abstractNote": "Today, applied ethics confronts many problems: technological and biomedical innovations, crisis of the welfare state, rising unemployment, migration and xenophobia. These and the changes accompanying them are, in themselves, important objects of study. An investigation on the level of the differentiated disciplines of practical ethics is insufficient. In as far as practical ethics also serves to disclose reality, it shows that modern problems can only be understood in the light of the general cultural crisis of which they are, at the very least, symptoms. In the first part of this article, we will try to clarify this byanalyzing the crisis in the ethos of modern secularized society. The second part will try to show that Christian ethics can offer a meaningful answer to this cultural crisis, and how it can do so.",
-				"issue": "1",
-				"libraryCatalog": "ubtue_Peeters",
-				"pages": "3-12",
-				"publicationTitle": "Ethical Perspectives",
-				"shortTitle": "An Ethical Agenda for Europe",
-				"url": "https://poj.peeters-leuven.be/content.php?url=article&id=630100&journal_code=EP",
-				"volume": "1",
-				"attachments": [],
-				"tags": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
 		"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3289673",
 		"items": [
 			{
@@ -797,6 +763,37 @@ var testCases = [
 		"type": "web",
 		"url": "https://poj.peeters-leuven.be/content.php?url=issue&journal_code=LS&issue=1&vol=43",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3290165&journal_code=STC",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Legislative Acts and Document Forms of the Apostolic See",
+				"creators": [
+					{
+						"creatorType": "author",
+						"lastName": "Huels",
+						"firstName": " John M."
+					}
+				],
+				"date": "2021",
+				"DOI": "10.2143/STC.55.1.3290165",
+				"ISSN": "2295-3027",
+				"abstractNote": "The Apostolic See principally employs four document forms for its legislation: the Apostolic Constitution, the Apostolic Letter given motu proprio, the Rescript ex audientia Sanctissimi, and the General Decree. This study explores the characteristics of each of these document forms, exemplifying them with the legislative acts promulgated in the pontificate of Benedict XVI and comparing their number to those of Pope Francis in the same period of time. The study shows that no document form is used exclusively for legislation but also may at times be doctrinal or administrative, so it often falls to a competent canonist to determine the precise nature and weight of a document of the Apostolic See.\\n4207Le Siège apostolique emploie principalement quatre formes de documents pour sa législation: la Constitution apostolique, la Lettre apostolique motu proprio, le Rescrit ex audientia Sanctissimi et le décret général. Cette étude explore les caractéristiques de chacune de ces formes de documents, en les illustrant avec les actes législatifs promulgués dans le pontificat de Benoît XVI et en comparant leur nombre à ceux du pape François à la même période. L’étude montre qu’aucune forme de document n’est utilisée exclusivement pour la législation mais peut aussi parfois être doctrinale ou administrative, de sorte qu’il incombe souvent à un canoniste compétent de déterminer la nature précise et le poids d’un document du Siège apostolique.",
+				"issue": "1/2",
+				"libraryCatalog": "ubtue_Peeters",
+				"pages": "367-403",
+				"publicationTitle": "Studia Canonica",
+				"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3290165&journal_code=STC",
+				"volume": "55",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
