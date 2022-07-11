@@ -116,7 +116,7 @@ function scrape(doc, url) {
 		for (let charCode of toReplace) {
 			let char = String.fromCharCode(parseInt(charCode.match(/\d+/)[0]));
 			item.title = item.title.replace(charCode, char);
-			item.abstractNote = item.title.replace(charCode, char);
+			item.abstractNote = item.abstractNote.replace(charCode, char);
 		}
 		}
 		item.title = item.title.replace(/&[lr][sd]quo;/g, "'");
