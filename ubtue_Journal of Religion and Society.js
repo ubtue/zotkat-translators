@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-06-08 15:51:33"
+	"lastUpdated": "2022-07-04 16:08:21"
 }
 
 /*
@@ -49,7 +49,7 @@ function getSearchResults(doc, checkOnly) {
 	//like ubtue_Quaderni di storia religiosa medievale.js 
 	var links = doc.querySelectorAll('a[href*="handle"]');
 	var text = doc.querySelectorAll('.title, .books a');
-	for (let i = 0; i < links.length; ++i) {
+	for (let i = 0; i < text.length; ++i) {
 		let href = links[i].href;
 		if (href.match(/handle/)) href = 'http://hdl.handle.net/' + links[i].href.split(/handle\//)[1].split(/\/\d{4}-.*.pdf/)[0];Z.debug(href)
 		let title = ZU.trimInternal(text[i].textContent);
