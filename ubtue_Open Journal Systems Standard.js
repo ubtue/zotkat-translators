@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-08-16 14:21:01"
+	"lastUpdated": "2022-08-16 15:07:58"
 }
 
 /*
@@ -119,8 +119,9 @@ function invokeEMTranslator(doc) {
   		let orcidAuthorEntryCaseB = doc.querySelectorAll('.authors li');//Z.debug(orcidAuthorEntryCaseB)
   		let orcidAuthorEntryCaseC = doc.querySelectorAll('.authors-string');//Z.debug(orcidAuthorEntryCaseC)
   		let orcidAuthorEntryCaseD = ZU.xpath(doc, '//div[@id="authors"]');
+		let orcidAuthorEntryCaseF = ZU.xpath(doc, '//div[@class="authors"]/div[@class="author"]');
   		// e.g. https://aabner.org/ojs/index.php/beabs/article/view/781
-  		if (orcidAuthorEntryCaseA && ['2748-6419'].includes(i.ISSN)) {
+  		if (orcidAuthorEntryCaseA && ['2748-6419', '2653-1372'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
   				if (a && a.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
   					let orcidTag = ZU.trimInternal(a.innerHTML);
@@ -235,6 +236,16 @@ function invokeEMTranslator(doc) {
   			}
   		}
   	}
+
+	if (orcidAuthorEntryCaseF) {
+  		 	for (let c of orcidAuthorEntryCaseF) {
+  				if (c && c.innerHTML.match(/\d+-\d+-\d+-\d+x?/gi) && ['2653-1372'].includes(i.ISSN)) {
+  					let author = ZU.xpathText(c, './/div[@class="jaredauthorart"]');
+					let orcid = ZU.xpathText(c, './/a[contains(@href,"orcid")]/@href');
+ 					i.notes.push(author + ' | ' + orcid.replace(/https?:\/\/orcid.org\//g, 'orcid:') + ' | taken from website');
+  				}
+  			}
+  		}
  		
  		//clean pages e.g. pages": "6.-6." > 10.25786/cjbk.v0i01-02.631; or "pages": "01-07" > 10.25786/zfbeg.v0i01-02.793
  		if (i.pages != null) i.pages = i.pages.replace('S.', '').replace(/\./g, '').replace(/^([^-]+)-\1$/, '$1').replace(/^0/g, '').replace(/-0/g, '-');
