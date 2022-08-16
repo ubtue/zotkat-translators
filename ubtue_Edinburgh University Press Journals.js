@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-04-01 10:17:56"
+	"lastUpdated": "2022-08-16 14:51:54"
 }
 
 /*
@@ -101,11 +101,7 @@ function scrape(doc, url) {
 			if (abstractFromDOM && item.abstractNote.length < abstractFromDOM.length)
 				item.abstractNote = abstractFromDOM.replace(/^Abstract/,'').replace(/\w\.,\s/, '.\\n4207 ');
 
-			item.attachments = [{
-				document: doc,
-				title: "EUP Snapshot",
-				mimeType: "text/html"
-			}];
+			item.attachments = [];
 			
 			let docType = ZU.xpathText(doc, '//meta[@name="dc.Type"]/@content | //*[contains(concat( " ", @class, " " ), concat( " ", "abs", " " ))]');
 			if (docType === "book-review" || docType === "review-article" || docType === "First Page")
@@ -114,12 +110,18 @@ function scrape(doc, url) {
 			if (ZU.xpathText(doc, '//img[contains(@title, "Free Access") or contains(@title, "Open Access")]') !== null) {
 				item.notes.push({'note': 'LF'});
 			}
+			for (let creatorTag of ZU.xpath(doc, '//span[@class="contribDegrees"]')) {
+				if (ZU.xpathText(creatorTag, './a[contains(@href, "orcid")]/@href')) {
+						item.notes.push("orcid:" + ZU.xpathText(creatorTag, './a[contains(@href, "orcid")]/@href').replace(/https?:\/\/orcid.org\//, "") + ' | ' + ZU.xpathText(creatorTag, './a[@class="entryAuthor"]'));
+					}
+			}
 
 			item.complete();
 		});
 		translator.translate();
 	});
 }
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
