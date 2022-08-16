@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-30 08:29:38"
+	"lastUpdated": "2022-08-16 15:43:33"
 }
 
 /*
@@ -88,6 +88,11 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 				i.notes.push({note: "orcid:" + orcid + ' | ' + author});
 			}
 		}
+		if (ZU.xpathText(doc, '//div[contains(@class, "pub-date")]')) {
+			if (ZU.xpathText(doc, '//div[contains(@class, "pub-date")]').match(/\d{4}/)) {
+				i.date = ZU.xpathText(doc, '//div[contains(@class, "pub-date")]').match(/\d{4}/)[0];
+			}
+		}
 		i.complete();
 	});
 	translator.translate();
@@ -108,6 +113,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEmbeddedMetadataTranslator(doc, url);
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
