@@ -1,127 +1,106 @@
 {
-	"translatorID": "88cc789a-bd88-4d40-8caf-4a81138e72c6",
-	"label": "ubtue_Edinburgh University Press Journals",
-	"creator": "Sebastian Karcher",
-	"target": "^https?://www\\.euppublishing\\.com/",
+	"translatorID": "3b3fe271-8c92-4808-91ef-cf436727315c",
+	"label": "ubtue_AUSS",
+	"creator": "Helena Nebel",
+	"target": "digitalcommons.andrews.edu\\/",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-08-16 14:51:54"
+	"lastUpdated": "2022-08-17 06:58:11"
 }
 
 /*
 	***** BEGIN LICENSE BLOCK *****
 
-	Edinburg University Press Journals Translator
-	(Closely based on the ESA journals translator)
-	Copyright © 2013 Sebastian Karcher
+	Copyright © 2019 Universitätsbibliothek Tübingen.  All rights reserved.
 
-	This file is part of Zotero.
-
-	Zotero is free software: you can redistribute it and/or modify
+	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	Zotero is distributed in the hope that it will be useful,
+	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Affero General Public License for more details.
 
 	You should have received a copy of the GNU Affero General Public License
-	along with Zotero. If not, see <http://www.gnu.org/licenses/>.
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 	***** END LICENSE BLOCK *****
 */
 
-
 function detectWeb(doc, url) {
-	if (url.match(/\/doi\/abs\/10\.|\/doi\/full\/10\./)) return "journalArticle";
-	else if (url.match(/\/action\/doSearch|\/toc\//) && getSearchResults(doc).length) return "multiple";
+	if (url.match(/\/iss[\d-]+\/$/) && getSearchResults(doc, true)) {
+		return "multiple";
+	}
+	return "journalArticle";
 }
 
-function getSearchResults(doc) {
-	return ZU.xpath(doc,
-		'//div[@class="articleInfo"]/p[@class="title"]/a[contains(@href, "/doi/abs/")][1]|\
-		//div[contains(@class, "art_title")]/a[contains(@href, "/doi/abs/")][1]');
+function getSearchResults(doc, checkOnly) {
+  let items = {};
+  let found = false;
+  
+  rows = ZU.xpath(doc, '//div[@class="doc"]//a');
+  for (let row of rows) {
+	if (row.textContent != "PDF" && row.textContent != "Link") {
+	let href = ZU.xpathText(row, './@href');
+	let title = row.textContent;
+	if (!href || !title) continue;
+	if (checkOnly) return true;
+	found = true;
+	items[href] = title;
+  }
+  }
+  return found ? items : false;
+}
+
+function invokeEmbeddedMetadataTranslator(doc, url) {
+	var translator = Zotero.loadTranslator("web");
+	translator.setTranslator("05d07af9-105a-4572-99f6-a8e231c0daef");
+	translator.setDocument(doc);
+	translator.setHandler("itemDone", function (t, i) {
+		if (ZU.xpath(doc, '//div[@id="authors"]') != null) {
+				let html = ZU.xpath(doc, '//body')[0].innerHTML.replace(/\n/g, '');
+				if (html.match(/<p class="author"><a href=.+?><strong>(.+?)<\/strong>.+?<div id="orcid" class="element"><h4>Author ORCID Identifier<\/h4><p>ORCID: https:\/\/orcid.org\/(.+?)<\/p><\/div>/) != null) {
+					let orcidInformation = html.match(/<p class="author"><a href=.+?><strong>(.+?)<\/strong>.+?<div id="orcid" class="element"><h4>Author ORCID Identifier<\/h4><p>ORCID: https:\/\/orcid.org\/(.+?)<\/p><\/div>/);
+					let author = orcidInformation[1];
+					let orcid = orcidInformation[2];
+					i.notes.push({note:  author + ' | orcid:' + orcid + ' | ' + 'taken from website'});
+		}
+		}
+		if (ZU.xpathText(doc, '//meta[@name="description"]/@content')) {
+			i.abstractNote = ZU.xpathText(doc, '//meta[@name="description"]/@content');
+			if (i.abstractNote == "Book Review") {
+				i.abstractNote = "";
+				i.tags.push('RezensionstagPica');
+			}
+		}
+		i.contextObject = "";
+		i.attachments = [];
+		i.complete();
+	});
+	translator.translate();
 }
 
 function doWeb(doc, url) {
-	var arts = new Array();
-	if (detectWeb(doc, url) == "multiple") {
-		var items = new Object();
-		var rows = getSearchResults(doc);
-		for (var i=0, n=rows.length; i<n; i++) {
-			items[rows[i].href] = rows[i].textContent;
-		}
-		Zotero.selectItems(items, function (items) {
+	if (detectWeb(doc, url) === "multiple") {
+		Zotero.selectItems(getSearchResults(doc), function (items) {
 			if (!items) {
 				return true;
 			}
-			urls = new Array();
-			for (var itemurl in items) {
-				//some search results have some "baggage" at the end - remove
-				urls.push(itemurl.replace(/\?prev.+/, ""));
+			var articles = [];
+			for (var i in items) {
+				articles.push(i);
 			}
-			ZU.processDocuments(urls, scrape)
+			ZU.processDocuments(articles, invokeEmbeddedMetadataTranslator);
 		});
-
-	} else {
-		scrape(doc, url)
-	}
+	} else
+		invokeEmbeddedMetadataTranslator(doc, url);
 }
-
-function scrape(doc, url) {
-	url = url.replace(/[?#].+/, "");
-	var doi = url.match(/10\.[^?#]+/)[0];
-	var exportUrl = '/action/downloadCitation';
-	var post = 'downloadFileName=export.ris&format=ris&direct=true&include=cit&doi=' + doi;
-	Zotero.Utilities.HTTP.doPost(exportUrl, post, function (text) {
-		var translator = Zotero.loadTranslator("import");
-		// Calling the RIS translator
-		translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
-		translator.setString(text);
-		translator.setHandler("itemDone", function (obj, item) {
-			item.url = url;
-			item.notes = [];
-
-			var tagentry = ZU.xpathText(doc, '//meta[@name="keywords"]/@content');
-
-			if (tagentry){
-				var tags = tagentry.split(/\s*,\s*/);
-				for (var i in tags) {
-					item.tags.push(tags[i].replace(/^\w/gi,function(m){return m.toUpperCase();}));
-				}
-			}
-			item.abstractNote = ZU.xpathText(doc, '//meta[@name="dc.Description"]/@content');
-			let abstractFromDOM = ZU.xpathText(doc, '//div[contains(@class, "abstractInFull")]//p[not(@class="summary-title")]');
-			if (abstractFromDOM && item.abstractNote.length < abstractFromDOM.length)
-				item.abstractNote = abstractFromDOM.replace(/^Abstract/,'').replace(/\w\.,\s/, '.\\n4207 ');
-
-			item.attachments = [];
-			
-			let docType = ZU.xpathText(doc, '//meta[@name="dc.Type"]/@content | //*[contains(concat( " ", @class, " " ), concat( " ", "abs", " " ))]');
-			if (docType === "book-review" || docType === "review-article" || docType === "First Page")
-				item.tags.push("RezensionstagPica");
-			
-			if (ZU.xpathText(doc, '//img[contains(@title, "Free Access") or contains(@title, "Open Access")]') !== null) {
-				item.notes.push({'note': 'LF'});
-			}
-			for (let creatorTag of ZU.xpath(doc, '//span[@class="contribDegrees"]')) {
-				if (ZU.xpathText(creatorTag, './a[contains(@href, "orcid")]/@href')) {
-						item.notes.push("orcid:" + ZU.xpathText(creatorTag, './a[contains(@href, "orcid")]/@href').replace(/https?:\/\/orcid.org\//, "") + ' | ' + ZU.xpathText(creatorTag, './a[@class="entryAuthor"]'));
-					}
-			}
-
-			item.complete();
-		});
-		translator.translate();
-	});
-}
-
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
