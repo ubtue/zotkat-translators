@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-07-04 17:21:07"
+	"lastUpdated": "2022-10-04 15:02:51"
 }
 
 /*
@@ -63,7 +63,7 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 	translator.setHandler("itemDone", function (t, item) {
 		item.itemType = 'journalArticle';
 		item.attachments = [];
-		item.title = item.tags[0].replace('\n', ' ');
+		item.title = ZU.xpathText(doc, '//h1[@itemprop="name"]').replace('\n', ' ');
 		let authors = ZU.xpath(doc, '//a[@itemprop="author"]');
 		item.creators = [];
 		for (let author of authors) {
@@ -77,18 +77,19 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		}
 		let fasc = ZU.xpath(doc, '//tr[@valign="top"]')
 		for (let f of fasc) {
-			if (ZU.xpathText(f, './td[@class="cell_1" and contains(., "fascicolo")]')) {
+			if (ZU.xpathText(f, './td[@class="cell_1" and (contains(., "fascicolo") or contains(., "Fascicolo"))]')) {
 				let fascicolo = ZU.xpathText(f, './td[@class="cell_2"]');
 				
 				if (fascicolo.match(/^.+\s+-\s+\d{4}\s+-\s+\d+$/) != null) {
 					item.issue = fascicolo.match(/\s+-\s+\d{4}\s+-\s+(\d+)$/)[1];
 					item.volume = fascicolo.match(/\s+-\s+(\d{4})\s+-\s+\d+$/)[1];
 					item.date = item.volume;
+					item.volume = "";
 					item.publicationTitle = fascicolo.match(/^(.+)\s+-\s+\d{4}\s+-\s+\d+$/)[1];
 				}
 				
 			}
-			else if (ZU.xpathText(f, './td[@class="cell_1" and contains(., "doi")]')) {
+			else if (ZU.xpathText(f, './td[@class="cell_1" and (contains(., "doi") or contains(., "Doi"))]')) {
 				let doi = ZU.xpathText(f, './td[@class="cell_2"]');
 				item.DOI = doi;
 				
