@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-18 13:55:39"
+	"lastUpdated": "2022-10-04 14:17:08"
 }
 
 /*
@@ -90,7 +90,11 @@ function scrape(doc, text) {
 	item.title = ZU.xpathText(text, './/div[@class="articletitle"]');
 	
 	item.url = "http://www.stone-campbelljournal.com/" + ZU.xpathText(text, './/div[@class="articletitle"]/a/@href');
-	item.abstractNote = ZU.xpathText(text, './/div[@class="articleabstract"]');
+		ZU.doGet(item.url,
+		function (newtext) {
+		var parser = new DOMParser();
+			var html = parser.parseFromString(newtext, "text/html");
+			item.abstractNote = ZU.xpathText(html, './/div[@id="abstract"]');
 	
 	for (let creators of ZU.xpath(text, './/div[@class="articleauthor"]')) {
 		for (let creator of creators.textContent.split(/\s*,\s*/)) item.creators.push(ZU.cleanAuthor(creator.replace(/\s*Sr\.\s*/, ''), "author"));
@@ -110,6 +114,9 @@ function scrape(doc, text) {
 	item.ISSN = "1097-6566";
 	if (item.abstractNote != null) item.abstractNote = item.abstractNote.replace(/(\n+)|(^Abstract)/g, ' ');
 	item.complete();
+		});
+
+	
 	
 }
 /** BEGIN TEST CASES **/
