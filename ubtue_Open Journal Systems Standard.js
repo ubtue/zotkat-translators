@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-08-16 15:07:58"
+	"lastUpdated": "2022-10-05 11:47:13"
 }
 
 /*
@@ -112,7 +112,7 @@ function invokeEMTranslator(doc) {
  				delete i.archiveLocation;
  			}
  		}
-		if (articleType.match(/^(Book Reviews?)/) != null) i.tags.push("RezensionstagPica");
+		if (articleType && articleType.match(/^(Book Reviews?)/) != null) i.tags.push("RezensionstagPica");
 
  		//orcid for pica-field 8910
    		let orcidAuthorEntryCaseA = doc.querySelectorAll('.authors');//Z.debug(orcidAuthorEntryCaseA)
