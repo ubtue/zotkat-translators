@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-07-05 13:07:07"
+	"lastUpdated": "2022-10-05 14:54:52"
 }
 
 /*
@@ -103,12 +103,13 @@ function parseAbstract(doc, item) {
 	// <i> nodes in sequence
 	let textParts = ZU.xpath(doc, '//b[contains(text(), "Abstract :")]/following-sibling::text()');
 	let italicsParts = ZU.xpath(doc, '//b[contains(text(), "Abstract :")]/following-sibling::i');
-
+	//for (let part of textParts) Z.debug(part.textContent)
 	if (textParts && textParts.length > 0) {
 		item.abstractNote = "";
 		let fullAbstract = "";
 		let i = 0, j = 0;
 		while (i < textParts.length) {
+			//Z.debug(textParts[i].textContent)
 			let text = textParts[i].textContent.replace(/\n|\s\s+/g, '');
 			if (text.length == 0) {
 				fullAbstract += '\\n4207';
@@ -121,6 +122,7 @@ function parseAbstract(doc, item) {
 						fullAbstract += text;
 						++j;
 						}
+					//kursive Teile am Anfang werden nicht übernommen.
 					}
 			}
 			++i;
@@ -189,14 +191,20 @@ function scrape(doc, url) {
 			item.complete();
 		});
 	}
-	if (item.ISSN == '') {
+	
+	if (item.ISSN == '' || item.ISSN == undefined) {
 		if (item.publicationTitle == 'Studia Canonica') item.ISSN = '2295-3027';
+		if (item.publicationTitle == 'ET-Studies') item.ISSN = '2033-4273';
+		
 	}
 	// fixup date
 	if (item.date) {
 		var match = item.date.match(/^numéro [0-9]+, ([0-9]{4})/);
 		if (match)
 			item.date = match[1];
+	}
+	if (item.title.match(/^\s*Book\s*Reviews?(?:$|\b)/i)) {
+		item.tags.push('RezensionstagPica');
 	}
 }
 
@@ -356,7 +364,7 @@ var testCases = [
 				"date": "March 1994",
 				"DOI": "10.2143/EP.1.1.630100",
 				"ISSN": "1783-1431",
-				"abstractNote": "Today, applied ethics confronts many problems: technological and biomedical innovations, crisis of the welfare state, rising unemployment, migration and xenophobia. These and the changes accompanying them are, in themselves, important objects of study. An investigation on the level of the differentiated disciplines of practical ethics is insufficient. In as far as practical ethics also serves to disclose reality, it shows that modern problems can only be understood in the light of the general cultural crisis of which they are, at the very least, symptoms. In the first part of this article, we will try to clarify this byanalyzing the crisis in the ethos of modern secularized society. The second part will try to show that Christian ethics can offer a meaningful answer to this cultural crisis, and how it can do so.",
+				"abstractNote": "Today, applied ethics confronts many problems: technological and biomedical innovations, crisis of the welfare state, rising unemployment, migration and xenophobia. These and the changes accompanying them are, in themselves, important objects of study. \\n4207An investigation on the level of the differentiated disciplines of practical ethics is insufficient. In as far as practical ethics also serves to disclose reality, it shows that modern problems can only be understood in the light of the general cultural crisis of which they are, at the very least, symptoms. In the first part of this article, we will try to clarify this byanalyzing the crisis in the ethos of modern secularized society. The second part will try to show that Christian ethics can offer a meaningful answer to this cultural crisis, and how it can do so.",
 				"issue": "1",
 				"libraryCatalog": "ubtue_Peeters",
 				"pages": "3-12",
@@ -613,7 +621,7 @@ var testCases = [
 				"date": "2021",
 				"DOI": "10.2143/ETS.12.1.3289311",
 				"ISSN": "2033-4273",
-				"abstractNote": "Seelsorgende und ihre Gemeinden stehen untereinander und speziell in ihrem Verhältnis zur Kirchenleitung vor großen Herausforderungen. Dies machen 'Impulse zur Eigenverantwortung der Gemeinden' bewusst, welche Hermann Häring zu Ostern 2020 publizierte. Dessen Kernanliegen fokussieren auf eine partizipative Kirchenstruktur, den Bedarf nach 'mehr Augenhöhe', den Ruf nach Autorität der Gemeinde und deren Kraft aus den Charismen vor Ort. In kritischer Reflexion einiger dieser Stichworte greift Stephan Schmid-Keiser die Anliegen Härings auf. Eigene Erfahrungen in der Leitung von Pfarreien bewegen ihn, Derivate aus der Forschungsarbeit von Thomas Wienhardt (2017) zu einer wirkungsvoll(er)en Pastoral zu diskutieren und zu fragen, inwieweit die praktische Theologie hinsichtlich der Stärkung der Eigenverantwortung von Getauften und Gefirmten bisher das Nötige tut. Schließlich plädiert der Beitrag für Weichenstellungen im Kirchenrecht, ohne die kirchliches Leben in gewandelter Gesellschaft vermehrt ins Abseits geriete. Gewidmet ist der Beitrag Leo Karrer († 8. Januar 2021), dem die Stärkung echter Teilhabe des Volkes Gottes am Leben der Glaubensgemeinschaft ein Grundanliegen war",
+				"abstractNote": "Seelsorgende und ihre Gemeinden stehen untereinander und speziell in ihrem Verhältnis zur Kirchenleitung vor großen Herausforderungen. Dies machen 'Impulse zur Eigenverantwortung der Gemeinden' bewusst, welche Hermann Häring zu Ostern 2020 publizierte. Dessen Kernanliegen fokussieren auf eine partizipative Kirchenstruktur, den Bedarf nach 'mehr Augenhöhe', den Ruf nach Autorität der Gemeinde und deren Kraft aus den Charismen vor Ort. In kritischer Reflexion einiger dieser Stichworte greift Stephan Schmid-Keiser die Anliegen Härings auf. Eigene Erfahrungen in der Leitung von Pfarreien bewegen ihn, Derivate aus der Forschungsarbeit von Thomas Wienhardt (2017) zu einer wirkungsvoll(er)en Pastoral zu diskutieren und zu fragen, inwieweit die praktische Theologie hinsichtlich der Stärkung der Eigenverantwortung von Getauften und Gefirmten bisher das Nötige tut. Schließlich plädiert der Beitrag für Weichenstellungen im Kirchenrecht, ohne die kirchliches Leben in gewandelter Gesellschaft vermehrt ins Abseits geriete. Gewidmet ist der Beitrag Leo Karrer († 8. Januar 2021), dem die Stärkung echter Teilhabe des Volkes Gottes am Leben der Glaubensgemeinschaft ein Grundanliegen war.\\n4207Pastors and their congregations face great challenges among themselves and especially in their relationship with the church leadership. This is made clear in 'Impulses towards Congregations assuming Personal Responsibility' that Hermann Häring published at Easter 2020. Its core concerns focus on a participatory church structure, the need for more eye-to-eye interaction, the call for authority to be given to congregations, and their strength from charisms on the ground. Reflecting critically on some of these key ideas. Stephan Schmid-Keiser takes up Häring’s concerns. His own experiences in leading parishes lead him to discuss some implications from the research of Thomas Wienhardt (2017) on a (more) effective pastoral ministry and to ask to what extent practical theology has so far done what is necessary with regard to strengthening the personal responsibility of the baptised and the confirmed. Finally, the article pleads for changes to church law, without which church life in a changed society would increasingly be side-lined. The article is dedicated to Leo Karrer (died 8 January 2021) for whom the strengthening of genuine participation of God’s people in the life of the faith community was a fundamental concern.\\n4207Les pasteurs et leurs communautés sont confrontés à de grands défis internes, en particulier dans leurs relations avec les responsables de l’Église. L’ouvrage «Impulse zur Eigenverantwortung der Gemeinden», publié par Hermann Häring à Pâques 2020, le montre clairement. Ses principales préoccupations portent sur une structure ecclésiale participative, sur le besoin d’une interaction «sur pied d’égalité», sur l’appel à l’autorité de la communauté et au pouvoir que lui donnent ses charismes sur le terrain. Dans une réflexion critique sur certains de ces mots-clés, Stephan Schmid-Keiser reprend les préoccupations de Häring. Ses propres expériences de responsable de paroisse l’amènent à en discuter certaines implications, à partir de la recherche de Thomas Wienhardt (2017) sur un ministère pastoral (plus) efficace et à se demander dans quelle mesure la théologie pratique a, jusqu’ici, fait ce qu’il fallait pour renforcer la responsabilité personnelle des baptisés et des confirmés. Enfin, l’article plaide pour des changements dans la loi de l’Église, faute de quoi l’Église vivrait de plus en plus à la marge d’une société qui a changé. L’article est dédié à Leo Karrer (décédé le 8 janvier 2021). Le renforcement d’une réelle participation du peuple de Dieu à la vie de la communauté était pour lui une préoccupation essentielle.",
 				"issue": "1",
 				"libraryCatalog": "ubtue_Peeters",
 				"pages": "131-148",
@@ -623,14 +631,7 @@ var testCases = [
 				"volume": "12",
 				"attachments": [],
 				"tags": [],
-				"notes": [
-					{
-						"note": "abs:Pastors and their congregations face great challenges among themselves and especially in their relationship with the church leadership. This is made clear in 'Impulses towards Congregations assuming Personal Responsibility' that Hermann Häring published at Easter 2020. Its core concerns focus on a participatory church structure, the need for more eye-to-eye interaction, the call for authority to be given to congregations, and their strength from charisms on the ground. Reflecting critically on some of these key ideas. Stephan Schmid-Keiser takes up Häring’s concerns. His own experiences in leading parishes lead him to discuss some implications from the research of Thomas Wienhardt (2017) on a (more) effective pastoral ministry and to ask to what extent practical theology has so far done what is necessary with regard to strengthening the personal responsibility of the baptised and the confirmed. Finally, the article pleads for changes to church law, without which church life in a changed society would increasingly be side-lined. The article is dedicated to Leo Karrer (died 8 January 2021) for whom the strengthening of genuine participation of God’s people in the life of the faith community was a fundamental concern"
-					},
-					{
-						"note": "abs1:Les pasteurs et leurs communautés sont confrontés à de grands défis internes, en particulier dans leurs relations avec les responsables de l’Église. L’ouvrage «Impulse zur Eigenverantwortung der Gemeinden», publié par Hermann Häring à Pâques 2020, le montre clairement. Ses principales préoccupations portent sur une structure ecclésiale participative, sur le besoin d’une interaction «sur pied d’égalité», sur l’appel à l’autorité de la communauté et au pouvoir que lui donnent ses charismes sur le terrain. Dans une réflexion critique sur certains de ces mots-clés, Stephan Schmid-Keiser reprend les préoccupations de Häring. Ses propres expériences de responsable de paroisse l’amènent à en discuter certaines implications, à partir de la recherche de Thomas Wienhardt (2017) sur un ministère pastoral (plus) efficace et à se demander dans quelle mesure la théologie pratique a, jusqu’ici, fait ce qu’il fallait pour renforcer la responsabilité personnelle des baptisés et des confirmés. Enfin, l’article plaide pour des changements dans la loi de l’Église, faute de quoi l’Église vivrait de plus en plus à la marge d’une société qui a changé. L’article est dédié à Leo Karrer (décédé le 8 janvier 2021). Le renforcement d’une réelle participation du peuple de Dieu à la vie de la communauté était pour lui une préoccupation essentielle."
-					}
-				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
