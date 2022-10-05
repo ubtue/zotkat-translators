@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-25 15:18:07"
+	"lastUpdated": "2022-10-05 12:31:03"
 }
 
 /*
@@ -73,6 +73,9 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 				i.tags.push('RezensionstagPica');
 				i.abstractNote = "";
 			}
+		}
+		if (i.ISSN == "0194-3448") {
+			i.abstractNote = "";
 		}
 		i.complete();
 	});
