@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-10-05 12:25:06"
+	"lastUpdated": "2022-10-05 12:26:18"
 }
 
 /*
@@ -94,8 +94,6 @@ function doWeb(doc, url) {
 	if (detectWeb(doc, url) == "multiple") {
 		if (url.match(/edition\/[^\/]+\/volume-[lcxvi]+-number-\d+-.+-\d{4}/)) {
 			let issued = url.match(/edition\/[^\/]+\/volume-([lcxvi]+)-number-(\d+)-.+-(\d{4})/);
-			
-			Z.debug(issued);
 			volume = issued[1];
 			issue = issued[2];
 			date = issued[3];
@@ -141,7 +139,7 @@ function scrape(doc, text) {
 var testCases = [
 	{
 		"type": "web",
-		"url": "http://www.stone-campbelljournal.com/the_journal/research/volume-24-issue-1/",
+		"url": "http://www.voxscripturae.com.br/edition/51/volume-xxvii-number-2-september-2019",
 		"items": "multiple"
 	}
 ]
