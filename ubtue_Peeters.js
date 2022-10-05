@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-10-05 14:54:52"
+	"lastUpdated": "2022-10-05 15:05:55"
 }
 
 /*
@@ -103,13 +103,12 @@ function parseAbstract(doc, item) {
 	// <i> nodes in sequence
 	let textParts = ZU.xpath(doc, '//b[contains(text(), "Abstract :")]/following-sibling::text()');
 	let italicsParts = ZU.xpath(doc, '//b[contains(text(), "Abstract :")]/following-sibling::i');
-	//for (let part of textParts) Z.debug(part.textContent)
+	let usedItalicsParts = 0;
 	if (textParts && textParts.length > 0) {
 		item.abstractNote = "";
 		let fullAbstract = "";
 		let i = 0, j = 0;
 		while (i < textParts.length) {
-			//Z.debug(textParts[i].textContent)
 			let text = textParts[i].textContent.replace(/\n|\s\s+/g, '');
 			if (text.length == 0) {
 				fullAbstract += '\\n4207';
@@ -121,14 +120,22 @@ function parseAbstract(doc, item) {
 					if (textParts[i+1].textContent.replace(/\n|\s\s+/g, '').length > 0) {
 						fullAbstract += text;
 						++j;
+						usedItalicsParts += 1;
 						}
-					//kursive Teile am Anfang werden nicht übernommen.
 					}
 			}
 			++i;
 		}
 		//split abstracts
-		item.abstractNote = fullAbstract.replace(/(?:\\n4207)+$|^(?:\\n4207)+/g, '');
+		fullAbstract = fullAbstract.replace(/(?:\\n4207)+$|^(?:\\n4207)+/g, '');
+
+		if (usedItalicsParts < italicsParts.length) {
+			if (usedItalicsParts == italicsParts.length -1) {
+				fullAbstract = italicsParts[0].textContent + fullAbstract;
+			}
+		}
+		item.abstractNote = fullAbstract;
+		
 	}
 }
 
@@ -788,6 +795,38 @@ var testCases = [
 				"pages": "367-403",
 				"publicationTitle": "Studia Canonica",
 				"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3290165&journal_code=STC",
+				"volume": "55",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3290159",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Oikonomìa and Remarriage in the Orthodox Tradition:  A Pastoral Solution for the Catholic Church?",
+				"creators": [
+					{
+						"creatorType": "author",
+						"lastName": "Connolly",
+						"firstName": " Patrick"
+					}
+				],
+				"date": "2021",
+				"DOI": "10.2143/STC.55.1.3290159",
+				"ISSN": "2295-3027",
+				"abstractNote": "The pastoral problem of divorce and remarriage among Catholics, especially in the developed world, has caused some Catholic authors to give attention to the Orthodox notion of oikonomìa and how it might be applied to the marriage discipline of the Catholic Church. The pastoral crisis has created favourable comment from Catholic writers on Eastern marriage practices, which allow remarriage after a period of penance. This article considers whether this truly is a viable pastoral solution or is in fact incompatible with the Catholic understanding of marital indissolubility.\\n4207Le problème pastoral du divorce et du remariage chez les catholiques, surtout dans les pays développés, a amené certains auteurs catholiques à s’intéresser à la notion orthodoxe d’oikonomìa et à la manière dont elle pourrait être appliquée à la discipline matrimoniale de l’Église catholique. La crise pastorale a suscité des commentaires favorables de la part des auteurs catholiques sur les pratiques orientales en matière de mariage, qui permettent un remariage après une période de pénitence. Cet article examine si cette solution pastorale est vraiment viable ou si elle est en fait incompatible avec la conception catholique de l’indissolubilité conjugale.",
+				"issue": "1/2",
+				"libraryCatalog": "ubtue_Peeters",
+				"pages": "209-243",
+				"publicationTitle": "Studia Canonica",
+				"shortTitle": "Oikonomìa and Remarriage in the Orthodox Tradition",
+				"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3290159",
 				"volume": "55",
 				"attachments": [],
 				"tags": [],
