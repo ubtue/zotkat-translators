@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-10-05 11:47:13"
+	"lastUpdated": "2022-10-10 17:06:44"
 }
 
 /*
@@ -95,8 +95,7 @@ function invokeEMTranslator(doc) {
  			i.title = i.title + ' ' + doc.querySelector(".subtitle").textContent.trim();
 			}
  		}
- 		
- 		if (i.ISSN=='1804-6444') {
+ 		if (['1804-6444', '1018-1539'].includes(i.ISSN)) {
  			let subTitle = ZU.xpathText(doc, '//article[@class="article-details"]//h1[@class="page-header"]/small');
  			if (subTitle) {
  				i.title += ': ' + subTitle.trim();
@@ -857,7 +856,7 @@ var testCases = [
 				"ISSN": "2660-7743",
 				"abstractNote": "Using some of the tools of narrative criticism, this article studies the final battle and victory which is achieved by God’s envoy. By unpacking the network of relationship in the text the envoy is identified with the Christ of God, who has been present in the book from the beginning. The article shows how the Rider on the white horse summarises what the book of Revelation has said about Jesus.",
 				"issue": "2",
-				"journalAbbreviation": "1",
+				"journalAbbreviation": "Isidorianum",
 				"language": "es",
 				"libraryCatalog": "www.sanisidoro.net",
 				"pages": "37-60",
@@ -2194,7 +2193,7 @@ var testCases = [
 				"date": "2019/12/11",
 				"DOI": "10.5209/ilur.75207",
 				"ISSN": "1988-3269",
-				"journalAbbreviation": "1",
+				"journalAbbreviation": "'Ilu",
 				"language": "es",
 				"libraryCatalog": "revistas.ucm.es",
 				"pages": "143-146",
@@ -2663,7 +2662,7 @@ var testCases = [
 				],
 				"date": "2020",
 				"ISSN": "0555-9308",
-				"abstractNote": "Die ‚multiplen Säkularitäten’ der Gegenwart fordern die Theologie dazu heraus, im Kontext einer ‚dritten Ökumene’ mit religiös indifferenten Zeitgenossinnen und Zeitgenossen die säkulare Bedeutung des Evangeliums zu entdecken – und damit auch die immanente Transzendenz bzw. profane Heiligkeit der Präsenz Gottes im Rahmen säkular gelebten Lebens.\\4207Present-day “multiple secularities” are challenging theology to discover the secular meaning of the Gospel within the context of a “third ecumenism”shared with religiously indifferent contemporaries. This includes unearthing the immanent transcendence or profane holiness of God’s presence in the framework of a secularly lived life.",
+				"abstractNote": "Die ‚multiplen Säkularitäten’ der Gegenwart fordern die Theologie dazu heraus, im Kontext einer ‚dritten Ökumene’ mit religiös indifferenten Zeitgenossinnen und Zeitgenossen die säkulare Bedeutung des Evangeliums zu entdecken – und damit auch die immanente Transzendenz bzw. profane Heiligkeit der Präsenz Gottes im Rahmen säkular gelebten Lebens.\\n4207 Present-day “multiple secularities” are challenging theology to discover the secular meaning of the Gospel within the context of a “third ecumenism”shared with religiously indifferent contemporaries. This includes unearthing the immanent transcendence or profane holiness of God’s presence in the framework of a secularly lived life.",
 				"issue": "2",
 				"journalAbbreviation": "ZPTh",
 				"language": "de",
@@ -2695,6 +2694,7 @@ var testCases = [
 					}
 				],
 				"date": "2022/04/22",
+				"DOI": "10.15581/007.31.42868",
 				"ISSN": "2174-0887",
 				"abstractNote": "&nbsp;\n&nbsp;",
 				"journalAbbreviation": "1",
