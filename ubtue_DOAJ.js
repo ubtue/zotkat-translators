@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-10-10 11:18:06"
+	"lastUpdated": "2022-10-10 11:34:56"
 }
 
 /*
@@ -101,13 +101,14 @@ function scrape(doc, url) {
 function doWeb(doc, url) {
 	if (detectWeb(doc, url) == "multiple") {
 	let issn = url.match(/\/toc\/([^?]+)/)[1];
-	if (url.match(/index.date%22%3A%7B%22gte%22%3A%22(\d+)%22%2C%22format%22%3A%22epoch_millis/)) {
-		let timestamp = url.match(/index.date%22%3A%7B%22gte%22%3A%22(\d+)%22%2C%22format%22%3A%22epoch_millis/)[1];
+	Z.debug(url)
+	if (url.match(/index.date%22%3A%7B%22(?:.+)?gte%22%3A%22(\d+)%22%2C%22format%22%3A%22epoch_millis/)) {
+		let timestamp = url.match(/index.date%22%3A%7B%22(?:.+)?gte%22%3A%22(\d+)%22%2C%22format%22%3A%22epoch_millis/)[1];
 		const date = new Date(Number.parseInt(timestamp));
 		let year = date.getFullYear().toString();
 		url = "https://doaj.org/api/v2/search/articles/issn:" + issn + " AND bibjson.year:" + year + "?page=1&pageSize=100";
 	}
-	else url = "https://doaj.org/api/v2/search/articles/issn:" + issn + "?page=1&pageSize=30";
+	else url = "https://doaj.org/api/v2/search/articles/issn:" + issn + "?page=1&pageSize=20";
 	ZU.doGet(url, function(text) {
 		let doajJSON = JSON.parse(text);
 		Zotero.selectItems(getSearchResults(doajJSON, url, false), function (items) {
