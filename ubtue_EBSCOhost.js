@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-04-25 17:05:20"
+	"lastUpdated": "2022-10-10 16:44:41"
 }
 
 /*
@@ -38,6 +38,7 @@
 // eslint-disable-next-line no-unused-vars
 function detectWeb(doc, url) {
 	// See if this is a search results or folder results page
+	Zotero.debug("Quatsch");
 	var multiple = getResultList(doc, {}, {});	// we don't care about actual data at this point
 	if (multiple) {
 		return "multiple";
@@ -197,6 +198,11 @@ function downloadFunction(text, url, prefs) {
 		if (item.ISSN == "IXTH-0002") {
 		item.publicationTitle = "Journal of the Grace Evangelical Society";
 		}
+		if (item.ISSN == "00752541") {
+			item.publicationTitle = "Jahrbuch für Antike und Christentum";
+			item.volume = item.issue;
+			item.issue = "";
+		}
 		if (item.url) {
 			// Trim the ⟨=cs suffix -- EBSCO can't find the record with it!
 			item.url = item.url.replace(/(AN=[0-9]+)⟨=[a-z]{2}/, "$1")
@@ -204,77 +210,12 @@ function downloadFunction(text, url, prefs) {
 			if (!prefs.hasFulltext) {
 				// For items without full text,
 				// move the stable link to a link attachment
-				item.attachments.push({
-					url: item.url + "&scope=cite",
-					title: "EBSCO Record",
-					mimeType: "text/html",
-					snapshot: false
-				});
+				item.attachments = [];
 				item.url = undefined;
 			}
 		}
 		
-		if (prefs.pdfURL) {
-			item.attachments.push({
-				url: prefs.pdfURL,
-				title: "EBSCO Full Text",
-				mimeType: "application/pdf"
-			});
-			item.complete();
-		}
-		else if (prefs.fetchPDF) {
-			var args = urlToArgs(url);
-			if (prefs.mobile) {
-				// the PDF is not embedded in the mobile view
-				var id = url.match(/([^/]+)\?sid/)[1];
-				var pdfurl = "/ehost/pdfviewer/pdfviewer/"
-					+ id
-					+ "?sid=" + args.sid
-					+ "&vid=" + args.vid;
-				item.attachments.push({
-					url: pdfurl,
-					title: "EBSCO Full Text",
-					mimeType: "application/pdf"
-				});
-				item.complete();
-			}
-			else {
-				var pdf = "/ehost/pdfviewer/pdfviewer?"
-					+ "sid=" + args.sid
-					+ "&vid=" + args.vid;
-				Z.debug("Fetching PDF from " + pdf);
-
-				ZU.processDocuments(pdf,
-					function (pdfDoc) {
-						if (!isCorrectViewerPage(pdfDoc)) {
-							Z.debug('PDF viewer page doesn\'t appear to be serving the correct PDF. Skipping PDF attachment.');
-							return;
-						}
-						
-						var realpdf = findPdfUrl(pdfDoc);
-						if (realpdf) {
-							item.attachments.push({
-								url: realpdf,
-								title: "EBSCO Full Text",
-								mimeType: "application/pdf",
-								proxy: false
-							});
-						}
-						else {
-							Z.debug("Could not find a reference to PDF.");
-						}
-					},
-					function () {
-						Z.debug("PDF retrieval done.");
-						item.complete();
-					}
-				);
-			}
-		}
-		else {
-			Z.debug("Not attempting to retrieve PDF.");
-			item.complete();
-		}
+		item.complete();
 	});
 
 	translator.getTranslatorObject(function (trans) {
