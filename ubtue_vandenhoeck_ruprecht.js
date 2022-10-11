@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-10-10 16:14:33"
+	"lastUpdated": "2022-10-11 12:18:21"
 }
 
 /*
@@ -162,22 +162,8 @@ function scrape(doc, url) {
 							}
 						}
 						item.notes = newNotes;
-						var bibTexGet = '/action/downloadCitation';
-						var bibTexPost = 'doi=' + doi + '&downloadFileName=' + filename + '&format=bibtex&direct=true&include=abs&include=cit';
-						ZU.doPost(bibTexGet, bibTexPost, function (text) {
-							let creatorString = text.match(/author\s*=\s*{(.+?)}/);
-							if (creatorString != null && creatorString[1].match(/\s+and\s+/) != null) {
-								let creators = creatorString[1].trim().split(/\s+and\s+/);
-								let newCreators = [];
-								for (let creator of creators) {
-									let inverse = false;
-									if (item.url.match(/\/weme/) != null) inverse = true;
-									newCreators.push(ZU.cleanAuthor(creator, 'author', inverse));
-								}
-								item.creators = newCreators;
-							}
-							item.complete();
-						});
+						item.complete();
+						
 					});
 				//item.complete();
 			});
