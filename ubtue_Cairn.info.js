@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-10-05 10:38:39"
+	"lastUpdated": "2022-10-11 12:36:22"
 }
 
 /*
@@ -174,6 +174,7 @@ function scrape(doc, url) {
 			item.ISSN = "0570-1953";
 			item.issue = "";
 		} 
+		else if (item.publicationTitle == "Études théologiques et religieuses") item.ISSN = "0014-2239";
 		item.attachments = [];
 		item.complete();
 		});
