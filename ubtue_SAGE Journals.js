@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-11-03 16:49:04"
+	"lastUpdated": "2022-11-03 17:23:49"
 }
 
 /*
@@ -87,7 +87,7 @@ function scrape(doc, url) {
 	if (!doi) {
 		doi = url.match(/10\.[^?#]+/)[0];
 	}
-	var post = "doi=" + encodeURIComponent(doi) + "&include=abs&format=ris&direct=false&submit=Download+Citation";
+	var post = "doi=" + encodeURIComponent(doi) + "&include=abs&format=bibtex&direct=false&submit=Download+Citation";
 	var pdfurl = "//" + doc.location.host + "/doi/pdf/" + doi;
 	var articleType = ZU.xpath(doc, '//span[@class="ArticleType"]/span');
 	//Z.debug(pdfurl);
@@ -103,7 +103,7 @@ function scrape(doc, url) {
 		}
 
 		var translator = Zotero.loadTranslator("import");
-		translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
+		translator.setTranslator("9cb70025-a888-4a29-a210-93ec52da40d4");
 		translator.setString(text);
 		translator.setHandler("itemDone", function (obj, item) {
 			// The subtitle will be neglected in RIS and is only present in
@@ -191,6 +191,7 @@ function scrape(doc, url) {
 					}
 				}
 			}
+			if (ZU.xpathText(doc, '//span[contains(., "ISSN:")]') && ZU.xpathText(doc, '//span[contains(., "ISSN:")]').match(/\d{4}-?\d{3}[\dxX]/)) item.ISSN = ZU.xpathText(doc, '//span[contains(., "ISSN:")]').match(/\d{4}-?\d{3}[\dxX]/)[0];
 			//ubtue: add tag "Book Review" in every issue 5 of specific journals if the dc.Type is "others"
 			let reviewType = ZU.xpathText(doc, '//meta[@name="dc.Type"]/@content');
 			if (item.ISSN === '0142-064X' || item.ISSN === '0309-0892') {
@@ -253,17 +254,17 @@ var testCases = [
 				"title": "ACÉBAC: Les voix et les voies de l’Écriture",
 				"creators": [
 					{
-						"lastName": "Luna",
 						"firstName": "Rodolfo Felices",
+						"lastName": "Luna",
 						"creatorType": "author"
 					}
 				],
-				"date": "September 1, 2021",
+				"date": "2021",
 				"DOI": "10.1177/00084298211036567",
 				"ISSN": "0008-4298",
 				"abstractNote": "L’Association catholique d’études bibliques au Canada a été fondée en 1943 afin de promouvoir les études bibliques en français parmi le clergé catholique en charge de la formation académique des séminaristes. Au cours de ses 77 années d’existence, cette société savante a navigué à travers deux tournants herméneutiques majeurs : le déplacement d’attention de l’exégèse historico-critique vers les méthodes littéraires centrées sur le texte final, puis le déplacement subséquent vers les approches attentives aux lectrices et lecteurs. À partir de la Révolution tranquille au Québec, la composition de l’assemblée des membres s’est progressivement diversifiée, pour y inclure des laïcs, des femmes, des étranger.e.s à la foi catholique et des savant.e.s du monde séculier, sans affiliation religieuse professée ou connue. Le travail de l’exégèse est appelé à rencontrer le défi de l’interdisciplinarité, compte tenu de l’intérêt grandissant des sciences humaines et sociales pour le texte biblique.",
 				"issue": "3",
-				"journalAbbreviation": "Studies in Religion/Sciences Religieuses",
+				"itemID": "doi:10.1177/00084298211036567",
 				"language": "en",
 				"libraryCatalog": "ubtue_SAGE Journals",
 				"pages": "336-343",
@@ -271,46 +272,40 @@ var testCases = [
 				"shortTitle": "ACÉBAC",
 				"url": "https://doi.org/10.1177/00084298211036567",
 				"volume": "50",
-				"attachments": [
-					{
-						"title": "SAGE PDF Full Text",
-						"mimeType": "application/pdf"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
-						"tag": " Canada"
+						"tag": "Canada"
 					},
 					{
-						"tag": " French language"
+						"tag": "Canada"
 					},
 					{
-						"tag": " biblical studies"
+						"tag": "French language"
 					},
 					{
-						"tag": " exegesis"
+						"tag": "biblical studies"
 					},
 					{
-						"tag": " exégèse"
+						"tag": "exegesis"
 					},
 					{
-						"tag": " langue française"
+						"tag": "exégèse"
 					},
 					{
-						"tag": " learned societies"
+						"tag": "langue française"
 					},
 					{
-						"tag": " sociétés savantesCanada"
+						"tag": "learned societies"
 					},
 					{
-						"tag": " études bibliques"
+						"tag": "sociétés savantes"
+					},
+					{
+						"tag": "études bibliques"
 					}
 				],
-				"notes": [
-					{
-						"note": "abs:The Association catholique d’études bibliques au Canada was founded in 1943 to foster biblical studies in French among Roman Catholic clergy in charge of the academic instruction of seminarians. During its 77 years of existence, this learned society has navigated through two major hermeneutical turns in biblical studies : the shift of focus from historical-critical exegesis to final-text centered literary methods, and the shift from the latter to reader-conscious and reader-oriented approaches. The society’s membership has also widened to include non-clerics, women scholars, non-Catholics, and secular scholars, following the deep social transformation of the Révolution tranquille in Quebec and beyond. As interest in the Bible continues to grow among the humanities and social sciences, interdisciplinary work is both a challenge and an opportunity that guides the way forward."
-					}
-				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
@@ -319,6 +314,71 @@ var testCases = [
 		"type": "web",
 		"url": "https://journals.sagepub.com/toc/pcca/current",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://journals.sagepub.com/doi/full/10.1177/09518207221115929",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "The phallus in our stars: Sexual violence in the Animal Apocalypse",
+				"creators": [
+					{
+						"firstName": "Megan R.",
+						"lastName": "Remington",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Julianna Kaye",
+						"lastName": "Smith",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022",
+				"DOI": "10.1177/09518207221115929",
+				"ISSN": "0951-8207",
+				"abstractNote": "The Animal Apocalypse (1 En. 85–90) provides some of the most vivid imagery in Second Temple literature. In reference to the descent of the Watchers allegorized as stars, the narrative invokes the simile “they let out their phalluses like stallions” three times. Beyond the simile’s allusion to the oracle in Ezek 23:20, the stallion phallus remains largely unexplored. Our investigation demonstrates the associations of stallions with “aggressive virility” and foreignness based on the Hebrew Bible and contemporary Hellenistic and early Jewish literature. Moreover, we show the Animal Apocalypse’s innovative emphasis on the violent nature of the sexual acts, a feature absent in Gen 6 and the Book of Watchers, and argue for the episode’s contextualization with other early Jewish texts in which sexual violence is present. By spotlighting the stallion-phallused stars with their foreign genitalia, the Animal Apocalypse highlights anxieties surrounding communal boundary crossing and its violent repercussions.",
+				"issue": "1",
+				"itemID": "doi:10.1177/09518207221115929",
+				"language": "en",
+				"libraryCatalog": "ubtue_SAGE Journals",
+				"pages": "57-74",
+				"publicationTitle": "Journal for the Study of the Pseudepigrapha",
+				"shortTitle": "The phallus in our stars",
+				"url": "https://doi.org/10.1177/09518207221115929",
+				"volume": "32",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "1 Enoch"
+					},
+					{
+						"tag": "animal symbolism"
+					},
+					{
+						"tag": "early Judaism"
+					},
+					{
+						"tag": "reception history"
+					},
+					{
+						"tag": "sexual violence"
+					}
+				],
+				"notes": [
+					{
+						"note": "orcid:0000-0001-7826-6659 | Megan R Remington"
+					},
+					{
+						"note": "orcid:0000-0002-8956-2709 | Julianna Kaye Smith"
+					},
+					{
+						"note": "LF:"
+					}
+				],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
