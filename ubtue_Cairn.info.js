@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-10-11 12:36:22"
+	"lastUpdated": "2022-11-03 17:27:12"
 }
 
 /*
@@ -175,6 +175,7 @@ function scrape(doc, url) {
 			item.issue = "";
 		} 
 		else if (item.publicationTitle == "Études théologiques et religieuses") item.ISSN = "0014-2239";
+		else if (item.publicationTitle == "Nouvelle revue théologique") item.ISSN = "0029-4845";
 		item.attachments = [];
 		item.complete();
 		});

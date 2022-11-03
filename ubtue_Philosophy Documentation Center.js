@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-07-05 13:29:59"
+	"lastUpdated": "2022-11-03 16:21:26"
 }
 
 /*
@@ -77,12 +77,15 @@ function scrape(doc) {
 		i.itemType = "journalArticle";
 		//scrape ISSN
 		let issnEntry = ZU.xpathText(doc, '//script[@type="text/javascript"]');
-		if(issnEntry && issnEntry.match(/Online_ISSN/i)) i.ISSN = issnEntry.match(/Online_ISSN=\d{4}-\d{3}(\d|x)/i)[0].match(/\d{4}-\d{3}(\d|x)/i)[0];
+		if(issnEntry && issnEntry.match(/Online_ISSN/i) && issnEntry.match(/Online_ISSN=(\d{4}-\d{3}[\dx])/i)) i.ISSN = issnEntry.match(/Online_ISSN=(\d{4}-\d{3}[\dx])/i)[1];
+		if(issnEntry && issnEntry.match(/Print_ISSN/i) && issnEntry.match(/Print_ISSN=(\d{4}-\d{3}[\dx])/i)) i.ISSN = issnEntry.match(/Print_ISSN=(\d{4}-\d{3}[\dx])/i)[1];
 		if(issnEntry && issnEntry.match(/Book Review/i)) i.tags.push('RezensionstagPica');
+		i.attachments = [];
 		i.complete();
 	});
 	translator.translate();
 }
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
