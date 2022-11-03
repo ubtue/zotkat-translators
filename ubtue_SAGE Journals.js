@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-03-17 10:53:55"
+	"lastUpdated": "2022-11-03 16:49:04"
 }
 
 /*
@@ -136,6 +136,15 @@ function scrape(doc, url) {
 				}
 			}
 			
+			//scrape ORCID from website e.g. https://journals.sagepub.com/doi/full/10.1177/0084672419883339
+			let newAuthorSectionEntries = ZU.xpath(doc, '//span[@property="author"]');
+			for (let authorSectionEntry of newAuthorSectionEntries) {
+				if (ZU.xpathText(authorSectionEntry, './a[contains(@href, "orcid")]')) {
+					let orcid = ZU.xpathText(authorSectionEntry, './a[contains(@href, "orcid")]').replace(/https?:\/\/orcid.org\//, '');
+					let authorName = ZU.xpathText(authorSectionEntry, './/span[@property="givenName"]') + ' ' + ZU.xpathText(authorSectionEntry, './/span[@property="familyName"]');
+					item.notes.push({"note": "orcid:" + orcid + ' | ' + authorName});
+				}	
+			}
 			//scrape ORCID at the bottom of text and split firstName and lastName for deduplicate notes. E.g. most of cases by reviews https://journals.sagepub.com/doi/10.1177/15423050211028189
 			let ReviewAuthorSectionEntries = doc.querySelectorAll('.NLM_fn p');
 			for (let ReviewAuthorSectionEntry of ReviewAuthorSectionEntries) {
@@ -186,7 +195,7 @@ function scrape(doc, url) {
 			let reviewType = ZU.xpathText(doc, '//meta[@name="dc.Type"]/@content');
 			if (item.ISSN === '0142-064X' || item.ISSN === '0309-0892') {
 				if (reviewType && reviewType.match(/other/i) && item.issue === '5') {
-					item.tags.push('Book Review');
+					item.tags.push('RezensionstagPica');
 					item.notes.push({note: "Booklist:" + item.date.match(/\d{4}$/)});
 					if (item.abstractNote && item.abstractNote.match(/,(?!\s\w)/g)) {
 						item.abstractNote = '';	
@@ -216,17 +225,20 @@ function scrape(doc, url) {
 			// mark articles as "LF" (MARC=856 |z|kostenfrei), that are published as open access
 			let accessIcon = doc.querySelector('.accessIcon[alt]');
 			if (accessIcon && accessIcon.alt.match(/open\s+access/gi)) item.notes.push({note: 'LF:'});
+			else if (ZU.xpathText(doc, '//i[@class="icon-open_access"]/@data-original-title') == 'Open access') item.notes.push({note: 'LF:'});
 			let newNotes = [];
 			for (let note of item.notes) {
 				if (note['note'].match(/^(?:<p>)?doi:/) == null) newNotes.push(note)
 				}
 			item.notes = newNotes;
 			item.language = ZU.xpathText(doc, '//meta[@name="dc.Language"]/@content');
+			item.attachments = [];
 			item.complete();
 		});
 		translator.translate();
 	});
 }
+
 
 
 
