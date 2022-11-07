@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-10-10 17:11:50"
+	"lastUpdated": "2022-11-07 10:10:06"
 }
 
 /*
@@ -89,9 +89,8 @@ function invokeEMTranslator(doc) {
 		if (i.pages == undefined) i.pages = ZU.xpathText(doc, '//meta[@name="DC.Identifier.Pagenumber"]/@content');
 		if (i.DOI == undefined) i.DOI = ZU.xpathText(doc, '//meta[@name="DC.Identifier.DOI"]/@content');
 		if (i.ISSN == "2521-6465") i.language = ZU.xpathText(doc, '//meta[@name="DC.Language"]/@content');
-
 		if (doc.querySelector(".subtitle")) {
-			if (i.title.indexOf(doc.querySelector(".subtitle").textContent.trim()) == -1) {
+			if (i.title.indexOf(doc.querySelector(".subtitle").textContent.trim().replace(/\s+/g, ' ')) == -1) {
  			i.title = i.title + ' ' + doc.querySelector(".subtitle").textContent.trim();
 			}
  		}
@@ -337,7 +336,7 @@ function invokeEMTranslator(doc) {
 				}
 			}
 		}
-		if (['2617-3697', '2660-4418', '2748-6419', '2617-1953'].includes(i.ISSN)) {
+		if (['2617-3697', '2660-4418', '2748-6419', '2617-1953', '2413-9467'].includes(i.ISSN)) {
 			let subtitle = ZU.xpathText(doc, '//h1/small');
 			if (subtitle) {
 				subtitle = subtitle.replace(/(\n*\t*)/, '');
