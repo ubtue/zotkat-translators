@@ -47,10 +47,12 @@ var notes_to_ixtheo_notations = {};
 var journal_title_to_ppn = {};
 var publication_title_to_physical_form = {};
 var issn_to_retrieve_sign = {};
+var issn_to_institution = {};
+var issn_to_collection_code = {};
 // Repository base URL
 var zts_enhancement_repo_url = 'https://raw.githubusercontent.com/ubtue/zotero-enhancement-maps/master/';
 var downloaded_map_files = 0;
-var max_map_files = 12;
+var max_map_files = 14;
 
 
 /*
@@ -169,8 +171,13 @@ function populateISSNMaps(mapData, url) {
         case "publication_title_to_physical_form.map":
             publication_title_to_physical_form = temp;
             break;
+		case "ISSN_to_Sammlungscode_zotkat.map":
+            issn_to_collection_code = temp;
+            break;
+		case "ISSN_to_Institution_zotkat.map":
+            issn_to_institution = temp;
+            break;
 		case "ISSN_to_Abrufzeichen_zotkat.map":
-			Z.debug("Abrufzeichen");
             issn_to_retrieve_sign = temp;
             break;
         default:
@@ -263,6 +270,7 @@ function WriteItems() {
 			if (toDelete != null) {
 				line = line.replace(toDelete[1], '');
 			}
+			line = line.replace(/^\\nZ/, '\\n');
 			if (line.match(/\\nxxxx /) != null) {
 				errorString += line.substring(7, line.length) + '\\n';
 			}
@@ -306,6 +314,8 @@ function performExport() {
 		var superiorPPN = "";
 		var journalTitlePPN = "";
 		var issn_to_language = "";
+		var institution_retrieve_sign = "";
+		var collection_code = "";
 		var retrieve_sign = "";
 		if (!item.ISSN)
 				item.ISSN = "";
@@ -346,6 +356,14 @@ function performExport() {
 			physicalForm = publication_title_to_physical_form.get(item.publicationTitle);
 			Z.debug("Found journalTitlePPN:" + physicalForm);
         }
+		if (issn_to_collection_code.get(item.ISSN) != undefined) {
+			collection_code = issn_to_collection_code.get(item.ISSN);
+			Z.debug("Found Collection code:" + collection_code);
+		}
+		if (issn_to_institution.get(item.ISSN) != undefined) {
+			institution_retrieve_sign = issn_to_institution.get(item.ISSN);
+			Z.debug("Found Institution:" + institution_retrieve_sign);
+		}
 		if (issn_to_retrieve_sign.get(item.ISSN) != undefined) {
 			retrieve_sign = issn_to_retrieve_sign.get(item.ISSN);
 			Z.debug("Found retrieve_sign:" + retrieve_sign);
@@ -404,10 +422,10 @@ function performExport() {
                 addLine(currentItemId, "\\n0503", "Online-Ressource$bcr");
         }
 		
-		if (retrieve_sign == "BILDI") {
+		if (collection_code == "BILDI") {
 			addLine(currentItemId, "\\n0575", "BIIN");
 		}
-		else if (retrieve_sign == "KALDI") {
+		else if (collection_code == "KALDI") {
 			addLine(currentItemId, "\\n0575", "KALD");
 		}
         //item.date --> 1100
@@ -847,12 +865,41 @@ function performExport() {
                 addLine(currentItemId, "\\n5056", defaultSsgNummer);
             }
 			
-            //Schlagwörter aus einem Thesaurus (Fremddaten) --> 5520 (oder alternativ siehe Mapping)
+            
+			//ORCID und Autorennamen --> 8910
+			if (item.notes) {
+				for (let i in item.notes) {
+					if (item.notes[i].note.includes('orcid')) {
+						if (institution_retrieve_sign == "krzo") addLine(currentItemId, "\\n8910", '$akrzom$b'+item.notes[i].note);
+						else addLine(currentItemId, "\\n8910", '$aixzom$b'+item.notes[i].note);
+					}
+				}
+			}
+			if (institution_retrieve_sign == "") {
+				if (SsgField == "NABZ") {
+					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo$aNABZ', ""); 
+				}
+				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo', "");
+			}
+			else if (institution_retrieve_sign == "inzo") {
+				if (SsgField == "NABZ") {
+					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo$aNABZ', ""); 
+				}
+				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo', "");
+			}
+			else if (institution_retrieve_sign == "krzo") {
+				if (SsgField == "NABZ") {
+					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 krzo$aNABZ', ""); 
+				}
+				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 krzo', "");
+			}
+			//K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
+			//Schlagwörter aus einem Thesaurus (Fremddaten) --> 5520 (oder alternativ siehe Mapping)
             if (issn_to_keyword_field.get(item.ISSN) !== undefined) {
                 var codeBase = issn_to_keyword_field.get(item.ISSN);
                 for (i=0; i<item.tags.length; i++) {
-                    var code = codeBase + i;
-                    addLine(currentItemId, code, "|s|" + item.tags[i].tag.replace(/\s?--\s?/g, '; '));
+                    let code = "Z" + codeBase.substring(0,2) + i.toString().padStart(2, '0');
+                    addLine(currentItemId, "\\n" + code, "|s|" + item.tags[i].tag.replace(/\s?--\s?/g, '; '));
                 }
             } else {
                 for (i=0; i<item.tags.length; i++) {
@@ -877,26 +924,7 @@ function performExport() {
 					}
 				}
 			}
-			//ORCID und Autorennamen --> 8910
-			if (item.notes) {
-				for (let i in item.notes) {
-					if (item.notes[i].note.includes('orcid')) addLine(currentItemId, "\\n8910", '$aixzom$b'+item.notes[i].note);
-				}
-			}
-			if (retrieve_sign == "") {
-				if (SsgField == "NABZ") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo$aNABZ', ""); 
-				}
-				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo', "");
-			}
-			else if (retrieve_sign == "BILDI" || retrieve_sign == "KALDI") {
-				if (SsgField == "NABZ") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo$aNABZ', ""); 
-				}
-				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo', "");
-			}
-			//K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
-        }
+		}
     }
 
     runningThreadCount--;
@@ -921,6 +949,8 @@ function doExport() {
 			zts_enhancement_repo_url + "notes_to_ixtheo_notations.map",
 			zts_enhancement_repo_url + "journal_title_to_ppn.map",
 			zts_enhancement_repo_url + "publication_title_to_physical_form.map",
+			zts_enhancement_repo_url + "ISSN_to_Sammlungscode_zotkat.map",
+			zts_enhancement_repo_url + "ISSN_to_Institution_zotkat.map",
 			zts_enhancement_repo_url + "ISSN_to_Abrufzeichen_zotkat.map",
             ], function (responseText, request, url) {
                 switch (responseText) {
