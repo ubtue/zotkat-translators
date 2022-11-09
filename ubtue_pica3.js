@@ -422,10 +422,10 @@ function performExport() {
                 addLine(currentItemId, "\\n0503", "Online-Ressource$bcr");
         }
 		
-		if (collection_code == "BILDI") {
+		if (collection_code == "BIIN") {
 			addLine(currentItemId, "\\n0575", "BIIN");
 		}
-		else if (collection_code == "KALDI") {
+		else if (collection_code == "KALD") {
 			addLine(currentItemId, "\\n0575", "KALD");
 		}
         //item.date --> 1100
@@ -561,8 +561,10 @@ function performExport() {
 
                 //Lookup für Autoren
                 if (authorName[0] != "!") {
-                    var lookupUrl = "https://swb.bsz-bw.de/DB=2.104/SET=70/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=3040&TRM0=" + authorName + "&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=(theolog*|neutestament*|alttestament*|kirchenhist*)&ACT3=-&IKT3=8991&TRM3=1[0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9]"
-
+					if (institution_retrieve_sign == "krzo") {
+                    var lookupUrl = "https://swb.bsz-bw.de/DB=2.104/SET=4/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=1&TRM0=" + authorName + "&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=*&ACT3=-&IKT3=8991&TRM3=1%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%5D%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9%5D%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9%5D&SRT=RLV"
+					}
+					else var lookupUrl = "https://swb.bsz-bw.de/DB=2.104/SET=70/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=3040&TRM0=" + authorName + "&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=(theolog*|neutestament*|alttestament*|kirchenhist*)&ACT3=-&IKT3=8991&TRM3=1[0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9]"
                     /*
                     lookupUrl kann je nach Anforderung noch spezifiziert werden.
 					Beispiel mit "Zenger, Erich"
@@ -895,16 +897,9 @@ function performExport() {
 			}
 			//K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
 			//Schlagwörter aus einem Thesaurus (Fremddaten) --> 5520 (oder alternativ siehe Mapping)
-            if (issn_to_keyword_field.get(item.ISSN) !== undefined) {
-                var codeBase = issn_to_keyword_field.get(item.ISSN);
-                for (i=0; i<item.tags.length; i++) {
-                    let code = "Z" + codeBase.substring(0,2) + i.toString().padStart(2, '0');
-                    addLine(currentItemId, "\\n" + code, "|s|" + item.tags[i].tag.replace(/\s?--\s?/g, '; '));
-                }
-            } else {
-                for (i=0; i<item.tags.length; i++) {
+            
+            for (i=0; i<item.tags.length; i++) {
                     addLine(currentItemId, "\\n5520", "|s|" + ZU.unescapeHTML(item.tags[i].tag.replace(/\s?--\s?/g, '; ')));
-                }
             }
 			//notes > IxTheo-Notation K10plus: 6700 wird hochgezählt und nicht wiederholt, inkrementell ab z.B. 6800, 6801, 6802 etc.
 			if (item.notes) {
