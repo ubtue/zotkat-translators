@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-11-07 10:58:44"
+	"lastUpdated": "2022-11-09 16:19:37"
 }
 
 /*
@@ -127,7 +127,6 @@ function scrape(doc, url) {
 	abstracts.push(abstractTwo);
 	let transAbstractTwo = ZU.xpathText(doc, "//*[contains(text(),'Abstract')]//following::font[1]");
 	abstracts.push(transAbstractTwo);
-
 	let translator = Zotero.loadTranslator('web');
 	//use Embedded Metadata
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
@@ -201,11 +200,18 @@ function scrape(doc, url) {
 			}
 		let trimmedAbstracts = [];
 		for (let abstract of abstracts) {
-			if (abstract && abstract.length > 20) {
+			if (abstract && abstract.length > 150) {
 				abstract = ZU.trimInternal(abstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "").replace(/[\n\t]/g, ""));
 				if (!trimmedAbstracts.includes(abstract)) trimmedAbstracts.push(abstract);
 			}
 		}
+		if (trimmedAbstracts.length == 0) {
+			for (let abs of ZU.xpath(doc, "//div[contains(h4,'Abstract')]/p")) {
+				if (abs.textContent && abs.textContent.length > 400) {
+					trimmedAbstracts.push(abs.textContent);
+					}
+				}
+			}
 		let abstractNr = 0;
 		for (let abstract of trimmedAbstracts) {
 			if (abstractNr == 0) item.abstractNote = abstract;
