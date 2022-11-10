@@ -35,7 +35,6 @@
 
 /* =============================================================================================================== */
 // Mapping tables that get populated with the entries from their corresponding map files in the Github repo
-var issn_to_keyword_field = {};
 var issn_to_language_code = {};
 var issn_to_license = {};
 var issn_to_physical_form = {};
@@ -46,13 +45,12 @@ var language_to_language_code = {};
 var notes_to_ixtheo_notations = {};
 var journal_title_to_ppn = {};
 var publication_title_to_physical_form = {};
-var issn_to_retrieve_sign = {};
 var issn_to_institution = {};
 var issn_to_collection_code = {};
 // Repository base URL
 var zts_enhancement_repo_url = 'https://raw.githubusercontent.com/ubtue/zotero-enhancement-maps/master/';
 var downloaded_map_files = 0;
-var max_map_files = 14;
+var max_map_files = 12;
 
 
 /*
@@ -137,9 +135,6 @@ function populateISSNMaps(mapData, url) {
 	}
 
     switch (mapFilename) {
-        case "ISSN_to_keyword_field.map":
-            issn_to_keyword_field = temp;
-            break;
         case "ISSN_to_language_code.map":
             issn_to_language_code = temp;
             break;
@@ -176,9 +171,6 @@ function populateISSNMaps(mapData, url) {
             break;
 		case "ISSN_to_Institution_zotkat.map":
             issn_to_institution = temp;
-            break;
-		case "ISSN_to_Abrufzeichen_zotkat.map":
-            issn_to_retrieve_sign = temp;
             break;
         default:
             throw "Unknown map file: " + mapFilename;
@@ -363,10 +355,6 @@ function performExport() {
 		if (issn_to_institution.get(item.ISSN) != undefined) {
 			institution_retrieve_sign = issn_to_institution.get(item.ISSN);
 			Z.debug("Found Institution:" + institution_retrieve_sign);
-		}
-		if (issn_to_retrieve_sign.get(item.ISSN) != undefined) {
-			retrieve_sign = issn_to_retrieve_sign.get(item.ISSN);
-			Z.debug("Found retrieve_sign:" + retrieve_sign);
 		}
 
 		var article = false;
@@ -934,7 +922,6 @@ function doExport() {
 	Z.debug("Populating ISSN mapping tables...");
 
 	ZU.doGet([
-            zts_enhancement_repo_url + "ISSN_to_keyword_field.map",
             zts_enhancement_repo_url + "ISSN_to_language_code.map",
             zts_enhancement_repo_url + "ISSN_to_licence.map",
             zts_enhancement_repo_url + "ISSN_to_physical_form.map",
@@ -947,7 +934,6 @@ function doExport() {
 			zts_enhancement_repo_url + "publication_title_to_physical_form.map",
 			zts_enhancement_repo_url + "ISSN_to_Sammlungscode_zotkat.map",
 			zts_enhancement_repo_url + "ISSN_to_Institution_zotkat.map",
-			zts_enhancement_repo_url + "ISSN_to_Abrufzeichen_zotkat.map",
             ], function (responseText, request, url) {
                 switch (responseText) {
                     case "404: Not Found":
