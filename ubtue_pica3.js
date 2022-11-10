@@ -605,8 +605,12 @@ function performExport() {
                         // processing callback function
                         function(doc, url, threadParams){
                             var ppn = Zotero.Utilities.xpathText(doc, '//div[a[img]]');
-							if (ppn && SsgField != "0") {
+							if (ppn && SsgField != "0" && institution_retrieve_sign != "krzo") {
                                 var authorValue = "!" + ppn.match(/^\d+X?/) + "!" + "$BVerfasserIn$4aut" + "\\n8910 $aixzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet\\n";
+                                addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', authorValue);
+                            }
+							else if (ppn && SsgField != "0") {
+                                var authorValue = "!" + ppn.match(/^\d+X?/) + "!" + "$BVerfasserIn$4aut" + "\\n8910 $akrzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet\\n";
                                 addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', authorValue);
                             }
 							else {
