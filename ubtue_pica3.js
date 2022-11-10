@@ -422,11 +422,8 @@ function performExport() {
                 addLine(currentItemId, "\\n0503", "Online-Ressource$bcr");
         }
 		
-		if (collection_code == "BIIN") {
-			addLine(currentItemId, "\\n0575", "BIIN");
-		}
-		else if (collection_code == "KALD") {
-			addLine(currentItemId, "\\n0575", "KALD");
+		if (collection_code != "") {
+			addLine(currentItemId, "\\n0575", collection_code);
 		}
         //item.date --> 1100
         var date = Zotero.Utilities.strToDate(item.date);
