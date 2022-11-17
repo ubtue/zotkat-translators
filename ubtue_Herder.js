@@ -5,11 +5,11 @@
 	"target": "https://www.herder.de/[a-zA-Z]+",
 	"minVersion": "3.0",
 	"maxVersion": "",
-	"priority": 99,
+	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-06-08 13:47:34"
+	"lastUpdated": "2021-04-23 13:28:43"
 }
 
 /*
@@ -57,26 +57,22 @@ function getSearchResults(doc) {
 }
 
 function extractAuthors(doc) {
-	let authorsElement = ZU.xpath(doc, '//span[@class="byline"]/a');
-	if (authorsElement.length > 0) {
-	let authors = [];
-	for (let author of authorsElement) authors.push(author.textContent);
-		return authors;
-	}
+	let authorsElement = doc.querySelector('span.byline > a');
+	if (authorsElement)
+		return authorsElement ? authorsElement.innerText.split(',') : '';
 	return false;
 }
 
-function extractIssueAndYearFromURL(item, url) {
-	if (url.match(/\/[^\/]+-\d{4}\/[^\/]+-\d{4}\//) != null) {
-		item.issue = url.match(/\/[^\/]+-\d{4}\/([^\/]+)-\d{4}\//)[1].replace('-', '/');
-		item.volume = url.match(/\/([^\/]+)-\d{4}\/[^\/]+-\d{4}\//)[1];
-		item.date = url.match(/\/[^\/]+-(\d{4})\/[^\/]+-\d{4}\//)[1];
-	}
-	else if (url.match(/\/(\d+)-\d{4}\//)) {
-	item.issue = url.match(/\/(\d+)-\d{4}\//)[1];
-	item.date = url.match(/\/\d+-(\d{4})\//)[1];
-	}
-	else item.date = url.match(/(\d{4})\//)[0];
+function extractIssue(doc, item, issueAndYear) {
+	let issueNumber = issueAndYear.match(/\d+/g);
+	if (issueNumber)
+		item.issue = issueNumber[0];
+}
+
+function extractYear(doc, item, issueAndYear) {
+	let year = issueAndYear.match(/\d{4}/g);
+	if (year)
+		item.date = year[0];
 }
 
 function extractPages(doc) {
@@ -108,40 +104,23 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		if (extractAuthors(doc)) {
 			item.creators = [];
 			for (let author of extractAuthors(doc))
-				item.creators.push(ZU.cleanAuthor(author.replace(/prof\b|dr\b/gi, ''), "authors"));
+				item.creators.push(ZU.cleanAuthor(author.replace(/prof|dr/gi, ''), "authors"));
 		}
-		extractIssueAndYearFromURL(item, url);
+		let extractionPath = doc.querySelectorAll('span.headline');
+		for (let extract of extractionPath) {
+			let testString = extract.textContent;
+			if (testString.match(/\d{4}/g)) {
+				let issueAndYear = extract.textContent;
+				extractIssue(doc, item, issueAndYear);
+				extractYear(doc, item, issueAndYear);
+				break;
+			}
+		}
 		let itemAbstract = doc.querySelector('#base_0_area1main_0_aZusammenfassung');
 		if(itemAbstract) item.abstractNote = itemAbstract.textContent;
-		if (item.abstractNote != null) {
-			item.abstractNote = item.abstractNote.replace(/(?:Zusammenfassung\s*\/\s*(?:Summary|Abstract)(?:\n\s*)*)|\n/g, "");
-		}
 		item.pages = extractPages(doc);
 		let publicationTitle = ZU.xpathText(doc, '//*[(@id = "ctl02_imgLogo")]/@alt');
 		if (publicationTitle) item.publicationTitle = publicationTitle;
-		let pageTitle = ZU.xpathText(doc, '//title').trim().replace(/\s+/g, ' ');
-		if (pageTitle.match(/^Buchrezension/))
-			item.tags.push('RezensionstagPica');
-		if (pageTitle.match(item.title.trim().replace(/\s+/g, ' '))) {
-			item.title = pageTitle.split(/\s*\|/)[0];
-		}
-		if (item.publicationTitle == "Biblische Notizen") {
-			item.ISSN = "2628-5762";
-			item.volume = item.issue;
-			item.issue = "";
-		}
-		if (item.publicationTitle == "Römische Quartalschrift") {
-			item.ISSN = "0035-7812";
-		}
-		if (item.publicationTitle == "Herder Korrespondenz") {
-			if (ZU.xpathText(doc, '//img[contains(@alt, "Jahrgang")]') != null) {
-				if (ZU.xpathText(doc, '//img[contains(@alt, "Jahrgang")]/@alt').match(/\s+(\d+)\.\s+Jahrgang/)) {
-					item.volume = ZU.xpathText(doc, '//img[contains(@alt, "Jahrgang")]/@alt').match(/\s+(\d+)\.\s+Jahrgang/)[1];
-				}
-			}
-			item.ISSN = "0018-0645";
-		}
-		item.attachments = [];
 		item.complete();
 	});
 	translator.translate();
@@ -160,9 +139,7 @@ function doWeb(doc, url) {
 			ZU.processDocuments(articles, invokeEmbeddedMetadataTranslator);
 		});
 	} else invokeEmbeddedMetadataTranslator(doc, url);
-}
-
-/** BEGIN TEST CASES **/
+}/** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "web",
@@ -170,162 +147,26 @@ var testCases = [
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "„Und es waren Hirten in demselben Land...“: Vom Verständnis der Hirten zu einer neuen Hermeneutik der lukanischen Weihnachtsgeschichte – Teil 2",
+				"title": "„Und es waren Hirten in demselben Land...“",
 				"creators": [
 					{
 						"firstName": "Cornelius",
-						"lastName": "Vollmer",
-						"creatorType": "authors"
+						"lastName": "Vollmer"
 					}
 				],
 				"date": "2021",
-				"ISSN": "2628-5762",
-				"abstractNote": "Den bisher nicht restlos überzeugenden Lösungsversuchen, weshalb die Frohbotschaft des Engels von der Geburt Jesu im Lukasevangelium ausgerechnet an Hirten ergeht, legt der Autor mit der nicht nur in der Bibel überlieferten, sondern auch in der Umwelt des Alten und Neuen Testaments geläufigen sowie heute noch bekannten Metapher des Hirten als König oder Herrscher eine neue Deutung vor. Kontextgemäß können dann die Hirten, die während des von Augustus anlässlich der Eingliederung Judäas in die Provinz Syria angeordneten und von seinem Statthalter Quirinius durchgeführten Zensus „in demselben Land“ (χώρα: 2,8) waren, nur die genannten römischen Machthaber sein, die – so die lukanische Utopie nach alttestamentlichen Vorbildern, wo in der messianischen Heilszeit fremde Könige zum Zion ziehen – sich dem neugeborenen davidischen Herrscher unterwerfen und den Gott Israels loben. Anfänglich aber knechten und unterdrücken sie ihre Herde / das Volk (sichtbarer Ausdruck dafür ist der Zensus sowie in 2,8 φυλάσσοντες φυλακὰς = „bewachen“ im Sinne von Freiheitsberaubung), wobei Lukas unter anderem die bekannteste Prophezeiung von der Geburt des davidischen Friedensherrschers aus Jes 9,1-6 aktualisiert, wo gleichermaßen die Geburt während einer Notzeit (nachts!), unter einer militärischen Besatzermacht, stattfindet.",
+				"abstractNote": "Zusammenfassung / Summary\n                    \n                    Den bisher nicht restlos überzeugenden Lösungsversuchen, weshalb die Frohbotschaft des Engels von der Geburt Jesu im Lukasevangelium ausgerechnet an Hirten ergeht, legt der Autor mit der nicht nur in der Bibel überlieferten, sondern auch in der Umwelt des Alten und Neuen Testaments geläufigen sowie heute noch bekannten Metapher des Hirten als König oder Herrscher eine neue Deutung vor. Kontextgemäß können dann die Hirten, die während des von Augustus anlässlich der Eingliederung Judäas in die Provinz Syria angeordneten und von seinem Statthalter Quirinius durchgeführten Zensus „in demselben Land“ (χώρα: 2,8) waren, nur die genannten römischen Machthaber sein, die – so die lukanische Utopie nach alttestamentlichen Vorbildern, wo in der messianischen Heilszeit fremde Könige zum Zion ziehen – sich dem neugeborenen davidischen Herrscher unterwerfen und den Gott Israels loben. Anfänglich aber knechten und unterdrücken sie ihre Herde / das Volk (sichtbarer Ausdruck dafür ist der Zensus sowie in 2,8 φυλάσσοντες φυλακὰς = „bewachen“ im Sinne von Freiheitsberaubung), wobei Lukas unter anderem die bekannteste Prophezeiung von der Geburt des davidischen Friedensherrschers aus Jes 9,1-6 aktualisiert, wo gleichermaßen die Geburt während einer Notzeit (nachts!), unter einer militärischen Besatzermacht, stattfindet.",
+				"issue": "188",
 				"language": "de",
 				"libraryCatalog": "www.herder.de",
 				"pages": "3-26",
-				"publicationTitle": "Biblische Notizen",
-				"shortTitle": "„Und es waren Hirten in demselben Land...“",
 				"url": "https://www.herder.de/bn-nf/hefte/archiv/2021/188-2021/und-es-waren-hirten-in-demselben-land-vom-verstaendnis-der-hirten-zu-einer-neuen-hermeneutik-der-lukanischen-weihnachtsgeschichte-teil-2/",
-				"volume": "188",
-				"attachments": [],
-				"tags": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://www.herder.de/gd/hefte/archiv/2021/13-2021/",
-		"items": "multiple"
-	},
-	{
-		"type": "web",
-		"url": "https://www.herder.de/bn-nf/hefte/archiv/2022/192-2022/the-annunciation-narrative-luke-127-38-read-in-times-of-metoo/",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "The Annunciation Narrative (Luke 1:27-38) Read in Times of #MeToo",
-				"creators": [
+				"attachments": [
 					{
-						"firstName": "Bart J.",
-						"lastName": "Koet",
-						"creatorType": "authors"
-					},
-					{
-						"firstName": "Bert Jan Lietaert",
-						"lastName": "Peerbolte",
-						"creatorType": "authors"
+						"title": "Snapshot",
+						"mimeType": "text/html"
 					}
 				],
-				"date": "2022",
-				"ISSN": "2628-5762",
-				"abstractNote": "In diesem Artikel beurteilen wir die von Michael Pope in seinem Beitrag in JBL 137 aufgestellte Behauptung, dass die Verkündigungserzählung in Lukas 1 sexuelle Sprache widerspiegelt und eine Implikation enthält, dass Maria Opfer einer Vergewaltigung durch den Engel Gabriel wurde. Das Ergebnis unserer Untersuchung ist klar: Wir finden die Beweise für diese Behauptung nicht überzeugend. Die Elemente, die zu Gunsten von Popes Argument verwendet werden, spiegeln bestenfalls Indizien wider und überzeugen uns nicht. Die Vorstellung Marias als Jungfrau, die Verwendung des Verbs εἰσέρχομαι, die Begegnung mit einem Engelswesen als solche und die für Maria verwendete δούλη -Terminologie bilden auch in ihrer Gesamtheit keinen ausreichenden Grund, die besprochene Passage als Beschreibung einer Vergewaltigung zu interpretieren. Schließlich ist das Gespräch zwischen Maria und Gabriel in 1,34-35 das ultimative Argument gegen seine Lesart: Wäre in 1,28 eine Vergewaltigung angedeutet worden, wäre Marias Frage in V.34 sinnlos gewesen, und Gabriel hätte in V.35 nicht mit einem Futur geantwortet. Damit ist der Fall erledigt und es zeigt sich, dass Popes Lesart eher das #metoo-Setting des 21. Jahrhunderts widerspiegelt als den Diskurs des ersten Jahrhunderts bei Lukas.",
-				"language": "de",
-				"libraryCatalog": "www.herder.de",
-				"pages": "91-103",
-				"publicationTitle": "Biblische Notizen",
-				"shortTitle": "The Annunciation Narrative (Luke 1",
-				"url": "https://www.herder.de/bn-nf/hefte/archiv/2022/192-2022/the-annunciation-narrative-luke-127-38-read-in-times-of-metoo/",
-				"volume": "192",
-				"attachments": [],
-				"tags": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://www.herder.de/rq/hefte/archiv/116-2021/1-2-2021/augustins-predigten-dokumente-prallen-lebens-animation-zu-frischer-lektuere/",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Augustins Predigten: \"Dokumente prallen Lebens\". Animation zu frischer Lektüre",
-				"creators": [
-					{
-						"firstName": "Hubertus R.",
-						"lastName": "Drobner",
-						"creatorType": "authors"
-					}
-				],
-				"date": "2021",
-				"ISSN": "0035-7812",
-				"abstractNote": "Augustine’s Sermons: ‘Documents of Abundant Life’. Animation for fresh reading” – The discovery of 26 new sermons of Augustine in Mainz changed research in many ways, not so much because they contained revolutionary new insights into Augustine’s theology, but because they provided the impetus to read all his sermons with new eyes, also with regard to the everyday life of his time. For if one accuses the medieval editors of having been interested only in Augustine’s “timeless theological themes” and not in the details of daily life, one cannot entirely absolve modernity of this either, and one can only wish that current research will increasingly read Augustine’s sermons for what they are: not only sources for Augustine’s thought, but documents of the life of his time.",
-				"issue": "1/2",
-				"language": "de",
-				"libraryCatalog": "www.herder.de",
-				"pages": "1-13",
-				"publicationTitle": "Römische Quartalschrift",
-				"shortTitle": "Augustins Predigten",
-				"url": "https://www.herder.de/rq/hefte/archiv/116-2021/1-2-2021/augustins-predigten-dokumente-prallen-lebens-animation-zu-frischer-lektuere/",
-				"volume": "116",
-				"attachments": [],
-				"tags": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://www.herder.de/hk/hefte/archiv/2022/5-2022/synodale-illusionen-doppeltes-lehramt-von-bischoefen-und-theologen/",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Synodale Illusionen: Doppeltes Lehramt von Bischöfen und Theologen?",
-				"creators": [
-					{
-						"firstName": "Martin",
-						"lastName": "Rhonheimer",
-						"creatorType": "authors"
-					}
-				],
-				"date": "2022",
-				"ISSN": "0018-0645",
-				"abstractNote": "Der Orientierungstext des Synodalen Weges beruft sich auf historische Konstruktionen, die sich bei genauerer Betrachtung als haltlos erweisen.",
-				"issue": "5",
-				"language": "de",
-				"libraryCatalog": "www.herder.de",
-				"pages": "48-51",
-				"publicationTitle": "Herder Korrespondenz",
-				"shortTitle": "Synodale Illusionen",
-				"url": "https://www.herder.de/hk/hefte/archiv/2022/5-2022/synodale-illusionen-doppeltes-lehramt-von-bischoefen-und-theologen/",
-				"volume": "76",
-				"attachments": [],
-				"tags": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://www.herder.de/hk/hefte/archiv/2022/6-2022/notloesung-oder-reformschritt-taufe-durch-laien/",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Notlösung oder Reformschritt? Taufe durch Laien",
-				"creators": [
-					{
-						"firstName": "Winfried",
-						"lastName": "Haunerland",
-						"creatorType": "authors"
-					}
-				],
-				"date": "2022",
-				"ISSN": "0018-0645",
-				"abstractNote": "Dass im Bistum Essen Laien – ganz überwiegend Frauen – als außerordentliche Taufspender beauftragt wurden, wird von vielen als Reformschritt gepriesen. Doch wenn sich die kirchenrechtlich möglichen Ausnahmeregelungen häufen, ist die sakramentale Grundgestalt der Kirche in Gefahr.",
-				"issue": "6",
-				"language": "de",
-				"libraryCatalog": "www.herder.de",
-				"pages": "37-41",
-				"publicationTitle": "Herder Korrespondenz",
-				"shortTitle": "Notlösung oder Reformschritt?",
-				"url": "https://www.herder.de/hk/hefte/archiv/2022/6-2022/notloesung-oder-reformschritt-taufe-durch-laien/",
-				"volume": "76",
-				"attachments": [],
 				"tags": [],
 				"notes": [],
 				"seeAlso": []

@@ -6,10 +6,10 @@
 	"minVersion": "2.1.9",
 	"maxVersion": "",
 	"priority": 99,
-	"inRepository": true,
+	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-11-09 16:19:37"
+	"lastUpdated": "2021-03-17 10:10:25"
 }
 
 /*
@@ -30,68 +30,28 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-function getTitle(item) {
-	if (item.DOI) {
-		if (item.DOI.split('/').length > 1) {
-			pid = item.DOI.split('/')[1];
-		ZU.doGet('https://www.scielo.cl/scielo.php?download&format=RefMan&pid=' + pid,
-		function (text) {
-			var translator = Zotero.loadTranslator("import");
-			translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
-			translator.setString(text);
-			translator.setHandler("itemDone", function(obj, i) {
-				if (i.title != undefined && i.title != item.title) {
-					item.notes.push("Paralleltitel:" + ZU.trimInternal(item.title));
-					item.title = ZU.trimInternal(i.title);
-				}
-			});
-			translator.translate(); 
-		});
-	}
-	}
-}
 
 function detectWeb(doc,url) {
-	if (url.indexOf("script=sci_issuetoc")!=-1 && getSearchResults(doc, true)) {
-		return "multiple";
-	}
-	else if (ZU.xpathText(doc, '//meta[@name="citation_journal_title"]/@content')) {
+	if (ZU.xpathText(doc, '//meta[@name="citation_journal_title"]/@content')) {
 		return "journalArticle";
 	}
-	else if (url.indexOf("search.")!=-1 && getSearchResults(doc, true)){
+	if (url.indexOf("search.")!=-1 && getSearchResults(doc, true)){
 		return "multiple";
 	}
-	
 }
 
 
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows =  ZU.xpath(doc, '//td//tr/td');
+	var rows = ZU.xpath(doc, '//div[contains(@class, "results")]//div[contains(@class, "line")]/a[strong[contains(@class, "title")]]');
 	for (var i=0; i<rows.length; i++) {
-		if (ZU.xpathText(rows[i], './/a[contains(@href, "sci_arttext")]') != null) {
-		var href = ZU.xpathText(rows[i], './/a[contains(@href, "sci_arttext")]/@href');
-		var title = ZU.trimInternal(ZU.xpathText(rows[i], './/font/b'));
+		var href = rows[i].href;
+		var title = ZU.trimInternal(rows[i].textContent);
 		if (!href || !title) continue;
 		if (checkOnly) return true;
 		found = true;
 		items[href] = title;
-	}
-	}
-	if (rows.length == 0) {
-		//http://www.scielo.cl/scielo.php?script=sci_arttext&amp;
-		let tds = ZU.xpath(doc, '//td//td');
-		for (let t = 0; t < tds.length; t++) {
-			let rows = ZU.xpath(tds[t], './/a[contains(@href, "http://www.scielo.cl/scielo.php?script=sci_arttext")]');
-			for (let i = 0; i < rows.length; i++) {
-				if (items[rows[i].href] == undefined) {
-				items[rows[i].href] = ZU.trimInternal(ZU.xpathText(tds[t], './/B'));
-				if (checkOnly) return true;
-				found = true;
-				}
-			}
-		}
 	}
 	return found ? items : false;
 }
@@ -116,124 +76,201 @@ function doWeb(doc, url) {
 
 
 function scrape(doc, url) {
-	let abstracts = [];
-	let abstract = ZU.xpathText(doc, '//div[@class="abstract"]/p[@class="sec"]/following-sibling::p[1]');
-	abstracts.push(abstract);
-	for (let abs of ZU.xpath(doc, '//div[@class="trans-abstract"]/p[@class="sec"]/following-sibling::p[1]')) {
-		abstracts.push(abs.textContent);
-	}
-	// different xpath for abstractTwo
-	let abstractTwo = ZU.xpathText(doc, "//*[contains(text(),'Resumen')]//following::font[1]");
-	abstracts.push(abstractTwo);
-	let transAbstractTwo = ZU.xpathText(doc, "//*[contains(text(),'Abstract')]//following::font[1]");
-	abstracts.push(transAbstractTwo);
-	let translator = Zotero.loadTranslator('web');
+	var abstract = ZU.xpathText(doc, '//div[@class="abstract"]');
+	var transAbstract = ZU.xpathText(doc, '//div[@class="trans-abstract"]');
+	var translator = Zotero.loadTranslator('web');
 	//use Embedded Metadata
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 	translator.setDocument(doc);
 	translator.setHandler('itemDone', function(obj, item) {
-	if (item.language == undefined) {
-		item.language = ZU.xpathText(doc, '//meta[@name="citation_pdf_url"]/@language');
-		//meta xmlns="" name="citation_pdf_url" language="en"
-	}
-	
-	let keywords = ZU.xpath(doc, '//*[contains(text(), "Keywords:")  or contains(text(), "Keywords") or contains(text(), "Key words") or contains(text(), "Key Words") or contains(text(), "Kew words")]/..');
-	if (keywords && keywords.length > 0) {
-		item.tags = keywords[0].textContent
-					.trim()
-					.replace(/\n/g, "")
-					.replace(/ke[y|w]\s?words\s*:\s*/ig, "")
-					.replace(/\.$/, "")
-					.split(/;|,/)
-					.map(function(x) { return x.trim(); })
-					.map(function(y) { return y.charAt(0).toUpperCase() + y.slice(1); });
-	}
-	//keywords in other language
-	let transKeywords = ZU.xpathText(doc, '//*[contains(text(),"Palabra claves") or contains(text(), "Palabras clave")]//..');
-	if (transKeywords) {
-		for (let t of transKeywords.split(/;|,/)) {
-			item.tags.push(t
-				.trim()
-				.replace(/\.$/, "")
-				.replace(/\.$|palabras?\s?claves?\s*:?\s*/i, "")
-				.replace(/^\w/gi,function(m){ return m.toUpperCase();})
-			);
-		}
-	}
-	
-	//deduplicate all keywords
-	item.tags = [...new Set(item.tags.map(x => x))];
-	item.attachments = [];			
-	let citationVolume = ZU.xpathText(doc, '//meta[@name="citation_volume"]/@content');
-	if (item.ISSN == "0718-9273" && citationVolume.length == 0) {
-		item.volume = item.issue;
-		delete item.issue;
-	}
-		item.libraryCatalog = "SciELO"
-	if (item.ISSN == "0718-9273") {
-			getTitle(item);
-		}
-	if (item.pages && item.pages.match(/^0/)) {
-		item.pages = item.pages.replace(/^0/, '');
-	}
-	let trimmedCreators = [];
-	for (let creator of item.creators) {
-		found = false;
-		for (let cre of trimmedCreators) {
-			if (creator.firstName == cre.firstName && creator.lastName == cre.lastName) found = true;
-		}
-		if (!found) trimmedCreators.push(creator);
-	}
-	item.creators = trimmedCreators;
-	let pid = url.match(/&pid=(.+?)&/);
-	if (pid != null) {
-		pid=pid[1];
-		let xmlURL = 'http://www.scielo.org.za/scieloOrg/php/articleXML.php?pid=' + pid;
-		ZU.doGet(xmlURL,
-		function (text) {
-			var parser = new DOMParser();
-			var html = parser.parseFromString(text, "text/html");
-			let abstract = ZU.xpath(html, '//abstract/p');
-			if (abstract[0] != undefined) {
-			abstract = abstract[0].innerHTML;
-			abstracts.push(abstract.replace(/(<!--\[CDATA\[)|(\]\]-->)/g, ""));
-			}
-		let trimmedAbstracts = [];
-		for (let abstract of abstracts) {
-			if (abstract && abstract.length > 150) {
-				abstract = ZU.trimInternal(abstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "").replace(/[\n\t]/g, ""));
-				if (!trimmedAbstracts.includes(abstract)) trimmedAbstracts.push(abstract);
-			}
-		}
-		if (trimmedAbstracts.length == 0) {
-			for (let abs of ZU.xpath(doc, "//div[contains(h4,'Abstract')]/p")) {
-				if (abs.textContent && abs.textContent.length > 400) {
-					trimmedAbstracts.push(abs.textContent);
-					}
-				}
-			}
-		let abstractNr = 0;
-		for (let abstract of trimmedAbstracts) {
-			if (abstractNr == 0) item.abstractNote = abstract;
-			else item.notes.push("abs:" + abstract);
-			abstractNr += 1;
-		}
-		if (!item.abstractNote) {
-			item.url = item.url.replace('sci_abstract', 'sci_arttext');
-		}
-		item.complete();
+		if (abstract) item.abstractNote = abstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, "").replace(/[\n\t]/g, "");
+		if (transAbstract) item.notes.push({note: "abs:" + transAbstract.replace(/^\s*(ABSTRACT:?|RESUMO:?|RESUMEN:?)/i, ""),
 		});
-	
+		var keywords = ZU.xpath(doc, '//b[contains(text(), "Keywords:") or contains(text(), "Keywords")]/..');
+		if (!keywords || keywords.length == 0) keywords = ZU.xpath(doc, '//strong[contains(text(), "Keywords:") or contains(text(), "Keywords")]/.. | /html/body/div[1]/div[2]/div[2]/p[5]');
+		if (keywords && keywords.length > 0) {
+			item.tags = keywords[0].textContent
+						.trim()
+						.replace(/\n/g, "")
+						.replace(/keywords\s*:\s*/ig, "")
+						.split(";")
+						.map(function(x) { return x.trim(); })
+						.map(function(y) { return y.charAt(0).toUpperCase() + y.slice(1); });
 	}
-	//item.complete();
+
+		item.libraryCatalog = "SciELO"
+		item.complete();
 	});
 	translator.translate();
 }
 
-
-
 /** BEGIN TEST CASES **/
 var testCases = [
+	{
+		"type": "web",
+		"url": "http://www.scielosp.org/scielo.php?script=sci_arttext&pid=S0034-89102007000900015&lang=pt",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Perceptions of HIV rapid testing among injecting drug users in Brazil",
+				"creators": [
+					{
+						"firstName": "P. R.",
+						"lastName": "Telles-Dias",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "S.",
+						"lastName": "Westman",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "A. E.",
+						"lastName": "Fernandez",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "M.",
+						"lastName": "Sanchez",
+						"creatorType": "author"
+					}
+				],
+				"date": "12/2007",
+				"DOI": "10.1590/S0034-89102007000900015",
+				"ISSN": "0034-8910",
+				"libraryCatalog": "SciELO",
+				"pages": "94-100",
+				"publicationTitle": "Revista de Saúde Pública",
+				"url": "http://www.scielosp.org/scielo.php?script=sci_abstract&pid=S0034-89102007000900015&lng=en&nrm=iso&tlng=pt",
+				"volume": "41",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "http://www.scielo.br/scielo.php?script=sci_arttext&pid=S0104-62762002000200002&lang=pt",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "How candidates for the Presidency are nominated?: Rules and procedures in the Latin American political parties",
+				"creators": [
+					{
+						"firstName": "Flavia",
+						"lastName": "Freidenberg",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Francisco",
+						"lastName": "Sánchez López",
+						"creatorType": "author"
+					}
+				],
+				"date": "10/2002",
+				"DOI": "10.1590/S0104-62762002000200002",
+				"ISSN": "0104-6276",
+				"issue": "2",
+				"libraryCatalog": "SciELO",
+				"pages": "158-188",
+				"publicationTitle": "Opinião Pública",
+				"shortTitle": "How candidates for the Presidency are nominated?",
+				"url": "http://www.scielo.br/scielo.php?script=sci_abstract&pid=S0104-62762002000200002&lng=en&nrm=iso&tlng=pt",
+				"volume": "8",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "http://search.scielo.org/?q=&lang=pt&count=15&from=0&output=site&sort=&format=summary&fb=&page=1&q=zotero&lang=pt&page=1",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "http://www.scielo.br/scielo.php?script=sci_arttext&pid=S1413-35552013000400328&lang=pt",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Analysis of the user satisfaction level in a public physical therapy service",
+				"creators": [
+					{
+						"firstName": "Renato S.",
+						"lastName": "Almeida",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Leandro A. C.",
+						"lastName": "Nogueira",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Stéphane",
+						"lastName": "Bourliataux-Lajoine",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Renato S.",
+						"lastName": "Almeida",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Leandro A. C.",
+						"lastName": "Nogueira",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Stéphane",
+						"lastName": "Bourliataux-Lajoine",
+						"creatorType": "author"
+					}
+				],
+				"date": "08/2013",
+				"DOI": "10.1590/S1413-35552013005000097",
+				"ISSN": "1413-3555",
+				"abstractNote": "BACKGROUND: The concepts of quality management have increasingly been introduced into the health sector. Methods to measure satisfaction and quality are examples of this trend.  OBJECTIVE: This study aimed to identify the level of customer satisfaction in a physical therapy department involved in the public area and to analyze the key variables that impact the usersâ€(tm) perceived quality. METHOD: A cross-sectional observational study was conducted, and 95 patients from the physical therapy department of the Hospital Universitário Gaffrée e Guinle - Universidade Federal do Estado do Rio de Janeiro (HUGG/UNIRIO) - Rio de Janeiro, Brazil, were evaluated by the SERVQUAL questionnaire. A brief questionnaire to identify the sociocultural profile of the patients was also performed.  RESULTS: Patients from this health service presented a satisfied status with the treatment, and the population final average value in the questionnaire was 0.057 (a positive value indicates satisfaction). There was an influence of the educational level on the satisfaction status (χ‡Â²=17,149; p=0.002). A correlation was found between satisfaction and the dimensions of tangibility (rho=0.56, p=0.05) and empathy (rho=0.46, p=0.01) for the Unsatisfied group. Among the Satisfied group, the dimension that was correlated with the final value of the SERVQUAL was responsiveness (rho=0.44, p=0.01).  CONCLUSIONS: The final values of the GGUH physical therapy department showed that patients can be satisfied even in a public health service. Satisfaction measures must have a multidimensional approach, and we found that people with more years of study showed lower values of satisfaction.Key words: health management; physical therapy; user satisfaction",
+				"issue": "4",
+				"libraryCatalog": "SciELO",
+				"pages": "328-335",
+				"publicationTitle": "Brazilian Journal of Physical Therapy",
+				"url": "http://www.scielo.br/scielo.php?script=sci_abstract&pid=S1413-35552013000400328&lng=en&nrm=iso&tlng=en",
+				"volume": "17",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
 	{
 		"type": "web",
 		"url": "https://scielo.conicyt.cl/scielo.php?script=sci_arttext&pid=S0049-34492019000400457&lng=en&nrm=iso&tlng=en",
@@ -246,30 +283,87 @@ var testCases = [
 						"firstName": "Gonzalo",
 						"lastName": "Guzmán",
 						"creatorType": "author"
+					},
+					{
+						"firstName": "Gonzalo",
+						"lastName": "Guzmán",
+						"creatorType": "author"
 					}
 				],
 				"date": "12/2019",
 				"DOI": "10.4067/S0049-34492019000400457",
 				"ISSN": "0049-3449",
-				"abstractNote": "La aproximación antropológica de Sacrosanctum concilium a la sagrada liturgia exige adentrarse en el universo del lenguaje simbólico y su proceso semiótico. Este arroja una luz importante para re-pensar el ex opere operato desprendiéndose de una visión ontológica-estática para adentrarse en la dinámica de una acción re-presentada gracias a la acción del Espíritu Santo. La reflexión semiótica del siglo pasado, especialmente en los autores estadounidenses Charles Peirce y Charles Morris, ayuda seriamente para comprender cómo los ritus et preces de la celebración litúrgica son un lugar teológico de la acción del Espíritu que posibilita el encuentro de lo humano y lo divino.",
+				"abstractNote": "La aproximación antropológica de Sacrosanctum concilium a la sagrada liturgia exige adentrarse en el universo del lenguaje simbólico y su proceso semiótico. Este arroja una luz importante para re-pensar el ex opere operato desprendiéndose de una visión ontológica-estática para adentrarse en la dinámica de una acción re-presentada gracias a la acción del Espíritu Santo. La reflexión semiótica del siglo pasado, especialmente en los autores estadounidenses Charles Peirce y Charles Morris, ayuda seriamente para comprender cómo los ritus et preces de la celebración litúrgica son un lugar teológico de la acción del Espíritu que posibilita el encuentro de lo humano y lo divino.Palabras claves: performativo; sacramentos; liturgia; semiótica; lenguaje simbólico; ritualidad; ex opere operato",
 				"issue": "4",
-				"language": "es",
 				"libraryCatalog": "SciELO",
 				"pages": "457-474",
 				"publicationTitle": "Teología y vida",
 				"shortTitle": "Re-pensar el ex opere operato II",
-				"url": "http://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0049-34492019000400457&lng=en&nrm=iso&tlng=en",
+				"url": "https://scielo.conicyt.cl/scielo.php?script=sci_abstract&pid=S0049-34492019000400457&lng=en&nrm=iso&tlng=en",
 				"volume": "60",
-				"attachments": [],
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [
+					{
+						"note": "abs:\nThe anthropological approach of Sacrosanctum concilium to the sacred liturgy requires entering into the universe of symbolic language and its semiotic process. It casts an important light to re-think the ex opere operato, detaching itself from an ontological-static vision to enter into the dynamics of an action re-presented thanks to the action of the Holy Spirit. The semiotic reflection of the last century, especially in American authors Charles Peirce and Charles Morris, helps seriously to understand how the ritus et preces of the liturgical celebration are a theological place of the action of the Spirit that makes possible the encounter of the human and the divine.\nKeywords: performative; sacraments; liturgy; semiotics; symbolic language; rituality; ex opere operato\n"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://scielo.conicyt.cl/scielo.php?script=sci_arttext&pid=S0049-34492019000400457&lng=en&nrm=iso&tlng=en",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Re-pensar el ex opere operato II: Per signa sensibilia significantur (SC 7). Quid enim?",
+				"creators": [
+					{
+						"firstName": "Gonzalo",
+						"lastName": "Guzmán",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Gonzalo",
+						"lastName": "Guzmán",
+						"creatorType": "author"
+					}
+				],
+				"date": "12/2019",
+				"DOI": "10.4067/S0049-34492019000400457",
+				"ISSN": "0049-3449",
+				"abstractNote": "La aproximación antropológica de Sacrosanctum concilium a la sagrada liturgia exige adentrarse en el universo del lenguaje simbólico y su proceso semiótico. Este arroja una luz importante para re-pensar el ex opere operato desprendiéndose de una visión ontológica-estática para adentrarse en la dinámica de una acción re-presentada gracias a la acción del Espíritu Santo. La reflexión semiótica del siglo pasado, especialmente en los autores estadounidenses Charles Peirce y Charles Morris, ayuda seriamente para comprender cómo los ritus et preces de la celebración litúrgica son un lugar teológico de la acción del Espíritu que posibilita el encuentro de lo humano y lo divino.Palabras claves: performativo; sacramentos; liturgia; semiótica; lenguaje simbólico; ritualidad; ex opere operato",
+				"issue": "4",
+				"libraryCatalog": "SciELO",
+				"pages": "457-474",
+				"publicationTitle": "Teología y vida",
+				"shortTitle": "Re-pensar el ex opere operato II",
+				"url": "https://scielo.conicyt.cl/scielo.php?script=sci_abstract&pid=S0049-34492019000400457&lng=en&nrm=iso&tlng=en",
+				"volume": "60",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
 				"tags": [
 					{
 						"tag": "Ex opere operato"
-					},
-					{
-						"tag": "Lenguaje simbólico"
-					},
-					{
-						"tag": "Liturgia"
 					},
 					{
 						"tag": "Liturgy"
@@ -278,16 +372,7 @@ var testCases = [
 						"tag": "Performative"
 					},
 					{
-						"tag": "Performativo"
-					},
-					{
-						"tag": "Ritualidad"
-					},
-					{
 						"tag": "Rituality"
-					},
-					{
-						"tag": "Sacramentos"
 					},
 					{
 						"tag": "Sacraments"
@@ -296,266 +381,17 @@ var testCases = [
 						"tag": "Semiotics"
 					},
 					{
-						"tag": "Semiótica"
-					},
-					{
 						"tag": "Symbolic language"
 					}
 				],
 				"notes": [
-					"abs:The anthropological approach of Sacrosanctum concilium to the sacred liturgy requires entering into the universe of symbolic language and its semiotic process. It casts an important light to re-think the ex opere operato, detaching itself from an ontological-static vision to enter into the dynamics of an action re-presented thanks to the action of the Holy Spirit. The semiotic reflection of the last century, especially in American authors Charles Peirce and Charles Morris, helps seriously to understand how the ritus et preces of the liturgical celebration are a theological place of the action of the Spirit that makes possible the encounter of the human and the divine."
+					{
+						"note": "abs:\nThe anthropological approach of Sacrosanctum concilium to the sacred liturgy requires entering into the universe of symbolic language and its semiotic process. It casts an important light to re-think the ex opere operato, detaching itself from an ontological-static vision to enter into the dynamics of an action re-presented thanks to the action of the Holy Spirit. The semiotic reflection of the last century, especially in American authors Charles Peirce and Charles Morris, helps seriously to understand how the ritus et preces of the liturgical celebration are a theological place of the action of the Spirit that makes possible the encounter of the human and the divine.\nKeywords: performative; sacraments; liturgy; semiotics; symbolic language; rituality; ex opere operato\n"
+					}
 				],
 				"seeAlso": []
 			}
 		]
-	},
-	{
-		"type": "web",
-		"url": "https://www.scielo.cl/scielo.php?script=sci_arttext&pid=S0718-92732020000300151&lng=en&nrm=iso&tlng=en",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "La cultura de la paz y la tolerancia religiosa desde una perspectiva islámica",
-				"creators": [
-					{
-						"firstName": "Abbas",
-						"lastName": "Yazdani",
-						"creatorType": "author"
-					}
-				],
-				"date": "12/2020",
-				"DOI": "10.4067/S0718-92732020000300151",
-				"ISSN": "0718-9273",
-				"abstractNote": "The subject of the culture of peace and non-violent communication is extremely important, even more so today than in the past. The contention of this paper is that Islam is a religion of tolerance, peace, and reconciliation. I shall argue that there are many principles of the culture of peace in Islam. However, this doctrine may be misunderstood in some Islamic societies due to the poor knowledge of Islamic teachings or wrong education. Therefore, we strongly need to have a true interpretation of religious teachings as well as a true approach to religious diversity to provide the culture of peace.",
-				"language": "en",
-				"libraryCatalog": "SciELO",
-				"pages": "151-168",
-				"publicationTitle": "Veritas",
-				"url": "http://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0718-92732020000300151&lng=en&nrm=iso&tlng=en",
-				"volume": "47",
-				"attachments": [],
-				"tags": [
-					{
-						"tag": "Diversidad religiosa"
-					},
-					{
-						"tag": "Enseñanzas religiosas"
-					},
-					{
-						"tag": "Islam"
-					},
-					{
-						"tag": "Paz"
-					},
-					{
-						"tag": "Peace"
-					},
-					{
-						"tag": "Religious diversity"
-					},
-					{
-						"tag": "Religious teachings"
-					},
-					{
-						"tag": "Violence"
-					},
-					{
-						"tag": "Violencia"
-					}
-				],
-				"notes": [
-					"abs:El tema de la cultura de paz y la comunicación no violenta es sumamente importante, especialmente en la actualidad. El argumento de este artículo es que el Islam es una religión de tolerancia, paz y reconciliación. Argumentaré que hay muchos principios de la cultura de paz en el Islam. Sin embargo, esta doctrina puede malinterpretarse en algunas sociedades islámicas debido al escaso conocimiento de las enseñanzas islámicas o la educación incorrecta. Por lo tanto, necesitamos tener una verdadera interpretación de las enseñanzas religiosas, así como un verdadero enfoque de la diversidad religiosa para difundir la cultura de la paz."
-				],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://www.scielo.cl/scielo.php?script=sci_arttext&pid=S0718-92732016000100002&lng=en&nrm=iso&tlng=en",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "La memoria histórica en los procesos de acompañamiento pastoral a personas en situación de desplazamiento",
-				"creators": [
-					{
-						"firstName": "Olga Consuelo",
-						"lastName": "Vélez",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Ángela María",
-						"lastName": "Sierra",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Oar",
-						"lastName": "Rodríguez",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Susana",
-						"lastName": "Becerra",
-						"creatorType": "author"
-					}
-				],
-				"date": "03/2016",
-				"DOI": "10.4067/S0718-92732016000100002",
-				"ISSN": "0718-9273",
-				"abstractNote": "En los procesos sociopolíticos de superación de los conflictos armados, la recuperación de la Memoria histórica está ocupando un lugar central debido al papel que está juega para una efectiva reconciliación donde la verdad, la reparación y el perdón forman parte de ese proceso. La experiencia cristiana, como comunidad de memoria tiene mucho que aportar en la medida que articule la reflexión crítica sobre qué memoria, desde dónde, desde quiénes; con el potencial liberador del Dios que se pone del lado de las víctimas y desde ellas no deja que se olvide su dolor sino que busca transformarlo. Además incorporar la perspectiva de género, permite reconocer las diferencias genéricas que influyen en la recuperación de la memoria histórica. Mostrar la relevancia de estas articulaciones, es el propósito de este artículo con la invitación a transformar la pastoral urbana que pretende acompañar a las personas en situación de desplazamiento.",
-				"language": "es",
-				"libraryCatalog": "SciELO",
-				"pages": "33-60",
-				"publicationTitle": "Veritas",
-				"url": "http://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0718-92732016000100002&lng=en&nrm=iso&tlng=en",
-				"volume": "34",
-				"attachments": [],
-				"tags": [
-					{
-						"tag": "Desplazamiento"
-					},
-					{
-						"tag": "Displacement"
-					},
-					{
-						"tag": "Gender"
-					},
-					{
-						"tag": "Género"
-					},
-					{
-						"tag": "Memoria"
-					},
-					{
-						"tag": "Memory"
-					},
-					{
-						"tag": "Pastoral urbana"
-					},
-					{
-						"tag": "Urban pastoral"
-					},
-					{
-						"tag": "Victims"
-					},
-					{
-						"tag": "Víctimas"
-					}
-				],
-				"notes": [
-					"Paralleltitel:The historical memory in the process of pastoral support to displaced persons",
-					"abs:In socio-political processes of overcoming armed conflict, the Historical Memory is taking a central point because of the role it plays for effective reconciliation where \"truth, reparation and forgiveness\" are part of that process. Christian experience, as memory community has much to contribute to articulate the critical reflection about what memory, from where, from whom; with the liberating potential of the God who takes the side of the victims and doesn’t allow to forget them neither their pain and seeks transformation. Besides, incorporate the gender perspective, allow to recognize the gender differences and their influences in the recovery of historical memory. Show the relevance of these articulations is the purpose of this article with an invitation to transform urban pastoral in order to support displaced people."
-				],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0718-92732016000100001&lng=en&nrm=iso&tlng=es",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Entre la oscuridad y el silencio: ciegos y sordomudos en el mundo de la Biblia",
-				"creators": [
-					{
-						"firstName": "Casas",
-						"lastName": "Ramírez",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Juan",
-						"lastName": "Alberto",
-						"creatorType": "author"
-					}
-				],
-				"date": "03/2016",
-				"DOI": "10.4067/S0718-92732016000100001",
-				"ISSN": "0718-9273",
-				"language": "es",
-				"libraryCatalog": "SciELO",
-				"pages": "9-32",
-				"publicationTitle": "Veritas",
-				"shortTitle": "Entre la oscuridad y el silencio",
-				"url": "http://www.scielo.cl/scielo.php?script=sci_arttext&pid=S0718-92732016000100001&lng=en&nrm=iso&tlng=es",
-				"volume": "34",
-				"attachments": [],
-				"tags": [
-					{
-						"tag": "Antropología bíblica"
-					},
-					{
-						"tag": "Ceguera en la Biblia"
-					},
-					{
-						"tag": "Discapacidad en la Biblia"
-					},
-					{
-						"tag": "Enfermedad en la Biblia"
-					},
-					{
-						"tag": "Sordera en la Biblia curación en la Biblia"
-					}
-				],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://www.scielo.cl/scielo.php?script=sci_arttext&pid=S0718-92732016000100006&lng=en&nrm=iso&tlng=es",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Presupuestos metafísicos de una sana historiografía crítica aplicada al texto bíblico",
-				"creators": [
-					{
-						"firstName": "Carlos",
-						"lastName": "Casanova",
-						"creatorType": "author"
-					}
-				],
-				"date": "03/2016",
-				"DOI": "10.4067/S0718-92732016000100006",
-				"ISSN": "0718-9273",
-				"abstractNote": "Trata sobre los presupuestos metafísicos de aceptar la Biblia como Palabra de Dios. En particular, trata sobre la posibilidad de las intervenciones divinas, de los milagros y profecías. Responde al argumento de Hobbes por el determinismo, al principio de la clausura causal del mundo, a la crítica de Hume a la posibilidad de probar un milagro y a la negación de las profecías.",
-				"language": "es",
-				"libraryCatalog": "SciELO",
-				"pages": "117-143",
-				"publicationTitle": "Veritas",
-				"url": "http://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0718-92732016000100006&lng=en&nrm=iso&tlng=es",
-				"volume": "34",
-				"attachments": [],
-				"tags": [
-					{
-						"tag": "Biblia"
-					},
-					{
-						"tag": "Historicidad del Nuevo Testamento"
-					},
-					{
-						"tag": "Intervenciones divinas"
-					},
-					{
-						"tag": "Milagros"
-					},
-					{
-						"tag": "Profecías"
-					}
-				],
-				"notes": [
-					"Paralleltitel:Metaphysical presuppositions for a sound critical historiography applied to the biblical text",
-					"abs:This paper deals with the metaphysical presuppositions which underlie the acceptance of the Bible as the Word of God. In particular, it deals with the possibility of divine interventions, miracles and prophecies. It answers to the Hobbesian argument for determinism, to the principle of the causal closure of the world, to Hume’s criticism of the possibility to prove miracles and to the negation of prophecies."
-				],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "http://www.scielo.org.za/scielo.php?script=sci_issuetoc&pid=1011-760120210002&lng=en&nrm=iso",
-		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
