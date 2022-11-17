@@ -5,11 +5,11 @@
 	"target": "^https?://tidsskrift.dk/[^/]+/(article|issue)/view.*/[0-9]+",
 	"minVersion": "3.0",
 	"maxVersion": "",
-	"priority": 90,
+	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-07-01 14:36:58"
+	"lastUpdated": "2022-06-08 13:07:57"
 }
 
 /*
@@ -104,7 +104,8 @@ function doWeb(doc, url) {
 		postProcess(doc, i);
 	});
 	translator.translate();
-}/** BEGIN TEST CASES **/
+}
+/** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "web",

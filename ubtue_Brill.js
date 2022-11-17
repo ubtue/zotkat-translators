@@ -4,12 +4,12 @@
 	"creator": "Madeesh Kannan",
 	"target": "^https?://brill.com/view/journals/",
 	"minVersion": "3.0",
-	"maxVersion": null,
+	"maxVersion": "",
 	"priority": 90,
-	"inRepository": false,
+	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-29 10:32:35"
+	"lastUpdated": "2022-11-07 10:01:10"
 }
 
 /*
@@ -126,6 +126,11 @@ function postProcess(doc, item) {
 	let freeAccess = text(doc, '.color-access-free');
 	if (freeAccess && freeAccess.match(/(free|freier)\s+(access|zugang)/gi)) item.notes.push('LF:');
 	if (!item.itemType)	item.itemType = "journalArticle";
+	for (let tag of ZU.xpath(doc, '//meta[@property="article:tag"]/@content')) {
+		if (!item.tags.includes(tag.textContent)) item.tags.push(tag.textContent);
+	}
+	
+	item.attachments = [];
 }
 
 function extractErscheinungsjahr(date) {
@@ -174,7 +179,8 @@ function doWeb(doc, url) {
 		invokeEmbeddedMetadataTranslator(doc, url);
 }
 
-	/** BEGIN TEST CASES **/
+	
+/** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "web",

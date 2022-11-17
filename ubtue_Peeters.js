@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-02-04 12:57:08"
+	"lastUpdated": "2022-10-05 15:05:55"
 }
 
 /*
@@ -103,36 +103,39 @@ function parseAbstract(doc, item) {
 	// <i> nodes in sequence
 	let textParts = ZU.xpath(doc, '//b[contains(text(), "Abstract :")]/following-sibling::text()');
 	let italicsParts = ZU.xpath(doc, '//b[contains(text(), "Abstract :")]/following-sibling::i');
-
+	let usedItalicsParts = 0;
 	if (textParts && textParts.length > 0) {
 		item.abstractNote = "";
-
 		let fullAbstract = "";
 		let i = 0, j = 0;
-		do {
-			let text = textParts[i].textContent;
-			if (text && text.length > 0)
-				fullAbstract += text;
-
-			if (j < italicsParts.length) {
-				let text = italicsParts[j].textContent;
-				if (text && text.length > 0)
-					fullAbstract += text;
-				++j;
+		while (i < textParts.length) {
+			let text = textParts[i].textContent.replace(/\n|\s\s+/g, '');
+			if (text.length == 0) {
+				fullAbstract += '\\n4207';
 			}
-
+			if (text && text.length > 0) {
+				fullAbstract += text;
+				if (j < italicsParts.length) {
+					let text = italicsParts[j].textContent;
+					if (textParts[i+1].textContent.replace(/\n|\s\s+/g, '').length > 0) {
+						fullAbstract += text;
+						++j;
+						usedItalicsParts += 1;
+						}
+					}
+			}
 			++i;
-		} while (i < textParts.length);
-		//split abstracts
-		let multipleAbstractList = fullAbstract.split(/\.(\n\n)/g).filter(arrayItem => arrayItem !== "\n\n");
-		item.abstractNote = ZU.trimInternal(multipleAbstractList[0]);
-		let absIndex = 0;
-		for (let abs of multipleAbstractList.splice(1)) {
-				item.notes.push({
-					note: "abs"+ (absIndex !== 0 ? absIndex : '') + ":" + ZU.trimInternal(abs),
-				});
-				++absIndex;
 		}
+		//split abstracts
+		fullAbstract = fullAbstract.replace(/(?:\\n4207)+$|^(?:\\n4207)+/g, '');
+
+		if (usedItalicsParts < italicsParts.length) {
+			if (usedItalicsParts == italicsParts.length -1) {
+				fullAbstract = italicsParts[0].textContent + fullAbstract;
+			}
+		}
+		item.abstractNote = fullAbstract;
+		
 	}
 }
 
@@ -195,13 +198,23 @@ function scrape(doc, url) {
 			item.complete();
 		});
 	}
+	
+	if (item.ISSN == '' || item.ISSN == undefined) {
+		if (item.publicationTitle == 'Studia Canonica') item.ISSN = '2295-3027';
+		if (item.publicationTitle == 'ET-Studies') item.ISSN = '2033-4273';
+		
+	}
 	// fixup date
 	if (item.date) {
 		var match = item.date.match(/^numéro [0-9]+, ([0-9]{4})/);
 		if (match)
 			item.date = match[1];
 	}
+	if (item.title.match(/^\s*Book\s*Reviews?(?:$|\b)/i)) {
+		item.tags.push('RezensionstagPica');
+	}
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
@@ -358,7 +371,7 @@ var testCases = [
 				"date": "March 1994",
 				"DOI": "10.2143/EP.1.1.630100",
 				"ISSN": "1783-1431",
-				"abstractNote": "Today, applied ethics confronts many problems: technological and biomedical innovations, crisis of the welfare state, rising unemployment, migration and xenophobia. These and the changes accompanying them are, in themselves, important objects of study. An investigation on the level of the differentiated disciplines of practical ethics is insufficient. In as far as practical ethics also serves to disclose reality, it shows that modern problems can only be understood in the light of the general cultural crisis of which they are, at the very least, symptoms. In the first part of this article, we will try to clarify this byanalyzing the crisis in the ethos of modern secularized society. The second part will try to show that Christian ethics can offer a meaningful answer to this cultural crisis, and how it can do so.",
+				"abstractNote": "Today, applied ethics confronts many problems: technological and biomedical innovations, crisis of the welfare state, rising unemployment, migration and xenophobia. These and the changes accompanying them are, in themselves, important objects of study. \\n4207An investigation on the level of the differentiated disciplines of practical ethics is insufficient. In as far as practical ethics also serves to disclose reality, it shows that modern problems can only be understood in the light of the general cultural crisis of which they are, at the very least, symptoms. In the first part of this article, we will try to clarify this byanalyzing the crisis in the ethos of modern secularized society. The second part will try to show that Christian ethics can offer a meaningful answer to this cultural crisis, and how it can do so.",
 				"issue": "1",
 				"libraryCatalog": "ubtue_Peeters",
 				"pages": "3-12",
@@ -615,7 +628,7 @@ var testCases = [
 				"date": "2021",
 				"DOI": "10.2143/ETS.12.1.3289311",
 				"ISSN": "2033-4273",
-				"abstractNote": "Seelsorgende und ihre Gemeinden stehen untereinander und speziell in ihrem Verhältnis zur Kirchenleitung vor großen Herausforderungen. Dies machen 'Impulse zur Eigenverantwortung der Gemeinden' bewusst, welche Hermann Häring zu Ostern 2020 publizierte. Dessen Kernanliegen fokussieren auf eine partizipative Kirchenstruktur, den Bedarf nach 'mehr Augenhöhe', den Ruf nach Autorität der Gemeinde und deren Kraft aus den Charismen vor Ort. In kritischer Reflexion einiger dieser Stichworte greift Stephan Schmid-Keiser die Anliegen Härings auf. Eigene Erfahrungen in der Leitung von Pfarreien bewegen ihn, Derivate aus der Forschungsarbeit von Thomas Wienhardt (2017) zu einer wirkungsvoll(er)en Pastoral zu diskutieren und zu fragen, inwieweit die praktische Theologie hinsichtlich der Stärkung der Eigenverantwortung von Getauften und Gefirmten bisher das Nötige tut. Schließlich plädiert der Beitrag für Weichenstellungen im Kirchenrecht, ohne die kirchliches Leben in gewandelter Gesellschaft vermehrt ins Abseits geriete. Gewidmet ist der Beitrag Leo Karrer († 8. Januar 2021), dem die Stärkung echter Teilhabe des Volkes Gottes am Leben der Glaubensgemeinschaft ein Grundanliegen war",
+				"abstractNote": "Seelsorgende und ihre Gemeinden stehen untereinander und speziell in ihrem Verhältnis zur Kirchenleitung vor großen Herausforderungen. Dies machen 'Impulse zur Eigenverantwortung der Gemeinden' bewusst, welche Hermann Häring zu Ostern 2020 publizierte. Dessen Kernanliegen fokussieren auf eine partizipative Kirchenstruktur, den Bedarf nach 'mehr Augenhöhe', den Ruf nach Autorität der Gemeinde und deren Kraft aus den Charismen vor Ort. In kritischer Reflexion einiger dieser Stichworte greift Stephan Schmid-Keiser die Anliegen Härings auf. Eigene Erfahrungen in der Leitung von Pfarreien bewegen ihn, Derivate aus der Forschungsarbeit von Thomas Wienhardt (2017) zu einer wirkungsvoll(er)en Pastoral zu diskutieren und zu fragen, inwieweit die praktische Theologie hinsichtlich der Stärkung der Eigenverantwortung von Getauften und Gefirmten bisher das Nötige tut. Schließlich plädiert der Beitrag für Weichenstellungen im Kirchenrecht, ohne die kirchliches Leben in gewandelter Gesellschaft vermehrt ins Abseits geriete. Gewidmet ist der Beitrag Leo Karrer († 8. Januar 2021), dem die Stärkung echter Teilhabe des Volkes Gottes am Leben der Glaubensgemeinschaft ein Grundanliegen war.\\n4207Pastors and their congregations face great challenges among themselves and especially in their relationship with the church leadership. This is made clear in 'Impulses towards Congregations assuming Personal Responsibility' that Hermann Häring published at Easter 2020. Its core concerns focus on a participatory church structure, the need for more eye-to-eye interaction, the call for authority to be given to congregations, and their strength from charisms on the ground. Reflecting critically on some of these key ideas. Stephan Schmid-Keiser takes up Häring’s concerns. His own experiences in leading parishes lead him to discuss some implications from the research of Thomas Wienhardt (2017) on a (more) effective pastoral ministry and to ask to what extent practical theology has so far done what is necessary with regard to strengthening the personal responsibility of the baptised and the confirmed. Finally, the article pleads for changes to church law, without which church life in a changed society would increasingly be side-lined. The article is dedicated to Leo Karrer (died 8 January 2021) for whom the strengthening of genuine participation of God’s people in the life of the faith community was a fundamental concern.\\n4207Les pasteurs et leurs communautés sont confrontés à de grands défis internes, en particulier dans leurs relations avec les responsables de l’Église. L’ouvrage «Impulse zur Eigenverantwortung der Gemeinden», publié par Hermann Häring à Pâques 2020, le montre clairement. Ses principales préoccupations portent sur une structure ecclésiale participative, sur le besoin d’une interaction «sur pied d’égalité», sur l’appel à l’autorité de la communauté et au pouvoir que lui donnent ses charismes sur le terrain. Dans une réflexion critique sur certains de ces mots-clés, Stephan Schmid-Keiser reprend les préoccupations de Häring. Ses propres expériences de responsable de paroisse l’amènent à en discuter certaines implications, à partir de la recherche de Thomas Wienhardt (2017) sur un ministère pastoral (plus) efficace et à se demander dans quelle mesure la théologie pratique a, jusqu’ici, fait ce qu’il fallait pour renforcer la responsabilité personnelle des baptisés et des confirmés. Enfin, l’article plaide pour des changements dans la loi de l’Église, faute de quoi l’Église vivrait de plus en plus à la marge d’une société qui a changé. L’article est dédié à Leo Karrer (décédé le 8 janvier 2021). Le renforcement d’une réelle participation du peuple de Dieu à la vie de la communauté était pour lui une préoccupation essentielle.",
 				"issue": "1",
 				"libraryCatalog": "ubtue_Peeters",
 				"pages": "131-148",
@@ -625,14 +638,7 @@ var testCases = [
 				"volume": "12",
 				"attachments": [],
 				"tags": [],
-				"notes": [
-					{
-						"note": "abs:Pastors and their congregations face great challenges among themselves and especially in their relationship with the church leadership. This is made clear in 'Impulses towards Congregations assuming Personal Responsibility' that Hermann Häring published at Easter 2020. Its core concerns focus on a participatory church structure, the need for more eye-to-eye interaction, the call for authority to be given to congregations, and their strength from charisms on the ground. Reflecting critically on some of these key ideas. Stephan Schmid-Keiser takes up Häring’s concerns. His own experiences in leading parishes lead him to discuss some implications from the research of Thomas Wienhardt (2017) on a (more) effective pastoral ministry and to ask to what extent practical theology has so far done what is necessary with regard to strengthening the personal responsibility of the baptised and the confirmed. Finally, the article pleads for changes to church law, without which church life in a changed society would increasingly be side-lined. The article is dedicated to Leo Karrer (died 8 January 2021) for whom the strengthening of genuine participation of God’s people in the life of the faith community was a fundamental concern"
-					},
-					{
-						"note": "abs1:Les pasteurs et leurs communautés sont confrontés à de grands défis internes, en particulier dans leurs relations avec les responsables de l’Église. L’ouvrage «Impulse zur Eigenverantwortung der Gemeinden», publié par Hermann Häring à Pâques 2020, le montre clairement. Ses principales préoccupations portent sur une structure ecclésiale participative, sur le besoin d’une interaction «sur pied d’égalité», sur l’appel à l’autorité de la communauté et au pouvoir que lui donnent ses charismes sur le terrain. Dans une réflexion critique sur certains de ces mots-clés, Stephan Schmid-Keiser reprend les préoccupations de Häring. Ses propres expériences de responsable de paroisse l’amènent à en discuter certaines implications, à partir de la recherche de Thomas Wienhardt (2017) sur un ministère pastoral (plus) efficace et à se demander dans quelle mesure la théologie pratique a, jusqu’ici, fait ce qu’il fallait pour renforcer la responsabilité personnelle des baptisés et des confirmés. Enfin, l’article plaide pour des changements dans la loi de l’Église, faute de quoi l’Église vivrait de plus en plus à la marge d’une société qui a changé. L’article est dédié à Leo Karrer (décédé le 8 janvier 2021). Le renforcement d’une réelle participation du peuple de Dieu à la vie de la communauté était pour lui une préoccupation essentielle."
-					}
-				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
@@ -662,38 +668,6 @@ var testCases = [
 				"shortTitle": "Relational Normative Economics",
 				"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3288828&journal_code=EP",
 				"volume": "27",
-				"attachments": [],
-				"tags": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://poj.peeters-leuven.be/content.php?url=article&id=630100&journal_code=EP",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "An Ethical Agenda for Europe:  Fundamental Problems on Practical Ethics in a Christian Perspective",
-				"creators": [
-					{
-						"creatorType": "author",
-						"lastName": "Verstraeten",
-						"firstName": " Johan"
-					}
-				],
-				"date": "March 1994",
-				"DOI": "10.2143/EP.1.1.630100",
-				"ISSN": "1783-1431",
-				"abstractNote": "Today, applied ethics confronts many problems: technological and biomedical innovations, crisis of the welfare state, rising unemployment, migration and xenophobia. These and the changes accompanying them are, in themselves, important objects of study. An investigation on the level of the differentiated disciplines of practical ethics is insufficient. In as far as practical ethics also serves to disclose reality, it shows that modern problems can only be understood in the light of the general cultural crisis of which they are, at the very least, symptoms. In the first part of this article, we will try to clarify this byanalyzing the crisis in the ethos of modern secularized society. The second part will try to show that Christian ethics can offer a meaningful answer to this cultural crisis, and how it can do so.",
-				"issue": "1",
-				"libraryCatalog": "ubtue_Peeters",
-				"pages": "3-12",
-				"publicationTitle": "Ethical Perspectives",
-				"shortTitle": "An Ethical Agenda for Europe",
-				"url": "https://poj.peeters-leuven.be/content.php?url=article&id=630100&journal_code=EP",
-				"volume": "1",
 				"attachments": [],
 				"tags": [],
 				"notes": [],
@@ -797,6 +771,69 @@ var testCases = [
 		"type": "web",
 		"url": "https://poj.peeters-leuven.be/content.php?url=issue&journal_code=LS&issue=1&vol=43",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3290165&journal_code=STC",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Legislative Acts and Document Forms of the Apostolic See",
+				"creators": [
+					{
+						"creatorType": "author",
+						"lastName": "Huels",
+						"firstName": " John M."
+					}
+				],
+				"date": "2021",
+				"DOI": "10.2143/STC.55.1.3290165",
+				"ISSN": "2295-3027",
+				"abstractNote": "The Apostolic See principally employs four document forms for its legislation: the Apostolic Constitution, the Apostolic Letter given motu proprio, the Rescript ex audientia Sanctissimi, and the General Decree. This study explores the characteristics of each of these document forms, exemplifying them with the legislative acts promulgated in the pontificate of Benedict XVI and comparing their number to those of Pope Francis in the same period of time. The study shows that no document form is used exclusively for legislation but also may at times be doctrinal or administrative, so it often falls to a competent canonist to determine the precise nature and weight of a document of the Apostolic See.\\n4207Le Siège apostolique emploie principalement quatre formes de documents pour sa législation: la Constitution apostolique, la Lettre apostolique motu proprio, le Rescrit ex audientia Sanctissimi et le décret général. Cette étude explore les caractéristiques de chacune de ces formes de documents, en les illustrant avec les actes législatifs promulgués dans le pontificat de Benoît XVI et en comparant leur nombre à ceux du pape François à la même période. L’étude montre qu’aucune forme de document n’est utilisée exclusivement pour la législation mais peut aussi parfois être doctrinale ou administrative, de sorte qu’il incombe souvent à un canoniste compétent de déterminer la nature précise et le poids d’un document du Siège apostolique.",
+				"issue": "1/2",
+				"libraryCatalog": "ubtue_Peeters",
+				"pages": "367-403",
+				"publicationTitle": "Studia Canonica",
+				"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3290165&journal_code=STC",
+				"volume": "55",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3290159",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Oikonomìa and Remarriage in the Orthodox Tradition:  A Pastoral Solution for the Catholic Church?",
+				"creators": [
+					{
+						"creatorType": "author",
+						"lastName": "Connolly",
+						"firstName": " Patrick"
+					}
+				],
+				"date": "2021",
+				"DOI": "10.2143/STC.55.1.3290159",
+				"ISSN": "2295-3027",
+				"abstractNote": "The pastoral problem of divorce and remarriage among Catholics, especially in the developed world, has caused some Catholic authors to give attention to the Orthodox notion of oikonomìa and how it might be applied to the marriage discipline of the Catholic Church. The pastoral crisis has created favourable comment from Catholic writers on Eastern marriage practices, which allow remarriage after a period of penance. This article considers whether this truly is a viable pastoral solution or is in fact incompatible with the Catholic understanding of marital indissolubility.\\n4207Le problème pastoral du divorce et du remariage chez les catholiques, surtout dans les pays développés, a amené certains auteurs catholiques à s’intéresser à la notion orthodoxe d’oikonomìa et à la manière dont elle pourrait être appliquée à la discipline matrimoniale de l’Église catholique. La crise pastorale a suscité des commentaires favorables de la part des auteurs catholiques sur les pratiques orientales en matière de mariage, qui permettent un remariage après une période de pénitence. Cet article examine si cette solution pastorale est vraiment viable ou si elle est en fait incompatible avec la conception catholique de l’indissolubilité conjugale.",
+				"issue": "1/2",
+				"libraryCatalog": "ubtue_Peeters",
+				"pages": "209-243",
+				"publicationTitle": "Studia Canonica",
+				"shortTitle": "Oikonomìa and Remarriage in the Orthodox Tradition",
+				"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3290159",
+				"volume": "55",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/

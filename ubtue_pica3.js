@@ -35,7 +35,6 @@
 
 /* =============================================================================================================== */
 // Mapping tables that get populated with the entries from their corresponding map files in the Github repo
-var issn_to_keyword_field = {};
 var issn_to_language_code = {};
 var issn_to_license = {};
 var issn_to_physical_form = {};
@@ -46,7 +45,8 @@ var language_to_language_code = {};
 var notes_to_ixtheo_notations = {};
 var journal_title_to_ppn = {};
 var publication_title_to_physical_form = {};
-var issn_to_retrieve_sign = {};
+var issn_to_institution = {};
+var issn_to_collection_code = {};
 // Repository base URL
 var zts_enhancement_repo_url = 'https://raw.githubusercontent.com/ubtue/zotero-enhancement-maps/master/';
 var downloaded_map_files = 0;
@@ -135,9 +135,6 @@ function populateISSNMaps(mapData, url) {
 	}
 
     switch (mapFilename) {
-        case "ISSN_to_keyword_field.map":
-            issn_to_keyword_field = temp;
-            break;
         case "ISSN_to_language_code.map":
             issn_to_language_code = temp;
             break;
@@ -169,9 +166,11 @@ function populateISSNMaps(mapData, url) {
         case "publication_title_to_physical_form.map":
             publication_title_to_physical_form = temp;
             break;
-		case "ISSN_to_Abrufzeichen_zotkat.map":
-			Z.debug("Abrufzeichen");
-            issn_to_retrieve_sign = temp;
+		case "ISSN_to_Sammlungscode_zotkat.map":
+            issn_to_collection_code = temp;
+            break;
+		case "ISSN_to_Institution_zotkat.map":
+            issn_to_institution = temp;
             break;
         default:
             throw "Unknown map file: " + mapFilename;
@@ -263,6 +262,7 @@ function WriteItems() {
 			if (toDelete != null) {
 				line = line.replace(toDelete[1], '');
 			}
+			line = line.replace(/^\\nZ/, '\\n');
 			if (line.match(/\\nxxxx /) != null) {
 				errorString += line.substring(7, line.length) + '\\n';
 			}
@@ -306,6 +306,8 @@ function performExport() {
 		var superiorPPN = "";
 		var journalTitlePPN = "";
 		var issn_to_language = "";
+		var institution_retrieve_sign = "";
+		var collection_code = "";
 		var retrieve_sign = "";
 		if (!item.ISSN)
 				item.ISSN = "";
@@ -346,9 +348,13 @@ function performExport() {
 			physicalForm = publication_title_to_physical_form.get(item.publicationTitle);
 			Z.debug("Found journalTitlePPN:" + physicalForm);
         }
-		if (issn_to_retrieve_sign.get(item.ISSN) != undefined) {
-			retrieve_sign = issn_to_retrieve_sign.get(item.ISSN);
-			Z.debug("Found retrieve_sign:" + retrieve_sign);
+		if (issn_to_collection_code.get(item.ISSN) != undefined) {
+			collection_code = issn_to_collection_code.get(item.ISSN);
+			Z.debug("Found Collection code:" + collection_code);
+		}
+		if (issn_to_institution.get(item.ISSN) != undefined) {
+			institution_retrieve_sign = issn_to_institution.get(item.ISSN);
+			Z.debug("Found Institution:" + institution_retrieve_sign);
 		}
 
 		var article = false;
@@ -404,11 +410,8 @@ function performExport() {
                 addLine(currentItemId, "\\n0503", "Online-Ressource$bcr");
         }
 		
-		if (retrieve_sign == "BILDI") {
-			addLine(currentItemId, "\\n0575", "BIIN");
-		}
-		else if (retrieve_sign == "KALDI") {
-			addLine(currentItemId, "\\n0575", "KALD");
+		if (collection_code != "") {
+			addLine(currentItemId, "\\n0575", collection_code);
 		}
         //item.date --> 1100
         var date = Zotero.Utilities.strToDate(item.date);
@@ -543,8 +546,10 @@ function performExport() {
 
                 //Lookup für Autoren
                 if (authorName[0] != "!") {
-                    var lookupUrl = "https://swb.bsz-bw.de/DB=2.104/SET=70/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=3040&TRM0=" + authorName + "&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=(theolog*|neutestament*|alttestament*|kirchenhist*)&ACT3=-&IKT3=8991&TRM3=1[0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9]"
-
+					if (institution_retrieve_sign == "krzo") {
+                    var lookupUrl = "https://swb.bsz-bw.de/DB=2.104/SET=4/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=1&TRM0=" + authorName + "&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=*&ACT3=-&IKT3=8991&TRM3=1%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%5D%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9%5D%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9%5D&SRT=RLV"
+					}
+					else var lookupUrl = "https://swb.bsz-bw.de/DB=2.104/SET=70/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=3040&TRM0=" + authorName + "&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=(theolog*|neutestament*|alttestament*|kirchenhist*)&ACT3=-&IKT3=8991&TRM3=1[0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9]"
                     /*
                     lookupUrl kann je nach Anforderung noch spezifiziert werden.
 					Beispiel mit "Zenger, Erich"
@@ -588,10 +593,15 @@ function performExport() {
                         // processing callback function
                         function(doc, url, threadParams){
                             var ppn = Zotero.Utilities.xpathText(doc, '//div[a[img]]');
-							if (ppn) {
+							if (ppn && SsgField != "0" && institution_retrieve_sign != "krzo") {
                                 var authorValue = "!" + ppn.match(/^\d+X?/) + "!" + "$BVerfasserIn$4aut" + "\\n8910 $aixzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet\\n";
                                 addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', authorValue);
-                            } else {
+                            }
+							else if (ppn && SsgField != "0") {
+                                var authorValue = "!" + ppn.match(/^\d+X?/) + "!" + "$BVerfasserIn$4aut" + "\\n8910 $akrzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet\\n";
+                                addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', authorValue);
+                            }
+							else {
                                 addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', threadParams["authorName"]  + "$BVerfasserIn$4aut");
                             }
 
@@ -784,6 +794,14 @@ function performExport() {
 							addLine(currentItemId, "\\n4950", 'http://nbn-resolving.de/' + ZU.unescapeHTML(item.notes[i].note + "$xR$3Volltext$4ZZ$534"));
 						}
 					}
+					if (item.notes[i].note.indexOf('URI:') == 0) {
+						if (licenceField === "l") {
+						addLine(currentItemId, "\\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/URI:/, '') + "$xR$3Volltext$4LF$534"));
+						}
+						else {
+							addLine(currentItemId, "\\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/URI:/i, '') + "$xR$3Volltext$4ZZ$534"));
+						}
+					}
 				}
 			}
 
@@ -828,7 +846,7 @@ function performExport() {
 
 			//SSG bzw. FID-Nummer --> 5056 "0" = Religionwissenschaft | "1" = Theologie | "0; 1" = RW & Theol.
 
-            if (SsgField === "1" || SsgField === "0" || SsgField === "0$a1" || SsgField === "FID-KRIM-DE-21") { 
+            if (SsgField === "1" || SsgField === "0" || SsgField === "0$a1" || SsgField === "2,1") { 
                 addLine(currentItemId, "\\n5056", SsgField);
             } 
 			else if (SsgField == "NABZ") {
@@ -838,17 +856,39 @@ function performExport() {
                 addLine(currentItemId, "\\n5056", defaultSsgNummer);
             }
 			
-            //Schlagwörter aus einem Thesaurus (Fremddaten) --> 5520 (oder alternativ siehe Mapping)
-            if (issn_to_keyword_field.get(item.ISSN) !== undefined) {
-                var codeBase = issn_to_keyword_field.get(item.ISSN);
-                for (i=0; i<item.tags.length; i++) {
-                    var code = codeBase + i;
-                    addLine(currentItemId, code, "|s|" + item.tags[i].tag.replace(/\s?--\s?/g, '; '));
-                }
-            } else {
-                for (i=0; i<item.tags.length; i++) {
+            
+			//ORCID und Autorennamen --> 8910
+			if (item.notes) {
+				for (let i in item.notes) {
+					if (item.notes[i].note.includes('orcid')) {
+						if (institution_retrieve_sign == "krzo") addLine(currentItemId, "\\n8910", '$akrzom$b'+item.notes[i].note);
+						else addLine(currentItemId, "\\n8910", '$aixzom$b'+item.notes[i].note);
+					}
+				}
+			}
+			if (institution_retrieve_sign == "") {
+				if (SsgField == "NABZ") {
+					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo$aNABZ', ""); 
+				}
+				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo', "");
+			}
+			else if (institution_retrieve_sign == "inzo") {
+				if (SsgField == "NABZ") {
+					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo$aNABZ', ""); 
+				}
+				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo', "");
+			}
+			else if (institution_retrieve_sign == "krzo") {
+				if (SsgField == "NABZ") {
+					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 krzo$aNABZ', ""); 
+				}
+				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 krzo', "");
+			}
+			//K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
+			//Schlagwörter aus einem Thesaurus (Fremddaten) --> 5520 (oder alternativ siehe Mapping)
+            
+            for (i=0; i<item.tags.length; i++) {
                     addLine(currentItemId, "\\n5520", "|s|" + ZU.unescapeHTML(item.tags[i].tag.replace(/\s?--\s?/g, '; ')));
-                }
             }
 			//notes > IxTheo-Notation K10plus: 6700 wird hochgezählt und nicht wiederholt, inkrementell ab z.B. 6800, 6801, 6802 etc.
 			if (item.notes) {
@@ -868,26 +908,7 @@ function performExport() {
 					}
 				}
 			}
-			//ORCID und Autorennamen --> 8910
-			if (item.notes) {
-				for (let i in item.notes) {
-					if (item.notes[i].note.includes('orcid')) addLine(currentItemId, "\\n8910", '$aixzom$b'+item.notes[i].note);
-				}
-			}
-			if (retrieve_sign == "") {
-				if (SsgField == "NABZ") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo$aNABZ', ""); 
-				}
-				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo', "");
-			}
-			else if (retrieve_sign == "BILDI" || retrieve_sign == "KALDI") {
-				if (SsgField == "NABZ") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo$aNABZ', ""); 
-				}
-				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo', "");
-			}
-			//K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
-        }
+		}
     }
 
     runningThreadCount--;
@@ -901,7 +922,6 @@ function doExport() {
 	Z.debug("Populating ISSN mapping tables...");
 
 	ZU.doGet([
-            zts_enhancement_repo_url + "ISSN_to_keyword_field.map",
             zts_enhancement_repo_url + "ISSN_to_language_code.map",
             zts_enhancement_repo_url + "ISSN_to_licence.map",
             zts_enhancement_repo_url + "ISSN_to_physical_form.map",
@@ -912,7 +932,8 @@ function doExport() {
 			zts_enhancement_repo_url + "notes_to_ixtheo_notations.map",
 			zts_enhancement_repo_url + "journal_title_to_ppn.map",
 			zts_enhancement_repo_url + "publication_title_to_physical_form.map",
-			zts_enhancement_repo_url + "ISSN_to_Abrufzeichen_zotkat.map",
+			zts_enhancement_repo_url + "ISSN_to_Sammlungscode_zotkat.map",
+			zts_enhancement_repo_url + "ISSN_to_Institution_zotkat.map",
             ], function (responseText, request, url) {
                 switch (responseText) {
                     case "404: Not Found":

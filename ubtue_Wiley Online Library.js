@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-04-25 12:20:10"
+	"lastUpdated": "2022-11-07 11:06:15"
 }
 
 /*
@@ -140,6 +140,7 @@ function scrapeBook(doc, url) {
 			'/following-sibling::p'].join(''), null, "\n") || "");
 	newItem.accessDate = 'CURRENT_TIMESTAMP';
 	if (item.issue != undefined) item.issue = item.issue.replace(/-/g, "/");
+	item.title = item.title.replace(/\*+$/, '');
 	newItem.complete();
 }
 
@@ -190,7 +191,6 @@ function scrapeEM(doc, url) {
 			item.abstractNote = ZU.xpathText(doc, '//div[@id="abstract"]/div[@class="para"]', null, "\n");
 		}
 		if (item.tags.length == 0) {
-			Z.debug('Snargle')
 			var keywords = ZU.xpath(doc, '//meta[@name="citation_keywords"]/@content');
 			for (let keyword of keywords) {
 				if (keywords.length == 1) item.tags = keywords.split(', ');
@@ -209,6 +209,7 @@ function scrapeEM(doc, url) {
 			}
 		}
 		if (item.issue != undefined) item.issue = item.issue.replace(/-/g, "/");
+		item.title = item.title.replace(/\*+$/, '');
 		item.complete();
 	});
 
@@ -217,6 +218,7 @@ function scrapeEM(doc, url) {
 	addFreeAccessTag(doc, item);
 	getORCID(doc, item);
 	if (item.issue != undefined) item.issue = item.issue.replace(/-/g, "/");
+	item.title = item.title.replace(/\*+$/, '');
 	item.complete();
 
 	translator.getTranslatorObject(function(em) {
@@ -318,7 +320,6 @@ function scrapeBibTeX(doc, url) {
 
 			//tags
 			if (item.tags.length == 0) {
-			Z.debug('Snargle')
 			var keywords = ZU.xpath(doc, '//meta[@name="citation_keywords"]/@content');
 			for (let keyword of keywords) {
 				if (keywords.length == 1) item.tags = keywords.split(', ');
@@ -389,6 +390,7 @@ function scrapeBibTeX(doc, url) {
 					item.creators.push(ZU.cleanAuthor(creatorTag.textContent, 'author'));
 				}
 			}
+			item.title = item.title.replace(/\*+$/, '');
 			item.complete();
 		});
 
@@ -466,6 +468,7 @@ function scrapeCochraneTrial(doc, url){
 	addBookReviewTag(doc, item);
 	addArticleNumber(doc, item);
 	if (item.issue != undefined) item.issue = item.issue.replace(/-/g, "/");
+	item.title = item.title.replace(/\*+$/, '');
 	item.complete();
 }
 

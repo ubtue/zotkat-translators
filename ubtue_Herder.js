@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-24 16:57:51"
+	"lastUpdated": "2022-06-08 13:47:34"
 }
 
 /*
@@ -119,11 +119,11 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		item.pages = extractPages(doc);
 		let publicationTitle = ZU.xpathText(doc, '//*[(@id = "ctl02_imgLogo")]/@alt');
 		if (publicationTitle) item.publicationTitle = publicationTitle;
-		let pageTitle = ZU.xpathText(doc, '//title').trim();
+		let pageTitle = ZU.xpathText(doc, '//title').trim().replace(/\s+/g, ' ');
 		if (pageTitle.match(/^Buchrezension/))
 			item.tags.push('RezensionstagPica');
-		if (pageTitle.trim().match(item.title + ': ')) {
-			item.title += pageTitle.split(item.title)[1];
+		if (pageTitle.match(item.title.trim().replace(/\s+/g, ' '))) {
+			item.title = pageTitle.split(/\s*\|/)[0];
 		}
 		if (item.publicationTitle == "Biblische Notizen") {
 			item.ISSN = "2628-5762";
@@ -141,6 +141,7 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			}
 			item.ISSN = "0018-0645";
 		}
+		item.attachments = [];
 		item.complete();
 	});
 	translator.translate();
@@ -187,12 +188,7 @@ var testCases = [
 				"shortTitle": "„Und es waren Hirten in demselben Land...“",
 				"url": "https://www.herder.de/bn-nf/hefte/archiv/2021/188-2021/und-es-waren-hirten-in-demselben-land-vom-verstaendnis-der-hirten-zu-einer-neuen-hermeneutik-der-lukanischen-weihnachtsgeschichte-teil-2/",
 				"volume": "188",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [],
 				"notes": [],
 				"seeAlso": []
@@ -233,12 +229,7 @@ var testCases = [
 				"shortTitle": "The Annunciation Narrative (Luke 1",
 				"url": "https://www.herder.de/bn-nf/hefte/archiv/2022/192-2022/the-annunciation-narrative-luke-127-38-read-in-times-of-metoo/",
 				"volume": "192",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [],
 				"notes": [],
 				"seeAlso": []
@@ -270,12 +261,7 @@ var testCases = [
 				"shortTitle": "Augustins Predigten",
 				"url": "https://www.herder.de/rq/hefte/archiv/116-2021/1-2-2021/augustins-predigten-dokumente-prallen-lebens-animation-zu-frischer-lektuere/",
 				"volume": "116",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [],
 				"notes": [],
 				"seeAlso": []
@@ -307,12 +293,39 @@ var testCases = [
 				"shortTitle": "Synodale Illusionen",
 				"url": "https://www.herder.de/hk/hefte/archiv/2022/5-2022/synodale-illusionen-doppeltes-lehramt-von-bischoefen-und-theologen/",
 				"volume": "76",
-				"attachments": [
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.herder.de/hk/hefte/archiv/2022/6-2022/notloesung-oder-reformschritt-taufe-durch-laien/",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Notlösung oder Reformschritt? Taufe durch Laien",
+				"creators": [
 					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
+						"firstName": "Winfried",
+						"lastName": "Haunerland",
+						"creatorType": "authors"
 					}
 				],
+				"date": "2022",
+				"ISSN": "0018-0645",
+				"abstractNote": "Dass im Bistum Essen Laien – ganz überwiegend Frauen – als außerordentliche Taufspender beauftragt wurden, wird von vielen als Reformschritt gepriesen. Doch wenn sich die kirchenrechtlich möglichen Ausnahmeregelungen häufen, ist die sakramentale Grundgestalt der Kirche in Gefahr.",
+				"issue": "6",
+				"language": "de",
+				"libraryCatalog": "www.herder.de",
+				"pages": "37-41",
+				"publicationTitle": "Herder Korrespondenz",
+				"shortTitle": "Notlösung oder Reformschritt?",
+				"url": "https://www.herder.de/hk/hefte/archiv/2022/6-2022/notloesung-oder-reformschritt-taufe-durch-laien/",
+				"volume": "76",
+				"attachments": [],
 				"tags": [],
 				"notes": [],
 				"seeAlso": []

@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-04-26 07:15:50"
+	"lastUpdated": "2022-11-07 10:10:06"
 }
 
 /*
@@ -38,7 +38,7 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, url) {
 	var items = {};
 	var found = false;
-	var rows = doc.querySelectorAll('.title a[href*="/view/"], .summary_title, .title a[href*="/catalog/"], \
+	var rows = doc.querySelectorAll('.title a[href*="/view/"], .article__title a[href*="/view/"], .summary_title, .title a[href*="/catalog/"], \
 		.tocTitle a[href*="/view/"], .tocArticleTitle a[href*="/view/"], .tocTitle a[href*="/catalog/"], .media-heading a[href*="/view/"]');
 	if (rows.length == 0 && url.match(/(otwsa-otssa)|(koersjournal)/)) {
 		rows = ZU.xpath(doc, '//div[@class="article-summary-title"]//a');
@@ -61,9 +61,15 @@ function getSearchResults(doc, url) {
 		found = true;
 		items[href] = title;
 	}
-	for (let section of ZU.xpath(doc, '//table[@class="tocArticle" and preceding-sibling::h4[@class="tocSectionTitle" and contains(., "Book Review")]]')) {
+		for (let section of ZU.xpath(doc, '//table[@class="tocArticle" and preceding-sibling::h4[@class="tocSectionTitle" and contains(., "Book Review")]]')) {
+		let reviewTitle = ZU.xpathText(section, './/div[@class="tocTitle"]');
 		for (let link of ZU.xpath(section, './/a/@href')) {
 			reviewURLs.push(link.textContent);
+			if (items[link.textContent.replace(/\/\d+?$/, "")] == undefined) {
+				items[link.textContent.replace(/\/\d+?$/, "")] = reviewTitle;
+				reviewURLs.push(link.textContent.replace(/\/\d+?$/, ""));
+			}
+			else reviewURLs.push(link.textContent);
 		}
 	}
 	return found ? items : false;
@@ -83,14 +89,12 @@ function invokeEMTranslator(doc) {
 		if (i.pages == undefined) i.pages = ZU.xpathText(doc, '//meta[@name="DC.Identifier.Pagenumber"]/@content');
 		if (i.DOI == undefined) i.DOI = ZU.xpathText(doc, '//meta[@name="DC.Identifier.DOI"]/@content');
 		if (i.ISSN == "2521-6465") i.language = ZU.xpathText(doc, '//meta[@name="DC.Language"]/@content');
-
 		if (doc.querySelector(".subtitle")) {
-			if (i.title.indexOf(doc.querySelector(".subtitle").textContent.trim()) == -1) {
+			if (i.title.indexOf(doc.querySelector(".subtitle").textContent.trim().replace(/\s+/g, ' ')) == -1) {
  			i.title = i.title + ' ' + doc.querySelector(".subtitle").textContent.trim();
 			}
  		}
- 		
- 		if (i.ISSN=='1804-6444') {
+ 		if (['1804-6444', '1018-1539'].includes(i.ISSN)) {
  			let subTitle = ZU.xpathText(doc, '//article[@class="article-details"]//h1[@class="page-header"]/small');
  			if (subTitle) {
  				i.title += ': ' + subTitle.trim();
@@ -106,14 +110,16 @@ function invokeEMTranslator(doc) {
  				delete i.archiveLocation;
  			}
  		}
+		if (articleType && articleType.match(/^(Book Reviews?)/) != null) i.tags.push("RezensionstagPica");
 
  		//orcid for pica-field 8910
    		let orcidAuthorEntryCaseA = doc.querySelectorAll('.authors');//Z.debug(orcidAuthorEntryCaseA)
   		let orcidAuthorEntryCaseB = doc.querySelectorAll('.authors li');//Z.debug(orcidAuthorEntryCaseB)
   		let orcidAuthorEntryCaseC = doc.querySelectorAll('.authors-string');//Z.debug(orcidAuthorEntryCaseC)
   		let orcidAuthorEntryCaseD = ZU.xpath(doc, '//div[@id="authors"]');
+		let orcidAuthorEntryCaseF = ZU.xpath(doc, '//div[@class="authors"]/div[@class="author"]');
   		// e.g. https://aabner.org/ojs/index.php/beabs/article/view/781
-  		if (orcidAuthorEntryCaseA && ['2748-6419'].includes(i.ISSN)) {
+  		if (orcidAuthorEntryCaseA && ['2748-6419', '2653-1372'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
   				if (a && a.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
   					let orcidTag = ZU.trimInternal(a.innerHTML);
@@ -126,7 +132,7 @@ function invokeEMTranslator(doc) {
   				}
   			}
   		 }
-  		 if (orcidAuthorEntryCaseA && ['2627-6062'].includes(i.ISSN)) {
+  		 if (orcidAuthorEntryCaseA && ['2627-6062', '0718-4727', '2617-1953'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
   				let name_to_orcid = {};
   				let tgs = ZU.xpath(a, './/*[self::strong or self::a]');
@@ -141,6 +147,18 @@ function invokeEMTranslator(doc) {
   				}
   			}
   		 }
+		//e.g. https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/42867
+		   if (orcidAuthorEntryCaseA && ['2174-0887'].includes(i.ISSN)) {
+			   let allORCIDs = [];
+  			for (let a of orcidAuthorEntryCaseA) {
+
+				let name = ZU.xpathText(a, './/strong');
+				let orcid = ZU.xpathText(a, './/a[contains(@href, "orcid.org")]/@href');
+				if (!allORCIDs.includes(orcid)) i.notes.push({note: ZU.trimInternal(name) + orcid.replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
+				allORCIDs.push(orcid);
+  			}
+  		 }
+
   		//e.g.  https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/785
   		if (orcidAuthorEntryCaseA && !orcidAuthorEntryCaseB && i.ISSN !== "2660-7743") {
   			for (let a of orcidAuthorEntryCaseA) {
@@ -216,6 +234,16 @@ function invokeEMTranslator(doc) {
   			}
   		}
   	}
+
+	if (orcidAuthorEntryCaseF) {
+  		 	for (let c of orcidAuthorEntryCaseF) {
+  				if (c && c.innerHTML.match(/\d+-\d+-\d+-\d+x?/gi) && ['2653-1372'].includes(i.ISSN)) {
+  					let author = ZU.xpathText(c, './/div[@class="jaredauthorart"]');
+					let orcid = ZU.xpathText(c, './/a[contains(@href,"orcid")]/@href');
+ 					i.notes.push(author + ' | ' + orcid.replace(/https?:\/\/orcid.org\//g, 'orcid:') + ' | taken from website');
+  				}
+  			}
+  		}
  		
  		//clean pages e.g. pages": "6.-6." > 10.25786/cjbk.v0i01-02.631; or "pages": "01-07" > 10.25786/zfbeg.v0i01-02.793
  		if (i.pages != null) i.pages = i.pages.replace('S.', '').replace(/\./g, '').replace(/^([^-]+)-\1$/, '$1').replace(/^0/g, '').replace(/-0/g, '-');
@@ -242,6 +270,7 @@ function invokeEMTranslator(doc) {
 			i.abstractNote = ZU.xpathText(doc, '//meta[@name="DC.Description"]/@content');
 		}
 		
+		else if (i.ISSN == "0555-9308") i.abstractNote = i.abstractNote.replace(/\n/, "\\n4207 ");
 		if (i.abstractNote == null) {i.abstractNote = undefined}
 		if (i.abstractNote !== undefined) {
 			if (i.abstractNote.match(/No abstract available/)) delete i.abstractNote;
@@ -264,7 +293,7 @@ function invokeEMTranslator(doc) {
 		if (["2159-6875"].includes(i.ISSN)) {
 			if (reviewURLs.includes(i.url)) i.tags.push("RezensionstagPica");
 		}
-		if (['2617-3697', '2660-4418', '2748-6419', '1988-3269', '1804-6444', '2391-4327'].includes(i.ISSN)) {
+		if (['2617-3697', '2660-4418', '2748-6419', '1988-3269', '1804-6444', '2391-4327', '2174-0887'].includes(i.ISSN)) {
 			if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')) {
 				if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')[0].content.match(/(Media reviews)|(Rezensionen)|(Reseñas)|(Part\s+Two:\s+Reviews)/i)) {
 					i.tags.push("RezensionstagPica");
@@ -293,7 +322,7 @@ function invokeEMTranslator(doc) {
 			let tags = ZU.xpath(doc, '//meta[@name="citation_keywords"]');
 			for (let t in tags) {
 				if (!i.tags.includes(tags[t].content) 
-				&& !i.tags.includes(tags[t].content[0].toUpperCase() + tags[t].content.substring(1)))
+				&& !i.tags.includes(tags[t].content[0].toUpperCase() + tags[t].content.substring(1)) && tags[t].content != '.')
 				i.tags.push(tags[t].content);
 			}
 		}
@@ -307,7 +336,7 @@ function invokeEMTranslator(doc) {
 				}
 			}
 		}
-		if (['2617-3697', '2660-4418', '2748-6419', '2617-1953'].includes(i.ISSN)) {
+		if (['2617-3697', '2660-4418', '2748-6419', '2617-1953', '2413-9467'].includes(i.ISSN)) {
 			let subtitle = ZU.xpathText(doc, '//h1/small');
 			if (subtitle) {
 				subtitle = subtitle.replace(/(\n*\t*)/, '');
@@ -363,7 +392,7 @@ function invokeEMTranslator(doc) {
 				i.creators.push(ZU.cleanAuthor(creator.textContent, "author", false));
 			}
 		}
-		if (i.ISSN == "2709-8435") {
+		if (["2709-8435", "1018-1539"].includes(i.ISSN)) {
 			let abstracts = ZU.xpath(doc, '//meta[@name="DC.Description"]/@content');
 			if (abstracts[1] != null) {
 			i.abstractNote = abstracts[0].textContent + '\\n4207 ' + abstracts[1].textContent;
@@ -404,6 +433,9 @@ function invokeEMTranslator(doc) {
 		}
 		if (i.url.match(/\/article\/view/)) i.itemType = "journalArticle";
 		if (i.abstractNote == ', ' || i.abstractNote == ',') i.abstractNote = "";
+		if (i.abstractNote != null) {
+			i.abstractNote = i.abstractNote.replace(/(?:^|\n)(?:RESUME|ABSTRACT):\s+/g, '\\n4207 ');
+		}
 		i.attachments = [];
 		let sansidoroAbstract = ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content');
 		if (sansidoroAbstract && sansidoroAbstract.match(/isidorianum\/article\/view/)) {
@@ -461,6 +493,8 @@ function doWeb(doc, url) {
 
 
 
+
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -485,7 +519,7 @@ var testCases = [
 				"journalAbbreviation": "STJ",
 				"language": "en",
 				"libraryCatalog": "ojs.reformedjournals.co.za",
-				"pages": "13–40",
+				"pages": "13-40",
 				"publicationTitle": "STJ – Stellenbosch Theological Journal",
 				"rights": "Copyright (c) 2020 Pieter de Waal Neethling Trust, Stellenbosch",
 				"shortTitle": "“The message to the people of South Africa” in contemporary context",
@@ -698,7 +732,7 @@ var testCases = [
 				"journalAbbreviation": "STJ",
 				"language": "en",
 				"libraryCatalog": "ojs.reformedjournals.co.za",
-				"pages": "299–317",
+				"pages": "299-317",
 				"publicationTitle": "STJ – Stellenbosch Theological Journal",
 				"rights": "Copyright (c) 2017 Pieter de Waal Neethling Trust, Stellenbosch",
 				"url": "https://ojs.reformedjournals.co.za/stj/article/view/1743",
@@ -756,7 +790,7 @@ var testCases = [
 				"journalAbbreviation": "STJ",
 				"language": "en",
 				"libraryCatalog": "ojs.reformedjournals.co.za",
-				"pages": "11–40",
+				"pages": "11-40",
 				"publicationTitle": "STJ – Stellenbosch Theological Journal",
 				"rights": "Copyright (c) 2017 Pieter de Waal Neethling Trust, Stellenbosch",
 				"shortTitle": "Renewal, Renaissance, Reformation, or Revolution?",
@@ -819,13 +853,14 @@ var testCases = [
 				"date": "2020/11/20",
 				"DOI": "10.46543/ISID.2029.1054",
 				"ISSN": "2660-7743",
-				"abstractNote": "Using some of the tools of narrative criticism, this article studies the final battle and victory which is achieved by God’s envoy. By unpacking the network of relationship in the text the envoy is identified with the Christ of God, who has been present in the book from the beginning. The article shows how the Rider on the white horse summarises what the book of Revelation has said about Jesus., Usando elementos del análisis narrativo, este artículo examina la batalla final y la victoria que se consigue a través del enviado de Dios, un jinete en un caballo blanco. Desenredando la red de relaciones en el texto, el jinete en el caballo blanco se identifica con el Cristo de Dios, que ha estado presente en el libro desde el inicio. El artículo muestra como el Jinete en el caballo blanco resume en sí mismo todo lo que el Apocalipsis dice sobre Jesús.",
+				"abstractNote": "Using some of the tools of narrative criticism, this article studies the final battle and victory which is achieved by God’s envoy. By unpacking the network of relationship in the text the envoy is identified with the Christ of God, who has been present in the book from the beginning. The article shows how the Rider on the white horse summarises what the book of Revelation has said about Jesus.",
 				"issue": "2",
-				"journalAbbreviation": "1",
-				"language": "es-ES",
+				"journalAbbreviation": "Isidorianum",
+				"language": "es",
 				"libraryCatalog": "www.sanisidoro.net",
 				"pages": "37-60",
 				"publicationTitle": "Isidorianum",
+				"rights": "Derechos de autor 2020 Isidorianum",
 				"shortTitle": "“Battle is over, raise we the cry of victory”. Study of Revelation 19",
 				"url": "https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/147",
 				"volume": "29",
@@ -1046,10 +1081,10 @@ var testCases = [
 				"DOI": "10.25364/05.7:2021.1.11",
 				"ISSN": "2617-3697",
 				"issue": "1",
-				"journalAbbreviation": "1",
+				"journalAbbreviation": "JRFM",
 				"language": "en",
 				"libraryCatalog": "jrfm.eu",
-				"pages": "197–199",
+				"pages": "197-199",
 				"publicationTitle": "Journal for Religion, Film and Media (JRFM)",
 				"rights": "Copyright (c) 2021 Daria Pezzoli-Olgiati",
 				"shortTitle": "Book Review. Christopher Ocker / Susanne Elm (eds.), Material Christianity",
@@ -1457,7 +1492,7 @@ var testCases = [
 				"journalAbbreviation": "STJ",
 				"language": "en",
 				"libraryCatalog": "ojs.reformedjournals.co.za",
-				"pages": "11–40",
+				"pages": "11-40",
 				"publicationTitle": "STJ – Stellenbosch Theological Journal",
 				"rights": "Copyright (c) 2017 Pieter de Waal Neethling Trust, Stellenbosch",
 				"shortTitle": "Renewal, Renaissance, Reformation, or Revolution?",
@@ -2157,7 +2192,7 @@ var testCases = [
 				"date": "2019/12/11",
 				"DOI": "10.5209/ilur.75207",
 				"ISSN": "1988-3269",
-				"journalAbbreviation": "1",
+				"journalAbbreviation": "'Ilu",
 				"language": "es",
 				"libraryCatalog": "revistas.ucm.es",
 				"pages": "143-146",
@@ -2609,6 +2644,113 @@ var testCases = [
 		"type": "web",
 		"url": "https://bildungsforschung.org/ojs/index.php/beabs/issue/view/v01i02",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://www.uni-muenster.de/Ejournals/index.php/zpth/article/view/3178",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "\"Normal halt ...\": Pastoraltheologie in säkularen Zeiten",
+				"creators": [
+					{
+						"firstName": "Christian",
+						"lastName": "Bauer",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020",
+				"ISSN": "0555-9308",
+				"abstractNote": "Die ‚multiplen Säkularitäten’ der Gegenwart fordern die Theologie dazu heraus, im Kontext einer ‚dritten Ökumene’ mit religiös indifferenten Zeitgenossinnen und Zeitgenossen die säkulare Bedeutung des Evangeliums zu entdecken – und damit auch die immanente Transzendenz bzw. profane Heiligkeit der Präsenz Gottes im Rahmen säkular gelebten Lebens.\\n4207 Present-day “multiple secularities” are challenging theology to discover the secular meaning of the Gospel within the context of a “third ecumenism”shared with religiously indifferent contemporaries. This includes unearthing the immanent transcendence or profane holiness of God’s presence in the framework of a secularly lived life.",
+				"issue": "2",
+				"journalAbbreviation": "ZPTh",
+				"language": "de",
+				"libraryCatalog": "www.uni-muenster.de",
+				"publicationTitle": "Zeitschrift für Pastoraltheologie (ZPTh)",
+				"rights": "Copyright (c) 0",
+				"shortTitle": "\"Normal halt ...\"",
+				"url": "https://www.uni-muenster.de/Ejournals/index.php/zpth/article/view/3178",
+				"volume": "40",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/42868",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Congreso internacional «Historia del Opus Dei (1939-1962)» (Madrid, 16-17 junio de 2021)",
+				"creators": [
+					{
+						"firstName": "Fernando",
+						"lastName": "Crovetto",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022/04/22",
+				"DOI": "10.15581/007.31.42868",
+				"ISSN": "2174-0887",
+				"abstractNote": "&nbsp;\n&nbsp;",
+				"journalAbbreviation": "1",
+				"language": "es",
+				"libraryCatalog": "revistas.unav.edu",
+				"pages": "532",
+				"publicationTitle": "Anuario de Historia de la Iglesia",
+				"rights": "Derechos de autor",
+				"url": "https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/42868",
+				"volume": "31",
+				"attachments": [],
+				"tags": [],
+				"notes": [
+					{
+						"note": "Fernando Crovetto | orcid:0000-0002-9751-095X | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "http://www.globalbuddhism.org/jgb/index.php/jgb/article/view/368/310",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "From Indra’s Net to Internet: Communication, Technology, and the Evolution of Buddhist Ideas, by Daniel Veidlinger",
+				"creators": [
+					{
+						"firstName": "Louise",
+						"lastName": "Connelly",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/12/20",
+				"ISSN": "1527-6457",
+				"abstractNote": "From Indra’s Net to Internet: Communication, Technology, and the Evolution of Buddhist Ideas, by Daniel Veidlinger",
+				"issue": "2",
+				"language": "en-US",
+				"libraryCatalog": "www.globalbuddhism.org",
+				"pages": "442-446",
+				"publicationTitle": "Journal of Global Buddhism",
+				"rights": "Copyright (c) 2021 Louise Connelly",
+				"shortTitle": "From Indra’s Net to Internet",
+				"url": "http://www.globalbuddhism.org/jgb/index.php/jgb/article/view/368",
+				"volume": "22",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/

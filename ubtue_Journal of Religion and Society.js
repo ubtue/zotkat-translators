@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-11-17 14:46:21"
+	"lastUpdated": "2022-07-04 16:08:21"
 }
 
 /*
@@ -49,7 +49,7 @@ function getSearchResults(doc, checkOnly) {
 	//like ubtue_Quaderni di storia religiosa medievale.js 
 	var links = doc.querySelectorAll('a[href*="handle"]');
 	var text = doc.querySelectorAll('.title, .books a');
-	for (let i = 0; i < links.length; ++i) {
+	for (let i = 0; i < text.length; ++i) {
 		let href = links[i].href;
 		if (href.match(/handle/)) href = 'http://hdl.handle.net/' + links[i].href.split(/handle\//)[1].split(/\/\d{4}-.*.pdf/)[0];Z.debug(href)
 		let title = ZU.trimInternal(text[i].textContent);
@@ -86,12 +86,14 @@ function scrape(doc, url) {
 		if (itemVolume && itemVolume.match(/^\d+/)) item.volume = itemVolume;
 		let abstractKeywordsEntry = ZU.xpathText(doc, '//meta[@name="DCTERMS.abstract"]/@content');
 		if (abstractKeywordsEntry && abstractKeywordsEntry !== null) item.abstractNote = abstractKeywordsEntry.split('|Keywords: ')[0];
-		if (abstractKeywordsEntry && abstractKeywordsEntry !== null) {
+		if (abstractKeywordsEntry !== null) {
+			if (abstractKeywordsEntry.match(/\|Keywords: /) != null) {
 			let keywords = abstractKeywordsEntry.split('|Keywords: ')[1].split(',');
 			if (keywords && keywords !== null) {
 				for (let k of keywords) {
 					item.tags.push(k.trim().replace(/^\w/gi,function(m){ return m.toUpperCase();}));
 				}	
+			}
 			}		
 		}
 		//search and remove keyword "Journal Article" 
@@ -104,6 +106,7 @@ function scrape(doc, url) {
 		trans.doWeb(doc, url);
 	});
 }
+
 
 
 
@@ -127,6 +130,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "http://moses.creighton.edu/JRS/toc/2021.html",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "http://moses.creighton.edu/JRS/toc/2016.html",
 		"items": "multiple"
 	}
 ]

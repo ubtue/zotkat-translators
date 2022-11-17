@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-03-31 15:27:17"
+	"lastUpdated": "2022-10-11 12:18:21"
 }
 
 /*
@@ -82,8 +82,7 @@ var replURLRegExp = /\/doi\/((?:abs|abstract|full|figure|ref|citedby|book)\/)?/;
 function scrape(doc, url) {
 	url = url.replace(/[?#].*/, "");
 	var doi = url.match(/10\.[^?#]+/)[0];
-	var citationurl = url.replace(replURLRegExp, "/action/showCitFormats?doi=");
-	
+	var citationurl = url.replace(replURLRegExp, "/action/showCitFormats?doi=")
 	ZU.processDocuments(citationurl, function(citationDoc){
 		var filename = citationDoc.evaluate('//form//input[@name="downloadFileName"]', citationDoc, null, XPathResult.ANY_TYPE, null).iterateNext().value;
 		var get = '/action/downloadCitation';
@@ -163,22 +162,8 @@ function scrape(doc, url) {
 							}
 						}
 						item.notes = newNotes;
-						var bibTexGet = '/action/downloadCitation';
-						var bibTexPost = 'doi=' + doi + '&downloadFileName=' + filename + '&format=bibtex&direct=true&include=abs&include=cit';
-						ZU.doPost(bibTexGet, bibTexPost, function (text) {
-							let creatorString = text.match(/author\s*=\s*{(.+?)}/);
-							if (creatorString != null) {
-								let creators = creatorString[1].trim().split(/\s+and\s+/);
-								let newCreators = [];
-								for (let creator of creators) {
-									let inverse = false;
-									if (item.url.match(/\/weme/) != null) inverse = true;
-									newCreators.push(ZU.cleanAuthor(creator, 'author', inverse));
-								}
-								item.creators = newCreators;
-							}
-							item.complete();
-						});
+						item.complete();
+						
 					});
 				//item.complete();
 			});
@@ -186,6 +171,7 @@ function scrape(doc, url) {
 		});
 	});
 }
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -202,7 +188,7 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "September 5, 2021",
+				"date": "2021-09-05",
 				"DOI": "10.13109/9783666703034.8",
 				"ISSN": "2567-9384",
 				"extra": "DOI: 10.13109/9783666703034.8",
@@ -239,7 +225,7 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "September 5, 2021",
+				"date": "2021-09-05",
 				"DOI": "10.13109/9783666703034.8",
 				"ISSN": "2567-9384",
 				"extra": "DOI: 10.13109/9783666703034.8",
@@ -281,7 +267,7 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "January 14, 2022",
+				"date": "2022-01-14",
 				"DOI": "10.13109/weme.2022.74.1.20",
 				"ISSN": "0043-2040",
 				"abstractNote": "Das Krankenhaus ist ein Ort, der beispielhaft für eine sich immer stärker säkularisierende Umwelt steht. Für die religiöse Kommunikation der seelsorgenden Pastor*innen ergeben sich damit spezifische kreative Übersetzungsherausforderungen. Wie diese gelöst werden, zeigt der vorliegende Aufsatz am Beispiel von Interviews mit Krankenhausseelsorgenden, die 2019 in Hamburg geführt wurden.",
@@ -293,6 +279,37 @@ var testCases = [
 				"shortTitle": "Deutungsassistenz",
 				"url": "https://www.vr-elibrary.de/doi/10.13109/weme.2022.74.1.20",
 				"volume": "74",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.vr-elibrary.de/doi/10.13109/kiis.2022.37.1.12",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "„Ein Seismograph antijüdischer Entwicklungen“",
+				"creators": [
+					{
+						"lastName": "Südbeck-Baur",
+						"firstName": "Wolf",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022-09-02",
+				"DOI": "10.13109/kiis.2022.37.1.12",
+				"ISSN": "0179-7239",
+				"issue": "1",
+				"language": "de",
+				"libraryCatalog": "ubtue_vandenhoeck_ruprecht",
+				"pages": "12-16",
+				"publicationTitle": "Kirche und Israel",
+				"url": "https://www.vr-elibrary.de/doi/10.13109/kiis.2022.37.1.12",
+				"volume": "37",
 				"attachments": [],
 				"tags": [],
 				"notes": [],

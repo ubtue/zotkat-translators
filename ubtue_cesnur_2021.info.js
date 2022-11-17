@@ -1,187 +1,159 @@
 {
-	"translatorID": "58fd3287-b8e6-4b5d-8367-0ebbd4598991",
-	"label": "ubtue_Cairn.info",
-	"creator": "Timotheus Kim",
-	"target": "https?://www.cairn(-int)?.info",
+	"translatorID": "99bdeaf2-0caf-4853-b693-e45f7993c0af",
+	"label": "ubtue_cesnur_2021.info",
+	"creator": "Helena Nebel",
+	"target": "cesnur\\.net\\/archives\\/",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-11-03 17:27:12"
+	"lastUpdated": "2022-11-07 09:47:33"
 }
 
 /*
 	***** BEGIN LICENSE BLOCK *****
 
-	Copyright © 2020 Universitätsbibliothek Tübingen.  All rights reserved.
+	Copyright © 2019 Simon Kornblith
 
-	This program is free software: you can redistribute it and/or modify
+	This file is part of Zotero.
+
+	Zotero is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
+	Zotero is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	GNU Affero General Public License for more details.
 
 	You should have received a copy of the GNU Affero General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	along with Zotero. If not, see <http://www.gnu.org/licenses/>.
 
 	***** END LICENSE BLOCK *****
 */
-function romanToInt(r) {
-	if (r.match(/^[IVXLCM]+/)) {
-	const sym = { 
-		'I': 1,
-		'V': 5,
-		'X': 10,
-		'L': 50,
-		'C': 100,
-		'D': 500,
-		'M': 1000
-	}
-	let result = 0;
-	for (i=0; i < r.length; i++){
-		const cur = sym[r[i]];
-		const next = sym[r[i+1]];
-		if (cur < next){
-			result += next - cur 
-			i++
-		} else {
-			result += cur
-		}
-	}
 
-	return result; 
+// builds a list of DOIs
+var identifiers = {};
+var dois = [];
+function getDOIs(doc) {
+	// TODO Detect DOIs more correctly.
+	// The actual rules for DOIs are very lax-- but we're more strict.
+	// Specifically, we should allow space characters, and all Unicode
+	// characters except for control characters. Here, we're cheating
+	// by not allowing ampersands, to fix an issue with getting DOIs
+	// out of URLs.
+	// Additionally, all content inside <noscript> is picked up as text()
+	// by the xpath, which we don't necessarily want to exclude, but
+	// that means that we can get DOIs inside node attributes and we should
+	// exclude quotes in this case.
+	// DOI should never end with a period or a comma (we hope)
+	// Description at: http://www.doi.org/handbook_2000/appendix_1.html#A1-4
+	const DOIre = /\b10\.[0-9]{4,}\/[^\s&"']*[^\s&"'.,]/g;
+	var rows = ZU.xpath(doc, '//p');
+	for (var i = 0; i < rows.length; i++) {
+		var href = ZU.xpathText(rows[i], './descendant::a/@href');
+		var title = ZU.trimInternal(rows[i].textContent.split('DOI: ')[0]);
+		let doi = rows[i].textContent.match(DOIre);
+		if (!href || !title || !doi) continue;
+		if (doi[0]) doi = doi[0].replace(/[^\d]+$/g, '');
+		let issue = "";
+		if (href.match(/tjoc_\d+_\d+/)) issue = href.match(/tjoc_(\d+_\d+)/)[1];
+		else continue;
+		if (!issue.match(/^5/)) continue;
+		if (title.match(/View full issue/i)) continue;
+		identifiers[doi] = 'Issue: ' + issue + '::::';
+		dois.push(doi);
 	}
-	else return r;
-};
-
-
+	return dois;
+}
 
 function detectWeb(doc, url) {
-	if (url.includes('page')) {
-		return "journalArticle";
-	}
-	else if (getSearchResults(doc, true)) {
-		return "multiple";
+	// Blacklist the advertising iframe in ScienceDirect guest mode:
+	// http://www.sciencedirect.com/science/advertisement/options/num/264322/mainCat/general/cat/general/acct/...
+	// This can be removed from blacklist when 5c324134c636a3a3e0432f1d2f277a6bc2717c2a hits all clients (Z 3.0+)
+	const blacklistRe = /^https?:\/\/[^/]*(?:google\.com|sciencedirect\.com\/science\/advertisement\/)/i;
+	
+	if (!blacklistRe.test(url)) {
+		var DOIs = getDOIs(doc);
+		if (DOIs.length) {
+			return "multiple";
+		}
 	}
 	return false;
 }
 
+function retrieveDOIs(dois) {
+	let items = {};
+	let numDOIs = dois.length;
 
-function getSearchResults(doc, checkOnly) {
-	var items = {};
-	var found = false;
-	var rows = doc.querySelectorAll('.titre-article');
-	for (let row of rows) {
-		let href = row.innerHTML.split('"')[1].split('"')[0];//Z.debug(href)
-		let title = ZU.trimInternal(row.textContent);
-		if (!href || !title) continue;
-		if (checkOnly) return true;
-		found = true;
-		items[href] = title;
-	}
-	return found ? items : false;
-}
-
-function doWeb(doc, url) {
-	if (detectWeb(doc, url) == "multiple") {
-		Zotero.selectItems(getSearchResults(doc, false), function (items) {
-			if (items) ZU.processDocuments(Object.keys(items), scrape);
+	for (const doi of dois) {
+		items[doi] = null;
+		
+		const translate = Zotero.loadTranslator("search");
+		translate.setTranslator("b28d0d42-8549-4c6d-83fc-8382874a5cb9");
+		translate.setSearch({ itemType: "journalArticle", DOI: doi });
+	
+		// don't save when item is done
+		translate.setHandler("itemDone", function (_translate, item) {
+			if (!item.title) {
+				Zotero.debug("No title available for " + item.DOI);
+				item.title = "[No Title]";
+			}
+			item.title = identifiers[item.DOI] + item.title;
+			items[item.DOI] = item;
 		});
-	}
-	else {
-		scrape(doc, url);
-	}
-}
-
-function scrape(doc, url) {
-	let risURL = ZU.xpathText(doc, '//a[contains(@href, "exports/export-zotero.php?")]/@href')
-	ZU.doGet(risURL, function(text) {
-		var translator = Zotero.loadTranslator("import");
-		// Use RIS translator
-		translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
-		translator.setString(text);
-		translator.setHandler("itemDone", function(obj, item) {
-			var unescapeFields = ['title', 'publicationTitle', 'abstractNote'];
-			for (var i=0; i<unescapeFields.length; i++) {
-				if (item[unescapeFields[i]]) {
-					item[unescapeFields[i]] = ZU.unescapeHTML(item[unescapeFields[i]]);
+		/* eslint-disable no-loop-func */
+		translate.setHandler("done", function () {
+			numDOIs--;
+			
+			// All DOIs retrieved
+			if (numDOIs <= 0) {
+				// Check to see if there's at least one DOI
+				if (!Object.keys(items).length) {
+					throw new Error("DOI Translator: could not find DOI");
 				}
-			}
-
-			// Subtitles could be in i or b
-		if (doc.querySelector('.sous-titre-article i')) item.title = item.title + ': ' + doc.querySelector('.sous-titre-article i').textContent.trim();
-		if (doc.querySelector('.sous-titre-article b')) item.title = item.title + ': ' + doc.querySelector('.sous-titre-article b').textContent.trim();
-		// Correct volume and issue information
-		if (item.volume) {
-			if (item.volume.search(/^n°/i) != -1) {
-				item.volume = item.volume.split(/n°/i)[1].trim();
-			} else if (item.volume.search(/^Vol./i) != -1) {
-				item.volume = item.volume.split(/Vol./i)[1].trim();
-			}
-			if (item.volume.search(/^\d+-\d+$/) != -1) {
-				var volume = item.volume.split('-');
-				item.volume = volume[0];
-				item.issue = volume[1];
-			}
-		}
-		
-		if (!item.date || item.date == '0000-00-00') {
-			item.date = ZU.xpathText(doc, '//meta[@name="DCSext.annee_tomaison"]/@content');
-		}
-		
-		if (!item.pages) {
-			item.pages = ZU.xpathText(doc, '//meta[@name="DCSext.doc_nb_pages"]/@content');
-		}
-		
-		var doi = ZU.xpathText(doc, '//li[contains(., "DOI :")]');
-		if (!item.DOI && doi) {
-			item.DOI = doi.replace('DOI :', '');
-		}
-		
-		let abstractFR = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "lang-fr", " " ))]//p');
-		let abstractEN = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "lang-en", " " ))]//p')
-		if (item.abstractNote && abstractEN.length > 100) item.abstractNote = item.abstractNote + '\\n4207 ' + abstractEN;
-		
-		let DOIentry = ZU.xpathText(doc, '//dd');
-		if (!item.DOI && DOIentry) {
-			let splitDOIentry = DOIentry.split('\n');//Z.debug(splitDOIentry)
-			if (splitDOIentry) {
-				item.DOI = splitDOIentry[1];
-			}
-		}
-		
-		// Cairn.info uses non-standard keywords:
-		// we import them here, as the Embedded Metadata translator
-		// cannot catch them.
-		item.tags = [];
-		var keywords = ZU.xpathText(doc, '//meta[@name="article-mot_cle"]/@content | //div[@class="grmotcle lang-en"]//li[@class="motcle"]');
-		if (keywords) {
-			keywords = keywords.split(/\s*[,;]\s*/);
-			for (var i=0; i<keywords.length; i++) {
-				if (keywords[i].trim()) {
-					item.tags.push(keywords[i].replace(/^[a-zA-ZÀ-ÿ-. ]/, function($0) { return $0.toUpperCase(); }));
+				
+				// Only show items that resolved successfully
+				let select = {};
+				for (let doi in items) {
+					let item = items[doi];
+					if (item) {
+						select[doi] = item.title || "[" + item.DOI + "]";
 					}
 				}
+				Zotero.selectItems(select, function (selectedDOIs) {
+					if (!selectedDOIs) return;
+					for (let selectedDOI in selectedDOIs) {
+						let item = items[selectedDOI];
+						item.title = item.title.split('::::')[1];
+						item.date = item.date.match(/\d{4}/)[0];
+						if (item.issue.match(/Volume\s+\d+,\s+Issue\s+\d+/i)) {
+							item.volume = item.issue.match(/Volume\s+(\d+),\s+Issue\s+\d+/i)[1];
+							item.issue = item.issue.match(/Volume\s+\d+,\s+Issue\s+(\d+)/i)[1];
+						}
+						item.libraryCatalog = "ubtue_cesnur.info";
+						item.complete();
+					}
+				});
 			}
-		if (item.volume) item.volume = romanToInt(item.volume).toString();
-		if (item.publicationTitle == "L'Année canonique") {
-			item.ISSN = "0570-1953";
-			item.issue = "";
-		} 
-		else if (item.publicationTitle == "Études théologiques et religieuses") item.ISSN = "0014-2239";
-		else if (item.publicationTitle == "Nouvelle revue théologique") item.ISSN = "0029-4845";
-		item.attachments = [];
-		item.complete();
 		});
-		translator.translate();
-	});
+	
+		// Don't throw on error
+		translate.setHandler("error", function () {});
+	
+		translate.translate();
+	}
 }
+
+function doWeb(doc) {
+	var dois = getDOIs(doc);
+	retrieveDOIs(dois);
+}
+
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
