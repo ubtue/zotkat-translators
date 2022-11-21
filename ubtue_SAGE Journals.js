@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-11-21 07:40:32"
+	"lastUpdated": "2022-11-21 10:59:23"
 }
 
 /*
@@ -72,7 +72,6 @@ function getSearchResults(doc, checkOnly) {
 		href = href.replace("/doi/pdf/", "/doi/abs/");
 		items[href] = title;
 	}
-	Z.debug(items)
 	return found ? items : false;
 }
 
@@ -251,6 +250,7 @@ function scrape(doc, url) {
 		translator.translate();
 	});
 }
+
 
 
 
