@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-11-21 07:26:20"
+	"lastUpdated": "2022-11-21 10:56:05"
 }
 
 /*
@@ -487,6 +487,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEMTranslator(doc, url);
 }
+
 
 
 
