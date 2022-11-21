@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-07-05 14:43:23"
+	"lastUpdated": "2022-11-21 15:51:20"
 }
 
 /*
@@ -92,8 +92,8 @@ function scrape(doc, text) {
 	if (item.title.match(/^review\s+article/i)) item.tags.push('RezensionstagPica');
 	let firstPage = pagesData[ZU.xpathText(text, './td[@class="th-titel"]/a/@href')];
 	if (pagesList.indexOf(firstPage)+1 < pagesList.length) {
-		let lastPage = pagesList[pagesList.indexOf(firstPage)+1];
-		item.pages = firstPage + '-' + lastPage;
+		let lastPage = parseInt(pagesList[pagesList.indexOf(firstPage)+1]) - 1;
+		item.pages = firstPage + '-' + lastPage.toString();
 	}
 	else item.pages = firstPage + '-';
 	if (item.url.match(/\/\d+-jahrgang-\d{4}-heft-\d+\//) != null) {
@@ -133,6 +133,7 @@ function scrape(doc, text) {
 	
 	
 }
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
