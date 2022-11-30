@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-11-30 14:44:18"
+	"lastUpdated": "2022-11-30 15:35:43"
 }
 
 /*
@@ -130,12 +130,20 @@ function retrieveDOIs(dois) {
 						let item = items[selectedDOI];
 						item.title = item.title.split('::::')[1];
 						item.date = item.date.match(/\d{4}/)[0];
-						if (item.issue.match(/^Supplement\s+to\s+/i)) {
+						if (item.url.match('.supp.')) {
 							item.notes.push('SonderHeft:Supplement');
+							}
+						if (item.issue) {
+							if (item.issue.match(/Vol(?:ume|\.)\s+\d+,\s+Issue\s+\d+/i)) {
+							item.volume = item.issue.match(/Vol(?:ume|\.)\s+(\d+),\s+Issue\s+\d+/i)[1];
+							item.issue = item.issue.match(/Vol(?:ume|\.)\s+\d+,\s+Issue\s+(\d+)/i)[1];
+							}
 						}
-						if (item.issue.match(/Volume\s+\d+,\s+Issue\s+\d+/i)) {
-							item.volume = item.issue.match(/Volume\s+(\d+),\s+Issue\s+\d+/i)[1];
-							item.issue = item.issue.match(/Volume\s+\d+,\s+Issue\s+(\d+)/i)[1];
+						else {
+							if (identifiers[doi].match(/\d+_\d+::::/)) {
+								item.volume = identifiers[doi].match(/(\d+)_\d+::::/)[1];
+								item.issue = identifiers[doi].match(/\d+_(\d+)::::/)[1];
+							}
 						}
 						item.libraryCatalog = "ubtue_cesnur.info";
 						item.complete();
