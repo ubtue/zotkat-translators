@@ -2,14 +2,14 @@
 	"translatorID": "09d633df-db68-4791-b557-6c9042d7f140",
 	"label": "ubtue_cesnur.info",
 	"creator": "Helena Nebel",
-	"target": "cesnur\\.net\\/archives\\/",
+	"target": "cesnur\\.net\\/(archives|supplements)\\/",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-11-07 09:44:21"
+	"lastUpdated": "2022-11-30 14:44:18"
 }
 
 /*
@@ -130,6 +130,9 @@ function retrieveDOIs(dois) {
 						let item = items[selectedDOI];
 						item.title = item.title.split('::::')[1];
 						item.date = item.date.match(/\d{4}/)[0];
+						if (item.issue.match(/^Supplement\s+to\s+/i)) {
+							item.notes.push('SonderHeft:Supplement');
+						}
 						if (item.issue.match(/Volume\s+\d+,\s+Issue\s+\d+/i)) {
 							item.volume = item.issue.match(/Volume\s+(\d+),\s+Issue\s+\d+/i)[1];
 							item.issue = item.issue.match(/Volume\s+\d+,\s+Issue\s+(\d+)/i)[1];
@@ -152,6 +155,7 @@ function doWeb(doc) {
 	var dois = getDOIs(doc);
 	retrieveDOIs(dois);
 }
+
 
 
 /** BEGIN TEST CASES **/
