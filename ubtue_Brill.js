@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-11-07 10:01:10"
+	"lastUpdated": "2022-11-30 17:54:39"
 }
 
 /*
@@ -103,6 +103,7 @@ function postProcess(doc, item) {
 
 	//scrape ORCID from website
 	let authorSectionEntries = doc.querySelectorAll('.text-subheading span');
+	let foundOrcid = false;
 	for (let authorSectionEntry of authorSectionEntries) {
 		let authorInfo = authorSectionEntry.querySelector('.c-Button--link');
 		let orcidHref = authorSectionEntry.querySelector('.orcid');
@@ -110,6 +111,16 @@ function postProcess(doc, item) {
 			let author = authorInfo.childNodes[0].textContent;
 			let orcid = orcidHref.textContent.replace(/.*(\d{4}-\d+-\d+-\d+x?)$/i, '$1');
 			item.notes.push({note: "orcid:" + orcid + ' | ' + author});
+			foundOrcid = true;
+		}
+	}
+	if (!foundOrcid) authorSectionEntries = ZU.xpath(doc, '//div[@class="contributor-details"]');
+	for (let authorSectionEntry of authorSectionEntries) {
+		let authorInfo = ZU.xpathText(authorSectionEntry, './/*[@class="contributor-details-link"][1]')
+		let orcidHref = authorSectionEntry.querySelector('.orcid');
+		if (authorInfo && orcidHref) {
+			let orcid = orcidHref.textContent.replace(/.*(\d{4}-\d+-\d+-\d+x?)$/i, '$1');
+			item.notes.push({note: "orcid:" + orcid + ' | ' + authorInfo});
 		}
 	}
 	//delete symbols in names
@@ -180,6 +191,7 @@ function doWeb(doc, url) {
 }
 
 	
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
