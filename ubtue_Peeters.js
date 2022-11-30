@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-10-05 15:05:55"
+	"lastUpdated": "2022-11-30 13:54:02"
 }
 
 /*
@@ -111,7 +111,7 @@ function parseAbstract(doc, item) {
 		while (i < textParts.length) {
 			let text = textParts[i].textContent.replace(/\n|\s\s+/g, '');
 			if (text.length == 0) {
-				fullAbstract += '\\n4207';
+				fullAbstract += '\\n4207 ';
 			}
 			if (text && text.length > 0) {
 				fullAbstract += text;
@@ -127,7 +127,7 @@ function parseAbstract(doc, item) {
 			++i;
 		}
 		//split abstracts
-		fullAbstract = fullAbstract.replace(/(?:\\n4207)+$|^(?:\\n4207)+/g, '');
+		fullAbstract = fullAbstract.replace(/(?:\\n4207 )+$|^(?:\\n4207 )+/g, '');
 
 		if (usedItalicsParts < italicsParts.length) {
 			if (usedItalicsParts == italicsParts.length -1) {
@@ -214,6 +214,7 @@ function scrape(doc, url) {
 		item.tags.push('RezensionstagPica');
 	}
 }
+
 
 
 /** BEGIN TEST CASES **/
