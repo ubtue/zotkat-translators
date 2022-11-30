@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-12-02 14:01:59"
+	"lastUpdated": "2022-11-30 16:06:56"
 }
 
 /*
@@ -95,8 +95,12 @@ function scrape(doc, url) {
 			delete item.abstractNote;
 		}
 		// scrape abstract
-		let abstrctEntry = ZU.xpathText(doc, '//*[(@id = "resumen")]//p');
-		if (abstrctEntry) item.abstractNote = abstrctEntry;
+		let absNr = 0;
+		for (let abs of ZU.xpath(doc, '//*[(@id = "resumen")]//p')) {
+			if (absNr == 0) item.abstractNote = abs.textContent;
+			else item.notes.push('abs:' + abs.textContent);
+			absNr += 1;
+		}
 		// in case of double issue e.g. "3-4" wrong issue number in Embedded Metadata e,g. "3" 
 		// clean issue number in case of multiple download
 		var issue = ZU.xpathText(doc, '//*[@id="informacion"]//a[contains(text(), "Nº.")]');
@@ -122,12 +126,14 @@ function scrape(doc, url) {
 			}
 		}
 		if (!item.tags.includes('RezensionstagPica')) delete item.tags;
+		item.attachments = [];
 		item.complete();
 	});
 	translator.getTranslatorObject(function(trans) {
 		trans.doWeb(doc, url);
 	});
 }
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
