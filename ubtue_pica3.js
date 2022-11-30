@@ -687,6 +687,7 @@ function performExport() {
 			if (item.issue && item.ISSN === "2699-5433") { volumeyearissuepage += "$m" + item.issue.replace("-", "/").replace(/^0/, ""); }
 			for (let i in item.notes) {
 				if (item.notes[i].note.includes('artikelID:')) { volumeyearissuepage += "$i" + item.notes[i].note.replace(/artikelID:/i, '') };
+				if (item.notes[i].note.includes('SonderHeft:')) { volumeyearissuepage += "$n" + item.notes[i].note.replace(/SonderHeft:/i, '') };
 			}
 			if (item.pages) { volumeyearissuepage += "$p" + item.pages; }
 			for (let i in item.notes) {
