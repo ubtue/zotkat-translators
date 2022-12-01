@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-11-30 17:54:39"
+	"lastUpdated": "2022-12-01 10:04:27"
 }
 
 /*
@@ -35,7 +35,7 @@
 
 
 function detectWeb(doc, url) {
-	if (url.match(/article-.+\.xml$/)) {
+	if (url.match(/article-.+\.xml($|\?)/)) {
 		return "journalArticle";
 	} else if (url.match(/issue-\d+(-\d+)?\.xml$/)) {
 		return "multiple";
