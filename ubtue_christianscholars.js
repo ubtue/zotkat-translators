@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-10-05 11:43:46"
+	"lastUpdated": "2022-12-01 09:43:33"
 }
 
 /*
@@ -34,6 +34,35 @@
 */
 
 var reviewURLs = [];
+
+function romanToInt(r) {
+	if (r.match(/^[IVXLCM]+/i)) {
+		r = r.toUpperCase()
+    const sym = { 
+        'I': 1,
+        'V': 5,
+        'X': 10,
+        'L': 50,
+        'C': 100,
+        'D': 500,
+        'M': 1000
+    }
+    let result = 0;
+    for (i=0; i < r.length; i++){
+        const cur = sym[r[i]];
+        const next = sym[r[i+1]];
+        if (cur < next){
+            result += next - cur 
+            i++
+        } else {
+            result += cur
+        }
+    }
+
+    return result; 
+	}
+	else return r;
+};
 
 function detectWeb(doc, url) {
 	if (url.includes('/christianscholars.com/issues/')) {
@@ -82,7 +111,7 @@ function scrape(doc) {
 	translator.setHandler("itemDone", function (t, i) {
 		i.itemType = "journalArticle";
 		let citation = ZU.xpath(doc, '//div[@class="chicago_style"]');
-		if (citation) {
+		if (citation.length != 0) {
 			i.publicationTitle = ZU.xpathText(citation, './em');
 			if (i.publicationTitle == "Christian Scholar’s Review") i.ISSN = "0017-2251";
 			let pagination = citation[0].textContent.trim().match(/\d+(?:-\d+)?$/);
@@ -98,12 +127,24 @@ function scrape(doc) {
 				i.tags.push('RezensionstagPica');
 			}
 		}
+		else {
+			let issue_url = ZU.xpathText(doc, '//div[@class="issue"]/a/@href');
+			if (i.publicationTitle == "Christian Scholar’s Review") i.ISSN = "0017-2251";
+			if (issue_url.match(/\d{4}-volume-([ivxlc\d]+)-number-([ivxlc\d]+)\//)) {
+				i.volume = romanToInt(issue_url.match(/\d{4}-volume-([ivxlc\d]+)-number-([ivxlc\d]+)\//)[1]).toString();;
+				i.issue = issue_url.match(/\d{4}-volume-([ivxlc\d]+)-number-([ivxlc\d]+)\//)[2];
+			}
+			if (reviewURLs.includes(i.url)) {
+				i.tags.push('RezensionstagPica');
+			}
+		}
 		
 		i.attachments = [];
 		i.complete();
 	});
 	translator.translate();
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
