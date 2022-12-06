@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-07-01 14:59:25"
+	"lastUpdated": "2022-12-06 10:31:59"
 }
 
 /*
@@ -35,32 +35,75 @@
 	***** END LICENSE BLOCK *****
 */
 
-
 function detectWeb(doc, url) {
-	return "journalArticle";
+	if (/\/vol\d+\//.test(url) && getSearchResults(doc, url))
+		return "multiple";
+	else if (/\/vol\d+\//.test(url))
+		return "journalArticle";
 }
 
-function scrape(doc, item) {
+function getSearchResults(doc) {
+	let items = {};
+	let found = false;
+	let rows = ZU.xpath(doc, '//div[@class="doc"]//a[not(contains(., "PDF"))]');
+	for (let i = 0; i < rows.length; i++) {
+		let href = rows[i].href;
+		let title = ZU.trimInternal(rows[i].textContent);
+		if (!href || !title) continue;
+		found = true;
+		items[href] = title;
+	}
+	return found ? items : false;
+}
+
+function postProcess(item, doc) {
+	// sanitize page number ranges
 	item.DOI = text(doc, '#identifier p').replace('DOI:', '');
 	item.pages = text(doc, '.citation').match(/p\.\s+\d+-\d+/)[0].replace('p.', '');
 	item.abstractNote = text(doc, '#abstract p');
 	
 	let excludeBookReview = text(doc, '#title a');
 	if (excludeBookReview.match(/Book Reviews/)) {
-		item.tags.push('Book Review');
+		item.tags.push('RezensionstagPica');
 		}
+	item.abstractNote = item.abstractNote.replace(/^Abstract\s+/i, '');
+	item.attachments = [];
+	if (item.ISSN == "2375-6330") item.notes.push("LF:");
 	item.complete();
-}
+	}
 
-function doWeb(doc, url) {
-	var translator = Zotero.loadTranslator("web");
-	translator.setTranslator("05d07af9-105a-4572-99f6-a8e231c0daef");   // COinS
+function invokeEmbeddedMetadataTranslator(doc) {
+	let translator = Zotero.loadTranslator("web");
+	translator.setTranslator("05d07af9-105a-4572-99f6-a8e231c0daef");
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
-		scrape(doc, i);
+		postProcess(i, doc);
 	});
 	translator.translate();
 }
+
+function scrape(doc, url) {
+	let content = doc.contentDocument;
+	invokeEmbeddedMetadataTranslator(doc);
+}
+
+function doWeb(doc, url) {
+	Z.debug(detectWeb(doc, url));
+	if (detectWeb(doc, url) === "multiple") {
+		Zotero.selectItems(getSearchResults(doc), function (items) {
+			if (!items) {
+				return true;
+			}
+			let articles = [];
+			for (let i in items) {
+				articles.push(i);
+			}
+			ZU.processDocuments(articles, scrape);
+		});
+	} else
+		scrape(doc, url);
+}
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
