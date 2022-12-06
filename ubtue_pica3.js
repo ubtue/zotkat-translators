@@ -439,7 +439,12 @@ function performExport() {
 				addLine(currentItemId, "\\n1131", "!106186019!");
 			}
 		}
-
+		var localURL = "";		
+		if (item.url.match(/redi-bw.de/)) {
+			localURL = "\\n7133 " + item.url + "$xH$3Volltext$4ZZ$534";
+			item.url = null;		
+		}
+		
         // 1140 Veröffentlichungsart und Inhalt http://swbtools.bsz-bw.de/winibwhelp/Liste_1140.htm K10plus:1140 "uwre" entfällt. Das Feld wird folglich auch nicht mehr benötigt. Es sei denn es handelt sich um eines der folgenden Dokumente: http://swbtools.bsz-bw.de/cgi-bin/k10plushelp.pl?cmd=kat&val=1140&kattype=Standard
         /*if (item.itemType == "magazineArticle") {
             addLine(currentItemId, "1140", "uwre");
@@ -696,11 +701,6 @@ function performExport() {
 			if (item.ISSN === "2077-1444" && item.callNumber) {volumeyearissuepage += "$i" + item.callNumber;}
             addLine(currentItemId, "\\n4070", volumeyearissuepage);
         }
-
-        //URL --> 4085 nur bei Dokumenttyp "magazineArticle" für Rezension im Feld 0500 K10Plus:aus 4085 wird 4950 
-        if (item.url && item.itemType == "magazineArticle") {
-            addLine(currentItemId, "\\n4950", item.url + "$xH"); //K10Plus:wird die URL aus dem DOI, einem handle oder einem urn gebildet, sollte es $xR heißen und nicht $xH
-        }
 		
 		//Open Access / Free Access als LF --> 4950
 		if (item.notes) {
@@ -869,21 +869,21 @@ function performExport() {
 			}
 			if (institution_retrieve_sign == "") {
 				if (SsgField == "NABZ") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo$aNABZ', ""); 
+					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo$aNABZ' + localURL, ""); 
 				}
-				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo', "");
+				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo' + localURL, "");
 			}
 			else if (institution_retrieve_sign == "inzo") {
 				if (SsgField == "NABZ") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo$aNABZ', ""); 
+					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo$aNABZ' + localURL, ""); 
 				}
-				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo', "");
+				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo' + localURL, "");
 			}
 			else if (institution_retrieve_sign == "krzo") {
 				if (SsgField == "NABZ") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 krzo$aNABZ', ""); 
+					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 krzo$aNABZ' + localURL, ""); 
 				}
-				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 krzo', "");
+				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 krzo' + localURL, "");
 			}
 			//K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
 			//Schlagwörter aus einem Thesaurus (Fremddaten) --> 5520 (oder alternativ siehe Mapping)
