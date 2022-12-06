@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-11-30 17:29:11"
+	"lastUpdated": "2022-12-06 09:03:44"
 }
 
 /*
@@ -146,12 +146,21 @@ function scrape(doc, url) {
 			//scrape ORCID from website e.g. https://journals.sagepub.com/doi/full/10.1177/0084672419883339
 			let authorSectionEntries = doc.querySelectorAll('.author-section-div');
 			for (let authorSectionEntry of authorSectionEntries) {
-					let entryHTML = authorSectionEntry.innerHTML;
-					let regexOrcid = /\d+-\d+-\d+-\d+x?/i;
-					let regexName = /author=.*"/;
-					if(entryHTML.match(regexOrcid)) {
-						item.notes.push({note: "orcid:" + entryHTML.match(regexOrcid)[0] + ' | ' + entryHTML.match(regexName)[0].replace('\"', '')});
-					}
+				let entryHTML = authorSectionEntry.innerHTML;
+				let regexOrcid = /\d+-\d+-\d+-\d+x?/i;
+				let regexName = /author=.*"/;
+				if(entryHTML.match(regexOrcid)) {
+					item.notes.push({note: "orcid:" + entryHTML.match(regexOrcid)[0] + ' | ' + entryHTML.match(regexName)[0].replace('\"', '').replace('author=', '') + ' | taken from website'});
+				}
+			}
+			//scrape ORCID from website e.g. https://doi.org/10.1177/09518207221115929
+			let newAuthorSectionEntries = ZU.xpath(doc, '//span[@property="author"]');
+			for (let authorSectionEntry of newAuthorSectionEntries) {
+				if (ZU.xpathText(authorSectionEntry, './a[contains(@href, "orcid")]')) {
+					let orcid = ZU.xpathText(authorSectionEntry, './a[contains(@href, "orcid")]').replace(/https?:\/\/orcid.org\//, '');
+					let authorName = ZU.xpathText(authorSectionEntry, './/span[@property="givenName"]') + ' ' + ZU.xpathText(authorSectionEntry, './/span[@property="familyName"]');
+					item.notes.push({"note": "orcid:" + orcid + ' | ' + authorName + ' | taken from website'});
+				}	
 			}
 			// Workaround to address address weird incorrect multiple extraction by both querySelectorAll and xpath
 			// So, let's deduplicate...
@@ -229,7 +238,7 @@ function scrape(doc, url) {
 			// mark articles as "LF" (MARC=856 |z|kostenfrei), that are published as open access
 			let accessIcon = doc.querySelector('.accessIcon[alt]');
 			if (accessIcon && accessIcon.alt.match(/open\s+access/gi)) item.notes.push({note: 'LF:'});
-			
+			else if (ZU.xpathText(doc, '//i[@class="icon-open_access"]/@data-original-title') == 'Open access') item.notes.push({note: 'LF:'});
 			item.language = ZU.xpathText(doc, '//meta[@name="dc.Language"]/@content');
 			item.attachments = [];
 			var articleType = ZU.xpathText(doc, '//span[@class="ArticleType"]');
