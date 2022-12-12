@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-18 16:07:47"
+	"lastUpdated": "2022-12-12 15:13:22"
 }
 
 /*
@@ -267,7 +267,16 @@ function processRIS(text, jid) {
 		
 		item.url = item.url.replace('http:', 'https:'); // RIS still lists http addresses while JSTOR's stable URLs use https
 		if (item.url && !item.url.startsWith("http")) item.url = "https://" + item.url;
-		
+		ZU.doGet(item.url,
+		function (text) {
+		var parser = new DOMParser();
+		var html = parser.parseFromString(text, "text/html");
+		if (ZU.xpathText(html, '//script[@data-analytics-provider="ga"]') != null) {
+			
+			if (ZU.xpathText(html, '//script[@data-analytics-provider="ga"]').match(/"userAuthorization" ?: ?"Free"/) || ZU.xpathText(html, '//script[@data-analytics-provider="ga"]').match(/"userAuthorization" ?: ?"Free ?- ?Open_Access_Journals/)) {
+				item.notes.push('LF:');
+			}
+		}
 		// DB in RIS maps to archive; we don't want that
 		delete item.archive;
 		if (item.DOI || /DOI: 10\./.test(item.extra)) {
@@ -276,6 +285,8 @@ function processRIS(text, jid) {
 		else {
 			getKeyWords(item);
 		}
+		});
+		
 		
 		
 		
@@ -321,6 +332,7 @@ function finalizeItem(item, onDone) {
 	onDone(item));
 }
 	
+
 
 
 /** BEGIN TEST CASES **/
