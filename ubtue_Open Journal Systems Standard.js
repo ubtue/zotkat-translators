@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-12-12 13:22:56"
+	"lastUpdated": "2022-12-12 14:46:37"
 }
 
 /*
@@ -446,6 +446,18 @@ function invokeEMTranslator(doc) {
 		if (i.abstractNote == ', ' || i.abstractNote == ',') i.abstractNote = "";
 		if (i.abstractNote != null) {
 			i.abstractNote = i.abstractNote.replace(/(?:^|\n)(?:RESUME|ABSTRACT):\s+/g, '\\n4207 ');
+		}
+		if (i.ISSN == "2079-5971") {
+			let abstractSplitted = i.abstractNote.split(/\n/g);
+			let absNr = 0;
+			for (let abs of abstractSplitted) {
+				if (absNr == 0) i.abstractNote = abs;
+				else if (abs.match(/available\s+from/i) && abs.match(/https?:\/\/doi.org\/(.+$)/)) {
+					i.DOI = abs.match(/https?:\/\/doi.org\/(.+$)/)[1];
+				}
+				else i.notes.push('abs:' + abs);
+				absNr += 1;
+			}
 		}
 		i.attachments = [];
 		let sansidoroAbstract = ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content');
