@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-11-03 17:27:12"
+	"lastUpdated": "2022-12-12 12:43:42"
 }
 
 /*
@@ -145,9 +145,21 @@ function scrape(doc, url) {
 		}
 		
 		let abstractFR = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "lang-fr", " " ))]//p');
-		let abstractEN = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "lang-en", " " ))]//p')
-		if (item.abstractNote && abstractEN.length > 100) item.abstractNote = item.abstractNote + '\\n4207 ' + abstractEN;
+		let abstractEN = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "lang-en", " " ))]//p');
+		let abstractDE = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "lang-de", " " ))]//p');
+		let abstractES = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "lang-es", " " ))]//p');
 		
+		if (item.abstractNote) item.abstractNote = item.abstractNote.replace(/\n/g, ' ');
+		if (abstractEN && abstractEN.length > 100) {
+			item.notes.push('abs:' + abstractEN.replace(/\n/g, ' '))
+			if (abstractDE) item.notes.push('abs:' + abstractDE.replace(/\n/g, ' '))
+			if (abstractES) item.notes.push('abs:' + abstractES.replace(/\n/g, ' '))
+		}
+		else if (ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="en"]/@content') && ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="en"]/@content').length > 100) {
+			item.notes.push('abs:' + ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="en"]/@content').replace(/\n/g, ' '));
+			if (abstractDE) item.notes.push('abs:' + abstractDE.replace(/\n/g, ' '))
+			if (abstractES) item.notes.push('abs:' + abstractES.replace(/\n/g, ' '))
+		}
 		let DOIentry = ZU.xpathText(doc, '//dd');
 		if (!item.DOI && DOIentry) {
 			let splitDOIentry = DOIentry.split('\n');//Z.debug(splitDOIentry)
@@ -169,19 +181,29 @@ function scrape(doc, url) {
 					}
 				}
 			}
+		for (let tag of ZU.xpath(doc, '//li[@class="motcle"]')) {
+		if (!item.tags.includes(tag.textContent)) item.tags.push(tag.textContent.replace(/\n/g, ' '));
+		}
 		if (item.volume) item.volume = romanToInt(item.volume).toString();
-		if (item.publicationTitle == "L'Année canonique") {
-			item.ISSN = "0570-1953";
-			item.issue = "";
-		} 
-		else if (item.publicationTitle == "Études théologiques et religieuses") item.ISSN = "0014-2239";
-		else if (item.publicationTitle == "Nouvelle revue théologique") item.ISSN = "0029-4845";
+		switch (item.publicationTitle) {
+			case "L'Année canonique":
+				{item.ISSN = "0570-1953";
+				item.issue = "";}
+			case "Études théologiques et religieuses":
+				item.ISSN = "0014-2239";
+			case "Nouvelle revue théologique":
+				item.ISSN = "0029-4845";
+			case "Déviance et Société":
+				item.ISSN = "0378-7931";
+		}
+		if (["gratuit", "post barrière mobile"].includes(ZU.xpathText(doc, '//meta[@name="DCSext.comm_art"]/@content'))) item.notes.push('LF:');
 		item.attachments = [];
 		item.complete();
 		});
 		translator.translate();
 	});
 }
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
