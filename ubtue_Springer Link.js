@@ -8,8 +8,8 @@
 	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
-	"browserSupport": "gcsbv",
-	"lastUpdated": "2021-10-19 08:34:52"
+	"browserSupport": "gcsibv",
+	"lastUpdated": "2022-12-12 15:35:44"
 }
 
 /*
@@ -103,7 +103,7 @@ function doWeb(doc, url) {
 
 function undesirableAbstractPresent(doc, item) {
 	let textStart = ZU.xpathText(doc, '//div[@class="c-article-section__content"]/p[not(a | b)]');
-	return textStart.indexOf(item.abstractNote) != -1;
+	 return (textStart != null) ? textStart.indexOf(item.abstractNote) != -1 : false;
 }
 
 function complementItem(doc, item) {
@@ -304,6 +304,7 @@ function scrape(doc, url) {
 		translator.translate();
 	});
 }
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
