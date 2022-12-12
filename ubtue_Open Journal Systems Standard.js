@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-11-21 10:56:05"
+	"lastUpdated": "2022-12-12 13:22:56"
 }
 
 /*
@@ -89,6 +89,10 @@ function invokeEMTranslator(doc) {
 		if (i.pages == undefined) i.pages = ZU.xpathText(doc, '//meta[@name="DC.Identifier.Pagenumber"]/@content');
 		if (i.DOI == undefined) i.DOI = ZU.xpathText(doc, '//meta[@name="DC.Identifier.DOI"]/@content');
 		if (i.ISSN == "2521-6465") i.language = ZU.xpathText(doc, '//meta[@name="DC.Language"]/@content');
+		if (i.ISSN == "1988-7949") {
+			i.volume = i.issue;
+			i.issue = "";
+		}
 		if (doc.querySelector(".subtitle")) {
 			if (i.title.indexOf(doc.querySelector(".subtitle").textContent.trim().replace(/\s+/g, ' ')) == -1) {
  			i.title = i.title + ' ' + doc.querySelector(".subtitle").textContent.trim();
@@ -118,6 +122,7 @@ function invokeEMTranslator(doc) {
   		let orcidAuthorEntryCaseC = doc.querySelectorAll('.authors-string');//Z.debug(orcidAuthorEntryCaseC)
   		let orcidAuthorEntryCaseD = ZU.xpath(doc, '//div[@id="authors"]');
 		let orcidAuthorEntryCaseF = ZU.xpath(doc, '//div[@class="authors"]/div[@class="author"]');
+		let orcidAuthorEntryCaseG = ZU.xpath(doc, '//div[@class="list-group-item date-published"]');
   		// e.g. https://aabner.org/ojs/index.php/beabs/article/view/781
   		if (orcidAuthorEntryCaseA && ['2748-6419', '2653-1372'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
@@ -244,7 +249,13 @@ function invokeEMTranslator(doc) {
   				}
   			}
   		}
- 		
+ 	if (orcidAuthorEntryCaseG && i.ISSN == "1988-7949") {
+  	 	for (let c of orcidAuthorEntryCaseG) {
+  				let name = ZU.xpathText(c, './/strong');
+				let orcid = ZU.xpathText(c, './/a[contains(@href, "orcid.org")]/@href');
+				if (orcid) i.notes.push({note: ZU.trimInternal(name) + orcid.replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
+  			}
+  		}	
  		//clean pages e.g. pages": "6.-6." > 10.25786/cjbk.v0i01-02.631; or "pages": "01-07" > 10.25786/zfbeg.v0i01-02.793
  		if (i.pages != null) i.pages = i.pages.replace('S.', '').replace(/\./g, '').replace(/^([^-]+)-\1$/, '$1').replace(/^0/g, '').replace(/-0/g, '-');
  		
@@ -487,6 +498,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEMTranslator(doc, url);
 }
+
 
 
 
