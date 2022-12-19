@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-12-19 12:43:32"
+	"lastUpdated": "2022-12-19 15:03:27"
 }
 
 /*
@@ -46,7 +46,9 @@ function getSearchResults(doc, url) {
 	if (rows.length == 0 && url.match(/(journals\.us\.edu)/)) {
 		rows = ZU.xpath(doc, '//h4[contains(@class, "article-summary-title")]//a');
 	}
-
+	if (rows.length == 0 && url.match(/sacra\/issue\/view/)) {
+		rows = ZU.xpath(doc, '//h4[contains(@class, "toc_title")]//a');
+	}
 	for (let row of rows) {
 		let href = row.href;
 		let title = ZU.trimInternal(row.textContent).replace(/pdf/i, '');
@@ -308,6 +310,8 @@ function invokeEMTranslator(doc) {
 				i.issue = issueTag.match(/ANO\s+\d+,\s+N.\s+(\d+) \(\d{4}\):/i)[1];
 			}
 		}
+		if (i.ISSN === "2336-4483" && ZU.xpathText(doc, '//a[@title="Handle"]/@href')) i.notes.push('handle:' + ZU.xpathText(doc, '//a[@title="Handle"]/@href').replace(/https?:\/\/hdl.handle.net\//, ''));
+			
 		if (["2159-6875"].includes(i.ISSN)) {
 			if (reviewURLs.includes(i.url)) i.tags.push("RezensionstagPica");
 		}
