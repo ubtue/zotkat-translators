@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-12-12 14:46:37"
+	"lastUpdated": "2022-12-19 12:43:32"
 }
 
 /*
@@ -299,6 +299,13 @@ function invokeEMTranslator(doc) {
 		if (doc.querySelector(".current")) {
 			if (doc.querySelector(".current").textContent.trim() === "Book Reviews" || articleType === "Recensiones" || articleType === "Rezensionen") {
 				i.tags.push('RezensionstagPica');
+			}
+		}
+		if (i.ISSN === "1982-8136" && !i.volume) {
+			let issueTag = ZU.xpathText(doc, '//div[@class="item issue"]');
+			if (issueTag.match(/ANO\s+\d+,\s+N.\s+\d+ \(\d{4}\):/i)) {
+				i.volume = issueTag.match(/ANO\s+(\d+),\s+N.\s+\d+ \(\d{4}\):/i)[1];
+				i.issue = issueTag.match(/ANO\s+\d+,\s+N.\s+(\d+) \(\d{4}\):/i)[1];
 			}
 		}
 		if (["2159-6875"].includes(i.ISSN)) {
