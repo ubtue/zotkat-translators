@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-10-10 16:44:41"
+	"lastUpdated": "2022-12-19 15:38:23"
 }
 
 /*
@@ -519,7 +519,7 @@ function doDelivery(doc, itemInfo) {
 		prefs.itemTitle = ZU.trimInternal(prefs.itemTitle).replace(/([^.])\.$/, '$1');
 	}
 	let languageMap = {"Afrikaans": "afr", "Arabic": "ara", "Danish": "dan", "Dutch": "dut", "German": "ger", "English": "eng", "French": "fre", "Greek": "gre", "Italian": "ita", "Malay": "may", "Portuguese": "por", "Romanian": "ron", "Russian": "rus", "Spanish": "spa", "Serbian": "srp", "Turkish": "tur"};
-	let newTest = ZU.xpathText(doc, '//div[@class="citation-wrapping-div "]');
+	let newTest = ZU.xpathText(doc, '//div[contains(@class,"citation-wrapping-div")]');
 	let language = newTest.match(/Language:(.+?)(?:(?:Authors:)|(?:Language\s+Note:)|(?:Subjects:)|(?:Related\s+Works:))/);
 	prefs.languageTag = '';
 	// Vorsicht, das kann zu Problemen führen!
@@ -553,6 +553,7 @@ function doDelivery(doc, itemInfo) {
 		downloadFunction(text, postURL, prefs);
 	});
 }
+
 
 
 
