@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-12-19 15:24:08"
+	"lastUpdated": "2022-12-20 16:06:11"
 }
 
 /*
@@ -126,7 +126,7 @@ function invokeEMTranslator(doc) {
 		let orcidAuthorEntryCaseF = ZU.xpath(doc, '//div[@class="authors"]/div[@class="author"]');
 		let orcidAuthorEntryCaseG = ZU.xpath(doc, '//div[@class="list-group-item date-published"]');
   		// e.g. https://aabner.org/ojs/index.php/beabs/article/view/781
-  		if (orcidAuthorEntryCaseA && ['2748-6419', '2653-1372'].includes(i.ISSN)) {
+  		if (orcidAuthorEntryCaseA && ['2748-6419', '2653-1372', '2340-4256'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
   				if (a && a.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
   					let orcidTag = ZU.trimInternal(a.innerHTML);
