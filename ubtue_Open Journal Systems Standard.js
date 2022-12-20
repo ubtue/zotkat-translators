@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-12-19 15:24:08"
+	"lastUpdated": "2022-12-20 16:33:20"
 }
 
 /*
@@ -126,7 +126,7 @@ function invokeEMTranslator(doc) {
 		let orcidAuthorEntryCaseF = ZU.xpath(doc, '//div[@class="authors"]/div[@class="author"]');
 		let orcidAuthorEntryCaseG = ZU.xpath(doc, '//div[@class="list-group-item date-published"]');
   		// e.g. https://aabner.org/ojs/index.php/beabs/article/view/781
-  		if (orcidAuthorEntryCaseA && ['2748-6419', '2653-1372'].includes(i.ISSN)) {
+  		if (orcidAuthorEntryCaseA && ['2748-6419', '2653-1372', '2340-4256'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
   				if (a && a.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
   					let orcidTag = ZU.trimInternal(a.innerHTML);
@@ -394,18 +394,22 @@ function invokeEMTranslator(doc) {
 			};
 			i.abstractNote = i.abstractNote.replace(/[^\\](\n)/g, " ");
 		}
-		if (i.ISSN == "2521-6465") {
+		if (["2521-6465", "2340-4256"].includes(i.ISSN)) {
 			i.abstractNote = "";
 			for (let abstractTag of ZU.xpath(doc, '//meta[@name="DC.Description"]/@content')) {
-				let abstractText = abstractTag.textContent;
-				i.abstractNote += abstractText.split(/(?:\nKey\s*words:\s)|(?:\nКлючевые\s+слова:\s)|(?:\nТүйін\s+сөздер:\s)/)[0] + "\\n4207 ";
-				let keyWords = abstractText.split(/(?:\nKey\s*words:\s)|(?:\nКлючевые\s+слова:\s)|(?:\nТүйін\s+сөздер:\s)/)[1];
-				if (keyWords != undefined) {
-					for (let keyWord of keyWords.split(/,\s+/)) {
-						i.tags.push(keyWord);
+				if (i.ISSN == "2340-4256") abstractTags = abstractTag.textContent.split(/Resumen|Abstract/);
+				else abstractTags = [abstractTag.textContent];
+				for (let abstractText of abstractTags) {
+					i.abstractNote += abstractText.split(/(?:\bKey\s*words:\s)|(?:\nКлючевые\s+слова:\s)|(?:\nТүйін\s+сөздер:\s)|(?:\bPalabras\s*clave:)/)[0] + "\\n4207 ";
+					let keyWords = abstractText.split(/(?:\bKey\s*words:\s)|(?:\nКлючевые\s+слова:\s)|(?:\nТүйін\s+сөздер:\s)|(?:\bPalabras\s*clave:)/)[1];
+					if (keyWords != undefined) {
+						for (let keyWord of keyWords.split(/,\s+/)) {
+							i.tags.push(keyWord.replace(/\.?Orcid:.+$/, ''));
+						}
 					}
 				}
 			}
+			Z.debug(i.abstractNote)
 			i.title = ZU.xpathText(doc, '//meta[@name="DC.Title"]/@content').trim();
 			if (!i.title) {
 				i.title = ZU.xpathText(doc, '//meta[@name="DC.Title.Alternative"][1]/@content').trim();
