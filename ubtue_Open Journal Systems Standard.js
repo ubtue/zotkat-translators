@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-12-20 16:31:11"
+	"lastUpdated": "2022-12-20 16:33:20"
 }
 
 /*
@@ -404,7 +404,7 @@ function invokeEMTranslator(doc) {
 					let keyWords = abstractText.split(/(?:\bKey\s*words:\s)|(?:\nКлючевые\s+слова:\s)|(?:\nТүйін\s+сөздер:\s)|(?:\bPalabras\s*clave:)/)[1];
 					if (keyWords != undefined) {
 						for (let keyWord of keyWords.split(/,\s+/)) {
-							i.tags.push(keyWord);
+							i.tags.push(keyWord.replace(/\.?Orcid:.+$/, ''));
 						}
 					}
 				}
