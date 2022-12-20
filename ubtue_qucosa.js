@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-12-19 10:36:42"
+	"lastUpdated": "2022-12-20 15:50:42"
 }
 
 /*
@@ -77,7 +77,9 @@ function postProcess(doc, item) {
 	if (ZU.xpathText(doc, '//dd[preceding-sibling::dt[contains(., "URN Qucosa")]][1]')) {
 		let urn = ZU.xpathText(doc, '//dd[preceding-sibling::dt[contains(., "URN Qucosa")]][1]');
 		item.notes.push('urn:' + urn);
+		if (!item.url) item.url = "https://nbn-resolving.org/" + urn;
 	}
+	
 	item.attachments = [];
 	item.complete();
 }
