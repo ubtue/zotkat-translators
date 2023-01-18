@@ -1,15 +1,15 @@
 {
-	"translatorID": "3fd0b926-7e7d-439e-b7d6-1025b37c5498",
-	"label": "ubtue_Asbury Journal",
-	"creator": "Timotheus Kim",
-	"target": "^https?://place\\.asburyseminary\\.edu/asburyjournal/vol.*/iss.*",
+	"translatorID": "5f607ae2-1a96-4121-8ac0-e433cae78f75",
+	"label": "ubtue_CJBS",
+	"creator": "Helena Nebel",
+	"target": "thecjbs.org/archive-(document|issue)-details/\\?(id|vol)=",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-12-06 10:31:59"
+	"lastUpdated": "2022-12-14 09:41:53"
 }
 
 /*
@@ -35,17 +35,19 @@
 	***** END LICENSE BLOCK *****
 */
 
+var ISSN = "";
+
 function detectWeb(doc, url) {
-	if (/\/vol\d+\//.test(url) && getSearchResults(doc, url))
+	if (/\/archive-issue-details\/\?vol/.test(url) && getSearchResults(doc, url))
 		return "multiple";
-	else if (/\/vol\d+\//.test(url))
+	else if (/\/archive-document-details\/\?id/.test(url))
 		return "journalArticle";
 }
 
 function getSearchResults(doc) {
 	let items = {};
 	let found = false;
-	let rows = ZU.xpath(doc, '//div[@class="doc"]//a[not(contains(., "PDF"))]');
+	let rows = ZU.xpath(doc, '//a[contains(@href,"archive-document-details/")]');
 	for (let i = 0; i < rows.length; i++) {
 		let href = rows[i].href;
 		let title = ZU.trimInternal(rows[i].textContent);
@@ -56,35 +58,34 @@ function getSearchResults(doc) {
 	return found ? items : false;
 }
 
-function postProcess(item, doc) {
-	// sanitize page number ranges
-	item.DOI = text(doc, '#identifier p').replace('DOI:', '');
-	item.pages = text(doc, '.citation').match(/p\.\s+\d+-\d+/)[0].replace('p.', '');
-	item.abstractNote = text(doc, '#abstract p');
-	
-	let excludeBookReview = text(doc, '#title a');
-	if (excludeBookReview.match(/Book Reviews/)) {
-		item.tags.push('RezensionstagPica');
-		}
-	item.abstractNote = item.abstractNote.replace(/^Abstract\s+/i, '');
-	item.attachments = [];
-	if (item.ISSN == "2375-6330") item.notes.push("LF:");
-	item.complete();
-	}
 
-function invokeEmbeddedMetadataTranslator(doc) {
-	let translator = Zotero.loadTranslator("web");
-	translator.setTranslator("05d07af9-105a-4572-99f6-a8e231c0daef");
-	translator.setDocument(doc);
-	translator.setHandler("itemDone", function (t, i) {
-		postProcess(i, doc);
-	});
-	translator.translate();
-}
 
 function scrape(doc, url) {
-	let content = doc.contentDocument;
-	invokeEmbeddedMetadataTranslator(doc);
+	item = new Zotero.Item("journalArticle");
+	item.title = ZU.xpathText(doc, '//main//h4').replace(/\n/g, '').trim();
+	if (ZU.xpathText(doc, '//main').match(/Language.{2,15}Full Text/)) {
+		let language = ZU.xpathText(doc, '//main').match(/Language(.{2,15})Full Text/)[1];
+		if (["English", "French"].includes(language)) {
+			item.language = {"French": "fre", "English": "eng"}[language];
+		}
+	}
+	item.abstractNote = ZU.xpathText(doc, '//main//p[preceding-sibling::h5[contains(., "Abstract")]]');
+	for (let creator of ZU.xpath(doc, '//a[contains(@href, "archive-author-details/")]')) {
+		item.creators.push(ZU.cleanAuthor(creator.textContent, 'author'));
+	}
+	let source = ZU.xpathText(doc, '//a[contains(@href, "archive-issue-details/")]');
+	if (source.match(/Issue\s+(?:No\.?\s+)?\d+\s*\(\d{4}\)/)) {
+		item.volume = source.match(/Issue\s+(?:No\.?\s+)?(\d+)\s*\(\d{4}\)/)[1];
+		item.date = source.match(/Issue\s+(?:No\.?\s+)?\d+\s*\((\d{4})\)/)[1];
+	}
+	if (ZU.xpathText(doc, '//main//h5') && ZU.xpathText(doc, '//main//h5').match(/book\s*review/i)) {
+		item.tags.push('RezensionstagPica');
+	}
+	item.attachments = [];
+	item.publicationTitle = "Canadian Journal of Buddhist Studies";
+	item.ISSN = "1710-8268";
+	item.url = url;
+	item.complete();
 }
 
 function doWeb(doc, url) {

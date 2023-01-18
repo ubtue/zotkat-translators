@@ -1,15 +1,15 @@
 {
-	"translatorID": "3fd0b926-7e7d-439e-b7d6-1025b37c5498",
-	"label": "ubtue_Asbury Journal",
-	"creator": "Timotheus Kim",
-	"target": "^https?://place\\.asburyseminary\\.edu/asburyjournal/vol.*/iss.*",
+	"translatorID": "4c47c44a-08fd-49c8-b2b0-478cd3d5cabe",
+	"label": "ubtue_CRI",
+	"creator": "Helena Nebel",
+	"target": "civicresearchinstitute.com/online/article(_abstract)?.php",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-12-06 10:31:59"
+	"lastUpdated": "2022-12-12 16:47:42"
 }
 
 /*
@@ -35,17 +35,20 @@
 	***** END LICENSE BLOCK *****
 */
 
+var ISSN = "";
+
 function detectWeb(doc, url) {
-	if (/\/vol\d+\//.test(url) && getSearchResults(doc, url))
+	if (/\/article.php/.test(url) && getSearchResults(doc, url))
 		return "multiple";
-	else if (/\/vol\d+\//.test(url))
+	else if (/\/article_abstract.php/.test(url))
 		return "journalArticle";
 }
 
 function getSearchResults(doc) {
+	if (ZU.xpathText(doc, '//p').match(/ISSN\s+[\dXx-]{8,9}/)) ISSN = ZU.xpathText(doc, '//p').match(/ISSN\s+([\dXx-]{8,9})/)[1];
 	let items = {};
 	let found = false;
-	let rows = ZU.xpath(doc, '//div[@class="doc"]//a[not(contains(., "PDF"))]');
+	let rows = ZU.xpath(doc, '//a[@class="article_title"]');
 	for (let i = 0; i < rows.length; i++) {
 		let href = rows[i].href;
 		let title = ZU.trimInternal(rows[i].textContent);
@@ -56,35 +59,54 @@ function getSearchResults(doc) {
 	return found ? items : false;
 }
 
-function postProcess(item, doc) {
-	// sanitize page number ranges
-	item.DOI = text(doc, '#identifier p').replace('DOI:', '');
-	item.pages = text(doc, '.citation').match(/p\.\s+\d+-\d+/)[0].replace('p.', '');
-	item.abstractNote = text(doc, '#abstract p');
-	
-	let excludeBookReview = text(doc, '#title a');
-	if (excludeBookReview.match(/Book Reviews/)) {
-		item.tags.push('RezensionstagPica');
-		}
-	item.abstractNote = item.abstractNote.replace(/^Abstract\s+/i, '');
-	item.attachments = [];
-	if (item.ISSN == "2375-6330") item.notes.push("LF:");
-	item.complete();
-	}
 
-function invokeEmbeddedMetadataTranslator(doc) {
-	let translator = Zotero.loadTranslator("web");
-	translator.setTranslator("05d07af9-105a-4572-99f6-a8e231c0daef");
-	translator.setDocument(doc);
-	translator.setHandler("itemDone", function (t, i) {
-		postProcess(i, doc);
-	});
-	translator.translate();
-}
 
 function scrape(doc, url) {
-	let content = doc.contentDocument;
-	invokeEmbeddedMetadataTranslator(doc);
+	item = new Zotero.Item("journalArticle");
+	if (ZU.xpathText(doc, '//h1[@class="abstract-heading"]')) {
+		item.title = ZU.xpathText(doc, '//h1[@class="abstract-heading"]');
+	}
+	for ( let p of ZU.xpath(doc, '//p[@class="txt_authinfo"]')) {
+		if (ZU.xpathText(p, './strong[contains(., "Author")]')) {
+			let creatorString = ZU.xpathText(p, './em').replace(/&nbsp;/g, ' ').trim();
+			for (let cre of creatorString.split(/\.[;]/)) {
+				item.creators.push(ZU.cleanAuthor(cre.replace(/\.$/g, ''), 'author'))
+			}
+		}
+		if (ZU.xpathText(p, './strong[contains(., "Source")]')) {
+			let issuedInformation = p.textContent.replace(/\n+|\t+|\s+/g, ' ')
+			if (issuedInformation.match(/Volume \d+, Number \d+, [^\s]+ \d{4} , pp.\d+(?:-\d+)?\(/)) {
+				item.volume = issuedInformation.match(/Volume (\d+), Number \d+, [^\s]+ \d{4} , pp.\d+(?:-\d+)?\(/)[1];
+				item.issue = issuedInformation.match(/Volume \d+, Number 0*(\d+), [^\s]+ \d{4} , pp.\d+(?:-\d+)?\(/)[1];
+				item.date = issuedInformation.match(/Volume \d+, Number \d+, [^\s]+ (\d{4}) , pp.\d+(?:-\d+)?\(/)[1];
+				item.pages = issuedInformation.match(/Volume \d+, Number \d+, [^\s]+ \d{4} , pp.(\d+(?:-\d+)?)\(/)[1];
+			}
+		}
+	}
+	let abstractText = ZU.xpathText(doc, '//div[@id="abstract"]');
+	if (abstractText) {
+		item.abstractNote = abstractText.replace(/Abstract:/g, '').trim();
+	}
+	
+	if (ZU.xpathText(doc, '//div[@id="info"]')) {
+		for (let info of ZU.xpathText(doc, '//div[@id="info"]').split(/\n/)) {
+			if (info.match(/keywords:/i)) {
+				for (let tag of info.replace(/keywords:/i, '').split(/\s*;\s*/)) {
+					if (!item.tags.includes(tag.trim())) {
+						item.tags.push(tag.trim());
+					}
+				}
+			}
+		}
+	}
+	item.attachments = [];
+	item.ISSN = ISSN;
+	switch(item.ISSN) {
+		case "1043-500X":
+		item.publicationTitle = "Journal of Offender Monitoring";
+	}
+	item.url = url;
+	item.complete();
 }
 
 function doWeb(doc, url) {

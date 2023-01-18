@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-11-21 10:56:05"
+	"lastUpdated": "2022-12-20 16:33:20"
 }
 
 /*
@@ -46,7 +46,9 @@ function getSearchResults(doc, url) {
 	if (rows.length == 0 && url.match(/(journals\.us\.edu)/)) {
 		rows = ZU.xpath(doc, '//h4[contains(@class, "article-summary-title")]//a');
 	}
-
+	if (rows.length == 0 && url.match(/sacra\/issue\/view/)) {
+		rows = ZU.xpath(doc, '//h4[contains(@class, "toc_title")]//a');
+	}
 	for (let row of rows) {
 		let href = row.href;
 		let title = ZU.trimInternal(row.textContent).replace(/pdf/i, '');
@@ -89,6 +91,10 @@ function invokeEMTranslator(doc) {
 		if (i.pages == undefined) i.pages = ZU.xpathText(doc, '//meta[@name="DC.Identifier.Pagenumber"]/@content');
 		if (i.DOI == undefined) i.DOI = ZU.xpathText(doc, '//meta[@name="DC.Identifier.DOI"]/@content');
 		if (i.ISSN == "2521-6465") i.language = ZU.xpathText(doc, '//meta[@name="DC.Language"]/@content');
+		if (i.ISSN == "1988-7949") {
+			i.volume = i.issue;
+			i.issue = "";
+		}
 		if (doc.querySelector(".subtitle")) {
 			if (i.title.indexOf(doc.querySelector(".subtitle").textContent.trim().replace(/\s+/g, ' ')) == -1) {
  			i.title = i.title + ' ' + doc.querySelector(".subtitle").textContent.trim();
@@ -118,8 +124,9 @@ function invokeEMTranslator(doc) {
   		let orcidAuthorEntryCaseC = doc.querySelectorAll('.authors-string');//Z.debug(orcidAuthorEntryCaseC)
   		let orcidAuthorEntryCaseD = ZU.xpath(doc, '//div[@id="authors"]');
 		let orcidAuthorEntryCaseF = ZU.xpath(doc, '//div[@class="authors"]/div[@class="author"]');
+		let orcidAuthorEntryCaseG = ZU.xpath(doc, '//div[@class="list-group-item date-published"]');
   		// e.g. https://aabner.org/ojs/index.php/beabs/article/view/781
-  		if (orcidAuthorEntryCaseA && ['2748-6419', '2653-1372'].includes(i.ISSN)) {
+  		if (orcidAuthorEntryCaseA && ['2748-6419', '2653-1372', '2340-4256'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
   				if (a && a.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
   					let orcidTag = ZU.trimInternal(a.innerHTML);
@@ -244,7 +251,13 @@ function invokeEMTranslator(doc) {
   				}
   			}
   		}
- 		
+ 	if (orcidAuthorEntryCaseG && i.ISSN == "1988-7949") {
+  	 	for (let c of orcidAuthorEntryCaseG) {
+  				let name = ZU.xpathText(c, './/strong');
+				let orcid = ZU.xpathText(c, './/a[contains(@href, "orcid.org")]/@href');
+				if (orcid) i.notes.push({note: ZU.trimInternal(name) + orcid.replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
+  			}
+  		}	
  		//clean pages e.g. pages": "6.-6." > 10.25786/cjbk.v0i01-02.631; or "pages": "01-07" > 10.25786/zfbeg.v0i01-02.793
  		if (i.pages != null) i.pages = i.pages.replace('S.', '').replace(/\./g, '').replace(/^([^-]+)-\1$/, '$1').replace(/^0/g, '').replace(/-0/g, '-');
  		
@@ -290,6 +303,18 @@ function invokeEMTranslator(doc) {
 				i.tags.push('RezensionstagPica');
 			}
 		}
+		if (i.ISSN === "1982-8136" && !i.volume) {
+			let issueTag = ZU.xpathText(doc, '//div[@class="item issue"]');
+			if (issueTag.match(/ANO\s+\d+,\s+N.\s+\d+ \(\d{4}\):/i)) {
+				i.volume = issueTag.match(/ANO\s+(\d+),\s+N.\s+\d+ \(\d{4}\):/i)[1];
+				i.issue = issueTag.match(/ANO\s+\d+,\s+N.\s+(\d+) \(\d{4}\):/i)[1];
+			}
+		}
+		if (i.ISSN === "2336-4483" && ZU.xpathText(doc, '//a[@title="Handle"]/@href')) i.notes.push('handle:' + ZU.xpathText(doc, '//a[@title="Handle"]/@href').replace(/https?:\/\/hdl.handle.net\//, ''));
+		//hier anpassen:
+		if (i.publicationTitle == "IJoReSH: Indonesian Journal of Religion, Spirituality, and Humanity") i.ISSN = "2962-665X";
+		if (i.ISSN == "2962-665X" && !i.pages && ZU.xpathText(doc, '//a[@class="file" and contains(., "PDF")]') 
+		&& ZU.xpathText(doc, '//a[@class="file" and contains(., "PDF")]').match(/PDF\s*\(\d+(?:-\d+)?\)/)) i.pages = ZU.xpathText(doc, '//a[@class="file" and contains(., "PDF")]').match(/PDF\s*\((\d+(?:-\d+)?)\)/)[1];
 		if (["2159-6875"].includes(i.ISSN)) {
 			if (reviewURLs.includes(i.url)) i.tags.push("RezensionstagPica");
 		}
@@ -369,18 +394,22 @@ function invokeEMTranslator(doc) {
 			};
 			i.abstractNote = i.abstractNote.replace(/[^\\](\n)/g, " ");
 		}
-		if (i.ISSN == "2521-6465") {
+		if (["2521-6465", "2340-4256"].includes(i.ISSN)) {
 			i.abstractNote = "";
 			for (let abstractTag of ZU.xpath(doc, '//meta[@name="DC.Description"]/@content')) {
-				let abstractText = abstractTag.textContent;
-				i.abstractNote += abstractText.split(/(?:\nKey\s*words:\s)|(?:\nКлючевые\s+слова:\s)|(?:\nТүйін\s+сөздер:\s)/)[0] + "\\n4207 ";
-				let keyWords = abstractText.split(/(?:\nKey\s*words:\s)|(?:\nКлючевые\s+слова:\s)|(?:\nТүйін\s+сөздер:\s)/)[1];
-				if (keyWords != undefined) {
-					for (let keyWord of keyWords.split(/,\s+/)) {
-						i.tags.push(keyWord);
+				if (i.ISSN == "2340-4256") abstractTags = abstractTag.textContent.split(/Resumen|Abstract/);
+				else abstractTags = [abstractTag.textContent];
+				for (let abstractText of abstractTags) {
+					i.abstractNote += abstractText.split(/(?:\bKey\s*words:\s)|(?:\nКлючевые\s+слова:\s)|(?:\nТүйін\s+сөздер:\s)|(?:\bPalabras\s*clave:)/)[0] + "\\n4207 ";
+					let keyWords = abstractText.split(/(?:\bKey\s*words:\s)|(?:\nКлючевые\s+слова:\s)|(?:\nТүйін\s+сөздер:\s)|(?:\bPalabras\s*clave:)/)[1];
+					if (keyWords != undefined) {
+						for (let keyWord of keyWords.split(/,\s+/)) {
+							i.tags.push(keyWord.replace(/\.?Orcid:.+$/, ''));
+						}
 					}
 				}
 			}
+			Z.debug(i.abstractNote)
 			i.title = ZU.xpathText(doc, '//meta[@name="DC.Title"]/@content').trim();
 			if (!i.title) {
 				i.title = ZU.xpathText(doc, '//meta[@name="DC.Title.Alternative"][1]/@content').trim();
@@ -436,6 +465,18 @@ function invokeEMTranslator(doc) {
 		if (i.abstractNote != null) {
 			i.abstractNote = i.abstractNote.replace(/(?:^|\n)(?:RESUME|ABSTRACT):\s+/g, '\\n4207 ');
 		}
+		if (i.ISSN == "2079-5971") {
+			let abstractSplitted = i.abstractNote.split(/\n/g);
+			let absNr = 0;
+			for (let abs of abstractSplitted) {
+				if (absNr == 0) i.abstractNote = abs;
+				else if (abs.match(/available\s+from/i) && abs.match(/https?:\/\/doi.org\/(.+$)/)) {
+					i.DOI = abs.match(/https?:\/\/doi.org\/(.+$)/)[1];
+				}
+				else i.notes.push('abs:' + abs);
+				absNr += 1;
+			}
+		}
 		i.attachments = [];
 		let sansidoroAbstract = ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content');
 		if (sansidoroAbstract && sansidoroAbstract.match(/isidorianum\/article\/view/)) {
@@ -487,6 +528,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEMTranslator(doc, url);
 }
+
 
 
 

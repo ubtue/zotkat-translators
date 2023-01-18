@@ -2,14 +2,14 @@
 	"translatorID": "a07aac18-3922-440e-beb0-ae24740a8ad4",
 	"label": "ubtue_PubPub",
 	"creator": "Abe Jellinek",
-	"target": "/pub/[^/]+/release/\\d+|^https?://[^/]+\\.pubpub\\.org/search\\?|^https?://[^/]+\\.kfpt",
+	"target": "/pub/[^/]+/release/\\d+|^https?://[^/]+\\.pubpub\\.org/search\\?|^https?://[^/]+\\.kfpt|lawcrimehistory.pubpub.org/",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 269,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-03-09 15:56:11"
+	"lastUpdated": "2022-12-14 11:34:11"
 }
 
 /*
@@ -138,11 +138,65 @@ function scrape(doc, url) {
 			let volumeEntry = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "collection-browser-button", " " ))]');
 			if (volumeEntry != null) item.volume = volumeEntry.replace(/^#(\d+)\s?(.*)/, '$1');
 		}
-		
-		if (item.attachments.length > 1) {
-			item.attachments = item.attachments.filter(at => at.title != 'Snapshot');
+		if (item.volume && !item.volume.match(/^\d+$/) && item.volume.match(/\s+vol(?:\.|ume)\s+\d+/i)) {
+			if (item.volume.match(/\s+vol(?:\.|ume)\s+\d+\s+iss(?:\.|ue)\s+\d+/i)) {
+				item.issue = item.volume.match(/\s+vol(?:\.|ume)\s+\d+\s+iss(?:\.|ue)\s+(\d+)/i)[1];
+			}
+			item.volume = item.volume.match(/\s+vol(?:\.|ume)\s+(\d+)/i)[1];
 		}
-		
+		if (item.title.match(/vol(?:\.|ume)\s+\d+/i)) {
+			if (item.title.match(/vol(?:\.|ume)\s+\d+\s+iss(?:\.|ue)\s+\d+/i)) {
+				item.issue = item.title.match(/vol(?:\.|ume)\s+\d+\s+iss(?:\.|ue)\s+(\d+)/i)[1];
+			}
+			item.volume = item.title.match(/vol(?:\.|ume)\s+(\d+)/i)[1];
+			item.title = ZU.xpathText(doc, '//h1[@class="title"]');
+		}
+		for (let p of ZU.xpath(doc, '//p')) {
+			if (p.textContent.match(/Volume \d+, issue \d+ \(\d{4}\): \d+(?:-\d+)?/i)) {
+				item.pages = p.textContent.match(/Volume \d+, issue \d+ \(\d{4}\): (\d+(?:-\d+)?)/i)[1];
+			}
+		}
+		item.abstractNote = ZU.xpathText(doc, '//p[preceding-sibling::h1[contains(., "Abstract")]][1]');
+		let keywords = ZU.xpathText(doc, '//p[contains(strong, "Keywords:")][1]');
+		if (keywords) {
+			for (let keyword of keywords.replace(/keywords:\s*/i, '').split(/,\s*/)) {
+				item.tags.push(keyword);
+			}
+		}
+		is_review = false;
+		if (ZU.xpathText(doc, '//p[contains(strong, "Book Reviews")]') || ZU.xpathText(doc, '//meta[@name="description" and @content="Book Review"]/@content')) {
+			item.tags.push('RezensionstagPica');
+			is_review = true;
+		}
+		if (item.title.match(/.+?, [‘'].+?, \d{1,3}\s*(?:-\s*\d{1,3})?$/)) {
+			let creators = item.title.match(/(.+?), [‘'](.+?), (\d{1,3}\s*(?:-\s*\d{1,3})?)$/)[1];
+			item.pages = item.title.match(/(.+?), [‘'](.+?), (\d{1,3}\s*(?:-\s*\d{1,3})?)$/)[3].replace(/\s+/g, '');
+			item.title = item.title.match(/(.+?), [‘'](.+?), (\d{1,3}\s*(?:-\s*\d{1,3})?)$/)[2];
+			for (let creator of creators.split(/\s*(?:,|\s+and\s+)\s*/g)) {
+				item.creators.push(ZU.cleanAuthor(creator, 'author'));
+			}
+		}
+		else if (item.title.match(/.+?, .+?, \d{1,3}\s*(?:-\s*\d{1,3})?$/)) {
+			let creators = item.title.match(/(.+?), (.+?), (\d{1,3}\s*(?:-\s*\d{1,3})?)$/)[1];
+			item.pages = item.title.match(/(.+?), (.+?), (\d{1,3}\s*(?:-\s*\d{1,3})?)$/)[3].replace(/\s+/g, '');
+			item.title = item.title.match(/(.+?), (.+?), (\d{1,3}\s*(?:-\s*\d{1,3})?)$/)[2];
+			for (let creator of creators.split(/\s*(?:,|\s+and\s+)\s*/g)) {
+				item.creators.push(ZU.cleanAuthor(creator, 'author'));
+			}
+		}
+		else if (item.title.match(/, /) && !is_review && !item.title.split(/, /)[1].match(/^\d{1-3}-\d{1-3}/)) {
+			let creators = item.title.split(/, /)[0];
+			item.title = item.title.split(/, /)[1];
+			for (let creator of creators.split(/\s*(?:,|\s+and\s+)\s*/g)) {
+				item.creators.push(ZU.cleanAuthor(creator, 'author'));
+			}
+		}
+		switch (item.publicationTitle) {
+			case "Law, Crime and History":
+				{item.ISSN = "1754-0445";
+				item.notes.push('LF:')}
+		}
+		item.attachments = [];
 		item.complete();
 	});
 
@@ -151,6 +205,7 @@ function scrape(doc, url) {
 		trans.doWeb(doc, url);
 	});
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [

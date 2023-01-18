@@ -2,14 +2,14 @@
 	"translatorID": "cabfb36f-3b4c-4d42-ac79-90eeeeaec3c6",
 	"label": "ubtue_Project MUSE",
 	"creator": "Sebastian Karcher",
-	"target": "^https?://[^/]*muse\\.jhu\\.edu/(book/|article/|issue/|search\\?)",
+	"target": "^https?://[^/]*muse\\.jhu\\.edu/(pub/\\d+/)?(book/|article/|issue/|search\\?)",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-18 13:34:05"
+	"lastUpdated": "2022-12-12 13:27:48"
 }
 
 /*
@@ -125,6 +125,7 @@ function scrape(doc) {
 		translator.translate();
 	});
 }
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{

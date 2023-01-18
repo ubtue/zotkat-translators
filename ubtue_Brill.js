@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-11-07 10:01:10"
+	"lastUpdated": "2022-12-01 10:37:50"
 }
 
 /*
@@ -35,7 +35,7 @@
 
 
 function detectWeb(doc, url) {
-	if (url.match(/article-.+\.xml$/)) {
+	if (url.match(/article-.+\.xml($|\?)/)) {
 		return "journalArticle";
 	} else if (url.match(/issue-\d+(-\d+)?\.xml$/)) {
 		return "multiple";
@@ -71,11 +71,17 @@ function postProcess(doc, item) {
 	let title = ZU.xpathText(doc, '//meta[@name="citation_title"]//@content');
 	if (title) item.title = title; 
 	if (!item.abstractNote) {
-	  item.abstractNote = ZU.xpath(doc, '//section[@class="abstract"]//p');
-	  if (item.abstractNote && item.abstractNote.length > 0)
-		 item.abstractNote = item.abstractNote[0].textContent.trim();
+	  let abstractNote = ZU.xpath(doc, '//section[@class="abstract"]//p');
+	  if (abstractNote && abstractNote.length > 0)
+		 item.abstractNote = abstractNote[0].textContent.trim();
 	  else
 		 item.abstractNote = '';
+	}
+	if (ZU.xpathText(doc, '//abstract')) {
+		item.abstractNote.substring(0,30)
+		if (!ZU.xpathText(doc, '//abstract').includes(item.abstractNote.substring(0,30))) {
+			item.notes.push('abs:' + ZU.xpathText(doc, '//abstract'));
+		}
 	}
 	// i set 100 as limit of string length, because usually a string of a pseudoabstract has less then 150 character e.g. "abstractNote": "\"Die Vernünftigkeit des jüdischen Dogmas\" published on 05 Sep 2020 by Brill."
 	if (item.abstractNote.length < 100) delete item.abstractNote;
@@ -103,6 +109,7 @@ function postProcess(doc, item) {
 
 	//scrape ORCID from website
 	let authorSectionEntries = doc.querySelectorAll('.text-subheading span');
+	let foundOrcid = false;
 	for (let authorSectionEntry of authorSectionEntries) {
 		let authorInfo = authorSectionEntry.querySelector('.c-Button--link');
 		let orcidHref = authorSectionEntry.querySelector('.orcid');
@@ -110,6 +117,16 @@ function postProcess(doc, item) {
 			let author = authorInfo.childNodes[0].textContent;
 			let orcid = orcidHref.textContent.replace(/.*(\d{4}-\d+-\d+-\d+x?)$/i, '$1');
 			item.notes.push({note: "orcid:" + orcid + ' | ' + author});
+			foundOrcid = true;
+		}
+	}
+	if (!foundOrcid) authorSectionEntries = ZU.xpath(doc, '//div[@class="contributor-details"]');
+	for (let authorSectionEntry of authorSectionEntries) {
+		let authorInfo = ZU.xpathText(authorSectionEntry, './/*[@class="contributor-details-link"][1]')
+		let orcidHref = authorSectionEntry.querySelector('.orcid');
+		if (authorInfo && orcidHref) {
+			let orcid = orcidHref.textContent.replace(/.*(\d{4}-\d+-\d+-\d+x?)$/i, '$1');
+			item.notes.push({note: "orcid:" + orcid + ' | ' + authorInfo});
 		}
 	}
 	//delete symbols in names
@@ -180,6 +197,7 @@ function doWeb(doc, url) {
 }
 
 	
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
