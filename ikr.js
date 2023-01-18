@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2022-03-22 16:57:00"
+	"lastUpdated": "2022-11-16 13:57:00"
 }
 
 
@@ -35,7 +35,7 @@
 
 /* =============================================================================================================== */
 // Mapping tables that get populated with the entries from their corresponding map files in the Github repo
-var issn_to_keyword_field = {};
+//var issn_to_keyword_field = {};
 var issn_to_language_code = {};
 var issn_to_license = {};
 var issn_to_physical_form = {};
@@ -49,7 +49,7 @@ var publication_title_to_physical_form = {};
 // Repository base URL
 var zts_enhancement_repo_url = 'https://raw.githubusercontent.com/ubtue/zotero-enhancement-maps/master/';
 var downloaded_map_files = 0;
-var max_map_files = 11;
+var max_map_files = 10;
 
 /*
     The following maps DO NOT have a corresponding file in the zts_enhancement_maps repository.
@@ -129,9 +129,9 @@ function populateISSNMaps(mapData, url) {
 	}
 
     switch (mapFilename) {
-        case "ISSN_to_keyword_field.map":
+        /*case "ISSN_to_keyword_field.map":
             issn_to_keyword_field = temp;
-            break;
+            break;*/
         case "ISSN_to_language_code.map":
             issn_to_language_code = temp;
             break;
@@ -743,14 +743,8 @@ function performExport() {
 			}
 
             // Einzelschlagwörter (Projekte) --> 5580 
-            if (issn_to_keyword_field.get(item.ISSN) !== undefined) {
-                var codeBase = issn_to_keyword_field.get(item.ISSN);
-                for (i=0; i<item.tags.length; i++) {
-                    var code = codeBase + i;
-                    addLine(currentItemId, code, "!" + item.tags[i].tag.replace(/\s?--\s?/g, '@ ') + "!");
-                }
-            } else {
-                for (i=0; i<item.tags.length; i++) {
+            if (item.tags) {
+				for (i=0; i<item.tags.length; i++) {
                     addLine(currentItemId, "\\n5580", "!" + ZU.unescapeHTML(item.tags[i].tag.replace(/\s?--\s?/g, '@ ')) + "!");
                 }
             }
@@ -765,7 +759,7 @@ function performExport() {
 			
 			// Exemplardatensatz
 			addLine(currentItemId, "\\n66999E* l01", "");
-			//notes > IxTheo-Notation K10plus: 6700 wird hochgezählt und nicht wiederholt, inkrementell ab z.B. 6800, 6801, 6802 etc.
+			//notes > IxTheo-Notation K10plus: 6700 kann hochgezählt oder  wiederholt, inkrementell ab z.B. 6700, 6701, 6702 etc werden
 			if (item.notes) {
 				for (i in item.notes) {
 					var note = ZU.unescapeHTML(item.notes[i].note)
@@ -775,10 +769,7 @@ function performExport() {
                         var notation = notation_splits[i].toLowerCase();
                         var notation_ppn = notes_to_ixtheo_notations.get(notation);
                         if (notation_ppn !== undefined) {
-							var field = 670 + i
-								 for (i=0; i<item.notes.length; i++) {
-								addLine(currentItemId, '\\n'+field, notation_ppn);
-							}
+							addLine(currentItemId, '\\n6700', notation_ppn);
 						}
 					}
 				}
@@ -803,7 +794,7 @@ function doExport() {
 	Z.debug("Populating ISSN mapping tables...");
 
 	ZU.doGet([
-            zts_enhancement_repo_url + "ISSN_to_keyword_field.map",
+            //zts_enhancement_repo_url + "ISSN_to_keyword_field.map",
             zts_enhancement_repo_url + "ISSN_to_language_code.map",
             zts_enhancement_repo_url + "ISSN_to_licence.map",
             zts_enhancement_repo_url + "ISSN_to_physical_form.map",
