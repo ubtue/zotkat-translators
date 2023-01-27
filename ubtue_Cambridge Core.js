@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-07-04 15:56:31"
+	"lastUpdated": "2023-01-27 08:02:47"
 }
 
 /*
@@ -168,6 +168,15 @@ function scrape(doc, url) {
 			if (ZU.xpathText(doc, '//dd[@class="col content" and contains(., "Book Review")]') != null) {
 				item.tags.push("RezensionstagPica");
 			}
+			let keywordsEntry = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "keywords", " " ))]');
+			if (item.tags) {
+				if (keywordsEntry != null) {
+					if (item.ISSN.match(/0362-1529/g)) {
+						let tagsSplit = keywordsEntry[0].innerText.split('\n');
+							item.tags = tagsSplit.slice(tagsSplit.findIndex(a => a !== 'Keywords'));
+					}
+				}
+			}
 			item.complete();
 		});
 
@@ -187,7 +196,7 @@ function scrape(doc, url) {
 var testCases = [
 	{
 		"type": "web",
-		"url": "https://www.cambridge.org/core/journals/journal-of-american-studies/article/samo-as-an-escape-clause-jean-michel-basquiats-engagement-with-a-commodified-american-africanism/1E4368D610A957B84F6DA3A58B8BF164",
+		"url": "https://www.cambridge.org/core/journals/journal-of-american-studies/article/abs/samo-as-an-escape-clause-jean-michel-basquiats-engagement-with-a-commodified-american-africanism/1E4368D610A957B84F6DA3A58B8BF164",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -209,16 +218,12 @@ var testCases = [
 				"pages": "227-243",
 				"publicationTitle": "Journal of American Studies",
 				"shortTitle": "“SAMO© as an Escape Clause”",
-				"url": "https://www.cambridge.org/core/journals/journal-of-american-studies/article/samo-as-an-escape-clause-jean-michel-basquiats-engagement-with-a-commodified-american-africanism/1E4368D610A957B84F6DA3A58B8BF164",
+				"url": "https://www.cambridge.org/core/journals/journal-of-american-studies/article/abs/samo-as-an-escape-clause-jean-michel-basquiats-engagement-with-a-commodified-american-africanism/1E4368D610A957B84F6DA3A58B8BF164",
 				"volume": "45",
 				"attachments": [
 					{
 						"title": "Full Text PDF",
 						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
 					}
 				],
 				"tags": [],
@@ -229,7 +234,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/article/high-resolution-simulations-of-cylindrical-density-currents/30D62864BDED84A6CC81F5823950767B",
+		"url": "https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/article/abs/high-resolution-simulations-of-cylindrical-density-currents/30D62864BDED84A6CC81F5823950767B",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -259,16 +264,12 @@ var testCases = [
 				"libraryCatalog": "Cambridge University Press",
 				"pages": "437-469",
 				"publicationTitle": "Journal of Fluid Mechanics",
-				"url": "https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/article/high-resolution-simulations-of-cylindrical-density-currents/30D62864BDED84A6CC81F5823950767B",
+				"url": "https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/article/abs/high-resolution-simulations-of-cylindrical-density-currents/30D62864BDED84A6CC81F5823950767B",
 				"volume": "590",
 				"attachments": [
 					{
 						"title": "Full Text PDF",
 						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
 					}
 				],
 				"tags": [
@@ -448,12 +449,12 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://www.cambridge.org/core/what-we-publish/books/listing?sort=canonical.date%3Adesc&aggs%5BonlyShowAvailable%5D%5Bfilters%5D=true&aggs%5BproductTypes%5D%5Bfilters%5D=BOOK%2CELEMENT&searchWithinIds=0C5182F27A492FDC81EDF8D3C53266B5",
+		"url": "https://www.cambridge.org/core/publications/books/listing?sort=canonical.date%3Adesc&aggs%5BonlyShowAvailable%5D%5Bfilters%5D=true&aggs%5BproductTypes%5D%5Bfilters%5D=BOOK%2CELEMENT&searchWithinIds=0C5182F27A492FDC81EDF8D3C53266B5",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
-		"url": "https://www.cambridge.org/core/journals/journal-of-ecclesiastical-history/article/cashaway-psalmody-transatlantic-religion-and-music-in-colonial-carolina-by-stephen-a-marini-music-in-american-life-pp-xii-466-incl-42-ills-1-map-and-7-tables-chicago-university-of-illinois-press-2020-54-978-0-252-04284-3/4F35B5C0F70F6D5F6438883DB6B16A2A",
+		"url": "https://www.cambridge.org/core/journals/journal-of-ecclesiastical-history/article/abs/cashaway-psalmody-transatlantic-religion-and-music-in-colonial-carolina-by-stephen-a-marini-music-in-american-life-pp-xii-466-incl-42-ills-1-map-and-7-tables-chicago-university-of-illinois-press-2020-54-978-0-252-04284-3/4F35B5C0F70F6D5F6438883DB6B16A2A",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -474,16 +475,12 @@ var testCases = [
 				"pages": "677-678",
 				"publicationTitle": "The Journal of Ecclesiastical History",
 				"shortTitle": "The Cashaway psalmody. Transatlantic religion and music in colonial Carolina. By Stephen A. Marini. (Music in American Life.) Pp. xii + 466 incl. 42 ills, 1 map and 7 tables. Chicago",
-				"url": "https://www.cambridge.org/core/journals/journal-of-ecclesiastical-history/article/cashaway-psalmody-transatlantic-religion-and-music-in-colonial-carolina-by-stephen-a-marini-music-in-american-life-pp-xii-466-incl-42-ills-1-map-and-7-tables-chicago-university-of-illinois-press-2020-54-978-0-252-04284-3/4F35B5C0F70F6D5F6438883DB6B16A2A",
+				"url": "https://www.cambridge.org/core/journals/journal-of-ecclesiastical-history/article/abs/cashaway-psalmody-transatlantic-religion-and-music-in-colonial-carolina-by-stephen-a-marini-music-in-american-life-pp-xii-466-incl-42-ills-1-map-and-7-tables-chicago-university-of-illinois-press-2020-54-978-0-252-04284-3/4F35B5C0F70F6D5F6438883DB6B16A2A",
 				"volume": "72",
 				"attachments": [
 					{
 						"title": "Full Text PDF",
 						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
 					}
 				],
 				"tags": [],
@@ -521,10 +518,6 @@ var testCases = [
 					{
 						"title": "Full Text PDF",
 						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
 					}
 				],
 				"tags": [],
@@ -540,7 +533,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://www.cambridge.org/core/journals/church-history/article/literary-echoes-of-the-fourth-lateran-council-in-england-and-france-12151405-edited-by-maureen-b-m-boulton-papers-in-mediaeval-studies-31-toronto-pontifical-institute-of-mediaeval-studies-2019-x-322-pp-9500-cloth/B5484BE8F944D1042F200A91F4F1EBF1",
+		"url": "https://www.cambridge.org/core/journals/church-history/article/abs/literary-echoes-of-the-fourth-lateran-council-in-england-and-france-12151405-edited-by-maureen-b-m-boulton-papers-in-mediaeval-studies-31-toronto-pontifical-institute-of-mediaeval-studies-2019-x-322-pp-9500-cloth/B5484BE8F944D1042F200A91F4F1EBF1",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -561,19 +554,19 @@ var testCases = [
 				"pages": "681",
 				"publicationTitle": "Church History",
 				"shortTitle": "Literary Echoes of the Fourth Lateran Council in England and France, 1215–1405. Edited by Maureen B. M. Boulton. Papers in Mediaeval Studies 31. Toronto",
-				"url": "https://www.cambridge.org/core/journals/church-history/article/literary-echoes-of-the-fourth-lateran-council-in-england-and-france-12151405-edited-by-maureen-b-m-boulton-papers-in-mediaeval-studies-31-toronto-pontifical-institute-of-mediaeval-studies-2019-x-322-pp-9500-cloth/B5484BE8F944D1042F200A91F4F1EBF1",
+				"url": "https://www.cambridge.org/core/journals/church-history/article/abs/literary-echoes-of-the-fourth-lateran-council-in-england-and-france-12151405-edited-by-maureen-b-m-boulton-papers-in-mediaeval-studies-31-toronto-pontifical-institute-of-mediaeval-studies-2019-x-322-pp-9500-cloth/B5484BE8F944D1042F200A91F4F1EBF1",
 				"volume": "90",
 				"attachments": [
 					{
 						"title": "Full Text PDF",
 						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
 					}
 				],
-				"tags": [],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
@@ -581,7 +574,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://www.cambridge.org/core/journals/church-history/article/when-the-canaanite-conquest-met-the-enlightenment-how-christian-apologists-of-the-english-enlightenment-harmonized-the-biblical-canaanite-conquest-with-the-moral-values-of-the-eighteenth-century/B6F5369FA32050606052C4F38C6380FF",
+		"url": "https://www.cambridge.org/core/journals/church-history/article/abs/when-the-canaanite-conquest-met-the-enlightenment-how-christian-apologists-of-the-english-enlightenment-harmonized-the-biblical-canaanite-conquest-with-the-moral-values-of-the-eighteenth-century/B6F5369FA32050606052C4F38C6380FF",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -603,16 +596,12 @@ var testCases = [
 				"pages": "579-602",
 				"publicationTitle": "Church History",
 				"shortTitle": "When the Canaanite Conquest Met the Enlightenment",
-				"url": "https://www.cambridge.org/core/journals/church-history/article/when-the-canaanite-conquest-met-the-enlightenment-how-christian-apologists-of-the-english-enlightenment-harmonized-the-biblical-canaanite-conquest-with-the-moral-values-of-the-eighteenth-century/B6F5369FA32050606052C4F38C6380FF",
+				"url": "https://www.cambridge.org/core/journals/church-history/article/abs/when-the-canaanite-conquest-met-the-enlightenment-how-christian-apologists-of-the-english-enlightenment-harmonized-the-biblical-canaanite-conquest-with-the-moral-values-of-the-eighteenth-century/B6F5369FA32050606052C4F38C6380FF",
 				"volume": "90",
 				"attachments": [
 					{
 						"title": "Full Text PDF",
 						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
 					}
 				],
 				"tags": [
@@ -627,6 +616,65 @@ var testCases = [
 					},
 					{
 						"tag": "Religion in the Englightenment"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.cambridge.org/core/journals/traditio/article/abs/defense-of-the-carolingian-defense-of-medicine-introduction-translation-and-notes/B2CDF22B95C180B601853EFCB32DC596",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "A DEFENSE OF THE CAROLINGIAN “DEFENSE OF MEDICINE”: INTRODUCTION, TRANSLATION, AND NOTES",
+				"creators": [
+					{
+						"firstName": "Joel L.",
+						"lastName": "Gamble",
+						"creatorType": "author"
+					}
+				],
+				"date": "2020/ed",
+				"DOI": "10.1017/tdo.2020.4",
+				"ISSN": "0362-1529, 2166-5508",
+				"abstractNote": "The “Defense of Medicine” prefaces the Codex Bambergensis Medicinalis 1, a Carolingian collection of medical texts. Some scholars have dismissed the Defense as an incoherent patchwork of quotations. Yet, missing from the literature is an adequate assessment of the Defense's arguments. This present study includes the first English translation accompanied by a complete source commentary, a prerequisite for valid content analysis. When read systematically and with attention to the author's use of sources, the Defense is limpid and cogent. Its first purpose is to defend the compatibility of Christian faith and secular medicine. Key propositions include the following: God made nature good, so the natural sciences are reconcilable with divine learning; scripture respects medicine; God expects the sick to avail of physicians and deserves honor for healings done through physicians. Counter-arguments used by the Defense's opponents, who rejected medicine on principle, can also be reconstructed from the text. Two further purposes of the Defense have hitherto been explored insufficiently. After justifying medicine, the Defense addresses sick patients. It encourages them that illness can be spiritually healthful, an instrument for curing their souls. The Defense then addresses caregivers. It tells them why they should succor the sick, even the poor: not for gain or fame, but in imitation of Christ and as if treating Christ himself, whose image the sick bear. The Defense thus contributes to the history of ideas on medicine, health, sickness, and the ethics of altruistic care.",
+				"language": "en",
+				"libraryCatalog": "Cambridge University Press",
+				"pages": "87-125",
+				"publicationTitle": "Traditio",
+				"shortTitle": "A DEFENSE OF THE CAROLINGIAN “DEFENSE OF MEDICINE”",
+				"url": "https://www.cambridge.org/core/journals/traditio/article/abs/defense-of-the-carolingian-defense-of-medicine-introduction-translation-and-notes/B2CDF22B95C180B601853EFCB32DC596",
+				"volume": "75",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Carolingian"
+					},
+					{
+						"tag": "Lorsch"
+					},
+					{
+						"tag": "illness"
+					},
+					{
+						"tag": "medicine"
+					},
+					{
+						"tag": "patients"
+					},
+					{
+						"tag": "physicians"
+					},
+					{
+						"tag": "theology"
 					}
 				],
 				"notes": [],
