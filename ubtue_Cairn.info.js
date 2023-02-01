@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-12-12 12:43:42"
+	"lastUpdated": "2023-02-01 15:43:08"
 }
 
 /*
@@ -187,14 +187,18 @@ function scrape(doc, url) {
 		if (item.volume) item.volume = romanToInt(item.volume).toString();
 		switch (item.publicationTitle) {
 			case "L'Année canonique":
-				{item.ISSN = "0570-1953";
-				item.issue = "";}
+				item.ISSN = "0570-1953";
+				item.issue = "";
+				break;
 			case "Études théologiques et religieuses":
 				item.ISSN = "0014-2239";
+				break;
 			case "Nouvelle revue théologique":
 				item.ISSN = "0029-4845";
+				break;
 			case "Déviance et Société":
 				item.ISSN = "0378-7931";
+				break;
 		}
 		if (["gratuit", "post barrière mobile"].includes(ZU.xpathText(doc, '//meta[@name="DCSext.comm_art"]/@content'))) item.notes.push('LF:');
 		item.attachments = [];
@@ -249,10 +253,27 @@ var testCases = [
 						"tag": "Théorie du genre"
 					},
 					{
+						"tag": "catholicisme"
+					},
+					{
+						"tag": "genre"
+					},
+					{
+						"tag": "sexualité"
+					},
+					{
+						"tag": "théorie du genre"
+					},
+					{
 						"tag": "Éthique sexuelle"
+					},
+					{
+						"tag": "éthique sexuelle"
 					}
 				],
-				"notes": [],
+				"notes": [
+					"abs:Since the Fourth World Conference on Women in Beijing in 1995, the Catholic Magisterium has consistently opposed the use of the term gender, accused of propagating an ideology seeking to deconstruct sexuality, procreation and the family. A recent valorization of gender as a &#8220;socio-cultural role of sex&#8221; continues to underline the dangers of a dissociation between sex and gender. By adopting a historical perspective, the article analyzes the meanings and uses of the notion of gender. It also proposes an assessment of the theological changes that have taken place (justification of roles and powers, sexuality), the possible changes (homosexuality), the unthought (transidentity and transsexuality), and the firm points of ethical resistance (relationship to the body, procreation, ecology)."
+				],
 				"seeAlso": []
 			}
 		]
@@ -273,6 +294,7 @@ var testCases = [
 				],
 				"date": "2020",
 				"DOI": "10.3917/nrt.424.0529",
+				"ISSN": "0029-4845",
 				"abstractNote": "La crise du Covid-19 a été annoncée par des scientifiques clairvoyants. Bien avant eux, la Bible a fait entendre un avertissement qu’il s’agit d’entendre à nouveau. En Gn 1,28, le Dieu créateur institue Adam gardien des espèces animales et fait de lui le garant de leur distinction. Loin d’être une anthologie d’obscurantismes, la Bible est le précipité d’une sagesse immémoriale et prophétique ; elle sait que le rapport de l’homme aux espèces animales est un lieu redoutable, où se joue quelque chose du divin.",
 				"archive": "Cairn.info",
 				"issue": "4",
@@ -303,9 +325,21 @@ var testCases = [
 					},
 					{
 						"tag": "Zoonose"
+					},
+					{
+						"tag": "espèces animales"
+					},
+					{
+						"tag": "respect des distinctions"
+					},
+					{
+						"tag": "zoonose"
 					}
 				],
-				"notes": [],
+				"notes": [
+					"abs:The Covid-19 crisis was predicted by far-sighted scientists. Long before they did, the Bible sounded a warning that must be heard again. In Gen&#160;1:28, the Creator God ordained Adam as the guardian of the animal species and made him the guarantor of their distinction. Far from being an anthology of obscurantism, the Bible is the precipitate of an immemorial and prophetic wisdom; it knows that man&#8217;s relationship with animal species is a awe-inspiring space, where something divine is at stake.",
+					"abs:                     Resumen en español disponible en Cairn Mundo                 "
+				],
 				"seeAlso": []
 			}
 		]
@@ -353,10 +387,27 @@ var testCases = [
 						"tag": "Théorie du genre"
 					},
 					{
+						"tag": "catholicisme"
+					},
+					{
+						"tag": "genre"
+					},
+					{
+						"tag": "sexualité"
+					},
+					{
+						"tag": "théorie du genre"
+					},
+					{
 						"tag": "Éthique sexuelle"
+					},
+					{
+						"tag": "éthique sexuelle"
 					}
 				],
-				"notes": [],
+				"notes": [
+					"abs:Since the Fourth World Conference on Women in Beijing in 1995, the Catholic Magisterium has consistently opposed the use of the term gender, accused of propagating an ideology seeking to deconstruct sexuality, procreation and the family. A recent valorization of gender as a &#8220;socio-cultural role of sex&#8221; continues to underline the dangers of a dissociation between sex and gender. By adopting a historical perspective, the article analyzes the meanings and uses of the notion of gender. It also proposes an assessment of the theological changes that have taken place (justification of roles and powers, sexuality), the possible changes (homosexuality), the unthought (transidentity and transsexuality), and the firm points of ethical resistance (relationship to the body, procreation, ecology)."
+				],
 				"seeAlso": []
 			}
 		]
@@ -407,10 +458,25 @@ var testCases = [
 						"tag": "Vertus"
 					},
 					{
+						"tag": "historicisme"
+					},
+					{
+						"tag": "relativisme"
+					},
+					{
+						"tag": "vertus"
+					},
+					{
 						"tag": "Émotivisme"
+					},
+					{
+						"tag": "émotivisme"
 					}
 				],
-				"notes": [],
+				"notes": [
+					"abs:The moral philosophy of Alasdair MacIntyre is based on an openly historicist epistemology. Historicism is typically accused of dissolving into relativism since it rejects any claim to an absolute knowledge that could offer the final word in history, but MacIntyre&#8217;s thesis maintains, despite a claimed fallibility, that evaluative discourses can be subject to rationally justifiable norms of decidability. In light of the corollary theses of the rationality of traditions and the constitutive indeterminacy of conceptions of the good, this article suggests that MacIntyre&#8217;s historicism renews the main characteristics of a moral categorical imperative within a theoretical framework that provides an alternative to that of Kant.",
+					"LF:"
+				],
 				"seeAlso": []
 			}
 		]
@@ -431,7 +497,7 @@ var testCases = [
 				],
 				"date": "2020",
 				"DOI": "10.3917/rhren.091.0013",
-				"abstractNote": "Pierre Gringore compose les Lettres Nouvelles de Milan à l’occasion de la capture de Ludovic Sforza en 1500. Le texte se présente comme un bulletin d’information, recueillant trois lettres en prose détaillant les événements, puis des vers reprenant peu ou prou les mêmes informations. Quelles valeurs revêtent prose et vers dans ce texte de propagande ? Tandis que les lettres en prose offrent des témoignages de première main et garantissent une vérité factuelle, les vers fonctionnent comme une amplification encomiastique à la gloire de la couronne de France mais aussi du poète qui cherche un mécène. Par ailleurs, Gringore propose également dans ses vers au style plus ou moins orné une réflexion sur le rôle du poète pour établir une vérité morale et la transmettre à des publics variés.\\n4207 Pierre Gringore writes the Lettres Nouvelles de Milan when Ludovico Sforza got caught in 1500. His text consists of a news report, gathering three prose letters explaining the events along with lines of verse giving more or less the same information. What are the values assumed by prose and verse in this work of propaganda? While prose letters provide with first-hand testimonies and guarantee factual truth, the lines of verse work as an encomiastic amplification, to the glory of the French crown but also of the poet himself, looking for a patron. Moreover, through his more or less ornated lines of verse, Gringore also offers a reflection upon the poet’s role to establish a moral truth and to transmit it to a diversified audience.",
+				"abstractNote": "Pierre Gringore compose les Lettres Nouvelles de Milan à l’occasion de la capture de Ludovic Sforza en 1500. Le texte se présente comme un bulletin d’information, recueillant trois lettres en prose détaillant les événements, puis des vers reprenant peu ou prou les mêmes informations. Quelles valeurs revêtent prose et vers dans ce texte de propagande ? Tandis que les lettres en prose offrent des témoignages de première main et garantissent une vérité factuelle, les vers fonctionnent comme une amplification encomiastique à la gloire de la couronne de France mais aussi du poète qui cherche un mécène. Par ailleurs, Gringore propose également dans ses vers au style plus ou moins orné une réflexion sur le rôle du poète pour établir une vérité morale et la transmettre à des publics variés.",
 				"archive": "Cairn.info",
 				"issue": "2",
 				"journalAbbreviation": "Réforme, Humanisme, Renaissance",
@@ -444,7 +510,9 @@ var testCases = [
 				"volume": "91",
 				"attachments": [],
 				"tags": [],
-				"notes": [],
+				"notes": [
+					"abs:Pierre Gringore writes the Lettres Nouvelles de Milan when Ludovico Sforza got caught in 1500. His text consists of a news report, gathering three prose letters explaining the events along with lines of verse giving more or less the same information. What are the values assumed by prose and verse in this work of propaganda? While prose letters provide with first-hand testimonies and guarantee factual truth, the lines of verse work as an encomiastic amplification, to the glory of the French crown but also of the poet himself, looking for a patron. Moreover, through his more or less ornated lines of verse, Gringore also offers a reflection upon the poet’s role to establish a moral truth and to transmit it to a diversified audience."
+				],
 				"seeAlso": []
 			}
 		]
@@ -486,6 +554,12 @@ var testCases = [
 						"tag": "Sauvage"
 					},
 					{
+						"tag": "domestication"
+					},
+					{
+						"tag": "sauvage"
+					},
+					{
 						"tag": "Écologie"
 					},
 					{
@@ -493,9 +567,20 @@ var testCases = [
 					},
 					{
 						"tag": "Éthique environnementale"
+					},
+					{
+						"tag": "écologie"
+					},
+					{
+						"tag": "éthique animale"
+					},
+					{
+						"tag": "éthique environnementale"
 					}
 				],
-				"notes": [],
+				"notes": [
+					"abs:The constitution of animal ethics since the 19th century is marked by a double dissociation: first, between militancy against animal suffering and the protection of the wilderness; second, between various academic animal ethics and environmental ethics. This study will show how this dissociation was historically constituted, what the consequences are and how it can be overcome. Only by overcoming the radical break between the wild and the domesticated can an animal and environmental ethic be founded."
+				],
 				"seeAlso": []
 			}
 		]
@@ -516,6 +601,7 @@ var testCases = [
 				],
 				"date": "2020",
 				"DOI": "10.3917/nrt.424.0529",
+				"ISSN": "0029-4845",
 				"abstractNote": "La crise du Covid-19 a été annoncée par des scientifiques clairvoyants. Bien avant eux, la Bible a fait entendre un avertissement qu’il s’agit d’entendre à nouveau. En Gn 1,28, le Dieu créateur institue Adam gardien des espèces animales et fait de lui le garant de leur distinction. Loin d’être une anthologie d’obscurantismes, la Bible est le précipité d’une sagesse immémoriale et prophétique ; elle sait que le rapport de l’homme aux espèces animales est un lieu redoutable, où se joue quelque chose du divin.",
 				"archive": "Cairn.info",
 				"issue": "4",
@@ -546,8 +632,52 @@ var testCases = [
 					},
 					{
 						"tag": "Zoonose"
+					},
+					{
+						"tag": "espèces animales"
+					},
+					{
+						"tag": "respect des distinctions"
+					},
+					{
+						"tag": "zoonose"
 					}
 				],
+				"notes": [
+					"abs:The Covid-19 crisis was predicted by far-sighted scientists. Long before they did, the Bible sounded a warning that must be heard again. In Gen&#160;1:28, the Creator God ordained Adam as the guardian of the animal species and made him the guarantor of their distinction. Far from being an anthology of obscurantism, the Bible is the precipitate of an immemorial and prophetic wisdom; it knows that man&#8217;s relationship with animal species is a awe-inspiring space, where something divine is at stake.",
+					"abs:                     Resumen en español disponible en Cairn Mundo                 "
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.cairn.info/revue-etudes-theologiques-et-religieuses-2022-4.htm",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://www.cairn.info/revue-etudes-theologiques-et-religieuses-2022-4-page-409.htm",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Faire de la théologie aujourd’hui. Liminaire",
+				"creators": [],
+				"date": "2022",
+				"DOI": "10.3917/etr.974.0409",
+				"ISSN": "0014-2239",
+				"archive": "Cairn.info",
+				"issue": "4",
+				"journalAbbreviation": "Études théologiques et religieuses",
+				"language": "FR",
+				"libraryCatalog": "ubtue_Cairn.info",
+				"pages": "409-410",
+				"publicationTitle": "Études théologiques et religieuses",
+				"url": "https://www.cairn.info/revue-etudes-theologiques-et-religieuses-2022-4-page-409.htm",
+				"volume": "97",
+				"attachments": [],
+				"tags": [],
 				"notes": [],
 				"seeAlso": []
 			}
