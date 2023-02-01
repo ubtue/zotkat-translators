@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-11-30 13:56:18"
+	"lastUpdated": "2023-02-01 16:52:59"
 }
 
 /*
@@ -189,7 +189,8 @@ function scrape(doc, url) {
 	//scrape e-issn from the journal site
 	let lookupIssn = doc.querySelectorAll('.whitecell');
 	if (lookupIssn && lookupIssn[0]) {
-		let post = 'https://poj.peeters-leuven.be/content.php?url=journal.php&journal_code=' + lookupIssn[0].baseURI.split('&journal_code=')[1];
+		var post = 'https://poj.peeters-leuven.be/content.php?url=journal.php&journal_code=' + lookupIssn[0].baseURI.split('journal_code=')[1];Z.debug(post)
+		if (post == "https://poj.peeters-leuven.be/content.php?url=journal.php&journal_code=undefined") post = 'https://poj.peeters-leuven.be/content.php?url=journal.php&journal_code=' + lookupIssn[0].innerHTML.split('journal_code=')[1].split('"')[0];Z.debug(post)
 		ZU.processDocuments(post, function (scrapeEissn) {
 			var eissn = ZU.xpathText(scrapeEissn, '//td[@class="b2"]');
 			if (eissn && eissn.match(/e-issn\s+?:?\s+?\d{4}-?[0-9][0-9][0-9][0-9xX]/gi)) {
@@ -692,6 +693,7 @@ var testCases = [
 				],
 				"date": "2021",
 				"DOI": "10.2143/OGE.91.3.3289673",
+				"ISSN": "1783-1652",
 				"abstractNote": "This contribution examines the claim made by Rudolf van Dijk († 2015) a dozen years ago, that the reading of Thomas’s Imitatio Christi in the order of the autograph brings to light the ultimately mystical character of the work. A case could be made, indeed, for interpreting not only the book ‘On Consolation Within’, but even the book ‘On the Sacrament of the Altar’, as mystagogical. Consequently, it hardly seems possible any longer to defend a position which denies the mystical elements in Thomas’s work. The lack of unanimity among students of the Imitatio on the relationship between its ascetical and mystical elements may be imputed to the fact that their definition of mysticism mostly remains implicit. Therefore, this contribution traces the roots of the various assessments of the Imitatio, suggesting that these have to be looked for in theology, particularly in the Roman Catholic theological tradition. With the exception of its Pietist branch, Protestant theologians have read the Imitatio not so much for its mystical character as for its edificatory value. In Catholic circles, a debate has taken place about ‘infused’ versus ‘acquired’ contemplation. With reference to this debate, it was the Jesuit Albert Deblaere who gave a very subtle and pertinent analysis of the spirituality of the Imitatio. In his view, far from being a textbook of asceticism, it focuses on the search for religious experience. Nevertheless, due to his strict definition of mysticism, which only recognizes ‘infused’ grace and excludes the possibility of methodical preparation, Deblaere does not admit the Imitatio to the canon of mystical works. As an alternative to Deblaere’s influential approach, the ideas of the Nijmegen school of spirituality studies have been presented. Here, spiritual ascent is analysed as a journey for which a whole array of tools and means is available — the domain customarily assigned to asceticism — , but during which man is gradually transformed under the direct impact of divine reality. These are also the assumptions underneath the plea for a mystical reading of the Imitatio by Van Dijk, who himself belonged to this Nijmegen school. In discussing the book on the Sacrament of the Altar, some clues are followed to the religious experience of the fifteenth-century contemporaries for whom the Imitatio was written in the first place. The final section investigates the implications of the reflections on the Imitatio for the concept of a ‘mystical culture’, which has been used to characterize fifteenth-century religion. This concept, too, appears to embody a Deblaerian view of mysticism. Instead, this contribution makes out a case for a broader concept of mysticism, enabling scholars to come to a fuller recognition of the role it played in late-medieval religious culture.",
 				"issue": "3/4",
 				"libraryCatalog": "ubtue_Peeters",
@@ -829,6 +831,30 @@ var testCases = [
 				"shortTitle": "Oikonomìa and Remarriage in the Orthodox Tradition",
 				"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3290159",
 				"volume": "55",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3290965",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Reviews",
+				"creators": [],
+				"date": "2022",
+				"DOI": "10.2143/ESWTR.30.0.3290965",
+				"ISSN": "1783-2446",
+				"abstractNote": "Book reviews",
+				"libraryCatalog": "ubtue_Peeters",
+				"pages": "161-170",
+				"publicationTitle": "Journal of the European Society of Women in Theological Research",
+				"url": "https://poj.peeters-leuven.be/content.php?url=article&id=3290965",
+				"volume": "30",
 				"attachments": [],
 				"tags": [],
 				"notes": [],
