@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-02-01 15:43:08"
+	"lastUpdated": "2023-02-03 18:41:22"
 }
 
 /*
@@ -134,7 +134,7 @@ function scrape(doc, url) {
 		if (!item.date || item.date == '0000-00-00') {
 			item.date = ZU.xpathText(doc, '//meta[@name="DCSext.annee_tomaison"]/@content');
 		}
-		
+
 		if (!item.pages) {
 			item.pages = ZU.xpathText(doc, '//meta[@name="DCSext.doc_nb_pages"]/@content');
 		}
@@ -185,21 +185,10 @@ function scrape(doc, url) {
 		if (!item.tags.includes(tag.textContent)) item.tags.push(tag.textContent.replace(/\n/g, ' '));
 		}
 		if (item.volume) item.volume = romanToInt(item.volume).toString();
-		switch (item.publicationTitle) {
-			case "L'Année canonique":
-				item.ISSN = "0570-1953";
-				item.issue = "";
-				break;
-			case "Études théologiques et religieuses":
-				item.ISSN = "0014-2239";
-				break;
-			case "Nouvelle revue théologique":
-				item.ISSN = "0029-4845";
-				break;
-			case "Déviance et Société":
-				item.ISSN = "0378-7931";
-				break;
-		}
+
+		item.ISSN = ZU.xpathText(doc, '//meta[@name="citation_issn"]/@content');
+		item.volume = item.volume.replace("Tome", "");
+		
 		if (["gratuit", "post barrière mobile"].includes(ZU.xpathText(doc, '//meta[@name="DCSext.comm_art"]/@content'))) item.notes.push('LF:');
 		item.attachments = [];
 		item.complete();
@@ -226,7 +215,7 @@ var testCases = [
 				],
 				"date": "2020",
 				"DOI": "10.3917/retm.311.0013",
-				"ISSN": "9782204138093",
+				"ISSN": "1266-0078",
 				"abstractNote": "Depuis la Quatrième conférence mondiale sur les femmes de Pékin, en 1995, le magistère catholique n’a cessé de s’opposer à l’usage du terme genre, accusé de propager une idéologie cherchant à déconstruire la sexualité, la procréation, la famille. Une valorisation récente du genre comme « rôle socioculturel du sexe » continue à souligner les dangers d’une dissociation entre sexe et genre. En adoptant une perspective historique, l’article analyse les significations et usages de la notion de genre. Il propose également une évaluation des changements théologiques opérés (justification des rôles et des pouvoirs, sexualité), des changements possibles (homosexualité), des impensés (transidentité et transsexualité), et des points fermes de résistance éthique (rapport au corps, procréation, écologie).",
 				"archive": "Cairn.info",
 				"issue": "4",
@@ -360,7 +349,7 @@ var testCases = [
 				],
 				"date": "2020",
 				"DOI": "10.3917/retm.311.0013",
-				"ISSN": "9782204138093",
+				"ISSN": "1266-0078",
 				"abstractNote": "Depuis la Quatrième conférence mondiale sur les femmes de Pékin, en 1995, le magistère catholique n’a cessé de s’opposer à l’usage du terme genre, accusé de propager une idéologie cherchant à déconstruire la sexualité, la procréation, la famille. Une valorisation récente du genre comme « rôle socioculturel du sexe » continue à souligner les dangers d’une dissociation entre sexe et genre. En adoptant une perspective historique, l’article analyse les significations et usages de la notion de genre. Il propose également une évaluation des changements théologiques opérés (justification des rôles et des pouvoirs, sexualité), des changements possibles (homosexualité), des impensés (transidentité et transsexualité), et des points fermes de résistance éthique (rapport au corps, procréation, écologie).",
 				"archive": "Cairn.info",
 				"issue": "4",
@@ -428,7 +417,7 @@ var testCases = [
 				],
 				"date": "2019",
 				"DOI": "10.3917/retm.306.0043",
-				"ISSN": "9782204132473",
+				"ISSN": "1266-0078",
 				"abstractNote": "La philosophie morale d’Alasdair MacIntyre repose sur une épistémologie ouvertement historiciste. L’historicisme est classiquement soupçonné de se dissoudre en relativisme dès lors qu’il rejette toute prétention à un savoir absolu qui dirait le fin mot de l’histoire, mais la thèse de MacIntyre maintient, en dépit d’un faillibilisme revendiqué, que les discours évaluatifs peuvent être soumis à des normes de décidabilité rationnellement justifiables. À la lumière des thèses corollaires de la rationalité des traditions et de l’indétermination constitutive des conceptions du bien, le présent article suggère que l’historicisme de MacIntyre renouvelle, dans un cadre théorique alternatif à celui de Kant, les principales caractéristiques d’une impérativité morale catégorique.",
 				"archive": "Cairn.info",
 				"issue": "4",
@@ -497,6 +486,7 @@ var testCases = [
 				],
 				"date": "2020",
 				"DOI": "10.3917/rhren.091.0013",
+				"ISSN": "1771-1347",
 				"abstractNote": "Pierre Gringore compose les Lettres Nouvelles de Milan à l’occasion de la capture de Ludovic Sforza en 1500. Le texte se présente comme un bulletin d’information, recueillant trois lettres en prose détaillant les événements, puis des vers reprenant peu ou prou les mêmes informations. Quelles valeurs revêtent prose et vers dans ce texte de propagande ? Tandis que les lettres en prose offrent des témoignages de première main et garantissent une vérité factuelle, les vers fonctionnent comme une amplification encomiastique à la gloire de la couronne de France mais aussi du poète qui cherche un mécène. Par ailleurs, Gringore propose également dans ses vers au style plus ou moins orné une réflexion sur le rôle du poète pour établir une vérité morale et la transmettre à des publics variés.",
 				"archive": "Cairn.info",
 				"issue": "2",
@@ -533,7 +523,7 @@ var testCases = [
 				],
 				"date": "2020",
 				"DOI": "10.3917/retm.308.0011",
-				"ISSN": "9782204138062",
+				"ISSN": "1266-0078",
 				"abstractNote": "La constitution des éthiques animales depuis le xixe siècle est marquée par une double dissociation : premièrement, entre la militance contre la souffrance animale et la protection de la nature sauvage ; deuxièmement, entre les diverses éthiques animales académiques et les éthiques environnementales. Cette étude montrera comment cette dissociation s’est constituée historiquement, quelles en sont les conséquences et comment la surmonter. Seul un dépassement de la césure radicale entre le sauvage et le domestique permet de fonder une éthique qui soit animale et environnementale.",
 				"archive": "Cairn.info",
 				"issue": "2",
@@ -679,6 +669,204 @@ var testCases = [
 				"attachments": [],
 				"tags": [],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.cairn.info/revue-recherches-de-science-religieuse-2023-1-page-93.htm",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Le salut de l’Évangile et les saluts de l’Église",
+				"creators": [
+					{
+						"lastName": "d’Aloisio",
+						"firstName": "Christophe",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023",
+				"DOI": "10.3917/rsr.231.0093",
+				"ISSN": "0034-1258",
+				"abstractNote": "Dans une Église idéale, la sotériologie devrait pouvoir se confondre avec l’ecclésiologie. En effet, quelle autre réalisation du salut peut-on espérer que l’Église ? Autant cette affirmation ravira certains théologiens, autant elle choquera la plupart de nos contemporains, tellement le vécu ecclésial est éloigné, dans la pratique de toutes les communautés, d’une expérience de salut. Cette tension entre sotériologie et ecclésiologie est due au fait qu’une Église « idéale », cela n’existe pas dans l’histoire ; c’est bien l’histoire qui est l’élément déterminant pour distinguer salut et Église et qui pourrait inspirer le sursaut susceptible de mener à un renouveau.",
+				"archive": "Cairn.info",
+				"issue": "1",
+				"journalAbbreviation": "Recherches de Science Religieuse",
+				"language": "FR",
+				"libraryCatalog": "ubtue_Cairn.info",
+				"pages": "93-104",
+				"publicationTitle": "Recherches de Science Religieuse",
+				"url": "https://www.cairn.info/revue-recherches-de-science-religieuse-2023-1-page-93.htm",
+				"volume": "111",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Church"
+					},
+					{
+						"tag": "Eucharist"
+					},
+					{
+						"tag": "Eucharistie"
+					},
+					{
+						"tag": "Histoire"
+					},
+					{
+						"tag": "History"
+					},
+					{
+						"tag": "Liturgie"
+					},
+					{
+						"tag": "Liturgy"
+					},
+					{
+						"tag": "People"
+					},
+					{
+						"tag": "Peuple"
+					},
+					{
+						"tag": "Politics"
+					},
+					{
+						"tag": "Politique"
+					},
+					{
+						"tag": "Testimony"
+					},
+					{
+						"tag": "Témoignage"
+					},
+					{
+						"tag": "eucharist"
+					},
+					{
+						"tag": "eucharistie"
+					},
+					{
+						"tag": "histoire"
+					},
+					{
+						"tag": "history"
+					},
+					{
+						"tag": "liturgie"
+					},
+					{
+						"tag": "liturgy"
+					},
+					{
+						"tag": "people"
+					},
+					{
+						"tag": "peuple"
+					},
+					{
+						"tag": "politics"
+					},
+					{
+						"tag": "politique"
+					},
+					{
+						"tag": "testimony"
+					},
+					{
+						"tag": "témoignage"
+					},
+					{
+						"tag": "Église"
+					}
+				],
+				"notes": [
+					"abs:In an ideal Church, soteriology should be able to fit closely with ecclesiology. In fact, what other outcome of salvation could one expect from the Church? While this statement may please some theologians, it will shock most of our contemporaries, seeing that the experience of the Church is so far from their experience of salvation in the everyday life in of all communities. This tension between soteriology and ecclesiology is due to the fact that an ‘ideal’ Church does not exist in history; history is clearly the decisive element to distinguish salvation and Church and it could inspire an awakening capable of leading to a renewal."
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.cairn.info/revue-des-sciences-philosophiques-et-theologiques-2022-3-page-465.htm",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Le destin de l’État-nation dans la mondialisation : une réalité paradoxale",
+				"creators": [
+					{
+						"lastName": "Renaud-Boulesteix",
+						"firstName": "Bénédicte",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022",
+				"DOI": "10.3917/rspt.1063.0465",
+				"ISSN": "0035-2209",
+				"abstractNote": "La question de la liberté politique effective des hommes dans un monde globalisé travaille la crise de l’État-nation. Cette crise ne renvoie nullement à un déclin mais à une double contradiction, celle d’être à la fois le lieu de naissance de la liberté du citoyen et celui d’une volonté collective contrainte, pour ne pas dire contrariée dans certains cas. Il ne s’agit pas de louer ou blâmer la dynamique de la mondialisation mais d’en comprendre l’ambivalence dès lors que l’on envisage l’alliance de la puissance et de la volonté comme facteur d’une liberté nationale plus effective au plan interne et dans l’ordre international. À la fois irréductible et dépassable, l’État-nation comme réalité critique surgit dans l’entre-deux-guerres dans les débats qui animent tous les milieux intellectuels, notamment catholiques comme en témoignent les positions clivées entre Joseph Delos et Gaston Fessard. Ce premier moment fonde les interrogations qui travaillent notre réflexion présente balancée entre la volonté de replacer les nations démocratiques au cœur de la marche globalisée du monde et la nécessité d’intégrations stratégiques régionales.",
+				"archive": "Cairn.info",
+				"issue": "3",
+				"journalAbbreviation": "Revue des sciences philosophiques et théologiques",
+				"language": "FR",
+				"libraryCatalog": "ubtue_Cairn.info",
+				"pages": "465-488",
+				"publicationTitle": "Revue des sciences philosophiques et théologiques",
+				"shortTitle": "Le destin de l’État-nation dans la mondialisation",
+				"url": "https://www.cairn.info/revue-des-sciences-philosophiques-et-theologiques-2022-3-page-465.htm",
+				"volume": "106",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Coopération internationale"
+					},
+					{
+						"tag": "Fédéralisme"
+					},
+					{
+						"tag": "Liberté politique"
+					},
+					{
+						"tag": "Mondialisation"
+					},
+					{
+						"tag": "Puissance"
+					},
+					{
+						"tag": "Souveraineté"
+					},
+					{
+						"tag": "Tiers parti catholique"
+					},
+					{
+						"tag": "coopération internationale"
+					},
+					{
+						"tag": "fédéralisme"
+					},
+					{
+						"tag": "liberté politique"
+					},
+					{
+						"tag": "mondialisation"
+					},
+					{
+						"tag": "puissance"
+					},
+					{
+						"tag": "souveraineté"
+					},
+					{
+						"tag": "tiers parti catholique"
+					},
+					{
+						"tag": "État-nation"
+					}
+				],
+				"notes": [
+					"abs:The question of the effective political freedom of men in a globalized world affects the crisis of the nation-state. This crisis in no way refers to a decline but to a twofold contradiction, that of being both the birthplace of the freedom of the citizen and that of a constrained collective will, not to say thwarted in certain cases. It is not a question of praising or blaming the dynamics of globalization but of understanding its ambivalence when one considers the alliance of power and will as a factor in a more effective national freedom at the internal level as well as in the international order. At once irreducible and surpassable, the nation-state as a critical reality emerged in the interwar period in the debates that animated all intellectual circles, particularly Catholic ones, as evidenced by the divided positions of Joseph Delos and Gaston Fessard. This initial moment establishes the questions at work in our present reflection, balanced between the desire to put democratic nations back at the heart of the globalized world and the need for regional strategic integrations."
+				],
 				"seeAlso": []
 			}
 		]
