@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-02-03 18:41:22"
+	"lastUpdated": "2023-02-03 18:58:27"
 }
 
 /*
@@ -123,7 +123,10 @@ function scrape(doc, url) {
 				item.volume = item.volume.split(/n°/i)[1].trim();
 			} else if (item.volume.search(/^Vol./i) != -1) {
 				item.volume = item.volume.split(/Vol./i)[1].trim();
+			} else if (item.volume.search(/^Tome/i) != -1) {
+				item.volume = item.volume.split(/Tome/i)[1].trim();
 			}
+
 			if (item.volume.search(/^\d+-\d+$/) != -1) {
 				var volume = item.volume.split('-');
 				item.volume = volume[0];
@@ -187,8 +190,7 @@ function scrape(doc, url) {
 		if (item.volume) item.volume = romanToInt(item.volume).toString();
 
 		item.ISSN = ZU.xpathText(doc, '//meta[@name="citation_issn"]/@content');
-		item.volume = item.volume.replace("Tome", "");
-		
+
 		if (["gratuit", "post barrière mobile"].includes(ZU.xpathText(doc, '//meta[@name="DCSext.comm_art"]/@content'))) item.notes.push('LF:');
 		item.attachments = [];
 		item.complete();
@@ -783,6 +785,89 @@ var testCases = [
 				],
 				"notes": [
 					"abs:In an ideal Church, soteriology should be able to fit closely with ecclesiology. In fact, what other outcome of salvation could one expect from the Church? While this statement may please some theologians, it will shock most of our contemporaries, seeing that the experience of the Church is so far from their experience of salvation in the everyday life in of all communities. This tension between soteriology and ecclesiology is due to the fact that an ‘ideal’ Church does not exist in history; history is clearly the decisive element to distinguish salvation and Church and it could inspire an awakening capable of leading to a renewal."
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.cairn.info/revue-des-sciences-philosophiques-et-theologiques-2022-3-page-465.htm",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Le destin de l’État-nation dans la mondialisation : une réalité paradoxale",
+				"creators": [
+					{
+						"lastName": "Renaud-Boulesteix",
+						"firstName": "Bénédicte",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022",
+				"DOI": "10.3917/rspt.1063.0465",
+				"ISSN": "0035-2209",
+				"abstractNote": "La question de la liberté politique effective des hommes dans un monde globalisé travaille la crise de l’État-nation. Cette crise ne renvoie nullement à un déclin mais à une double contradiction, celle d’être à la fois le lieu de naissance de la liberté du citoyen et celui d’une volonté collective contrainte, pour ne pas dire contrariée dans certains cas. Il ne s’agit pas de louer ou blâmer la dynamique de la mondialisation mais d’en comprendre l’ambivalence dès lors que l’on envisage l’alliance de la puissance et de la volonté comme facteur d’une liberté nationale plus effective au plan interne et dans l’ordre international. À la fois irréductible et dépassable, l’État-nation comme réalité critique surgit dans l’entre-deux-guerres dans les débats qui animent tous les milieux intellectuels, notamment catholiques comme en témoignent les positions clivées entre Joseph Delos et Gaston Fessard. Ce premier moment fonde les interrogations qui travaillent notre réflexion présente balancée entre la volonté de replacer les nations démocratiques au cœur de la marche globalisée du monde et la nécessité d’intégrations stratégiques régionales.",
+				"archive": "Cairn.info",
+				"issue": "3",
+				"journalAbbreviation": "Revue des sciences philosophiques et théologiques",
+				"language": "FR",
+				"libraryCatalog": "ubtue_Cairn.info",
+				"pages": "465-488",
+				"publicationTitle": "Revue des sciences philosophiques et théologiques",
+				"shortTitle": "Le destin de l’État-nation dans la mondialisation",
+				"url": "https://www.cairn.info/revue-des-sciences-philosophiques-et-theologiques-2022-3-page-465.htm",
+				"volume": "106",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Coopération internationale"
+					},
+					{
+						"tag": "Fédéralisme"
+					},
+					{
+						"tag": "Liberté politique"
+					},
+					{
+						"tag": "Mondialisation"
+					},
+					{
+						"tag": "Puissance"
+					},
+					{
+						"tag": "Souveraineté"
+					},
+					{
+						"tag": "Tiers parti catholique"
+					},
+					{
+						"tag": "coopération internationale"
+					},
+					{
+						"tag": "fédéralisme"
+					},
+					{
+						"tag": "liberté politique"
+					},
+					{
+						"tag": "mondialisation"
+					},
+					{
+						"tag": "puissance"
+					},
+					{
+						"tag": "souveraineté"
+					},
+					{
+						"tag": "tiers parti catholique"
+					},
+					{
+						"tag": "État-nation"
+					}
+				],
+				"notes": [
+					"abs:The question of the effective political freedom of men in a globalized world affects the crisis of the nation-state. This crisis in no way refers to a decline but to a twofold contradiction, that of being both the birthplace of the freedom of the citizen and that of a constrained collective will, not to say thwarted in certain cases. It is not a question of praising or blaming the dynamics of globalization but of understanding its ambivalence when one considers the alliance of power and will as a factor in a more effective national freedom at the internal level as well as in the international order. At once irreducible and surpassable, the nation-state as a critical reality emerged in the interwar period in the debates that animated all intellectual circles, particularly Catholic ones, as evidenced by the divided positions of Joseph Delos and Gaston Fessard. This initial moment establishes the questions at work in our present reflection, balanced between the desire to put democratic nations back at the heart of the globalized world and the need for regional strategic integrations."
 				],
 				"seeAlso": []
 			}
