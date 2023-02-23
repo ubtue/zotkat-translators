@@ -2,14 +2,14 @@
 	"translatorID": "757997c3-731e-4344-b312-7adecb8e99bf",
 	"label": "ubtue_Journal for Interdisciplinary Biblical Studies",
 	"creator": "Timotheus Kim",
-	"target": "^https?://jibs\\.group\\.shef\\.ac\\.uk",
+	"target": "^https?://jibs\\.hcommons\\.org",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-12-01 13:22:29"
+	"lastUpdated": "2023-02-23 09:08:33"
 }
 
 /*
@@ -45,7 +45,7 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = doc.querySelectorAll('[href*="item"]');
+	var rows = ZU.xpath(doc, "//a[text()='Download PDF']");
 	for (let row of rows) {
 		let href = row.href;
 		let title = ZU.trimInternal(row.textContent);
@@ -85,7 +85,7 @@ function scrape(doc, url) {
 		if (keywords && keywords != null) {
 			keywords = keywords.split(/\s*,\s*/);
 			for (let keyword of keywords) {
-			item.tags.push(keyword.replace(/^\w/gi,function(m){ return m.toUpperCase();}));
+			item.tags.push(keyword.replace(/^\d*:?|:\w*/gi, '').replace(/^\w/gi,function(m){ return m.toUpperCase();}));
 			}
 		}
 		let doi = ZU.xpathText(doc, '//meta[@name="citation_handle_id"]/@content');
@@ -125,22 +125,12 @@ function scrape(doc, url) {
 var testCases = [
 	{
 		"type": "web",
-		"url": "https://jibs.group.shef.ac.uk/archive/volume-3/",
+		"url": "https://jibs.hcommons.org/archive/volume-4/volume-4-issue-1/",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
-		"url": "https://jibs.group.shef.ac.uk/volume-2/",
-		"items": "multiple"
-	},
-	{
-		"type": "web",
-		"url": "https://jibs.group.shef.ac.uk/volume-1/",
-		"items": "multiple"
-	},
-	{
-		"type": "web",
-		"url": "https://jibs.group.shef.ac.uk/archive/volume-3/",
+		"url": "https://jibs.hcommons.org/archive/volume-4/volume-4-issue-2/",
 		"items": "multiple"
 	}
 ]
