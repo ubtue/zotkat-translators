@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2022-11-16 13:57:00"
+	"lastUpdated": "2023-03-07 16:43:00"
 }
 
 
@@ -161,9 +161,6 @@ function populateISSNMaps(mapData, url) {
             break;
         case "publication_title_to_physical_form.map":
             publication_title_to_physical_form = temp;
-            break;
-		case "ISSN_to_Abrufzeichen_zotkat.map":
-            issn_to_retrieve_sign = temp;
             break;
         default:
             throw "Unknown map file: " + mapFilename;
@@ -805,7 +802,6 @@ function doExport() {
 			zts_enhancement_repo_url + "notes_to_ixtheo_notations.map",
 			zts_enhancement_repo_url + "journal_title_to_ppn.map",
 			zts_enhancement_repo_url + "publication_title_to_physical_form.map",
-			//zts_enhancement_repo_url + "ISSN_to_Abrufzeichen_zotkat.map",
             ], function (responseText, request, url) {
                 switch (responseText) {
                     case "404: Not Found":
