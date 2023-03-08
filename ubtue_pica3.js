@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 2,
 	"browserSupport": "gcs",
-	"lastUpdated": "2022-02-25 11:35:00"
+	"lastUpdated": "2022-03-08 13:35:00"
 }
 
 // Zotero Export Translator in Pica3 Format für das Einzeln- und Mulitiupload in WinIBW
@@ -311,7 +311,7 @@ function performExport() {
 		var retrieve_sign = "";
 		if (!item.ISSN)
 				item.ISSN = "";
-		if (item.ISSN.substring(0,4) != "IXTH") item.ISSN = ZU.cleanISSN(item.ISSN);
+		//if (item.ISSN.substring(0,4) != "IXTH") item.ISSN = ZU.cleanISSN(item.ISSN);
 		//enrich items based on their ISSN
 		if (issn_to_language_code.get(item.ISSN) !== undefined) {
 			item.language = issn_to_language_code.get(item.ISSN);
@@ -358,7 +358,7 @@ function performExport() {
 		}
 
 		var article = false;
-		switch (item.itemType) {
+      switch (item.itemType) {
 			case "journalArticle":
 			case "bookSection":
 			case "magazineArticle": // wird bei der Erfassung von Rezensionen verwendet. Eintragsart "Magazin-Artikel" wird manuell geändert.
