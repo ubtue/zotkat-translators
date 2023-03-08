@@ -305,6 +305,10 @@ function performExport() {
 			item.language = language_to_language_code.get(item.ISSN);
 			Z.debug("Found lang:" + item.language);
 		}
+		if (issn_to_language_code.get(item.publicationTitle) !== undefined) {
+			item.language = issn_to_language_code.get(item.publicationTitle);
+			Z.debug("Found lang:" + item.language);
+		}
 		if (issn_to_ssg_zotkat.get(item.ISSN) !== undefined) {
 			SsgField = issn_to_ssg_zotkat.get(item.ISSN);
 			Z.debug("Found ssg:" + SsgField);
@@ -817,3 +821,4 @@ function doExport() {
                 performExport();
             });
 }
+
