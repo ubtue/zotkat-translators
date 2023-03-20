@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-12-19 15:38:23"
+	"lastUpdated": "2023-03-20 16:12:09"
 }
 
 /*
@@ -205,13 +205,14 @@ function downloadFunction(text, url, prefs) {
 		}
 		if (item.url) {
 			// Trim the ⟨=cs suffix -- EBSCO can't find the record with it!
-			item.url = item.url.replace(/(AN=[0-9]+)⟨=[a-z]{2}/, "$1")
-				.replace(/#.*$/, '');
-			if (!prefs.hasFulltext) {
+			// clean redi-link e.g. https://search.ebscohost.com/login.aspx?direct=true&db=reh&AN=ATLAiGW7221227000461&site=ehost-live
+			item.url = item.url.replace(/https?:\/\/www\.redi-bw\.de\/db\/ebsco\.php\//, 'https://').replace(/(AN=[0-9]+)⟨=[a-z]{2}/, "$1")
+				.replace(/#.*$/, ''); {
+			/*if (!prefs.hasFulltext) {
 				// For items without full text,
 				// move the stable link to a link attachment
 				item.attachments = [];
-				item.url = undefined;
+				item.url = undefined;*/
 			}
 		}
 		
@@ -557,6 +558,7 @@ function doDelivery(doc, itemInfo) {
 
 
 
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -667,6 +669,98 @@ var testCases = [
 					},
 					{
 						"tag": "Sin, Original --   History of doctrines"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://web.p.ebscohost.com/ehost/detail/detail?vid=0&sid=3b0043cd-9c3d-4749-a240-abb2ddbf08ff%40redis&bdata=JnNpdGU9ZWhvc3QtbGl2ZQ%3d%3d#AN=ATLAiGW7221227000461&db=reh",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Heavenly Ascent: The Relation of Peter Martyr Vermigli’s Preface to the Oxford Treatise and Disputation on the Eucharist to the Introduction of the Edwardian Prayer Books",
+				"creators": [
+					{
+						"lastName": "Graves",
+						"firstName": "Daniel F",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022-12",
+				"ISSN": "08968039",
+				"issue": "4",
+				"language": "eng",
+				"libraryCatalog": "EBSCOhost",
+				"pages": "405-428",
+				"shortTitle": "Heavenly Ascent",
+				"url": "https://search.ebscohost.com/login.aspx%3fdirect%3dtrue%26db%3dreh%26AN%3dATLAiGW7221227000461%26site%3dehost-live",
+				"volume": "91",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Book of Common Prayer"
+					},
+					{
+						"tag": "Cranmer, Thomas,   Abp of Canterbury        , 1489-1556"
+					},
+					{
+						"tag": "Grace (Theology) --   History of doctrines"
+					},
+					{
+						"tag": "Lord's Supper --   History of doctrines"
+					},
+					{
+						"tag": "Vermigli, Pietro Martire,   , 1499-1562"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://web.p.ebscohost.com/ehost/detail/detail?vid=0&sid=3b0043cd-9c3d-4749-a240-abb2ddbf08ff%40redis&bdata=JnNpdGU9ZWhvc3QtbGl2ZQ%3d%3d#AN=ATLAiGW7221227000461&db=reh",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Heavenly Ascent: The Relation of Peter Martyr Vermigli’s Preface to the Oxford Treatise and Disputation on the Eucharist to the Introduction of the Edwardian Prayer Books",
+				"creators": [
+					{
+						"lastName": "Graves",
+						"firstName": "Daniel F",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022-12",
+				"ISSN": "08968039",
+				"issue": "4",
+				"language": "eng",
+				"libraryCatalog": "EBSCOhost",
+				"pages": "405-428",
+				"shortTitle": "Heavenly Ascent",
+				"url": "https://search.ebscohost.com/login.aspx%3fdirect%3dtrue%26db%3dreh%26AN%3dATLAiGW7221227000461%26site%3dehost-live",
+				"volume": "91",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Book of Common Prayer"
+					},
+					{
+						"tag": "Cranmer, Thomas,   Abp of Canterbury        , 1489-1556"
+					},
+					{
+						"tag": "Grace (Theology) --   History of doctrines"
+					},
+					{
+						"tag": "Lord's Supper --   History of doctrines"
+					},
+					{
+						"tag": "Vermigli, Pietro Martire,   , 1499-1562"
 					}
 				],
 				"notes": [],
