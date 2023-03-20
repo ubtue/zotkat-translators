@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-01-13 10:55:19"
+	"lastUpdated": "2023-03-20 11:15:47"
 }
 
 /*
@@ -66,7 +66,7 @@ function postProcess(doc, item) {
 	item.tags = ZU.xpath(doc, '//div[@id="productKeywords"]//a').map(i => i.textContent.trim());
 
 	if (item.creators.length) item.creators = ZU.xpathText(doc, '//h2[contains(@class, "product-heading-author-block")]').split(",").map(i => ZU.cleanAuthor(i));
-
+	
 	if (!item.language)
 		item.language = ZU.xpathText(doc, '//meta[@name="language"]/@content');
 }
@@ -76,6 +76,7 @@ function invokeCoinsTranslator(doc, url) {
 	translator.setTranslator("05d07af9-105a-4572-99f6-a8e231c0daef");
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
+		i.url = " https://doi.org/" + i.DOI;
 		postProcess(doc, i);
 		i.complete();
 	});
@@ -97,6 +98,7 @@ function doWeb(doc, url) {
 	} else
 		invokeCoinsTranslator(doc, url);
 }
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -122,6 +124,7 @@ var testCases = [
 				"pages": "195-206",
 				"publicationTitle": "Philosophische Rundschau (PhR)",
 				"shortTitle": "Machtkonstellationen",
+				"url": "https://doi.org/10.1628/003181516X14791276269803",
 				"volume": "63",
 				"attachments": [
 					{
@@ -157,6 +160,7 @@ var testCases = [
 				"pages": "475-495",
 				"publicationTitle": "Early Christianity (EC)",
 				"shortTitle": "Salvaging the Scriptures for Us",
+				"url": "https://doi.org/10.1628/ec-2020-0033",
 				"volume": "11",
 				"attachments": [
 					{
@@ -207,6 +211,7 @@ var testCases = [
 				"pages": "349-406",
 				"publicationTitle": "Zeitschrift für evangelisches Kirchenrecht (ZevKR)",
 				"shortTitle": "Der rechtliche Rahmen einer Kirche im Transformationsprozess",
+				"url": "https://doi.org/10.1628/zevkr-2020-0031",
 				"volume": "65",
 				"attachments": [
 					{
@@ -218,6 +223,11 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.mohrsiebeck.com/heft/hebrew-bible-and-ancient-israel-4-2022-2192-2276?no_cache=1",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
