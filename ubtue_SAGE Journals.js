@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-12-06 09:03:44"
+	"lastUpdated": "2023-04-26 12:38:35"
 }
 
 /*
@@ -162,6 +162,16 @@ function scrape(doc, url) {
 					item.notes.push({"note": "orcid:" + orcid + ' | ' + authorName + ' | taken from website'});
 				}	
 			}
+			//scrape ORCID at the bottom of website for review e.g. https://journals.sagepub.com/doi/10.1177/15423050211028189
+			let bottomAuthorSectionEntries = doc.querySelectorAll('#orcid');
+			for (let bottomSectionEntry of bottomAuthorSectionEntries) {
+				let entry = bottomSectionEntry.innerText;
+				let regexOrcid = /\d+-\d+-\d+-\d+x?/i;
+				let entryOrcidAuthor = entry.split('\n')[1].split('https://orcid.org/');
+				if(entryOrcidAuthor[1].match(regexOrcid)) {
+					item.notes.push({note: "orcid:" + entryOrcidAuthor[1] + ' | ' + entryOrcidAuthor[0] + ' | taken from website'});
+				}
+			}
 			// Workaround to address address weird incorrect multiple extraction by both querySelectorAll and xpath
 			// So, let's deduplicate...
 			item.notes = Array.from(new Set(item.notes.map(JSON.stringify))).map(JSON.parse);
@@ -280,13 +290,12 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "Juli 1, 2020",
+				"date": "July 1, 2020",
 				"DOI": "10.1177/0040573620918177",
 				"ISSN": "0040-5736",
 				"issue": "2",
-				"journalAbbreviation": "Theology Today",
 				"language": "en",
-				"libraryCatalog": "SAGE Journals",
+				"libraryCatalog": "ubtue_SAGE Journals",
 				"pages": "210-217",
 				"publicationTitle": "Theology Today",
 				"url": "https://doi.org/10.1177/0040573620918177",
@@ -312,23 +321,18 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "Oktober 1, 2019",
+				"date": "October 1, 2019",
 				"DOI": "10.1177/0040573619865711",
 				"ISSN": "0040-5736",
 				"issue": "3",
-				"journalAbbreviation": "Theology Today",
 				"language": "en",
-				"libraryCatalog": "SAGE Journals",
+				"libraryCatalog": "ubtue_SAGE Journals",
 				"pages": "261-265",
 				"publicationTitle": "Theology Today",
 				"url": "https://doi.org/10.1177/0040573619865711",
 				"volume": "76",
 				"attachments": [],
-				"tags": [
-					{
-						"tag": "Book Review"
-					}
-				],
+				"tags": [],
 				"notes": [],
 				"seeAlso": []
 			}
@@ -352,20 +356,15 @@ var testCases = [
 				"DOI": "10.1177/0040573619826522",
 				"ISSN": "0040-5736",
 				"issue": "1",
-				"journalAbbreviation": "Theology Today",
 				"language": "en",
-				"libraryCatalog": "SAGE Journals",
+				"libraryCatalog": "ubtue_SAGE Journals",
 				"pages": "83-84",
 				"publicationTitle": "Theology Today",
 				"shortTitle": "The Myth of Rebellious Angels",
 				"url": "https://doi.org/10.1177/0040573619826522",
 				"volume": "76",
 				"attachments": [],
-				"tags": [
-					{
-						"tag": "Book Review"
-					}
-				],
+				"tags": [],
 				"notes": [],
 				"seeAlso": []
 			}
@@ -395,14 +394,14 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "Dezember 1, 2020",
+				"date": "December 1, 2020",
 				"DOI": "10.1177/0969733020929062",
 				"ISSN": "0969-7330",
-				"abstractNote": "Background:Ideas of patient involvement are related to notions of self-determination and autonomy, which are not always in alignment with complex interactions and communication in clinical practice.Aim:To illuminate and discuss patient involvement in routine clinical care situations in nursing practice from an ethical perspective.Method:A case study based on an anthropological field study among patients with advanced cancer in Denmark.Ethical considerations:Followed the principles of the Helsinki Declaration.Findings:Two cases illustrated situations where nurses refused patient involvement in their own case.Discussion:Focus on two ethical issues, namely ‘including patients’ experiences in palliative nursing care’ and ‘relational distribution of power and knowledge’, inspired primarily by Hannah Arendt’s concept of thoughtlessness and a Foucauldian perspective on the medical clinic and power. The article discusses how patients’ palliative care needs and preferences, knowledge and statements become part of the less significant background of nursing practice, when nurses have a predefined agenda for acting with and involvement of patients. Both structurally conditioned ‘thoughtlessness’ of the nurses and distribution of power and knowledge between patients and nurses condition nurses to set the agenda and assess when and at what level it is relevant to take up patients’ invitations to involve them in their own case.Conclusion:The medical and institutional logic of the healthcare service sets the framework for the exchange between professional and patient, which has an embedded risk that ‘thoughtlessness’ appears among nurses. The consequences of neglecting the spontaneous nature of human action and refusing the invitations of the patients to be involved in their life situation call for ethical and practical reflection among nurses. The conditions for interaction with humans as unpredictable and variable challenge nurses’ ways of being ethically attentive to ensure that patients receive good palliative care, despite the structurally conditioned logic of healthcare.",
+				"abstractNote": "Background:Ideas of patient involvement are related to notions of self-determination and autonomy, which are not always in alignment with complex interactions and communication in clinical practice.Aim:To illuminate and discuss patient involvement in routine clinical care situations in nursing practice from an ethical perspective.Method:A case study based on an anthropological field study among patients with advanced cancer in Denmark.Ethical considerations:Followed the principles of the Helsinki Declaration.Findings:Two cases illustrated situations where nurses refused patient involvement in their own case.Discussion:Focus on two ethical issues, namely ?including patients? experiences in palliative nursing care? and ?relational distribution of power and knowledge?, inspired primarily by Hannah Arendt?s concept of thoughtlessness and a Foucauldian perspective on the medical clinic and power. The article discusses how patients? palliative care needs and preferences, knowledge and statements become part of the less significant background of nursing practice, when nurses have a predefined agenda for acting with and involvement of patients. Both structurally conditioned ?thoughtlessness? of the nurses and distribution of power and knowledge between patients and nurses condition nurses to set the agenda and assess when and at what level it is relevant to take up patients? invitations to involve them in their own case.Conclusion:The medical and institutional logic of the healthcare service sets the framework for the exchange between professional and patient, which has an embedded risk that ?thoughtlessness? appears among nurses. The consequences of neglecting the spontaneous nature of human action and refusing the invitations of the patients to be involved in their life situation call for ethical and practical reflection among nurses. The conditions for interaction with humans as unpredictable and variable challenge nurses? ways of being ethically attentive to ensure that patients receive good palliative care, despite the structurally conditioned logic of healthcare.",
 				"issue": "8",
 				"journalAbbreviation": "Nurs Ethics",
 				"language": "en",
-				"libraryCatalog": "SAGE Journals",
+				"libraryCatalog": "ubtue_SAGE Journals",
 				"pages": "1618-1630",
 				"publicationTitle": "Nursing Ethics",
 				"url": "https://doi.org/10.1177/0969733020929062",
@@ -410,24 +409,27 @@ var testCases = [
 				"attachments": [],
 				"tags": [
 					{
-						"tag": " Patient involvement"
+						"tag": "Patient involvement"
 					},
 					{
-						"tag": " nurse refusals"
+						"tag": "nurse refusals"
 					},
 					{
-						"tag": " palliative care"
+						"tag": "palliative care"
 					},
 					{
-						"tag": " power"
+						"tag": "power"
 					},
 					{
-						"tag": " thoughtlessness"
+						"tag": "thoughtlessness"
 					}
 				],
 				"notes": [
 					{
-						"note": "orcid:0000-0002-0893-3054 | author=Glasdam, Stinne"
+						"note": "orcid:0000-0002-0893-3054 | Stinne Glasdam | taken from website"
+					},
+					{
+						"note": "orcid:0000-0002-0893-3054 | Stinne Glasdam  | taken from website"
 					},
 					{
 						"note": "LF:"
@@ -459,11 +461,10 @@ var testCases = [
 				"date": "September 1, 2020",
 				"DOI": "10.1177/0037768620920172",
 				"ISSN": "0037-7686",
-				"abstractNote": "The sociology of religion has not systematically explored the emerging roles of religion in the whole process of the transition to adulthood, especially in the changing contexts of delayed and complicated transitions to adulthood. Seeking to bridge the two different fields of sociology, we identify four directions of research: (1) a multidimensional approach that identifies the different dimensions of religion with varying degrees of relationship to young adults’ lives; (2) a close attention to racial/ethnic variation in the roles of religion for the transition to adulthood; (3) an open inquiry into the changing importance of religion for young adults in a rapidly shifting neoliberal global economy; and (4) the detrimental effects of religion in the transition to adulthood. We call for more research on the increasingly complex relationship between religion and the transition to adulthood.",
+				"abstractNote": "The sociology of religion has not systematically explored the emerging roles of religion in the whole process of the transition to adulthood, especially in the changing contexts of delayed and complicated transitions to adulthood. Seeking to bridge the two different fields of sociology, we identify four directions of research: (1) a multidimensional approach that identifies the different dimensions of religion with varying degrees of relationship to young adults? lives; (2) a close attention to racial/ethnic variation in the roles of religion for the transition to adulthood; (3) an open inquiry into the changing importance of religion for young adults in a rapidly shifting neoliberal global economy; and (4) the detrimental effects of religion in the transition to adulthood. We call for more research on the increasingly complex relationship between religion and the transition to adulthood.",
 				"issue": "3",
-				"journalAbbreviation": "Social Compass",
 				"language": "en",
-				"libraryCatalog": "SAGE Journals",
+				"libraryCatalog": "ubtue_SAGE Journals",
 				"pages": "428-443",
 				"publicationTitle": "Social Compass",
 				"shortTitle": "Bridging sociology of religion to transition to adulthood",
@@ -472,47 +473,43 @@ var testCases = [
 				"attachments": [],
 				"tags": [
 					{
-						"tag": " minority"
-					},
-					{
-						"tag": " minorité"
-					},
-					{
-						"tag": " neoliberalism"
-					},
-					{
-						"tag": " néolibéralisme"
-					},
-					{
-						"tag": " race and ethnicity"
-					},
-					{
-						"tag": " race et ethnicité"
-					},
-					{
-						"tag": " religion"
-					},
-					{
-						"tag": " religion"
-					},
-					{
-						"tag": " transition to adulthood"
-					},
-					{
-						"tag": " transition vers l’âge adulte"
-					},
-					{
-						"tag": " young adults"
-					},
-					{
 						"tag": "jeunes adultes"
-					}
-				],
-				"notes": [
+					},
 					{
-						"note": "abs:La littérature n’a accordé que peu d’attention à la religion en tant que force sociale affectant les transitions des rôles sociaux des jeunes et leurs perceptions subjectives de l’âge adulte. La sociologie de la religion n’a pas systématiquement exploré les rôles émergents de la religion dans des contextes changeants de transitions retardées et compliquées vers l’âge adulte. En cherchant à rapprocher les deux domaines différents de la sociologie, nous identifions quatre directions de recherches : (1) une approche multidimensionnelle de la religion qui identifie différentes dimensions de la religion avec des degrés variables de relation avec la vie des jeunes adultes ; (2) une attention particulière aux variations raciales/ethniques dans les rôles de la religion dans la transition vers l’âge adulte ; (3) une enquête ouverte sur l’évolution de l’importance de la religion pour les jeunes adultes dans une économie mondiale néolibérale en mutation rapide ; et (4) les effets néfastes de la religion dans la transition vers l’âge adulte. Nous appelons à davantage de recherches sur la relation de plus en plus complexe entre la religion et la transition vers l’âge adulte."
+						"tag": "minority"
+					},
+					{
+						"tag": "minorité"
+					},
+					{
+						"tag": "neoliberalism"
+					},
+					{
+						"tag": "néolibéralisme"
+					},
+					{
+						"tag": "race and ethnicity"
+					},
+					{
+						"tag": "race et ethnicité"
+					},
+					{
+						"tag": "religion"
+					},
+					{
+						"tag": "religion"
+					},
+					{
+						"tag": "transition to adulthood"
+					},
+					{
+						"tag": "transition vers l’âge adulte"
+					},
+					{
+						"tag": "young adults"
 					}
 				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
@@ -534,11 +531,10 @@ var testCases = [
 				"date": "November 1, 2020",
 				"DOI": "10.1177/0146107920958985",
 				"ISSN": "0146-1079",
-				"abstractNote": "The Jubilee tradition commemorates the release of slaves, the remission of debt, and the repatriation of property, a “day” of physical and spiritual restoration. The Jubilee tradition—originating in a constitutional vision of ancient Israel periodically restoring its ancestral sovereignty as custodians of the land—became a master symbol of biblical theology, a powerful ideological resource as well as a promise of a divinely realized future during the Second Temple period, when the Qumran community envisioned an eschatological Jubilee and the early Jesus tradition remembered Jesus’ nonviolence in Jubilee-terms. Jubilee themes can also be identified in ideals inscribed in the founding of America, the Abolition movement, the Women’s Liberation Movement, the Civil Rights movement, and Liberation Theology. This study seeks to extend the exploration of Jubilee themes by adopting a comparative methodological approach, re-examining Jubilee themes in the context of the contemporary Palestinian-Israeli conflict, where the dream of Peace in the Middle East continues to play out in predominantly politicized contexts.",
+				"abstractNote": "The Jubilee tradition commemorates the release of slaves, the remission of debt, and the repatriation of property, a ?day? of physical and spiritual restoration. The Jubilee tradition?originating in a constitutional vision of ancient Israel periodically restoring its ancestral sovereignty as custodians of the land?became a master symbol of biblical theology, a powerful ideological resource as well as a promise of a divinely realized future during the Second Temple period, when the Qumran community envisioned an eschatological Jubilee and the early Jesus tradition remembered Jesus? nonviolence in Jubilee-terms. Jubilee themes can also be identified in ideals inscribed in the founding of America, the Abolition movement, the Women?s Liberation Movement, the Civil Rights movement, and Liberation Theology. This study seeks to extend the exploration of Jubilee themes by adopting a comparative methodological approach, re-examining Jubilee themes in the context of the contemporary Palestinian-Israeli conflict, where the dream of Peace in the Middle East continues to play out in predominantly politicized contexts.",
 				"issue": "4",
-				"journalAbbreviation": "Biblical Theology Bulletin",
 				"language": "en",
-				"libraryCatalog": "SAGE Journals",
+				"libraryCatalog": "ubtue_SAGE Journals",
 				"pages": "180-190",
 				"publicationTitle": "Biblical Theology Bulletin",
 				"shortTitle": "“The Land Is Mine” (Leviticus 25",
@@ -547,16 +543,16 @@ var testCases = [
 				"attachments": [],
 				"tags": [
 					{
-						"tag": " Jubilee Year"
+						"tag": "Jubilee Year"
 					},
 					{
-						"tag": " Liberation"
+						"tag": "Liberation"
 					},
 					{
-						"tag": " Palestinian/Israeli Conflict"
+						"tag": "Palestinian/Israeli Conflict"
 					},
 					{
-						"tag": " Peace & Nonviolence"
+						"tag": "Peace & Nonviolence"
 					}
 				],
 				"notes": [],
@@ -583,14 +579,13 @@ var testCases = [
 						"creatorType": "translator"
 					}
 				],
-				"date": "Oktober 1, 2020",
+				"date": "October 1, 2020",
 				"DOI": "10.1177/0040573620947051",
 				"ISSN": "0040-5736",
-				"abstractNote": "Johann Baptist Metz died on December 2, 2019. He and Jürgen Moltmann shared a theological and personal friendship marked by affection and respect. It was an honest friendship and it lasted for over fifty years. It started when two texts met: Metz’s essay “God before Us” and Moltmann’s essay “The Category of Novum in Christian Theology.” Both were published in the volume To Honor Ernst Bloch (1965). This article is a personal reminiscence.",
+				"abstractNote": "Johann Baptist Metz died on December 2, 2019. He and Jürgen Moltmann shared a theological and personal friendship marked by affection and respect. It was an honest friendship and it lasted for over fifty years. It started when two texts met: Metz?s essay ?God before Us? and Moltmann?s essay ?The Category of Novum in Christian Theology.? Both were published in the volume To Honor Ernst Bloch (1965). This article is a personal reminiscence.",
 				"issue": "3",
-				"journalAbbreviation": "Theology Today",
 				"language": "en",
-				"libraryCatalog": "SAGE Journals",
+				"libraryCatalog": "ubtue_SAGE Journals",
 				"pages": "310-312",
 				"publicationTitle": "Theology Today",
 				"url": "https://doi.org/10.1177/0040573620947051",
@@ -598,19 +593,19 @@ var testCases = [
 				"attachments": [],
 				"tags": [
 					{
-						"tag": " Catholic"
+						"tag": "Catholic"
 					},
 					{
-						"tag": " Johann Baptist Metz"
+						"tag": "Johann Baptist Metz"
 					},
 					{
-						"tag": " eulogy"
+						"tag": "eulogy"
 					},
 					{
-						"tag": " memory"
+						"tag": "memory"
 					},
 					{
-						"tag": " political theology"
+						"tag": "political theology"
 					}
 				],
 				"notes": [],
@@ -650,11 +645,10 @@ var testCases = [
 				"date": "November 1, 2020",
 				"DOI": "10.1177/0084672420926259",
 				"ISSN": "0084-6724",
-				"abstractNote": "The article concentrates on answering the main question to be addressed, as stated in its title: which psychology(ies) serves us best? In order to achieve this goal, we pursue possible answers in history of psychology of religion and its interdisciplinary relationships with its sister disciplines, anthropology of religion and religious studies, resulting with sketching a typology of the main attitudes towards conceptualising psycho-cultural interface, prevalent among psychologists: the Universalist, the Absolutist and the Relativist stances. Next chosen examples from the field of applied psychology are presented, as the role of the cultural factor within the history of Diagnostic and Statistical Manual of Mental Disorders’ (DSM) development is discussed alongside presenting research on the phenomenon of ‘hearing voices’, in order to show the marked way for the future – the importance of including the cultural factor in psychological research on religion.",
+				"abstractNote": "The article concentrates on answering the main question to be addressed, as stated in its title: which psychology(ies) serves us best? In order to achieve this goal, we pursue possible answers in history of psychology of religion and its interdisciplinary relationships with its sister disciplines, anthropology of religion and religious studies, resulting with sketching a typology of the main attitudes towards conceptualising psycho-cultural interface, prevalent among psychologists: the Universalist, the Absolutist and the Relativist stances. Next chosen examples from the field of applied psychology are presented, as the role of the cultural factor within the history of Diagnostic and Statistical Manual of Mental Disorders? (DSM) development is discussed alongside presenting research on the phenomenon of ?hearing voices?, in order to show the marked way for the future ? the importance of including the cultural factor in psychological research on religion.",
 				"issue": "3",
-				"journalAbbreviation": "Archive for the Psychology of Religion",
 				"language": "en",
-				"libraryCatalog": "SAGE Journals",
+				"libraryCatalog": "ubtue_SAGE Journals",
 				"pages": "295-316",
 				"publicationTitle": "Archive for the Psychology of Religion",
 				"shortTitle": "Which psychology(ies) serves us best?",
@@ -663,30 +657,70 @@ var testCases = [
 				"attachments": [],
 				"tags": [
 					{
-						"tag": " Cross-cultural research"
+						"tag": "Cross-cultural research"
 					},
 					{
-						"tag": " cultural psychology"
+						"tag": "cultural psychology"
 					},
 					{
-						"tag": " history"
+						"tag": "history"
 					},
 					{
-						"tag": " methodology"
+						"tag": "methodology"
 					},
 					{
-						"tag": " multicultural issues"
+						"tag": "multicultural issues"
 					},
 					{
-						"tag": " religion"
+						"tag": "religion"
 					}
 				],
 				"notes": [
 					{
-						"note": "orcid:0000-0001-6906-3104 | author=Anczyk, Adam"
+						"note": "orcid:0000-0001-6906-3104 | Adam Anczyk | taken from website"
 					},
 					{
-						"note": "orcid:0000-0003-2751-3204 | author=Grzymała-Moszczyńska, Halina"
+						"note": "orcid:0000-0003-2751-3204 | Halina Grzymała-Moszczyńska | taken from website"
+					},
+					{
+						"note": "orcid:0000-0001-6906-3104 | Adam Anczyk  | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://journals.sagepub.com/doi/10.1177/15423050211028189",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Mitchell, Kenneth R., All Our Losses, All Our Griefs: Resources for Pastoral Care",
+				"creators": [
+					{
+						"lastName": "Johnson Brand",
+						"firstName": "Emi Alisa",
+						"creatorType": "author"
+					}
+				],
+				"date": "September 1, 2021",
+				"DOI": "10.1177/15423050211028189",
+				"ISSN": "1542-3050",
+				"issue": "3",
+				"journalAbbreviation": "J Pastoral Care Counsel",
+				"language": "en",
+				"libraryCatalog": "ubtue_SAGE Journals",
+				"pages": "229-230",
+				"publicationTitle": "Journal of Pastoral Care & Counseling",
+				"shortTitle": "Mitchell, Kenneth R., All Our Losses, All Our Griefs",
+				"url": "https://doi.org/10.1177/15423050211028189",
+				"volume": "75",
+				"attachments": [],
+				"tags": [],
+				"notes": [
+					{
+						"note": "orcid:0000-0002-5423-3796 | Emi Alisa Johnson Brand  | taken from website"
 					}
 				],
 				"seeAlso": []
