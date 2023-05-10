@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-05-10 15:22:56"
+	"lastUpdated": "2023-05-10 15:34:11"
 }
 
 /*
@@ -106,10 +106,10 @@ function scrape(doc, url) {
 		}
 		// in case of double issue e.g. "3-4" wrong issue number in Embedded Metadata e,g. "3" 
 		// clean issue number in case of multiple download
-		var issue = ZU.xpathText(doc, '//*[@name="DC.source"]//a[contains(text(), "Nº.")]');
+		var issue = ZU.xpathText(doc, '//*[@id="informacion"]//a[contains(text(), "Nº.")]');
 		if (issue) {
 			// e.g. Vol. 89, Nº. 3-4, 2012 or  Vol. 65, Nº. 1-2 (Enero-Junio)
-			var issueEntry = issue.split('Nº.')[1].split(',')[0];Z.debug(issueEntry)
+			var issueEntry = issue.split('Nº.')[1].split(',')[0];
 			if (issueEntry) item.issue = issueEntry.split('\(')[0];
 		}
 		// variable for other split seperator 'Fasc.''
@@ -118,7 +118,7 @@ function scrape(doc, url) {
  			item.issue = multiIssue.split('Fasc.')[1].split(',')[0];
  		}
  		// replace issue number with volume number for certain journals e.g. 'Analecta calasanctiana: publicación semestral religioso cultural y de investigación histórica' 
- 		let volumeEntry = ZU.xpathText(doc, '//meta[@name="DC.source"]/@content');Z.debug(volumeEntry)
+ 		let volumeEntry = ZU.xpathText(doc, '//meta[@name="DC.source"]/@content');
 		if (['Vol'].includes(volumeEntry) && item.ISSN && ['0569-9789', '0392-2855', '1594-3445', '1124-1225'].includes(item.ISSN)) {
 			item.volume = volumeEntry.split('Vol.')[1].split(',')[0].trim();
 		}
@@ -248,7 +248,7 @@ var testCases = [
 				],
 				"date": "2020",
 				"ISSN": "0573-2018",
-				"issue": "1",
+				"issue": "1-2",
 				"language": "spa",
 				"libraryCatalog": "dialnet.unirioja.es",
 				"pages": "11-34",
