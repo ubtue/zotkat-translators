@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-05-10 13:13:25"
+	"lastUpdated": "2023-05-10 14:50:33"
 }
 
 /*
@@ -94,12 +94,15 @@ function scrape(doc, url) {
 		if (item.abstractNote && item.abstractNote.includes(item.title) && item.abstractNote.length<item.title.length+30 || item.abstractNote.match(/Autoría|Localización/)) {
 			delete item.abstractNote;
 		}
-		// scrape abstract
-		let absNr = 0;
-		for (let abs of ZU.xpath(doc, '//*[(@id = "resumen")]//p')) {
-			if (absNr == 0) item.abstractNote = abs.textContent;
-			else item.notes.push('abs:' + abs.textContent);
-			absNr += 1;
+		// abstracts from DC
+		let abstractNr = 0;
+		let abstracts = doc.querySelectorAll('meta[name="DC.description"]');
+		if (abstracts) {
+			for (let abstract of abstracts) {
+			if (abstractNr == 0) item.abstractNote = abstract.content;
+			else item.notes.push('abs:' + abstract.content);
+			abstractNr += 1;
+			}
 		}
 		// in case of double issue e.g. "3-4" wrong issue number in Embedded Metadata e,g. "3" 
 		// clean issue number in case of multiple download
@@ -190,7 +193,7 @@ var testCases = [
 				],
 				"date": "2011",
 				"ISSN": "1692-715X",
-				"abstractNote": "En este artículo se presentan los resultados de la investigación llevada a cabo entre 2006 y 2009 sobre discursos y acción política en siete grupos de jóvenes estudiantes universitarios de Bogotá.",
+				"abstractNote": "This article presents the outcome of research conducted between 2006 and 2009 on speeches\nand policy action in seven groups of young university students in Bogotá.\nTheoretical, epistemological and methodological research was supported by the approach of Hannah Arendt\n(2001a, 2001b), were supplemented by the insights of Kohn (2005), Brunet (2007), Sánchez (2003), Rosenthal\n(2006) and Fraser (1997, 2008).\nThe research was developed from four main categories: conceptions of political citizenship; constraints of\npolitics, democracy and citizenship; trigger political action by young people and forms of political action by\nyoung people. It concludes with the need for education for political participation and ethics in Colombia\nreconfiguration.",
 				"issue": "1",
 				"language": "spa",
 				"libraryCatalog": "dialnet.unirioja.es",
@@ -200,16 +203,8 @@ var testCases = [
 				"volume": "9",
 				"attachments": [],
 				"notes": [
-					"abs:Teórica, epistemológica y metodológicamente, se sustentó la investigación en los planteamientos de Hannah Arendt (2001a, 2001b), se complementaron con las comprensiones de Kohn (2005), Brunet (2007), Sánchez (2003), Greppi (2006) y Fraser (1997, 2008).",
-					"abs:El trabajo se desarrolló desde cuatro categorías fundamentales: concepciones de política, ciudadanía;",
-					"abs:condicionantes de la política, democracia y la ciudadanía; detonantes de la acción política del los colectivos de jóvenes y las formas de acción política de los jóvenes y las jóvenes. Se Concluye con la necesidad de una educación para la participación política y la reconfiguración ética en Colombia.",
-					"abs:This article presents the outcome of research conducted between 2006 and 2009 on speeches and policy action in seven groups of young university students in Bogotá.",
-					"abs:Theoretical, epistemological and methodological research was supported by the approach of Hannah Arendt (2001a, 2001b), were supplemented by the insights of Kohn (2005), Brunet (2007), Sánchez (2003), Rosenthal (2006) and Fraser (1997, 2008).",
-					"abs:The research was developed from four main categories: conceptions of political citizenship; constraints of politics, democracy and citizenship; trigger political action by young people and forms of political action by young people. It concludes with the need for education for political participation and ethics in Colombia reconfiguration.",
-					"abs:Este artigo apresenta os resultados de uma pesquisa realizada entre 2006 e 2009, em discursos e ação política em sete grupos de jovens universitários em Bogotá.",
-					"abs:Teóricas, epistemológicas e metodológicas de pesquisa foi suportada pela abordagem de Hannah Arendt (2001a, 2001b), foram complementadas com as idéias de Kohn (2005), Brunet (2007), Sánchez (2003), Rosenthal (2006) e Fraser (1997, 2008).",
-					"abs:O trabalho foi desenvolvido a partir de quatro categorias principais: as concepções de cidadania política;",
-					"abs:restrições da política, da democracia e da cidadania; desencadear uma ação política por parte dos jovens e das formas de ação política dos jovens. Conclui-se com a necessidade de educação para a participação política e ética na reconfiguração da Colômbia."
+					"abs:En este artículo se presentan los resultados de la investigación llevada a cabo entre 2006 y\n2009 sobre discursos y acción política en siete grupos de jóvenes estudiantes universitarios de Bogotá.\nTeórica, epistemológica y metodológicamente, se sustentó la investigación en los planteamientos de Hannah\nArendt (2001a, 2001b), se complementaron con las comprensiones de Kohn (2005), Brunet (2007), Sánchez\n(2003), Greppi (2006) y Fraser (1997, 2008).\nEl trabajo se desarrolló desde cuatro categorías fundamentales: concepciones de política, ciudadanía;\ncondicionantes de la política, democracia y la ciudadanía; detonantes de la acción política del los colectivos de\njóvenes y las formas de acción política de los jóvenes y las jóvenes. Se Concluye con la necesidad de una educación\npara la participación política y la reconfiguración ética en Colombia.",
+					"abs:Este artigo apresenta os resultados de uma pesquisa realizada entre 2006 e 2009, em discursos\ne ação política em sete grupos de jovens universitários em Bogotá.\nTeóricas, epistemológicas e metodológicas de pesquisa foi suportada pela abordagem de Hannah Arendt\n(2001a, 2001b), foram complementadas com as idéias de Kohn (2005), Brunet (2007), Sánchez (2003),\nRosenthal (2006) e Fraser (1997, 2008).\nO trabalho foi desenvolvido a partir de quatro categorias principais: as concepções de cidadania política;\nrestrições da política, da democracia e da cidadania; desencadear uma ação política por parte dos jovens e das\nformas de ação política dos jovens. Conclui-se com a necessidade de educação para a participação política e ética\nna reconfiguração da Colômbia."
 				],
 				"seeAlso": []
 			}
@@ -226,72 +221,6 @@ var testCases = [
 		"url": "https://dialnet.unirioja.es/ejemplar/381860",
 		"detectedItemType": "multiple",
 		"items": "multiple"
-	},
-	{
-		"type": "web",
-		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=4251373",
-		"detectedItemType": "journalArticle",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Secularisation as a challenge for a contemporary order theology International Theological Symposium as part of the research project \"Transmission of Faith in social and Religious Transformation Processes\".",
-				"creators": [
-					{
-						"firstName": "Ulrich",
-						"lastName": "Engel",
-						"creatorType": "author"
-					}
-				],
-				"date": "2012",
-				"ISSN": "1123-5772",
-				"issue": "3-4",
-				"language": "mul",
-				"libraryCatalog": "dialnet.unirioja.es",
-				"pages": "659-666",
-				"publicationTitle": "Angelicum",
-				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=4251373",
-				"volume": "89",
-				"attachments": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://dialnet.unirioja.es/revista/10829/V/53",
-		"detectedItemType": "multiple",
-		"items": "multiple"
-	},
-	{
-		"type": "web",
-		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7003450",
-		"detectedItemType": "journalArticle",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "El Estado actual del Ecumenismo en América Latina y El Caribe",
-				"creators": [
-					{
-						"firstName": "Juan D. Escobar",
-						"lastName": "Soriano",
-						"creatorType": "author"
-					}
-				],
-				"date": "2018",
-				"ISSN": "0210-2870",
-				"issue": "165",
-				"language": "spa",
-				"libraryCatalog": "dialnet.unirioja.es",
-				"pages": "7-19",
-				"publicationTitle": "Diálogo ecuménico",
-				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7003450",
-				"volume": "53",
-				"attachments": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
 	},
 	{
 		"type": "web",
@@ -325,66 +254,6 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=6401889",
-		"detectedItemType": "journalArticle",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "El significado del término euaggelion en los comienzos del cristianismo",
-				"creators": [
-					{
-						"firstName": "Santiago Guijarro",
-						"lastName": "Oporto",
-						"creatorType": "author"
-					}
-				],
-				"date": "2017",
-				"ISSN": "0425-340X, 2792-260X",
-				"issue": "1-3",
-				"language": "spa",
-				"libraryCatalog": "dialnet.unirioja.es",
-				"pages": "123-143",
-				"publicationTitle": "Estudio agustiniano: Revista del Estudio Teológico Agustiniano de Valladolid",
-				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=6401889",
-				"volume": "52",
-				"attachments": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7133018",
-		"detectedItemType": "journalArticle",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "La utilización de san Pablo en los In Epistulam Iohannus ad Parthos Tractatus de san Agustín (II)",
-				"creators": [
-					{
-						"firstName": "Pío de Luis",
-						"lastName": "Vizcaíno",
-						"creatorType": "author"
-					}
-				],
-				"date": "2019",
-				"ISSN": "0425-340X, 2792-260X",
-				"issue": "1-2",
-				"language": "spa",
-				"libraryCatalog": "dialnet.unirioja.es",
-				"pages": "109-140",
-				"publicationTitle": "Estudio agustiniano: Revista del Estudio Teológico Agustiniano de Valladolid",
-				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7133018",
-				"volume": "54",
-				"attachments": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
 		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7558938",
 		"detectedItemType": "journalArticle",
 		"items": [
@@ -400,7 +269,7 @@ var testCases = [
 				],
 				"date": "2020",
 				"ISSN": "0569-9789",
-				"abstractNote": "El artículo es un estudio documentado sobre la fundación primera escolapia fuera de Italia, en Nikolsburg (ahora Mikulov, en la República Checa y en los años que contempla este estudio en Moravia. Fue pedida a San José de Calasanz por el Cardenal Francisco Dietrichstein (1570-1636), gobernador de Moravia, que había nacido en España por ser hijo del embajador moravo en Madrid. La fundación se llevó a cabo y fue mantenida por el Cardenal que siempre manifestó su agradecimiento a Calasanz.",
+				"abstractNote": "El artículo es un estudio documentado sobre la fundación primera escolapia \nfuera de Italia, en Nikolsburg (ahora Mikulov, en la República Checa y en los años que \ncontempla este estudio en Moravia. Fue pedida a San José de Calasanz por el Cardenal Francisco Dietrichstein (1570-1636), gobernador de Moravia, que había nacido en \nEspaña por ser hijo del embajador moravo en Madrid. La fundación se llevó a cabo y \nfue mantenida por el Cardenal que siempre manifestó su agradecimiento a Calasanz. \nEl estudio se centra solamente en los años de la fundación y primera consolidación \n(1631 a 1648). La fuentes documentales son básicamente los epistolarios calasancios \nya publicados: Epistolario de Calasanz, dos Epistolarios de Cartas a él dirigidas y Epistolario de correspondencia entre escolapios durante la vida de Calasanz. Destacan los \nescolapios que fueron enviados y crearon la escuela, el internado y varias congregaciones asociativas para los escolares. La presencia escolapia acabó en 1884, al reclamar \nderechos propios sobre toda la obra los herederos del Cardenal",
 				"issue": "123",
 				"language": "spa",
 				"libraryCatalog": "dialnet.unirioja.es",
@@ -408,141 +277,39 @@ var testCases = [
 				"publicationTitle": "Analecta calasanctiana: publicación semestral religioso cultural y de investigación histórica",
 				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7558938",
 				"attachments": [],
-				"notes": [
-					"abs:El estudio se centra solamente en los años de la fundación y primera consolidación (1631 a 1648). La fuentes documentales son básicamente los epistolarios calasancios ya publicados: Epistolario de Calasanz, dos Epistolarios de Cartas a él dirigidas y Epistolario de correspondencia entre escolapios durante la vida de Calasanz. Destacan los escolapios que fueron enviados y crearon la escuela, el internado y varias congregaciones asociativas para los escolares. La presencia escolapia acabó en 1884, al reclamar derechos propios sobre toda la obra los herederos del Cardenal"
-				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
 	},
 	{
 		"type": "web",
-		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7558938",
+		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8362911",
 		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Calasanz y Nikolsburg",
+				"title": "La Retorica del silenzio nelle Confessioni di Agostino di Ippona",
 				"creators": [
 					{
-						"firstName": "Miguel Angel",
-						"lastName": "Asiain",
+						"firstName": "Giorgio",
+						"lastName": "Gilioli",
 						"creatorType": "author"
 					}
 				],
-				"date": "2020",
+				"date": "2021",
 				"ISSN": "0569-9789",
-				"abstractNote": "El artículo es un estudio documentado sobre la fundación primera escolapia fuera de Italia, en Nikolsburg (ahora Mikulov, en la República Checa y en los años que contempla este estudio en Moravia. Fue pedida a San José de Calasanz por el Cardenal Francisco Dietrichstein (1570-1636), gobernador de Moravia, que había nacido en España por ser hijo del embajador moravo en Madrid. La fundación se llevó a cabo y fue mantenida por el Cardenal que siempre manifestó su agradecimiento a Calasanz.",
-				"issue": "123",
-				"language": "spa",
-				"libraryCatalog": "dialnet.unirioja.es",
-				"pages": "11-231",
-				"publicationTitle": "Analecta calasanctiana: publicación semestral religioso cultural y de investigación histórica",
-				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7558938",
-				"attachments": [],
-				"notes": [
-					"abs:El estudio se centra solamente en los años de la fundación y primera consolidación (1631 a 1648). La fuentes documentales son básicamente los epistolarios calasancios ya publicados: Epistolario de Calasanz, dos Epistolarios de Cartas a él dirigidas y Epistolario de correspondencia entre escolapios durante la vida de Calasanz. Destacan los escolapios que fueron enviados y crearon la escuela, el internado y varias congregaciones asociativas para los escolares. La presencia escolapia acabó en 1884, al reclamar derechos propios sobre toda la obra los herederos del Cardenal"
-				],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=6584233",
-		"detectedItemType": "journalArticle",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Filosemitismo e ecumenismo in P. Giovanni Semeria",
-				"creators": [
-					{
-						"firstName": "Antonio M.",
-						"lastName": "Gentili",
-						"creatorType": "author"
-					}
-				],
-				"date": "2017",
-				"ISSN": "1594-3445",
-				"issue": "34",
+				"abstractNote": "There were three main tasks of classical rhetoric: to instruct, delight and move \nthe soul to action. In the Confessions it is noted that these are overcome by an unconventional use of the instruments of the ars in which the rhetor Augustine was a master, \nin order to pursue a further philosophical purpose: to say the ineffable. It is the use \nof a rhetorical word that is intended to be circular, tautochronous, oblique, poetic, \noracular and paradoxical in its silent eloquence. Through a philosophical reading of the \nrhetorical fi gures we intend to highlight the circularity and tautochrony of this word \nwhich claims to invoke, praise and know the unknowable, but which cannot ignore faith \nand the intelligence of what it believes in. \nThere are two ways in which these rhetorical tools are highlighted: fi rstly, through \ntheir obliquity, typical of a language that ceaselessly tries to overcome its limits, fi nding \na sort of new path to “say with art”, second Quintilian’s defi nition of a fi gure of speech. \nSubsequently, through his unusual silence, precisely of a saying that says nothing in its \nclaim to express the inexpressible and that, in this not saying, says more than if he had \nsaid a lot. It is therefore a rhetoric of silence, which does not accept not to say the unspeakable, pretending to overcome the limits imposed by a reductive discourse, which \ndenies any possibility of saying what is considered ineffable par excellence, the Supreme Being. . A rhetoric that is the desperate voice of Augustine’s soul, and that does \nnot give up, even at the cost of being reduced to saying through a mirror, in a confused \nway (1 Cor 13:12).Therefore, in this work, a philosophical study of the rhetorical techniques used by the bishop of Hipona develops, with particular attention to the fi gures \nof locution, used as a tool to overcome the anguish of a strictly apophatic language, \nso that the Christian mission could be realized of proclamation of the Incarnate Word.",
+				"issue": "126",
 				"language": "ita",
 				"libraryCatalog": "dialnet.unirioja.es",
-				"pages": "37-70",
-				"publicationTitle": "Barnabiti Studi: Rivista di ricerche storiche dei Chierici Regolari di S. Paolo",
-				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=6584233",
+				"pages": "475-497",
+				"publicationTitle": "Analecta calasanctiana: publicación semestral religioso cultural y de investigación histórica",
+				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8362911",
 				"attachments": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8109506",
-		"detectedItemType": "journalArticle",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Fernando Rivas Rebaque, \" San Ignacio de Antioquía. Obispo y Mártir \". Editorial Ciudad Nueva ( Colección Conocer el Siglo II, 1 ), Madrid 2020, ISBN: 978-84-462-8, 459 páginas, 33 euros",
-				"creators": [
-					{
-						"firstName": "Juan Sanjurjo",
-						"lastName": "Arias",
-						"creatorType": "author"
-					}
+				"notes": [
+					"abs:La retórica clásica habla de tres tareas principales: instruir, deleitar y mover el \nalma a la acción. En las Confesiones de San Agustín se advierte un uso poco convencional de los instrumentos del “ars” para perseguir un propósito filosófico ulterior: \ndecir lo inefable. Uso de una palabra retórica que pretende ser circular, tautocrónica, \noblicua, poética, oracular y paradójica en su elocuencia silenciosa. A través de una lectura filosófica de las fi guras retóricas pretendemos resaltar la circularidad y tautocronía \nde esta palabra que pretende invocar, alabar y conocer lo incognoscible, pero que no \npuede ignorar la fe y la inteligencia de aquello en lo que cree. \nHay formas retóricas que destacan en la antigüedad: en primer lugar, la oblicuidad, propia de un lenguaje que intenta incesantemente superar sus límites, encontrando una suerte de camino nuevo para “decir con arte; segundo, una fi gura del \ndiscurso, según Quintiliano. A través de su insólito silencio, de un dicho que nada dice \npero que pretende expresar lo inexpresable y que, en este no decir, dice más que si \nhubiera dicho mucho. Es La retórica del silencio, que no acepta el no decir lo indecible \ny, por ello, pretende superar los límites impuestos por un discurso reductivo, que niega \nla posibilidad de decir lo que se considera inefable por excelencia, el Ser Supremo. \nUna retórica que es la voz desesperada del alma de Agustín, y que no se rinde, aun \nviéndose obligado a decir a través de un espejo, de manera confusa (1 Cor 13,12). El \nartículo es un estudio filosófico de las técnicas retóricas empleadas por el obispo de \nHipona, con especial atención a las fi guras de locución, utilizadas como herramienta \npara superar lo angosto de un lenguaje apofático, de modo que la misión cristiana de \nproclamación del Verbo Encarnado pueda ser realizada."
 				],
-				"date": "2021",
-				"ISSN": "0573-2018",
-				"issue": "1-2",
-				"language": "spa",
-				"libraryCatalog": "dialnet.unirioja.es",
-				"pages": "341-344",
-				"publicationTitle": "Compostellanum: revista de la Archidiócesis de Santiago de Compostela",
-				"shortTitle": "Fernando Rivas Rebaque, \" San Ignacio de Antioquía. Obispo y Mártir \". Editorial Ciudad Nueva ( Colección Conocer el Siglo II, 1 ), Madrid 2020, ISBN",
-				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8109506",
-				"volume": "66",
-				"attachments": [],
-				"tags": [
-					{
-						"tag": "RezensionstagPica"
-					}
-				],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8109499",
-		"detectedItemType": "journalArticle",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Andrea Riccardi, \" La chiesa brucia. Crisi e futuro del cristianesimo \", Laterza, Roma, 2021 ( ISBN 978.88-581-441-4 )",
-				"creators": [
-					{
-						"firstName": "Francisco Javier Buide del",
-						"lastName": "Real",
-						"creatorType": "author"
-					}
-				],
-				"date": "2021",
-				"ISSN": "0573-2018",
-				"issue": "1-2",
-				"language": "spa",
-				"libraryCatalog": "dialnet.unirioja.es",
-				"pages": "309-314",
-				"publicationTitle": "Compostellanum: revista de la Archidiócesis de Santiago de Compostela",
-				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8109499",
-				"volume": "66",
-				"attachments": [],
-				"tags": [
-					{
-						"tag": "RezensionstagPica"
-					}
-				],
-				"notes": [],
 				"seeAlso": []
 			}
 		]
