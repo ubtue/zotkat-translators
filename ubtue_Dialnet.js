@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-05-10 14:50:33"
+	"lastUpdated": "2023-05-10 15:22:56"
 }
 
 /*
@@ -106,10 +106,10 @@ function scrape(doc, url) {
 		}
 		// in case of double issue e.g. "3-4" wrong issue number in Embedded Metadata e,g. "3" 
 		// clean issue number in case of multiple download
-		var issue = ZU.xpathText(doc, '//*[@id="informacion"]//a[contains(text(), "Nº.")]');
+		var issue = ZU.xpathText(doc, '//*[@name="DC.source"]//a[contains(text(), "Nº.")]');
 		if (issue) {
 			// e.g. Vol. 89, Nº. 3-4, 2012 or  Vol. 65, Nº. 1-2 (Enero-Junio)
-			var issueEntry = issue.split('Nº.')[1].split(',')[0];//Z.debug(issueEntry)
+			var issueEntry = issue.split('Nº.')[1].split(',')[0];Z.debug(issueEntry)
 			if (issueEntry) item.issue = issueEntry.split('\(')[0];
 		}
 		// variable for other split seperator 'Fasc.''
@@ -118,12 +118,21 @@ function scrape(doc, url) {
  			item.issue = multiIssue.split('Fasc.')[1].split(',')[0];
  		}
  		// replace issue number with volume number for certain journals e.g. 'Analecta calasanctiana: publicación semestral religioso cultural y de investigación histórica' 
- 		let volumeEntry = ZU.xpathText(doc, '//meta[@name="DC.source"]/@content');
-		if (['Vol'].includes(volumeEntry) && item.ISSN && ['0569-9789', '0392-2855', '1594-3445'].includes(item.ISSN)) {
+ 		let volumeEntry = ZU.xpathText(doc, '//meta[@name="DC.source"]/@content');Z.debug(volumeEntry)
+		if (['Vol'].includes(volumeEntry) && item.ISSN && ['0569-9789', '0392-2855', '1594-3445', '1124-1225'].includes(item.ISSN)) {
 			item.volume = volumeEntry.split('Vol.')[1].split(',')[0].trim();
-			if (item.issue === item.volume) delete item.issue;
-		 }
- 		
+		}
+		// replace issue by the volume number
+		if (['1124-1225', '1122-5661', '0039-3258', '0212-1964', '1888-346X'].includes(item.ISSN)) {
+			item.volume = volumeEntry.split('Nº.')[1].split(',')[0].trim();
+		}
+		// replace issue by the volume number and scrape issue number e.g.  Studia monastica, ISSN 0039-3258, Nº. 64, 2, 2022, S. 491-504
+		if (['0039-3258'].includes(item.ISSN)) {
+			item.volume = volumeEntry.split('Nº.')[1].split(',')[0].trim();
+			item.issue = volumeEntry.split('Nº.')[1].split(',')[1].split(',')[0].trim();
+		}
+		if (item.issue === item.volume) delete item.issue;
+
  		if (item.title.match(/ISBN/ig)) item.tags.push("RezensionstagPica");
 		if (item.tags) {
 			for (let t of item.tags) {
@@ -239,7 +248,7 @@ var testCases = [
 				],
 				"date": "2020",
 				"ISSN": "0573-2018",
-				"issue": "1-2",
+				"issue": "1",
 				"language": "spa",
 				"libraryCatalog": "dialnet.unirioja.es",
 				"pages": "11-34",
@@ -310,6 +319,126 @@ var testCases = [
 				"notes": [
 					"abs:La retórica clásica habla de tres tareas principales: instruir, deleitar y mover el \nalma a la acción. En las Confesiones de San Agustín se advierte un uso poco convencional de los instrumentos del “ars” para perseguir un propósito filosófico ulterior: \ndecir lo inefable. Uso de una palabra retórica que pretende ser circular, tautocrónica, \noblicua, poética, oracular y paradójica en su elocuencia silenciosa. A través de una lectura filosófica de las fi guras retóricas pretendemos resaltar la circularidad y tautocronía \nde esta palabra que pretende invocar, alabar y conocer lo incognoscible, pero que no \npuede ignorar la fe y la inteligencia de aquello en lo que cree. \nHay formas retóricas que destacan en la antigüedad: en primer lugar, la oblicuidad, propia de un lenguaje que intenta incesantemente superar sus límites, encontrando una suerte de camino nuevo para “decir con arte; segundo, una fi gura del \ndiscurso, según Quintiliano. A través de su insólito silencio, de un dicho que nada dice \npero que pretende expresar lo inexpresable y que, en este no decir, dice más que si \nhubiera dicho mucho. Es La retórica del silencio, que no acepta el no decir lo indecible \ny, por ello, pretende superar los límites impuestos por un discurso reductivo, que niega \nla posibilidad de decir lo que se considera inefable por excelencia, el Ser Supremo. \nUna retórica que es la voz desesperada del alma de Agustín, y que no se rinde, aun \nviéndose obligado a decir a través de un espejo, de manera confusa (1 Cor 13,12). El \nartículo es un estudio filosófico de las técnicas retóricas empleadas por el obispo de \nHipona, con especial atención a las fi guras de locución, utilizadas como herramienta \npara superar lo angosto de un lenguaje apofático, de modo que la misión cristiana de \nproclamación del Verbo Encarnado pueda ser realizada."
 				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8715726",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "La Passione di Mario e Marta (BHL 5543): edizione e lettura critica",
+				"creators": [
+					{
+						"firstName": "Laura",
+						"lastName": "Vangone",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022",
+				"ISSN": "1124-1225",
+				"language": "ita",
+				"libraryCatalog": "dialnet.unirioja.es",
+				"pages": "35-80",
+				"publicationTitle": "Hagiographica",
+				"shortTitle": "La Passione di Mario e Marta (BHL 5543)",
+				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8715726",
+				"volume": "29",
+				"attachments": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8398920",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Cry of the Earth … Cry of the Poor",
+				"creators": [
+					{
+						"firstName": "Jaazeal",
+						"lastName": "Jakosalem",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021",
+				"ISSN": "1122-5661",
+				"abstractNote": "Nuestro oikos es la Tierra. Pero este hogar, \nademás, es también la morada de la Divinidad. Por ello, el plan de este Dios que ha \nquerido habitar en su creación preveía que \ntodas las criaturas vivientes existan en armonía las unas con las otras. La realidad, \npor el contrario, muestra que dicho plan no \nse está cumpliendo. Para hacer frente a esta \nrealidad, el papa Francisco nos ofrece, en la \nLaudato Si’, pistas que propicien otra mirada a la creación, de forma que se construya \nuna comunidad creacional. Esta propuesta \nacarrea serias repercusiones antropológicas, \ncomo son la de presentar al ser humano en \ncomunión con el resto de las criaturas y la de \napuntalar una acción político-ética de la inclusión, y no de la exclusión, dada la correspondencia existente entre la devastación de \nla tierra y la inequidad de la familia humana.",
+				"language": "eng",
+				"libraryCatalog": "dialnet.unirioja.es",
+				"pages": "49-81",
+				"publicationTitle": "Recollectio: annuarium historicum augustinianum",
+				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8398920",
+				"volume": "44",
+				"attachments": [],
+				"notes": [
+					"abs:Our oikos is the earth. But this home is \nalso the abode of the Divinity. Thus, the \nplan of this God who wanted to dwell in \nhis creation foresaw that all living creatures exist in harmony with one another. \nThe reality, on the contrary, shows that \nsuch plan is not being fulfilled. In order \nto face this reality, Pope Francis offers \nus in the Laudato Si’, ways that promote \nanother way of looking at creation, that \nbuilds a creational community. This proposal has anthropological repercussions, \nlike presenting the human being in communion with the rest of the creatures \nand supporting a politico-ethical action \nof inclusion, and not of exclusion, given \nthe existing correspondence between the \ndevastation of the earth and the iniquity \nof human family"
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8749356",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "La novedad de la pedagogía de la fe",
+				"creators": [
+					{
+						"firstName": "Miguel Ángel",
+						"lastName": "Medina",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022",
+				"ISSN": "0212-1964",
+				"language": "spa",
+				"libraryCatalog": "dialnet.unirioja.es",
+				"pages": "41-70",
+				"publicationTitle": "Teología y catequesis",
+				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8749356",
+				"volume": "154",
+				"attachments": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8855888",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Espacio público y simbología religiosa en el estado español",
+				"creators": [
+					{
+						"firstName": "Fernando",
+						"lastName": "Amérigo",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022",
+				"ISSN": "1888-346X",
+				"language": "spa",
+				"libraryCatalog": "dialnet.unirioja.es",
+				"pages": "9-28",
+				"publicationTitle": "Bandue: revista de la Sociedad Española de Ciencias de las Religiones",
+				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8855888",
+				"volume": "14",
+				"attachments": [],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
