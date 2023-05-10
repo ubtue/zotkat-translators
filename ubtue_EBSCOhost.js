@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-03-20 16:12:09"
+	"lastUpdated": "2023-05-10 11:29:18"
 }
 
 /*
@@ -206,7 +206,7 @@ function downloadFunction(text, url, prefs) {
 		if (item.url) {
 			// Trim the ⟨=cs suffix -- EBSCO can't find the record with it!
 			// clean redi-link e.g. https://search.ebscohost.com/login.aspx?direct=true&db=reh&AN=ATLAiGW7221227000461&site=ehost-live
-			item.url = item.url.replace(/https?:\/\/www\.redi-bw\.de\/db\/ebsco\.php\//, 'https://').replace(/(AN=[0-9]+)⟨=[a-z]{2}/, "$1")
+			item.url = item.url.replace(/^http/, 'https').replace(/(AN=[0-9]+)⟨=[a-z]{2}/, "$1")
 				.replace(/#.*$/, ''); {
 			/*if (!prefs.hasFulltext) {
 				// For items without full text,
@@ -761,6 +761,59 @@ var testCases = [
 					},
 					{
 						"tag": "Vermigli, Pietro Martire,   , 1499-1562"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://web.p.ebscohost.com/ehost/detail/detail?vid=0&sid=3611d757-077d-45e2-8b49-8d2271eb45a7%40redis&bdata=JnNpdGU9ZWhvc3QtbGl2ZQ%3d%3d#db=reh&AN=ATLAiGW7230310000116",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Ministry and the Tudors: Change, Confusion, Continuity",
+				"creators": [
+					{
+						"lastName": "Kater",
+						"firstName": "John L Jr",
+						"creatorType": "author"
+					}
+				],
+				"date": "March 2023",
+				"ISSN": "08968039",
+				"issue": "1",
+				"language": "eng",
+				"libraryCatalog": "EBSCOhost",
+				"pages": "1-25",
+				"shortTitle": "Ministry and the Tudors",
+				"url": "https://www.redi-bw.de/db/ebsco.php/search.ebscohost.com/login.aspx%3fdirect%3dtrue%26db%3dreh%26AN%3dATLAiGW7230310000116%26site%3dehost-live",
+				"volume": "92",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Christianity and culture"
+					},
+					{
+						"tag": "Civilization, Christian"
+					},
+					{
+						"tag": "Elizabeth,   I, Queen of England        , 1533-1603"
+					},
+					{
+						"tag": "England"
+					},
+					{
+						"tag": "Henry,   VIII, King of England        , 1491-1547"
+					},
+					{
+						"tag": "Reformation"
+					},
+					{
+						"tag": "Tudor, House of"
 					}
 				],
 				"notes": [],
