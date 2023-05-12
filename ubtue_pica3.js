@@ -440,7 +440,7 @@ function performExport() {
             }
         }
         var localURL = "";		
-        if (item.url.match(/redi-bw.de/)) {
+        if (item.url.match(/redi-bw.de/) && physicalForm === "O") {
             localURL = "\\n7133 " + item.url + "$xH$3Volltext$4ZZ$534";
             item.url = null;		
         }
