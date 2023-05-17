@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-05-17 11:03:43"
+	"lastUpdated": "2023-05-17 12:49:49"
 }
 
 /*
@@ -81,26 +81,13 @@ function invokeEMTranslator(doc, url) {
 	translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48');
 	translator.setDocument(doc);
 	translator.setHandler('itemDone', function (t, i) {
-		var rows = doc.querySelectorAll('.hlFld-Abstract');
-		for (let row of rows) {
-			var abstractsEntry = row.innerText.replace(/^abstract/i, '');
-			if (abstractsEntry) {
-				var abstractsOneTwoThree = abstractsEntry.split(/\n\n/g);
-				if (abstractsOneTwoThree[2]) {
-					i.abstractNote = abstractsOneTwoThree[0] + '\\n4207 ' + abstractsOneTwoThree[1] + '\\n4207 ' + abstractsOneTwoThree[2];
-				}
-				else if (abstractsOneTwoThree[1]) {
-					i.abstractNote = abstractsOneTwoThree[0] + '\\n4207 ' + abstractsOneTwoThree[1];
-				}
-				else if (!abstractsOneTwoThree[1]) {
-					i.abstractNote = abstractsOneTwoThree[0];
-				}
-
-			} else {
-				i.abstractNote = '';
-			}
+		let abstractsEntry = doc.querySelector('.hlFld-Abstract').innerText.replace(/^abstract/i, '').split(/\n\n/g).filter(Boolean);
+		let abstractNr = 0;
+		for (abstract of abstractsEntry) {
+			if (abstractNr == 0) i.abstractNote = abstract;
+			else i.notes.push('abs:' + abstract);
+			abstractNr += 1;
 		}
-
 		if (i.reportType === "book-review") i.tags.push('RezensionstagPica') && delete i.abstractNote;	
 		let pagesEntry = text(doc, '.publicationContentPages');
 		if (pagesEntry.match(/\s\d+\w?-\d+/) != null) i.pages = pagesEntry.match(/\s\d+\w?-\d+/)[0];
@@ -131,6 +118,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.brepolsonline.net/doi/abs/10.1484/J.REA.5.122730",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -145,7 +133,7 @@ var testCases = [
 				"date": "2020",
 				"DOI": "10.1484/J.REA.5.122730",
 				"ISSN": "2428-3606",
-				"abstractNote": "\\n4207 Ambrosius, in psalm. 61 gilt als zwölfter und letzter Text seiner Explanatio in psalmos XII. Ihr gewissermaßen zweigeteilter Inhalt – einerseits christologische Psalmenexegese, andererseits Bezugnahmen auf politische Ereignisse – hat in der Überlieferung allerdings auch zu anderen Werkzusammenstellungen geführt. Der vorliegende Beitrag untersucht Probleme und Fragen, die sich im Rahmen der Editionsarbeit dieses Textes stellen. Es ist unklar, ob Ambrosius dem Werk einen Titel gab und ob der Text von Ambrosius selbst ‚veröffentlicht‘ wurde. Der Beitrag untersucht unterschiedliche Werkzusammenstellungen und geht der Frage nach, ob der Mailänder Kanoniker Martinus Corbo Urheber der Verbindung der Explanatio in psalmos XII war und ob ein Codex, den Corbo aus Verona erhielt (Milano, Bibl. Ambr. I 145 inf., s. xii), tatsächlich Vorlage für Corbos Text war.\\n4207 Ambrosius’ in psalm. 61 is known as twelfth and last part of his Explanatio in psalmos XII. The twofold content – on the one hand, Christological exegesis, on the other hand, political implications – led, however, also to combinations with other works. This contribution focuses on problems and questions that arise when preparing a new critical edition of the text. It is unclear whether Ambrose gave the work a title and whether the text was ‘published’ by Ambrose himself. The article examines how in psalm. 61 was transmitted and asks if it was Martinus Corbo who was the first to add in psalm. 61 to the Explanatio in psalmos XII and whether a manuscript that Corbo received from Verona (Milano, Bibl. Ambr. I 145 inf., s. xii) could indeed have been the exemplar of Corbo’s text.",
+				"abstractNote": "Ambrosius, in psalm. 61 gilt als zwölfter und letzter Text seiner Explanatio in psalmos XII. Ihr gewissermaßen zweigeteilter Inhalt – einerseits christologische Psalmenexegese, andererseits Bezugnahmen auf politische Ereignisse – hat in der Überlieferung allerdings auch zu anderen Werkzusammenstellungen geführt. Der vorliegende Beitrag untersucht Probleme und Fragen, die sich im Rahmen der Editionsarbeit dieses Textes stellen. Es ist unklar, ob Ambrosius dem Werk einen Titel gab und ob der Text von Ambrosius selbst ‚veröffentlicht‘ wurde. Der Beitrag untersucht unterschiedliche Werkzusammenstellungen und geht der Frage nach, ob der Mailänder Kanoniker Martinus Corbo Urheber der Verbindung der Explanatio in psalmos XII war und ob ein Codex, den Corbo aus Verona erhielt (Milano, Bibl. Ambr. I 145 inf., s. xii), tatsächlich Vorlage für Corbos Text war.",
 				"archiveLocation": "Paris, France",
 				"issue": "1",
 				"language": "de",
@@ -153,7 +141,7 @@ var testCases = [
 				"pages": "17-52",
 				"publicationTitle": "Revue d'Etudes Augustiniennes et Patristiques",
 				"shortTitle": "Zu Ambrosius, Explanatio in psalm. 61",
-				"url": "https://www.brepolsonline.net/doi/abs/10.1484/J.REA.5.122730",
+				"url": "https://www.brepolsonline.net/doi/10.1484/J.REA.5.122730",
 				"volume": "66",
 				"attachments": [
 					{
@@ -162,7 +150,10 @@ var testCases = [
 					}
 				],
 				"tags": [],
-				"notes": [],
+				"notes": [
+					"abs:Ambrosius’ in psalm. 61 is known as twelfth and last part of his Explanatio in psalmos XII. The twofold content – on the one hand, Christological exegesis, on the other hand, political implications – led, however, also to combinations with other works. This contribution focuses on problems and questions that arise when preparing a new critical edition of the text. It is unclear whether Ambrose gave the work a title and whether the text was ‘published’ by Ambrose himself. The article examines how in psalm. 61 was transmitted and asks if it was Martinus Corbo who was the first to add in psalm. 61 to the Explanatio in psalmos XII and whether a manuscript that Corbo received from Verona (Milano, Bibl. Ambr. I 145 inf., s. xii) could indeed have been the exemplar of Corbo’s text.",
+					"abs:L’In psalm. 61 d’Ambroise est connu comme la douzième et dernière partie de son Explanatio in psalmos XII. Son contenu en deux parties – d’une part, l’exégèse christologique des psaumes, d’autre part, les références aux événements politiques – a également suscité, dans la transmission, des combinaisons avec d’autres œuvres. Cet article examine les problèmes et les questions qui se posent lors de la préparation d’une nouvelle édition critique. Il n’est pas certain que ce soit Ambroise qui ait donné un titre à l’œuvre, ni même qu’il ait « publié » luimême le texte. L’article examine comment In psalm. 61 a été transmis et étudie l’hypothèse selon laquelle ce serait en fait Martinus Corbo qui aurait le premier ajouté In psalm. 61 à l’Explanatio in psalmos XII. En outre, est posée la question de savoir si un manuscrit de Vérone (Milano, Bibl. Ambr. I 145 inf., s. xii) était réellement le modèle de Corbo."
+				],
 				"seeAlso": []
 			}
 		]
@@ -170,6 +161,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.brepolsonline.net/doi/abs/10.1484/J.SE.5.119445",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -184,13 +176,13 @@ var testCases = [
 				"date": "2019",
 				"DOI": "10.1484/J.SE.5.119445",
 				"ISSN": "2295-9025",
-				"abstractNote": "\\n4207 Mediterranean funeral culture underwent a fundamental metamorphosis in late antiquity. Despite a few scholarly objections it appears that this transformation can be explained by the gradual rise of Christianity. This article provides a sort of test of this theory by asking whether the attempt to restore pagan culture under Emperor Julian (361-363) had any effect on practices concerning death and burial. Of utmost interest are, on the one hand, Julian’s objections to the Christian martyr cults which led among other things to the removal of the Babylas relics from the Temple of Apollo in Daphne, and, on the other hand, his Burial Law with a particular interest in the often-overlooked Letter 136b. Also to be considered are the burial of Constantius II, the death of Julian himself, and various associated eschatological conceptions. One notices a culture-defining difference in the way in which late antique pagans such as Julian, Libanius, and Eunapius of Sardes assume a strict division between life and death, cult and burial, purity and impurity. With late antique Christianity this could slowly be overturned through faith in the resurrection.\\n4207 Die Sepulkralkultur der Mittelmeerwelt erlebte in der Spätantike eine grundlegende Metamorphose. Auch wenn es hierzu in der Forschung gewichtige Gegenstimmen gibt, so ist dieser Wandel doch mit dem sukzessiven Aufstieg des Christentums zu erklären. Der Beitrag führt hierzu eine Art Gegenprobe durch und setzt sich deshalb mit der Frage auseinander, ob der pagane Restaurationsversuch unter Kaiser Julian (361-363) Auswirkungen auf die Bereiche von Tod und Bestattung hatte. Im Mittelpunkt des Interesses stehen dabei zum einen Julians massive Vorbehalte gegen den christlichen Märtyrerkult, die u.a. in der Entfernung der Babylas-Reliquien aus dem Apoll-Heiligtum von Daphne sichtbar wurden. Zum anderen wird Julians Bestattungsgesetz in den Blick genommen, der Aufsatz kommentiert dazu ausführlich die bislang weitgehend vernachlässigte Epistola 136b. Daneben werden die Bestattung Konstantius’ II., Julians eigener Tod sowie dabei aufscheinende eschatologische Vorstellungen untersucht. Als kulturell prägende Grunddifferenz zeigt sich, dass spätantike Heiden wie Julian, aber auch Libanios oder Eunapios von Sardes von einer strikten Trennung zwischen Leben und Tod, Kult und Bestattung bzw. Reinheit und Befleckung ausgingen. Im spätantiken Christentum konnte diese hingegen nach und nach überwunden werden, der Grund dafür liegt vor allem im Osterglauben.",
+				"abstractNote": "Mediterranean funeral culture underwent a fundamental metamorphosis in late antiquity. Despite a few scholarly objections it appears that this transformation can be explained by the gradual rise of Christianity. This article provides a sort of test of this theory by asking whether the attempt to restore pagan culture under Emperor Julian (361-363) had any effect on practices concerning death and burial. Of utmost interest are, on the one hand, Julian’s objections to the Christian martyr cults which led among other things to the removal of the Babylas relics from the Temple of Apollo in Daphne, and, on the other hand, his Burial Law with a particular interest in the often-overlooked Letter 136b. Also to be considered are the burial of Constantius II, the death of Julian himself, and various associated eschatological conceptions. One notices a culture-defining difference in the way in which late antique pagans such as Julian, Libanius, and Eunapius of Sardes assume a strict division between life and death, cult and burial, purity and impurity. With late antique Christianity this could slowly be overturned through faith in the resurrection.",
 				"archiveLocation": "Turnhout, Belgium",
 				"language": "de",
 				"libraryCatalog": "www.brepolsonline.net",
 				"pages": "7-66",
 				"publicationTitle": "Sacris Erudiri",
-				"url": "https://www.brepolsonline.net/doi/abs/10.1484/J.SE.5.119445",
+				"url": "https://www.brepolsonline.net/doi/10.1484/J.SE.5.119445",
 				"volume": "58",
 				"attachments": [
 					{
@@ -199,7 +191,9 @@ var testCases = [
 					}
 				],
 				"tags": [],
-				"notes": [],
+				"notes": [
+					"abs:Die Sepulkralkultur der Mittelmeerwelt erlebte in der Spätantike eine grundlegende Metamorphose. Auch wenn es hierzu in der Forschung gewichtige Gegenstimmen gibt, so ist dieser Wandel doch mit dem sukzessiven Aufstieg des Christentums zu erklären. Der Beitrag führt hierzu eine Art Gegenprobe durch und setzt sich deshalb mit der Frage auseinander, ob der pagane Restaurationsversuch unter Kaiser Julian (361-363) Auswirkungen auf die Bereiche von Tod und Bestattung hatte. Im Mittelpunkt des Interesses stehen dabei zum einen Julians massive Vorbehalte gegen den christlichen Märtyrerkult, die u.a. in der Entfernung der Babylas-Reliquien aus dem Apoll-Heiligtum von Daphne sichtbar wurden. Zum anderen wird Julians Bestattungsgesetz in den Blick genommen, der Aufsatz kommentiert dazu ausführlich die bislang weitgehend vernachlässigte Epistola 136b. Daneben werden die Bestattung Konstantius’ II., Julians eigener Tod sowie dabei aufscheinende eschatologische Vorstellungen untersucht. Als kulturell prägende Grunddifferenz zeigt sich, dass spätantike Heiden wie Julian, aber auch Libanios oder Eunapios von Sardes von einer strikten Trennung zwischen Leben und Tod, Kult und Bestattung bzw. Reinheit und Befleckung ausgingen. Im spätantiken Christentum konnte diese hingegen nach und nach überwunden werden, der Grund dafür liegt vor allem im Osterglauben."
+				],
 				"seeAlso": []
 			}
 		]
@@ -207,6 +201,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.brepolsonline.net/doi/abs/10.1484/J.SE.5.119450",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -227,7 +222,7 @@ var testCases = [
 				"libraryCatalog": "www.brepolsonline.net",
 				"pages": "171-180",
 				"publicationTitle": "Sacris Erudiri",
-				"url": "https://www.brepolsonline.net/doi/abs/10.1484/J.SE.5.119450",
+				"url": "https://www.brepolsonline.net/doi/10.1484/J.SE.5.119450",
 				"volume": "58",
 				"attachments": [
 					{
@@ -240,6 +235,95 @@ var testCases = [
 					{
 						"note": "LF:"
 					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.brepolsonline.net/doi/abs/10.1484/J.REA.4.2019004",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "\"Iacobus episcopus\", Ambrosius von Mailand und die Bibliothek von Lorsch",
+				"creators": [
+					{
+						"firstName": "Lukas J.",
+						"lastName": "Dorfbauer",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Victoria",
+						"lastName": "Zimmerl-Panagl",
+						"creatorType": "author"
+					}
+				],
+				"date": "2018",
+				"DOI": "10.1484/J.REA.4.2019004",
+				"ISSN": "2428-3606",
+				"abstractNote": "Der vorliegende Aufsatz klärt in seinem ersten Teil ein altes Missverständnis auf: Aus Einträgen in den karolingischen Bibliothekskatalogen von Lorsch hat man zu Unrecht auf verlorene Werke eines unbekannten Autors \"Iacobus episcopus\" geschlossen. Tatsächlich bezeugen jene Einträge eine Sammlung von Werken des Ambrosius von Mailand, wie sie ähnlich sonst nur aus einem einzigen, späteren Codex bekannt ist (Karlsruhe, BLB Aug. perg. 130, s. x1). Das für Lorsch bezeugte Ambrosius-Corpus ist für die Überlieferungsund Editionsgeschichte der enthaltenen Texte, besonders der Satyrus-Reden, von Interesse. Entsprechende Fragen werden im zweiten Teil des Aufsatzes diskutiert.",
+				"archiveLocation": "Paris",
+				"issue": "2",
+				"language": "de",
+				"libraryCatalog": "www.brepolsonline.net",
+				"pages": "287-308",
+				"publicationTitle": "Revue d'Etudes Augustiniennes et Patristiques",
+				"url": "https://www.brepolsonline.net/doi/10.1484/J.REA.4.2019004",
+				"volume": "64",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [
+					"abs:La première partie de l'article éclaire une vieille erreur : à partir des entrées dans les catalogues carolingiens de la bibliothèque de Lorsch on a déduit, à tort, qu'étaient perdues les œuvres d'un auteur inconnu, « Iacobus episcopus ». En fait, ces entrées témoignent de la présence d'une collection des œuvres d'Ambroise de Milan, collection qui est autrement connue, dans une forme comparable, par un seul codex plus tardif (Karlsruhe, BLB Aug. perg. 130, s. x1). Le corpus ambrosien attesté à Lorsch est intéressant en ce qui concerne la transmission et l'édition des textes en cause, notamment les oraisons funèbres pour Satyrus. Ces sujets sont discutés dans la deuxième partie de l'article.",
+					"abs:The first part of the present article clears up an old mistake: lost works of an unknown author \"Iacobus episcopus\" have been wrongly deduced from entries in some Carolingian library catalogues from Lorsch. Actually, these entries testify to a certain collection of works by Ambrose of Milan which, in a comparable form, is otherwise known from only one later codex (Karlsruhe, BLB Aug. perg. 130, s. x1). The Ambrosian corpus attested for Lorsch is of interest for the transmission and edition of the relevant texts, especially the speeches on the death of Satyrus. These matters are discussed in the second part of the present article."
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.brepolsonline.net/doi/abs/10.1484/J.REA.4.2019002",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Une appropriation habile de Numénius : Eusèbe de Césarée et son emploi critique de l'adjectif ὁμοούσιος en PE XI 21-22",
+				"creators": [
+					{
+						"firstName": "Fabienne",
+						"lastName": "Jourdan",
+						"creatorType": "author"
+					}
+				],
+				"date": "2018",
+				"DOI": "10.1484/J.REA.4.2019002",
+				"ISSN": "2428-3606",
+				"abstractNote": "En PE XI 21, Eusèbe produit une série de citations de Platon visant à convaincre de l'accord du philosophe avec Moïse sur la définition du Bien identifié à Dieu. Ces citations donnent lieu à une paraphrase affirmant l'accord de Platon et des Hébreux sur le monothéisme, tout en dénonçant le polythéisme philosophique. Or, dans cette critique, Eusèbe a un emploi fort problématique du terme ὁμοούσιος (PE XI 21 6). Le rejet de la notion qu'il véhicule à propos du Bien (identifié à Dieu) et de ce qui provient de lui crée une double difficulté : la compréhension de ce refus lui-même, alors qu'Eusèbe acceptera le terme ὁμοούσιος après Nicée pour évoquer la relation entre le Père et le Fils ; la remise en cause apparente de la divinité du Fils provoquée notamment par ce rejet lorsque le discours d'Eusèbe est envisagé d'un point de vue théologique. Dans sa paraphrase de Platon, Eusèbe s'approprie par avance le propos des quatre fragments de Numénius qu'il cite au chapitre suivant (PE XI 22). Ce premier article montre ce que sa paraphrase doit à ces fragments et comment la double difficulté théologique trouve une première solution grâce à un rappel du sens pris par l'adjectif ὁμοούσιος à l'époque d'Eusèbe et chez Eusèbe lui-même.",
+				"archiveLocation": "Paris",
+				"issue": "2",
+				"language": "fr",
+				"libraryCatalog": "www.brepolsonline.net",
+				"pages": "215-242",
+				"publicationTitle": "Revue d'Etudes Augustiniennes et Patristiques",
+				"shortTitle": "Une appropriation habile de Numénius",
+				"url": "https://www.brepolsonline.net/doi/10.1484/J.REA.4.2019002",
+				"volume": "64",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [
+					"abs:In PE XI 21 Eusebius quotes a series of Plato's texts in order to prove the philosopher's agreement with Moses on the definition of the Good identified with God. These quotations are paraphrased to assert the agreement of Plato and Hebrews on monotheism, while condemning philosophical polytheism. Now, in this criticism, Eusebius has a very problematic use of the term ὁμοούσιος (PE XI 21, 6). The rejection of the notion it conveys about the Good (identified to God) and what comes from it creates a double difficulty: the understanding of this rejection itself, although Eusebius will accept the word ὁμοούσιος after the Council of Nicaea to refer to the relation between the Father and the Son ; and the apparent calling into question of the divinity of the Son produced notably by this rejection, when Eusebius' discourse is considered from a theological point of view. In his paraphrase of Plato Eusebius appropriates in advance the contents of Numenius' four fragments that he quotes in the following chapter (PE XI 22). This first paper shows what his paraphrase owes to these fragments and how the dual theological difficulty finds a first solution by reminding the meaning of the adjective ὁμοούσιος in Eusebius' time and how he used it in his writings."
 				],
 				"seeAlso": []
 			}
