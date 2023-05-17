@@ -1,22 +1,22 @@
 {
 	"translatorID": "ade18ffe-62a6-4392-9853-eb658faf36e4",
-	"label": "ubtue_Brepols",
-	"creator": "Timotheus Kim",
-	"target": "https?://www\\.brepolsonline\\.net",
-	"minVersion": "3.0",
-	"maxVersion": "",
-	"priority": 100,
-	"inRepository": true,
-	"translatorType": 4,
-	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-03-17 11:19:18"
+		"label": "ubtue_Brepols",
+		"creator": "Timotheus Kim",
+		"target": "https?://www\\.brepolsonline\\.net",
+		"minVersion": "3.0",
+		"maxVersion": "",
+		"priority": 100,
+		"inRepository": true,
+		"translatorType": 4,
+		"browserSupport": "gcsibv",
+		"lastUpdated": "2022-03-17 11:19:18"
 }
 
 /*
-	***** BEGIN LICENSE BLOCK *****
+ ***** BEGIN LICENSE BLOCK *****
 
 	Copyright © 2020 Universitätsbibliothek Tübingen.  All rights reserved.
-	
+
 	This file is part of Zotero.
 
 	Zotero is free software: you can redistribute it and/or modify
@@ -32,14 +32,14 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with Zotero. If not, see <http://www.gnu.org/licenses/>.
 
-	***** END LICENSE BLOCK *****
-*/
+ ***** END LICENSE BLOCK *****
+ */
 // attr()/text() v2
 function attr(docOrElem ,selector ,attr ,index){ var elem=index?docOrElem.querySelectorAll(selector).item(index):docOrElem.querySelector(selector); return elem?elem.getAttribute(attr):null;}function text(docOrElem,selector,index){ var elem=index?docOrElem.querySelectorAll(selector).item(index):docOrElem.querySelector(selector); return elem?elem.textContent:null; }
 
 function detectWeb(doc, url) {
 	if (url.match(/doi/)) return "journalArticle";
-		else if (url.includes('toc') && getSearchResults(doc, true)) return "multiple";
+	else if (url.includes('toc') && getSearchResults(doc, true)) return "multiple";
 	else return false;
 }
 
@@ -95,12 +95,12 @@ function invokeEMTranslator(doc, url) {
 				else if (!abstractsOneTwoThree[1]) {
 					i.abstractNote = abstractsOneTwoThree[0];
 				}
-				
+
 			} else {
 				i.abstractNote = '';
-				}
 			}
-		
+		}
+
 		if (i.reportType === "book-review") i.tags.push('RezensionstagPica') && delete i.abstractNote;	
 		let pagesEntry = text(doc, '.publicationContentPages');
 		if (pagesEntry.match(/\s\d+\w?-\d+/) != null) i.pages = pagesEntry.match(/\s\d+\w?-\d+/)[0];
