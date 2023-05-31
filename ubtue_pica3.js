@@ -9,7 +9,7 @@
         "inRepository": true,
         "translatorType": 2,
         "browserSupport": "gcs",
-        "lastUpdated": "2023-05-10 09:42:00"
+        "lastUpdated": "2023-05-31 16:14:00"
 }
 
 // Zotero Export Translator in Pica3 Format für das Einzeln- und Mulitiupload in WinIBW
@@ -440,7 +440,7 @@ function performExport() {
             }
         }
         var localURL = "";		
-        if (item.url.match(/redi-bw.de/) && physicalForm === "O") {
+        if (item.url && item.url.match(/redi-bw.de/) && physicalForm === "O") {
             localURL = "\\n7133 " + item.url + "$xH$3Volltext$4ZZ$534";
             item.url = null;		
         }
@@ -606,6 +606,14 @@ function performExport() {
                                 var authorValue = "!" + ppn.match(/^\d+X?/) + "!" + "$BVerfasserIn$4aut" + "\\n8910 $akrzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet\\n";
                                 addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', authorValue);
                             }
+                            else if (institution_retrieve_sign == "itbk") {
+                                if (threadParams["authorName"].match(/^\d+/)) {
+                                addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', "!" + threadParams["authorName"] + "!");
+                                }
+                                else if(threadParams["authorName"].match(/^\w+/)) {
+                                addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', threadParams["authorName"]  + "$BVerfasserIn$4aut"); 
+                                }
+                            }
                             else {
                                 addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', threadParams["authorName"]  + "$BVerfasserIn$4aut");
                             }
@@ -631,8 +639,6 @@ function performExport() {
                     );
                 }
             }
-
-            //TODO: editors, other contributors...
         }
 
         addLine(currentItemId, "\\n4000", ZU.unescapeHTML(titleStatement));
@@ -885,6 +891,10 @@ function performExport() {
                 }
                 else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 krzo' + localURL, "");
             }
+             else if (institution_retrieve_sign == "itbk") {
+                    addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 itbk$aixrk$aixzs$aixzo' + localURL, ""); 
+           }
+
             //K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
             //Schlagwörter aus einem Thesaurus (Fremddaten) --> 5520 (oder alternativ siehe Mapping)
 
@@ -950,3 +960,4 @@ function doExport() {
         performExport();
     });
 }
+
