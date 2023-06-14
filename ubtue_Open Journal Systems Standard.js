@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-06-14 11:08:09"
+	"lastUpdated": "2023-06-14 11:38:23"
 }
 
 /*
@@ -86,7 +86,7 @@ function invokeEMTranslator(doc) {
 		if (i.ISSN == undefined && i.url.match(/\/godsandmonsters\//) != null) i.ISSN = "IXTH-0001";
 		if (i.issue == undefined) i.issue = ZU.xpathText(doc, '//meta[@name="DC.Source.Issue"]/@content');
 		if (i.volume == undefined) i.volume = ZU.xpathText(doc, '//meta[@name="DC.Source.Volume"]/@content');
-		if (i.pages == undefined) i.pages = ZU.xpathText(doc, '//meta[@name="DC.Identifier.Pagenumber"]/@content');
+		if (i.pages == undefined) i.pages = ZU.xpathText(doc, '//meta[@name="DC.Identifier.Pagenumber"]/@content');Z.debug(i.pages)
 		if (i.DOI == undefined) i.DOI = ZU.xpathText(doc, '//meta[@name="DC.Identifier.DOI"]/@content');
 		if (i.ISSN == "2521-6465") i.language = ZU.xpathText(doc, '//meta[@name="DC.Language"]/@content');
 		if (i.ISSN == "1988-7949") {
@@ -257,7 +257,7 @@ function invokeEMTranslator(doc) {
   			}
   		}	
  		//clean pages e.g. pages": "6.-6." > 10.25786/cjbk.v0i01-02.631; or "pages": "01-07" > 10.25786/zfbeg.v0i01-02.793
- 		if (i.pages != null) i.pages = i.pages.replace('S.', '').replace(/\./g, '').replace(/^([^-]+)-\1$/, '$1').replace(/^0/g, '').replace(/-0/g, '-');
+ 		if (i.pages != null) i.pages = i.pages.replace('S.', '').replace(/\./g, '').replace(/^([^-]+)-\1$/, '$1').replace(/^0/g, '').replace(/-0/g, '-').replace('â€“', '-');
  		
  		if (i.pages == undefined) {
 			let pageNumberFromDC = ZU.xpathText(doc, '//meta[@name="DC.Identifier.pageNumber"]/@content');
@@ -793,7 +793,7 @@ var testCases = [
 				"journalAbbreviation": "STJ",
 				"language": "en",
 				"libraryCatalog": "ojs.reformedjournals.co.za",
-				"pages": "299â€“317",
+				"pages": "299-317",
 				"publicationTitle": "STJ – Stellenbosch Theological Journal",
 				"rights": "Copyright (c) 2017 Pieter de Waal Neethling Trust, Stellenbosch",
 				"url": "https://ojs.reformedjournals.co.za/stj/article/view/1743",
@@ -870,7 +870,7 @@ var testCases = [
 				"journalAbbreviation": "STJ",
 				"language": "en",
 				"libraryCatalog": "ojs.reformedjournals.co.za",
-				"pages": "11â€“40",
+				"pages": "11-40",
 				"publicationTitle": "STJ – Stellenbosch Theological Journal",
 				"rights": "Copyright (c) 2017 Pieter de Waal Neethling Trust, Stellenbosch",
 				"shortTitle": "Renewal, Renaissance, Reformation, or Revolution?",
@@ -1619,7 +1619,7 @@ var testCases = [
 				"journalAbbreviation": "STJ",
 				"language": "en",
 				"libraryCatalog": "ojs.reformedjournals.co.za",
-				"pages": "11â€“40",
+				"pages": "11-40",
 				"publicationTitle": "STJ – Stellenbosch Theological Journal",
 				"rights": "Copyright (c) 2017 Pieter de Waal Neethling Trust, Stellenbosch",
 				"shortTitle": "Renewal, Renaissance, Reformation, or Revolution?",
