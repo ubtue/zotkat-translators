@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-12-20 16:33:21"
+	"lastUpdated": "2023-06-14 08:33:09"
 }
 
 /*
@@ -318,9 +318,9 @@ function invokeEMTranslator(doc) {
 		if (["2159-6875"].includes(i.ISSN)) {
 			if (reviewURLs.includes(i.url)) i.tags.push("RezensionstagPica");
 		}
-		if (['2617-3697', '2660-4418', '2748-6419', '1988-3269', '1804-6444', '2391-4327', '2174-0887'].includes(i.ISSN)) {
+		if (['2617-3697', '2660-4418', '2748-6419', '1988-3269', '1804-6444', '2391-4327', '2174-0887', '2709-8435'].includes(i.ISSN)) {
 			if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')) {
-				if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')[0].content.match(/(Media reviews)|(Rezensionen)|(Reseñas)|(Part\s+Two:\s+Reviews)/i)) {
+				if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')[0].content.match(/(Media reviews)|(Rezensionen)|(Reseñas)|(Part\s+Two:\s+Reviews)|(Buchbesprechungen)/i)) {
 					i.tags.push("RezensionstagPica");
 				}
 			}
@@ -2788,6 +2788,65 @@ var testCases = [
 				"tags": [
 					{
 						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://ztp.jesuiten.org/index.php/ZTP/article/view/3820",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Wolfgang Beck / Ilona Nord / Joachim Valentin (Hg.), Theologie und Digitalität. Ein Kompendium",
+				"creators": [
+					{
+						"firstName": "Franca",
+						"lastName": "Spies",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/08/28",
+				"DOI": "10.35070/ztp.v143i3.3820",
+				"ISSN": "2709-8435",
+				"issue": "3",
+				"journalAbbreviation": "ZTP",
+				"language": "de",
+				"libraryCatalog": "ztp.jesuiten.org",
+				"pages": "495-497",
+				"publicationTitle": "Zeitschrift für Theologie und Philosophie",
+				"rights": "Copyright (c) 2021 Zeitschrift für Theologie und Philosophie",
+				"url": "https://ztp.jesuiten.org/index.php/ZTP/article/view/3820",
+				"volume": "143",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Anthropologie"
+					},
+					{
+						"tag": "Digitalisierung"
+					},
+					{
+						"tag": "Digitalität"
+					},
+					{
+						"tag": "Ethik"
+					},
+					{
+						"tag": "Gott"
+					},
+					{
+						"tag": "Medien"
+					},
+					{
+						"tag": "RezensionstagPica"
+					},
+					{
+						"tag": "Theologie"
 					}
 				],
 				"notes": [],
