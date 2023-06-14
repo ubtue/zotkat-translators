@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-06-14 08:33:09"
+	"lastUpdated": "2023-06-14 11:39:17"
 }
 
 /*
@@ -76,8 +76,6 @@ function getSearchResults(doc, url) {
 	}
 	return found ? items : false;
 }
-
-
 
 function invokeEMTranslator(doc) {
 	var translator = Zotero.loadTranslator("web");
@@ -259,7 +257,7 @@ function invokeEMTranslator(doc) {
   			}
   		}	
  		//clean pages e.g. pages": "6.-6." > 10.25786/cjbk.v0i01-02.631; or "pages": "01-07" > 10.25786/zfbeg.v0i01-02.793
- 		if (i.pages != null) i.pages = i.pages.replace('S.', '').replace(/\./g, '').replace(/^([^-]+)-\1$/, '$1').replace(/^0/g, '').replace(/-0/g, '-');
+ 		if (i.pages != null) i.pages = i.pages.replace('S.', '').replace(/\./g, '').replace(/^([^-]+)-\1$/, '$1').replace(/^0/g, '').replace(/-0/g, '-').replace('â€“', '-');
  		
  		if (i.pages == undefined) {
 			let pageNumberFromDC = ZU.xpathText(doc, '//meta[@name="DC.Identifier.pageNumber"]/@content');
@@ -503,6 +501,9 @@ function invokeEMTranslator(doc) {
 			});
 		}
 		else {
+			//extract item.volume and item.issue if ojs provides z3988 metadata e.g.1660-5578
+			let z3988Entries = ZU.xpathText(doc, '//span[@class="Z3988"]/@title');
+			extractVolumeIssueFromZ3988(doc, i, z3988Entries);
 			i.complete();
 		}
 	});
@@ -512,6 +513,19 @@ function invokeEMTranslator(doc) {
 String.prototype.capitalizeFirstLetter = function() {
 	return this.charAt(0).toUpperCase() + this.slice(1);
 };
+
+function extractVolumeIssueFromZ3988(doc, i, z3988Entries) {
+	if (z3988Entries) {
+		if (z3988Entries.indexOf("rft.volume")) {
+			let regexVolume = /volume=(\d+)/g;
+			i.volume = regexVolume.exec(z3988Entries)[1];
+		}
+		if (z3988Entries.indexOf("rft.issue")) {
+			let regexIssue = /issue=(\d)/g;
+			i.issue = regexIssue.exec(z3988Entries)[1];
+		}
+	}
+}
 
 function doWeb(doc, url) {
 	if (detectWeb(doc, url) === "multiple") {
@@ -608,6 +622,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://jps.library.utoronto.ca/index.php/renref/article/view/34078",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -643,6 +658,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "http://jsri.ro/ojs/index.php/jsri/article/view/1194",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -704,6 +720,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "http://jsri.ro/ojs/index.php/jsri/article/view/1212",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -756,10 +773,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ojs.reformedjournals.co.za/stj/article/view/1743",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "The cinematic hidden Christ – His invisible divinity and his visible humanity",
+				"title": "The cinematic hidden Christ â€“ His invisible divinity and his visible humanity",
 				"creators": [
 					{
 						"firstName": "Martien E.",
@@ -770,7 +788,7 @@ var testCases = [
 				"date": "2017/12/31",
 				"DOI": "10.17570/stj.2017.v3n2.a13",
 				"ISSN": "2413-9467",
-				"abstractNote": "If we want to reflect upon the impact of the many ‘hidden Christ’-images in modern films at a theologically responsible way, we need to incorporate that reflection into our doctrine of revelation. That will imply that we have to re-open the classical Gospel-Culture discussion. Especially in the United States we can recognize a lot of original approaches to this issue in Reformed circles (Wolterstorff, Dyrness, Begbie, Seidell, etc.). The main question to be put in this article will be: How can we develop criteria to assess the depiction of the divine in these films?",
+				"abstractNote": "If we want to reflect upon the impact of the many â€˜hidden Christâ€™-images in modern films at a theologically responsible way, we need to incorporate that reflection into our doctrine of revelation. That will imply that we have to re-open the classical Gospel-Culture discussion. Especially in the United States we can recognize a lot of original approaches to this issue in Reformed circles (Wolterstorff, Dyrness, Begbie, Seidell, etc.). The main question to be put in this article will be: How can we develop criteria to assess the depiction of the divine in these films?",
 				"issue": "2",
 				"journalAbbreviation": "STJ",
 				"language": "en",
@@ -782,6 +800,9 @@ var testCases = [
 				"volume": "3",
 				"attachments": [],
 				"tags": [
+					{
+						"tag": "Christology"
+					},
 					{
 						"tag": "Christology"
 					},
@@ -799,6 +820,21 @@ var testCases = [
 					},
 					{
 						"tag": "Transcendence"
+					},
+					{
+						"tag": "hidden Christ"
+					},
+					{
+						"tag": "immanence"
+					},
+					{
+						"tag": "revelation"
+					},
+					{
+						"tag": "symbol"
+					},
+					{
+						"tag": "transcendence"
 					}
 				],
 				"notes": [],
@@ -809,6 +845,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ojs.reformedjournals.co.za/stj/article/view/1731",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -828,7 +865,7 @@ var testCases = [
 				"date": "2017/12/31",
 				"DOI": "10.17570/stj.2017.v3n2.a01",
 				"ISSN": "2413-9467",
-				"abstractNote": "This contribution is based on what may be called a pedagogical experiment in a postgraduate course on the 16th century European Reformations that was offered at the University of the Western Cape in the first semester of 2017. On the basis of a close reading of selected literature on the reformation, this contribution highlights the legacy of 16th century ecclesial movements for Southern Africa. The point of departure is located in the context of a discussion on a range of guiding concepts for social transformation in the contemporary (South) African context. It is argued that the deepest diagnosis of current (South) African discourse may well point to a view that none of the options for a category that may be regarded as more ultimate than justice (as a ‘remedy’) is attractive enough to muster sufficient moral energy without endless further contestations. Without necessarily suggesting what that ultimate maybe, it is suggested that a lack of an appealing notion of what is truly ultimate can undermine any attempts to address inequality (as our diagnosis) in current discourse. This necessarily calls attention to the relationship between the penultimate and the ultimate, and indeed between justification and justice.",
+				"abstractNote": "This contribution is based on what may be called a pedagogical experiment in a postgraduate course on the 16th century European Reformations that was offered at the University of the Western Cape in the first semester of 2017. On the basis of a close reading of selected literature on the reformation, this contribution highlights the legacy of 16th century ecclesial movements for Southern Africa. The point of departure is located in the context of a discussion on a range of guiding concepts for social transformation in the contemporary (South) African context. It is argued that the deepest diagnosis of current (South) African discourse may well point to a view that none of the options for a category that may be regarded as more ultimate than justice (as a â€˜remedyâ€™) is attractive enough to muster sufficient moral energy without endless further contestations. Without necessarily suggesting what that ultimate maybe, it is suggested that a lack of an appealing notion of what is truly ultimate can undermine any attempts to address inequality (as our diagnosis) in current discourse. This necessarily calls attention to the relationship between the penultimate and the ultimate, and indeed between justification and justice.",
 				"issue": "2",
 				"journalAbbreviation": "STJ",
 				"language": "en",
@@ -841,6 +878,9 @@ var testCases = [
 				"volume": "3",
 				"attachments": [],
 				"tags": [
+					{
+						"tag": "Diagnostics"
+					},
 					{
 						"tag": "Diagnostics"
 					},
@@ -860,6 +900,9 @@ var testCases = [
 						"tag": "Reformation"
 					},
 					{
+						"tag": "Reformation"
+					},
+					{
 						"tag": "Sin"
 					},
 					{
@@ -867,6 +910,27 @@ var testCases = [
 					},
 					{
 						"tag": "Ultimate"
+					},
+					{
+						"tag": "inequality"
+					},
+					{
+						"tag": "justice"
+					},
+					{
+						"tag": "justification"
+					},
+					{
+						"tag": "penultimate"
+					},
+					{
+						"tag": "sin"
+					},
+					{
+						"tag": "social transformation"
+					},
+					{
+						"tag": "ultimate"
 					}
 				],
 				"notes": [],
@@ -877,11 +941,13 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.sanisidoro.net/publicaciones/index.php/isidorianum/issue/view/11",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/147",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -934,6 +1000,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://journal.equinoxpub.com/JSRNC/article/view/19598",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -987,26 +1054,31 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://verbumetecclesia.org.za/index.php/ve/issue/view/97",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://verbumetecclesia.org.za/index.php/ve/issue/view/12",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://journal.equinoxpub.com/JSRNC/issue/view/1967",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://periodicos.uem.br/ojs/index.php/RbhrAnpuh/issue/view/1635",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://periodicos.uem.br/ojs/index.php/RbhrAnpuh/article/view/54840",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1060,6 +1132,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://journal.equinoxpub.com/JSRNC/article/view/19606",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1104,11 +1177,13 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://jrfm.eu/index.php/ojs_jrfm/issue/view/13",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://jrfm.eu/index.php/ojs_jrfm/article/view/256",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1159,6 +1234,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://revistasfranciscanas.org/index.php/ArchivoIberoAmericano/article/view/117",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1212,11 +1288,13 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://revistasfranciscanas.org/index.php/ArchivoIberoAmericano/issue/view/16",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://jeac.de/ojs/index.php/jeac/article/view/297",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1231,7 +1309,7 @@ var testCases = [
 				"date": "2020/10/31",
 				"DOI": "10.25784/jeac.v2i0.297",
 				"ISSN": "2627-6062",
-				"journalAbbreviation": "1",
+				"journalAbbreviation": "JEAC",
 				"language": "en",
 				"libraryCatalog": "jeac.de",
 				"pages": "86-87",
@@ -1281,11 +1359,13 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://jeac.de/ojs/index.php/jeac/issue/view/16",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/785",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1355,6 +1435,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://aabner.org/ojs/index.php/beabs/article/view/781",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1384,7 +1465,7 @@ var testCases = [
 				"date": "2021/06/18",
 				"DOI": "10.35068/aabner.v1i1.781",
 				"ISSN": "2748-6419",
-				"abstractNote": "Die Chefredaktion von AABNER beschreibt die Schwächen und Probleme destraditionellen ‚Double-Blind-Peer-Review‘ und bietet eine innovative Lösung:den von uns weiterentwickelten ‚Forum-Peer-Review‘.",
+				"abstractNote": "The AABNER founding editors-in-chief describe some of the problems with traditional double-blind peer review and describe our solution for them, forum peerreview, which we have developed for use within AABNER.",
 				"issue": "1",
 				"journalAbbreviation": "1",
 				"language": "en",
@@ -1423,10 +1504,10 @@ var testCases = [
 						"note": "Jason M. Silverman | orcid:0000-0002-0240-9219 | taken from website"
 					},
 					{
-						"note": "abs:The AABNER founding editors-in-chief describe some of the problems with traditional double-blind peer review and describe our solution for them, forum peerreview, which we have developed for use within AABNER."
+						"note": "abs:L’équipe de rédaction en chef initiale d’AABNER décrit quelques problèmes liésau système traditionnel de la “double-blind peer review” et propose une solution, le système “forum peer review”, développé et mis en place pour la créationd’AABNER."
 					},
 					{
-						"note": "abs:L’équipe de rédaction en chef initiale d’AABNER décrit quelques problèmes liésau système traditionnel de la “double-blind peer review” et propose une solution, le système “forum peer review”, développé et mis en place pour la créationd’AABNER."
+						"note": "abs:Die Chefredaktion von AABNER beschreibt die Schwächen und Probleme destraditionellen ‚Double-Blind-Peer-Review‘ und bietet eine innovative Lösung:den von uns weiterentwickelten ‚Forum-Peer-Review‘."
 					}
 				],
 				"seeAlso": []
@@ -1436,11 +1517,13 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ote-journal.otwsa-otssa.org.za/index.php/journal/issue/view/22",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://ote-journal.otwsa-otssa.org.za/index.php/journal/article/view/433",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1511,6 +1594,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ojs.reformedjournals.co.za/stj/article/view/1731",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1530,7 +1614,7 @@ var testCases = [
 				"date": "2017/12/31",
 				"DOI": "10.17570/stj.2017.v3n2.a01",
 				"ISSN": "2413-9467",
-				"abstractNote": "This contribution is based on what may be called a pedagogical experiment in a postgraduate course on the 16th century European Reformations that was offered at the University of the Western Cape in the first semester of 2017. On the basis of a close reading of selected literature on the reformation, this contribution highlights the legacy of 16th century ecclesial movements for Southern Africa. The point of departure is located in the context of a discussion on a range of guiding concepts for social transformation in the contemporary (South) African context. It is argued that the deepest diagnosis of current (South) African discourse may well point to a view that none of the options for a category that may be regarded as more ultimate than justice (as a ‘remedy’) is attractive enough to muster sufficient moral energy without endless further contestations. Without necessarily suggesting what that ultimate maybe, it is suggested that a lack of an appealing notion of what is truly ultimate can undermine any attempts to address inequality (as our diagnosis) in current discourse. This necessarily calls attention to the relationship between the penultimate and the ultimate, and indeed between justification and justice.",
+				"abstractNote": "This contribution is based on what may be called a pedagogical experiment in a postgraduate course on the 16th century European Reformations that was offered at the University of the Western Cape in the first semester of 2017. On the basis of a close reading of selected literature on the reformation, this contribution highlights the legacy of 16th century ecclesial movements for Southern Africa. The point of departure is located in the context of a discussion on a range of guiding concepts for social transformation in the contemporary (South) African context. It is argued that the deepest diagnosis of current (South) African discourse may well point to a view that none of the options for a category that may be regarded as more ultimate than justice (as a â€˜remedyâ€™) is attractive enough to muster sufficient moral energy without endless further contestations. Without necessarily suggesting what that ultimate maybe, it is suggested that a lack of an appealing notion of what is truly ultimate can undermine any attempts to address inequality (as our diagnosis) in current discourse. This necessarily calls attention to the relationship between the penultimate and the ultimate, and indeed between justification and justice.",
 				"issue": "2",
 				"journalAbbreviation": "STJ",
 				"language": "en",
@@ -1543,6 +1627,9 @@ var testCases = [
 				"volume": "3",
 				"attachments": [],
 				"tags": [
+					{
+						"tag": "Diagnostics"
+					},
 					{
 						"tag": "Diagnostics"
 					},
@@ -1562,6 +1649,9 @@ var testCases = [
 						"tag": "Reformation"
 					},
 					{
+						"tag": "Reformation"
+					},
+					{
 						"tag": "Sin"
 					},
 					{
@@ -1569,6 +1659,27 @@ var testCases = [
 					},
 					{
 						"tag": "Ultimate"
+					},
+					{
+						"tag": "inequality"
+					},
+					{
+						"tag": "justice"
+					},
+					{
+						"tag": "justification"
+					},
+					{
+						"tag": "penultimate"
+					},
+					{
+						"tag": "sin"
+					},
+					{
+						"tag": "social transformation"
+					},
+					{
+						"tag": "ultimate"
 					}
 				],
 				"notes": [],
@@ -1579,15 +1690,17 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://jebs.eu/ojs/index.php/jebs/issue/view/75",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://jebs.eu/ojs/index.php/jebs/article/view/697",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Teaching Preaching: As Practical Theology",
+				"title": "Teaching Preaching: As Practical Theology: As Practical Theology",
 				"creators": [
 					{
 						"firstName": "Stuart",
@@ -1600,7 +1713,7 @@ var testCases = [
 				"ISSN": "1804-6444",
 				"abstractNote": "This article explores the teaching of preaching as practical theology through a number of discussions concerning practical theology and theological education. According to Miller-McLemore’s definition, both preaching, and the teaching of preaching are expressions of practical theology. One is located in the life of the church. The other in the curriculum of theological education. The purpose of Christian practical theology is to serve the life of the church. The teaching of preaching as practical theology should support the practice of preaching in the church. This means that theological educators need to pay attention to the types of knowledge students actually need for congregational practice. This requires knowledge that goes beyond cognitive understanding (episteme) to include practical wisdom (phronesis) and skill (techne). Since preaching teaching involves both wisdom and skill, there are limitations to what can be taught and learned in the classroom. Be this as it may, conceptualising the teaching of preaching as practical theology has implications for the classroom.",
 				"issue": "1",
-				"journalAbbreviation": "1",
+				"journalAbbreviation": "JEBS",
 				"language": "en",
 				"libraryCatalog": "jebs.eu",
 				"pages": "45-66",
@@ -1635,10 +1748,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://limina-graz.eu/index.php/limina/article/view/103",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Antimodernismus als Autoritarismus?: Zum Mehrwert sozialpsychologischer Analysekategorien im Kontext theologischer Fundamentalismusforschung",
+				"title": "Antimodernismus als Autoritarismus? Zum Mehrwert sozialpsychologischer Analysekategorien im Kontext theologischer Fundamentalismusforschung: Zum Mehrwert sozialpsychologischer Analysekategorien im Kontext theologischer Fundamentalismusforschung",
 				"creators": [
 					{
 						"firstName": "Sonja Angelika",
@@ -1650,7 +1764,7 @@ var testCases = [
 				"ISSN": "2617-1953",
 				"abstractNote": "Fundamentalistische religiöse Stile, im katholischen Glaubensspektrum durch vorkonziliar-antimodernistische und traditionalismusaffine Frömmigkeitsformen geprägt, gehen auffallend oft mit expliziter Gruppenbezogener Menschenfeindlichkeit und sogar extrem rechten politischen Einstellungen einher. Diese Beobachtung legt nicht nur nahe, nach möglichen gemeinsamen psychischen Prädispositionen für politische wie religiöse autoritäre Einstellungen zu fragen, sondern ermutigt auch die Integration sozialpsychologischer Analysekategorien in die theologische Fundamentalismusforschung.\nDer vorliegende Beitrag stellt zunächst zentrale (schwerpunktmäßig sozialpsychologische) Forschungen zur Ambivalenz von Religiosität und zu Zusammenhängen zwischen religiösen Stilen und Vorurteilen sowie Autoritarismus vor. In einem zweiten Schritt wendet er deren sozialpsychologische Kategorien auf die Analyse rechtskatholischer Proteste gegen die Einbeziehung indigener Figuren in die Eröffnungszeremonie der Amazonassynode 2019 an. Dies ermöglicht die Offenlegung autoritärer und ethnozentrischer Haltungen, die durch religiösen Exklusivismus, strafende Gottesbilder sowie entsprechende eschatologische Vorstellungen gerechtfertigt werden. Aus sozialpsychologischer Perspektive lässt sich der innerkirchliche Konflikt um die Reformen des Zweiten Vatikanischen Konzils als ein ,Clash‘ unterschiedlicher – reiferer bzw. wenig komplexer – religiöser Stile beschreiben.",
 				"issue": "1",
-				"journalAbbreviation": "1",
+				"journalAbbreviation": "Limina",
 				"language": "de",
 				"libraryCatalog": "limina-graz.eu",
 				"pages": "16-40",
@@ -1694,6 +1808,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://revistas.agustinosvalladolid.es/index.php/estudio/article/view/9",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1759,6 +1874,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/781",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1788,7 +1904,7 @@ var testCases = [
 				"date": "2021/06/18",
 				"DOI": "10.35068/aabner.v1i1.781",
 				"ISSN": "2748-6419",
-				"abstractNote": "Die Chefredaktion von AABNER beschreibt die Schwächen und Probleme destraditionellen ‚Double-Blind-Peer-Review‘ und bietet eine innovative Lösung:den von uns weiterentwickelten ‚Forum-Peer-Review‘.",
+				"abstractNote": "The AABNER founding editors-in-chief describe some of the problems with traditional double-blind peer review and describe our solution for them, forum peerreview, which we have developed for use within AABNER.",
 				"issue": "1",
 				"journalAbbreviation": "1",
 				"language": "en",
@@ -1827,10 +1943,10 @@ var testCases = [
 						"note": "Jason M. Silverman | orcid:0000-0002-0240-9219 | taken from website"
 					},
 					{
-						"note": "abs:The AABNER founding editors-in-chief describe some of the problems with traditional double-blind peer review and describe our solution for them, forum peerreview, which we have developed for use within AABNER."
+						"note": "abs:L’équipe de rédaction en chef initiale d’AABNER décrit quelques problèmes liésau système traditionnel de la “double-blind peer review” et propose une solution, le système “forum peer review”, développé et mis en place pour la créationd’AABNER."
 					},
 					{
-						"note": "abs:L’équipe de rédaction en chef initiale d’AABNER décrit quelques problèmes liésau système traditionnel de la “double-blind peer review” et propose une solution, le système “forum peer review”, développé et mis en place pour la créationd’AABNER."
+						"note": "abs:Die Chefredaktion von AABNER beschreibt die Schwächen und Probleme destraditionellen ‚Double-Blind-Peer-Review‘ und bietet eine innovative Lösung:den von uns weiterentwickelten ‚Forum-Peer-Review‘."
 					}
 				],
 				"seeAlso": []
@@ -1840,6 +1956,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/785",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1909,6 +2026,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/787",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1976,6 +2094,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://periodicos.uem.br/ojs/index.php/RbhrAnpuh/article/view/52641",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2035,6 +2154,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://open-journals.uni-tuebingen.de/ojs/index.php/eug/article/view/1-2021-rez-1",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2049,13 +2169,14 @@ var testCases = [
 				"date": "2021/08/09",
 				"DOI": "10.18156/eug-1-2021-859",
 				"ISSN": "2365-6565",
-				"abstractNote": "Rezension von: Thomas Biebricher / Ralf Ptak (2020): Soziale Marktwirtschaft und Ordoliberalismus zur Einführung, Hamburg: Junius. 250 S., ISBN 978-3-96060-312-2, EUR 15.90.",
+				"abstractNote": "Rezension von:Thomas Biebricher / Ralf Ptak (2020): Soziale Marktwirtschaft und Ordoliberalismus zur Einführung, Hamburg: Junius. 250 S., ISBN 978-3-96060-312-2, EUR 15.90.",
 				"issue": "1",
+				"journalAbbreviation": "EuG",
 				"language": "de",
 				"libraryCatalog": "open-journals.uni-tuebingen.de",
 				"publicationTitle": "Ethik und Gesellschaft",
 				"rights": "Copyright (c) 2021 Ethik und Gesellschaft",
-				"url": "https://open-journals.uni-tuebingen.de/ojs/index.php/eug/article/view/1-2021-rez-1",
+				"url": "https://ethik-und-gesellschaft.de/ojs/index.php/eug/article/view/1-2021-rez-1",
 				"attachments": [],
 				"tags": [
 					{
@@ -2070,6 +2191,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://open-journals.uni-tuebingen.de/ojs/index.php/eug/article/view/1-2021-art-1",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2084,13 +2206,14 @@ var testCases = [
 				"date": "2021/08/09",
 				"DOI": "10.18156/eug-1-2021-853",
 				"ISSN": "2365-6565",
-				"abstractNote": "Der Artikel geht der Frage auf den Grund, welche sozialethischen Lehren aus der Corona-Pandemie auf dem afrikanischen Kontinent zu ziehen sind. Entgegen vieler Prognosen hat sich Afrika bislang als durchaus krisenfest erwiesen. Die eigentliche Stoßrichtung des Bei-trags zielt daher auf die Aufdeckung von eurozentrischen Denk- und Handlungsmustern, die in der aktuellen Krise zum Vorschein gekommen sind. Entlang der Heilsvision aus Jesaja 35,4-6 werden Vorschläge unterbreitet, wie die durch Covid-19 offenbar gewordenen Blindheiten, Lähmungen und Sprachlosigkeiten überwunden werden können.  This article explores the question of what social ethical lessons can be drawn from the Corona pandemic on the African continent. Contrary to many predictions, Africa has so far proven to be quite resilient to the crisis. The actual thrust of the contribution is therefore the uncovering of Eurocentric patterns of thought and action that have come to light in the current crisis. Following the vision of salvation from Isaiah 35:4-6, suggestions are made on how to overcome the blindness, paralysis and speechlessness revealed by Covid",
+				"abstractNote": "Der Artikel geht der Frage auf den Grund, welche sozialethischen Lehren aus der Corona-Pandemie auf dem afrikanischen Kontinent zu ziehen sind. Entgegen vieler Prognosen hat sich Afrika bislang als durchaus krisenfest erwiesen. Die eigentliche Stoßrichtung des Bei-trags zielt daher auf die Aufdeckung von eurozentrischen Denk- und Handlungsmustern, die in der aktuellen Krise zum Vorschein gekommen sind. Entlang der Heilsvision aus Jesaja 35,4-6 werden Vorschläge unterbreitet, wie die durch Covid-19 offenbar gewordenen Blindheiten, Lähmungen und Sprachlosigkeiten überwunden werden können.This article explores the question of what social ethical lessons can be drawn from the Corona pandemic on the African continent. Contrary to many predictions, Africa has so far proven to be quite resilient to the crisis. The actual thrust of the contribution is therefore the uncovering of Eurocentric patterns of thought and action that have come to light in the current crisis. Following the vision of salvation from Isaiah 35:4-6, suggestions are made on how to overcome the blindness, paralysis and speechlessness revealed by Covid",
 				"issue": "1",
+				"journalAbbreviation": "EuG",
 				"language": "de",
 				"libraryCatalog": "open-journals.uni-tuebingen.de",
 				"publicationTitle": "Ethik und Gesellschaft",
 				"rights": "Copyright (c) 2021 Ethik und Gesellschaft",
-				"url": "https://open-journals.uni-tuebingen.de/ojs/index.php/eug/article/view/1-2021-art-1",
+				"url": "https://ethik-und-gesellschaft.de/ojs/index.php/eug/article/view/1-2021-art-1",
 				"attachments": [],
 				"tags": [],
 				"notes": [],
@@ -2101,6 +2224,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://revistaseletronicas.pucrs.br/index.php/teo/article/view/36941",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2162,6 +2286,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://revistaseletronicas.pucrs.br/index.php/teo/article/view/41089",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2216,11 +2341,13 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://revistas.ucm.es/index.php/ILUR/issue/view/3773",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://revistas.ucm.es/index.php/ILUR/article/view/75207",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2276,6 +2403,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.journals.us.edu.pl/index.php/EL/article/view/13012",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2297,36 +2425,11 @@ var testCases = [
 				"libraryCatalog": "www.journals.us.edu.pl",
 				"pages": "7-40",
 				"publicationTitle": "Ecumeny and Law",
-				"rights": "Copyright (c) 2021 Ecumeny and Law",
+				"rights": "Copyright (c)",
 				"url": "https://www.journals.us.edu.pl/index.php/EL/article/view/13012",
 				"volume": "9",
 				"attachments": [],
-				"tags": [
-					{
-						"tag": "Pope Francis"
-					},
-					{
-						"tag": "ecumenical context"
-					},
-					{
-						"tag": "kairós of synodality"
-					},
-					{
-						"tag": "mission of synodal Church"
-					},
-					{
-						"tag": "rights of (Christian) migrants"
-					},
-					{
-						"tag": "the postulate of the Church law renewal"
-					},
-					{
-						"tag": "the “millennial” path of the Church’s renewal"
-					},
-					{
-						"tag": "“accompanying migrants”"
-					}
-				],
+				"tags": [],
 				"notes": [
 					{
 						"note": "Andrzej Pastwa | orcid:0000-0003-2679-5107 | taken from website"
@@ -2339,16 +2442,19 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.journals.us.edu.pl/index.php/EL/issue/view/1204",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://bulletin-religious.kaznu.kz/index.php/relig/issue/view/40",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://bulletin-religious.kaznu.kz/index.php/relig/article/view/414",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2368,7 +2474,7 @@ var testCases = [
 				"date": "2021",
 				"DOI": "10.26577//EJRS.2021.v28.i4.r2",
 				"ISSN": "2521-6465",
-				"abstractNote": "The article deals with the problem of religious expansion, which is accompanied by a wave of globalization. In particular, the analysis of its prerequisites and its place in society and consequences is carried out, which are the basis for its widespread spread in an information, \"digitized\" digitized society. A description of the manifestations of evangelization and Islamization of religious expansion, which cover all spheres of spiritual life and enter through the conquest of human consciousness, is given, and the processes of their development in the information society are considered. \"I'm sorry,\" he said, «but I don't know what you're talking about, and I don't know what you're talking about, and I don't know what you're talking about, but I don't know what you're talking about\". And the possibilities of modern technologies are the basis for changing the forms and areas of use of sites of religious organizations. The article examines the social, economic, political, spiritual background and main objects of religious expansion of neo-Christian, new Islamic, neo-Christian movements, Religious Studies analysis of missionary activities carried out in the internet space and social networks, its factors contributing to the formation of religious consciousness of young people. At the same time, the features of religious expansion in cyberspace are revealed and a description of their manifestation in modern Kazakh society is given.\\n4207 В статье рассмотрена проблема религиозной экспансии, сопровождающаяся волной глобализации. Анализируются предпосылки и следствия&nbsp; его широкого распространения в информационном, «диджитализированном» (цифровом) обществе. Дается характеристика проявлений евангелизации и исламизации религиозной экспансии, охватывающей все сферы духовной жизни, завоевания человеческого сознания, рассматриваются процессы их развития в информационном обществе. Аперируя гуманистическими принципами благотворительности, знания и образования, бесплатного медицинского обслуживания и духовной помощи - религиозная экспансия охватывает все сферы человеческой жизнедеятельности, используя различные методы и приемы миссионерской деятельности и применяя самые новейшие технологии. А возможности современных технологий на сегодняшний день являются основой для изменения форм и сфер использования сайтов религиозных организаций. В статье проводится религиоведческий анализ миссионерских методов и технологий, проводимых в интернет-пространстве и социальных сетях, а также факторов влияния на формирование религиозного сознания молодежи. Рассматриваются социальные, экономические, политические, духовные предпосылки и основные объекты религиозной экспансии неохристианских, новых исламских, неориенталистских течений,. Кроме того, будут выявлены особенности религиозной экспансии в киберпространстве и дана характеристика их проявления в современном казахстанском обществе.\\n4207 Мақалада жаһандану толқынымен қатарласып келіп жатқан діни экспансия мәселесі қарастырылған. Әсіресе оның ақпараттық, «диджитализацияланған» цифрландырылған қоғамдағы кең етек жаюына негіз болып отырған алғышарттары мен қоғамдағы орны және салдарына талдау жасалынады. Рухани өмірдің жан-жақты салаларын қамтып, адам санасын жаулау арқылы кіріп жатқан діни экспансияның евангелизация мен исламдандыру көріністеріне сипаттама беріліп, олардың ақпараттық қоғамда даму үдерістері қарастырылады. Білім беру, қайырымдылық көмек, медициналық жәрдем беру сияқты гуманистік мақсаттарды алға қойған және діни сенімді таңдау еркіндігі сияқты ұстанымдарды ұран ете отырып, діни экспансияның адам санасын жаулауда түрлі әдістер мен тәсілдерді игеріп, жүзеге асыру үшін заманауи технологияларды да пайдалануда. Ал заманауи технологиялардың мүмкіндіктері діни ұйым сайттарының формалары мен пайдалану аумақтарының ауысып отыруына негіз болады. Мақалада неохристиандық, жаңа исламдық, неоориенталистік ағымдардың&nbsp;&nbsp; діни экспансиялауындағы әлеуметтік, экономикалық, саяси, рухани астарлары мен негізгі объектілері қарастырылып, интернет кеңістіктігі мен әлеуметтік желілерде жүргізетін миссионерлік әрекеттеріне, оның жастардың діни санасын қалыптастыруға ықпал ететін факторларына дінтанулық талдау жасалады. Сонымен қатар, киберкеңістіктегі діни экспансия ерекшеліктері айқындалып, олардың заманауи қазақстандық қоғамдағы көрінісіне сипаттама беріледі.\\n4207",
+				"abstractNote": "The article deals with the problem of religious expansion, which is accompanied by a wave of globalization. In particular, the analysis of its prerequisites and its place in society and consequences is carried out, which are the basis for its widespread spread in an information, \"digitized\" digitized society. A description of the manifestations of evangelization and Islamization of religious expansion, which cover all spheres of spiritual life and enter through the conquest of human consciousness, is given, and the processes of their development in the information society are considered. \"I'm sorry,\" he said, «but I don't know what you're talking about, and I don't know what you're talking about, and I don't know what you're talking about, but I don't know what you're talking about\". And the possibilities of modern technologies are the basis for changing the forms and areas of use of sites of religious organizations. The article examines the social, economic, political, spiritual background and main objects of religious expansion of neo-Christian, new Islamic, neo-Christian movements, Religious Studies analysis of missionary activities carried out in the internet space and social networks, its factors contributing to the formation of religious consciousness of young people. At the same time, the features of religious expansion in cyberspace are revealed and a description of their manifestation in modern Kazakh society is given.\n\\n4207 В статье рассмотрена проблема религиозной экспансии, сопровождающаяся волной глобализации. Анализируются предпосылки и следствия&nbsp; его широкого распространения в информационном, «диджитализированном» (цифровом) обществе. Дается характеристика проявлений евангелизации и исламизации религиозной экспансии, охватывающей все сферы духовной жизни, завоевания человеческого сознания, рассматриваются процессы их развития в информационном обществе. Аперируя гуманистическими принципами благотворительности, знания и образования, бесплатного медицинского обслуживания и духовной помощи - религиозная экспансия охватывает все сферы человеческой жизнедеятельности, используя различные методы и приемы миссионерской деятельности и применяя самые новейшие технологии. А возможности современных технологий на сегодняшний день являются основой для изменения форм и сфер использования сайтов религиозных организаций. В статье проводится религиоведческий анализ миссионерских методов и технологий, проводимых в интернет-пространстве и социальных сетях, а также факторов влияния на формирование религиозного сознания молодежи. Рассматриваются социальные, экономические, политические, духовные предпосылки и основные объекты религиозной экспансии неохристианских, новых исламских, неориенталистских течений,. Кроме того, будут выявлены особенности религиозной экспансии в киберпространстве и дана характеристика их проявления в современном казахстанском обществе.\\n4207 Мақалада жаһандану толқынымен қатарласып келіп жатқан діни экспансия мәселесі қарастырылған. Әсіресе оның ақпараттық, «диджитализацияланған» цифрландырылған қоғамдағы кең етек жаюына негіз болып отырған алғышарттары мен қоғамдағы орны және салдарына талдау жасалынады. Рухани өмірдің жан-жақты салаларын қамтып, адам санасын жаулау арқылы кіріп жатқан діни экспансияның евангелизация мен исламдандыру көріністеріне сипаттама беріліп, олардың ақпараттық қоғамда даму үдерістері қарастырылады. Білім беру, қайырымдылық көмек, медициналық жәрдем беру сияқты гуманистік мақсаттарды алға қойған және діни сенімді таңдау еркіндігі сияқты ұстанымдарды ұран ете отырып, діни экспансияның адам санасын жаулауда түрлі әдістер мен тәсілдерді игеріп, жүзеге асыру үшін заманауи технологияларды да пайдалануда. Ал заманауи технологиялардың мүмкіндіктері діни ұйым сайттарының формалары мен пайдалану аумақтарының ауысып отыруына негіз болады. Мақалада неохристиандық, жаңа исламдық, неоориенталистік ағымдардың&nbsp;&nbsp; діни экспансиялауындағы әлеуметтік, экономикалық, саяси, рухани астарлары мен негізгі объектілері қарастырылып, интернет кеңістіктігі мен әлеуметтік желілерде жүргізетін миссионерлік әрекеттеріне, оның жастардың діни санасын қалыптастыруға ықпал ететін факторларына дінтанулық талдау жасалады. Сонымен қатар, киберкеңістіктегі діни экспансия ерекшеліктері айқындалып, олардың заманауи қазақстандық қоғамдағы көрінісіне сипаттама беріледі.\\n4207",
 				"issue": "4",
 				"language": "en",
 				"libraryCatalog": "bulletin-religious.kaznu.kz",
@@ -2441,6 +2547,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://zfbeg.org/ojs/index.php/cjbk/article/view/631",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2457,7 +2564,7 @@ var testCases = [
 				"ISSN": "2513-1389",
 				"abstractNote": "30. September 1928Geboren in Sighet (Siebenbürgen, heute Rumänien)als Sohn von Schlomo Wiesel (Kaufmann) undSarah Wiesel, geborene Feig. Wiesel wächst ineiner chassidischen Familie auf.1934 bis 1944Elie Wiesel besucht den Cheder, die jüdische Religions-›Grundschule‹, dann die Jeschiwa, dieweiterführende Talmud-Schule. Daneben studierter bereits die jüdische Mystik und die Lehren derchassidischen Meister.Frühjahr 1944Nach der Einrichtung eines Ghettos in Sighet wirddie Familie Wiesel mit der gesamten jüdischenGemeinde nach Auschwitz deportiert. Die Mutterund die jüngere Schwester Tsiporah werden ermordet.Der Vater stirbt kurz vor Kriegsende inBuchenwald, wohin er und Elie Anfang 1945transportiert werden.11. April 1945Befreiung des Lagers Buchenwald. Elie Wieselwird vom Kinderhilfswerk OSE nach Frankreichgebracht. In Paris trifft er seine beiden älterenSchwestern wieder.1948 bis 1951Studium der Philosophie, der französischen Literaturund der Psychologie an der Sorbonne, Paris.Beginn der Tätigkeit als Journalist für israelischeZeitungen und Zeitschriften und als Berichterstatterder UNO.1956Veröffentlichung von …un di Welt hot geschwign.Er kommt in die Vereinigten Staatenund wird 1963 amerikanischer Staatsbürger.1958Die gekürzte und ins Französische übersetzte Versionvon …un di Welt hot geschwign erscheintals La Nuit in Paris.1960er JahreBeginn der umfangreichen schriftstellerischen Tätigkeitenund des Kampfes für Menschenrechte inaller Welt. Erste Ehrendoktorwürden an amerikanischenUniversitäten. Zahlreiche Aufenthalte inIsrael.1969Heirat mit Marion E. Rose, selbst Überlebendeder Shoah und Übersetzerin vieler Bücher ElieWiesels.1972Geburt des Sohnes Schlomo Elischa. Professur ander City University of New York, Department ofJewish Studies.1976 bis 2011Professur an der Boston University (Professor inthe Humanities, Department of Religion, Literatureand Philosophy).Das Gesamtwerk entsteht in vier großen Werkteilen:Autobiografien, Romane, biblisch-talmudisch-chassidische Schriften, Essaysammlungen.1986Verleihung des Friedensnobelpreises. Das Komiteebegründet die Verleihung mit den Worten:»Elie Wiesel ist einer der wichtigsten Führer undWegweiser unserer Zeit. Seine Worte verkündendie Botschaft des Friedens, der Versöhnung undder Menschenwürde.«2000Rede vor dem Deutschen Bundestag.2009Rede in der Gedenkstätte Buchenwald anlässlichdes gemeinsamen Besuchs Angela Merkels undBarack Obamas.2. Juli 2016Elie Wiesel stirbt in New York.",
 				"issue": "1-2",
-				"journalAbbreviation": "1",
+				"journalAbbreviation": "ZfBeg",
 				"language": "de",
 				"libraryCatalog": "zfbeg.org",
 				"pages": "6",
@@ -2475,6 +2582,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://zfbeg.org/ojs/index.php/cjbk/article/view/793",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2489,9 +2597,9 @@ var testCases = [
 				"date": "2021/09/23",
 				"DOI": "10.25786/zfbeg.v0i01-02.793",
 				"ISSN": "2513-1389",
-				"abstractNote": "Hinweise• Bereits in unserer letzten Ausgabe wurdedie Rubrik »Stuttgarter Lehrhaus« eingeführt,in welcher über die Aktivitäten der StiftungStuttgarter Lehrhaus1 berichtet wird undVorträge bzw. Beiträge aus den Veranstaltungenwiedergegeben werden.Die Stiftung Stuttgarter Lehrhaus für interreligiösenDialog stellt einen engen Kooperationspartnerund Förderer der ZfBeg dar.Mit dieser Kooperation findet eines der Zieledieser Zeitschrift seine institutionelle Verankerung,nämlich »das Verständnis zwischenChristen und Juden zu fördern« und gleichzeitig»den Dialog zu öffnen für andere Religionenund Gruppen, insbesondere mitMuslimen«. Nicht nur aus aktuellen gesellschaftlichenund politischen, sondern auchaus theologischen Gründen scheint uns dieverständigungsbereite Hinwendung auchzum Islam eine zentrale Aufgabe: Gesellschaft,Kirchen und Theologien öffnen sichfür den interreligiösen und interkulturellenDialog auf allen Ebenen.",
+				"abstractNote": "Hinweise• Bereits in unserer letzten Ausgabe wurdedie Rubrik »Stuttgarter Lehrhaus« eingeführt,in welcher über die Aktivitäten der StiftungStuttgarter Lehrhaus1 berichtet wird undVorträge bzw. Beiträge aus den Veranstaltungenwiedergegeben werden.Die Stiftung Stuttgarter Lehrhaus für interreligiösenDialog stellt einen engen Kooperationspartnerund Förderer der ZfBeg dar.Mit dieser Kooperation findet eines der Zieledieser Zeitschrift seine institutionelle Verankerung,nämlich »das Verständnis zwischenChristen und Juden zu fördern« und gleichzeitig»den Dialog zu öffnen für andere Religionenund Gruppen, insbesondere mitMuslimen«. Nicht nur aus aktuellen gesellschaftlichenund politischen, sondern auchaus theologischen Gru?nden scheint uns dieverständigungsbereite Hinwendung auchzum Islam eine zentrale Aufgabe: Gesellschaft,Kirchen und Theologien öffnen sichfür den interreligiösen und interkulturellenDialog auf allen Ebenen.",
 				"issue": "1-2",
-				"journalAbbreviation": "1",
+				"journalAbbreviation": "ZfBeg",
 				"language": "de",
 				"libraryCatalog": "zfbeg.org",
 				"pages": "1-7",
@@ -2508,11 +2616,13 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ztp.jesuiten.org/index.php/ZTP/issue/view/319",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://ztp.jesuiten.org/index.php/ZTP/article/view/3677",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2569,6 +2679,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://missionalia.journals.ac.za/pub/article/view/358",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2584,6 +2695,7 @@ var testCases = [
 				"DOI": "10.7832/49-0-358",
 				"ISSN": "2312-878X",
 				"abstractNote": "Aspirational terms such as world-class, resilient, climate-friendly and a just city stand in contrast to adverse terms such unequal, divided, colonial, violent and segregated to describe the present and future state of the City of Cape Town. How do institutions offering tertiary qualifications in theology engage with the competing narratives of the city in the preparation of faith-based practitioners? The aim of this article is to explore the current landscape of theological education, offered in higher education institutions in Cape Town, in terms of an urban focus. The article will reflect how curricula, pedagogies and epistemologies engage the complexities of the urban context. The connection between theological education and ministry formation of faith-based practitioners will be explored in light of Cape Town’s urban futures.",
+				"issue": "0",
 				"language": "en",
 				"libraryCatalog": "missionalia.journals.ac.za",
 				"publicationTitle": "Missionalia: Southern African Journal of Missiology",
@@ -2624,6 +2736,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://vergentis.ucam.edu/index.php/vergentis/article/view/234",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2686,11 +2799,13 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://bildungsforschung.org/ojs/index.php/beabs/issue/view/v01i02",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://www.uni-muenster.de/Ejournals/index.php/zpth/article/view/3178",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2724,6 +2839,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/42868",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2849,6 +2965,40 @@ var testCases = [
 						"tag": "Theologie"
 					}
 				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.hermeneutische-blaetter.uzh.ch/article/view/3855",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Zum Intuitionsbegriff bei Paul Tillich",
+				"creators": [
+					{
+						"firstName": "Matthias",
+						"lastName": "Neugebauer",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022/10/14",
+				"DOI": "10.51686/HBl.2022.1.2",
+				"ISSN": "1660-5578",
+				"issue": "1",
+				"journalAbbreviation": "HBl",
+				"language": "de",
+				"libraryCatalog": "www.hermeneutische-blaetter.uzh.ch",
+				"pages": "17-29",
+				"publicationTitle": "Hermeneutische Blätter",
+				"rights": "Copyright (c) 2022 Matthias Neugebauer",
+				"url": "https://www.hermeneutische-blaetter.uzh.ch/article/view/3855",
+				"volume": "28",
+				"attachments": [],
+				"tags": [],
 				"notes": [],
 				"seeAlso": []
 			}
