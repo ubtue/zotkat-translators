@@ -608,7 +608,7 @@ function performExport() {
                             }
                             else if (institution_retrieve_sign == "itbk") {
                                 if (threadParams["authorName"].match(/^\d+/)) {
-                                addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', "!" + threadParams["authorName"] + "!");
+                                addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', "!" + threadParams["authorName"] + "!" + "$BVerfasserIn$4aut");
                                 }
                                 else if(threadParams["authorName"].match(/^\w+/)) {
                                 addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', threadParams["authorName"]  + "$BVerfasserIn$4aut"); 
