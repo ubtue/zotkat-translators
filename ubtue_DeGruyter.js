@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-07-05 09:16:45"
+	"lastUpdated": "2023-06-14 14:58:29"
 }
 
 /*
@@ -96,16 +96,12 @@ function invokeEMTranslator(doc) {
 		for (let keyWord of ZU.xpath(doc, '//div[contains(@class, "keywords")]/a')) {
 			if (!i.tags.includes(keyWord.textContent)) i.tags.push(keyWord.textContent);
 		}
-		for (let authorTag of ZU.xpath(doc, '//span[contains(@class, "metadataAndContributors")]')) {
-			authorTag = authorTag.innerHTML.replace(/\n+|\s\s+/g, '');
-			let orcidInfo = authorTag.match(/<span class="contributor".*?>([^<]+?)<\/span><span class="orcidLink"[^<]*?><a href="https:\/\/orcid.org\/(.+?)"/g);
-			if (orcidInfo != null) {
-				for (let singleOrcidInfo of orcidInfo) {
-					singleOrcidInfo = singleOrcidInfo.match(/<span class="contributor".*?>([^<]+?)<\/span><span class="orcidLink"[^<]*?><a href="https:\/\/orcid.org\/(.+?)"/);
-					let name = singleOrcidInfo[1];
-					let orcid = singleOrcidInfo[2];
-					i.notes.push({note: name + ' | orcid:' + orcid + ' | taken from website'});
-				}
+		for (let authorTag of ZU.xpath(doc, '//span[contains(@class, "contributor")]')) {
+			let orcidRegex = /\d+-\d+-\d+-\d+x?/i;
+			if (authorTag != null && authorTag.innerHTML.match(orcidRegex)) {
+				let name = authorTag.innerText;
+				let orcid = authorTag.innerHTML.match(orcidRegex);
+				i.notes.push({note: name + ' | orcid:' + orcid + ' | taken from website'});	
 			}
 		}
 		if (!i.ISSN) i.ISSN = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "onlineissn", " " )) and contains(concat( " ", @class, " " ), concat( " ", "text-metadata-value", " " ))]');
@@ -119,6 +115,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.degruyter.com/document/doi/10.14315/arg-2019-1100103/html",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -156,6 +153,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.degruyter.com/document/doi/10.14315/arg-2019-1100109/html",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -191,48 +189,8 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://www.degruyter.com/document/doi/10.14315/vf-2016-0206/html",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Überlappender Konsens? Neue Trends in der evangelischen Ethik",
-				"creators": [
-					{
-						"firstName": "Klaas",
-						"lastName": "Huizing",
-						"creatorType": "author"
-					}
-				],
-				"date": "2016/08/01",
-				"DOI": "10.14315/vf-2016-0206",
-				"ISSN": "2198-0454",
-				"issue": "2",
-				"language": "de",
-				"libraryCatalog": "www.degruyter.com",
-				"pages": "127-134",
-				"publicationTitle": "Verkündigung und Forschung",
-				"shortTitle": "Überlappender Konsens?",
-				"url": "https://www.degruyter.com/document/doi/10.14315/vf-2016-0206/html",
-				"volume": "61",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [
-					{
-						"tag": "RezensionstagPica"
-					}
-				],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
 		"url": "https://www.degruyter.com/document/doi/10.14315/vf-2020-650205/html",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -258,10 +216,6 @@ var testCases = [
 					{
 						"title": "Full Text PDF",
 						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
 					}
 				],
 				"tags": [
@@ -279,6 +233,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.degruyter.com/document/doi/10.1515/nzsth-2022-0006/html",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -338,6 +293,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.degruyter.com/document/doi/10.1515/nzsth-2022-0006/html",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -397,6 +353,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.degruyter.com/document/doi/10.1515/zfr-2021-0015/html",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -430,9 +387,7 @@ var testCases = [
 					}
 				],
 				"tags": [],
-				"notes": [
-					"LF:"
-				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
@@ -440,6 +395,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.degruyter.com/document/doi/10.1515/spircare-2021-0066/html",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -475,7 +431,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "Ruth Mächler | orcid:0000-0002-8029-9633 | taken from website"
+						"note": "Ruth Mächler   | orcid:0000-0002-8029-9633 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -485,6 +441,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.degruyter.com/document/doi/10.1515/abitech-2019-2004/html?lang=de",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -569,28 +526,28 @@ var testCases = [
 				"notes": [
 					"LF:",
 					{
-						"note": "Britta Dreyer | orcid:0000-0002-0687-5460 | taken from website"
+						"note": "Britta Dreyer    | orcid:0000-0002-0687-5460 | taken from website"
 					},
 					{
-						"note": "Stephanie Hagemann-Wilholt | orcid:0000-0002-0474-2410 | taken from website"
+						"note": "Stephanie Hagemann-Wilholt    | orcid:0000-0002-0474-2410 | taken from website"
 					},
 					{
-						"note": "Paul Vierkant | orcid:0000-0003-4448-3844 | taken from website"
+						"note": "Paul Vierkant    | orcid:0000-0003-4448-3844 | taken from website"
 					},
 					{
-						"note": "Dorothea Strecker | orcid:0000-0002-9754-3807 | taken from website"
+						"note": "Dorothea Strecker    | orcid:0000-0002-9754-3807 | taken from website"
 					},
 					{
-						"note": "Stephanie Glagla-Dietz | orcid:0000-0001-8762-3005 | taken from website"
+						"note": "Stephanie Glagla-Dietz    | orcid:0000-0001-8762-3005 | taken from website"
 					},
 					{
-						"note": "Friedrich Summann | orcid:0000-0002-6297-3348 | taken from website"
+						"note": "Friedrich Summann    | orcid:0000-0002-6297-3348 | taken from website"
 					},
 					{
-						"note": "Heinz Pampel | orcid:0000-0003-3334-2771 | taken from website"
+						"note": "Heinz Pampel    | orcid:0000-0003-3334-2771 | taken from website"
 					},
 					{
-						"note": "Marleen Burger | orcid:0000-0001-6836-1193 | taken from website"
+						"note": "Marleen Burger   | orcid:0000-0001-6836-1193 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -600,10 +557,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.degruyter.com/document/doi/10.1515/spircare-2021-0065/html",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Hartmut Rosa über den Umgang mit Sterben, Tod und Trauer: Ein Gespräch mit dem Soziologen und Begründer der Resonanztheorie Prof. Dr. Hartmut Rosa, Friedrich-Schiller-Universität Jena",
+				"title": "Hartmut Rosa über den Umgang mit Sterben, Tod und Trauer: Ein Gespräch mit dem Soziologen und Begründer der Resonanztheorie Prof. Dr. Hartmut Rosa, Friedrich-Schiller-Universität Jena: Ein Gespräch mit dem Soziologen und Begründer der Resonanztheorie Prof. Dr. Hartmut Rosa, Friedrich-Schiller-Universität Jena",
 				"creators": [
 					{
 						"firstName": "Heidi",
@@ -619,6 +577,7 @@ var testCases = [
 				"date": "2022/05/31",
 				"DOI": "10.1515/spircare-2021-0065",
 				"ISSN": "2365-8185",
+				"abstractNote": "Article Hartmut Rosa über den Umgang mit Sterben, Tod und Trauer was published on May 31, 2022 in the journal Spiritual Care (volume 11, issue 2).",
 				"issue": "2",
 				"language": "en",
 				"libraryCatalog": "www.degruyter.com",
@@ -636,7 +595,103 @@ var testCases = [
 				"tags": [],
 				"notes": [
 					{
-						"note": "Heidi Müller</span> and <span class=\"contributor\" data-bs-toggle=\"tooltip\" data-placement=\"bottom\" title=\"Universitätsklinikum Gießen und Marburg, Standort Gießen Internistische Onkologie und Palliativmedizin Gießen Deutschland; daniel.berthold@innere.med.uni-giessen.de\">Daniel Berthold | orcid:0000-0001-9816-8650 | taken from website"
+						"note": "Daniel Berthold   | orcid:0000-0001-9816-8650 | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.degruyter.com/document/doi/10.1515/spircare-2022-0057/html",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Psychiatrische Patientinnen und Patienten in Vukovar (Kroatien) und ihre Bedürfnisse nach Vergebung: Psychiatric patients in Vukovar (Croatia) and their needs for forgiveness: Psychiatric patients in Vukovar (Croatia) and their needs for forgiveness",
+				"creators": [
+					{
+						"firstName": "Andrijana",
+						"lastName": "Glavas",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Arndt",
+						"lastName": "Büssing",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Klaus",
+						"lastName": "Baumann",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022/11/01",
+				"DOI": "10.1515/spircare-2022-0057",
+				"ISSN": "2365-8185",
+				"abstractNote": "27 Jahre nach dem Krieg in Kroatien ist der Prozess der Vergebung und Versöhnung zwischen den damaligen Kriegsparteien nicht abgeschlossen. Das Ziel dieser Studie war es zu untersuchen, welche Bedürfnisse bezüglich Vergebung Patientinnen und Patienten in Psychiatrie und Psychotherapie in Kroatien haben. Methode: Anonyme Querschnittserhebung mit standardisierten Fragebögen unter 200 Patientinnen und Patienten mit Traumafolgeerkrankungen (TFE) und anderen psychischen Erkrankungen, die im Allgemein- und Veteranenkrankenhaus in Vukovar behandelt wurden. Ergebnisse: Für eine große Anzahl der Patienten und Patientinnen spielen das Bedürfnis, jemandem zu vergeben, und das Bedürfnis, selbst Vergebung zu erlangen, eine wichtige Rolle. Signifikante Unterschiede in der Ausprägung der Stärke der Bedürfnisse gab es zwischen Patientengruppen: mit und ohne TFE, mit und ohne aktive Kriegsteilnahme. Fazit: Vergebung ist für die Patientinnen und Patienten in Kroatien weiterhin ein aktuelles, nicht abgeschlossenes Thema. Es erfordert interdisziplinäre Forschung und Arbeit im Sinne der Förderung eines dauerhaften Friedens, nicht nur in Kroatien oder auf dem Balkan, sondern europa- und weltweit, auch im Blick auf neue kriegerische Auseinandersetzungen.\\n4207 Even 27 years after the war in Croatia, the process of forgiveness and reconciliation between the warring parties is not completed. The aim of this study was to investigate the forgiveness needs of psychiatric patients in Croatia., Method: Anonym survey with standardized questionnaires among 200 patients with trauma sequelae and other mental disorders treated in the General Hospital and Veterinary Hospital in Vukovar., Results: For a large number of patients, the needs to forgive someone and to be forgiven play an important role. There were significant differences in the strength of these needs between the patient groups: with or without PTSD, with or without active participation in the war., Conclusion: Forgiveness is still a relevant topic and an unfinished issue for psychiatric patients in Croatia today. It requires interdisciplinary research and work in the sense of promoting lasting peace, not only in Croatia and the Balkans, but in Europe and worldwide, especially in view of new armed conflicts.",
+				"issue": "4",
+				"language": "en",
+				"libraryCatalog": "www.degruyter.com",
+				"pages": "321-331",
+				"publicationTitle": "Spiritual Care",
+				"shortTitle": "Psychiatrische Patientinnen und Patienten in Vukovar (Kroatien) und ihre Bedürfnisse nach Vergebung",
+				"url": "https://www.degruyter.com/document/doi/10.1515/spircare-2022-0057/html",
+				"volume": "11",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Balkan war"
+					},
+					{
+						"tag": "Balkan-Krieg"
+					},
+					{
+						"tag": "Forgiveness"
+					},
+					{
+						"tag": "ICD-10 F43.1"
+					},
+					{
+						"tag": "ICD-10 F62.0"
+					},
+					{
+						"tag": "ICD-10 F62.0 and other psychiatric\ndisorders"
+					},
+					{
+						"tag": "PTBS"
+					},
+					{
+						"tag": "PTSD"
+					},
+					{
+						"tag": "Vergebung"
+					},
+					{
+						"tag": "Versöhnung"
+					},
+					{
+						"tag": "Vukovar"
+					},
+					{
+						"tag": "reconciliation"
+					},
+					{
+						"tag": "und andere psychische Erkrankungen"
+					}
+				],
+				"notes": [
+					{
+						"note": "Arndt Büssing   | orcid:0000-0002-5025-7950 | taken from website"
+					},
+					{
+						"note": "Klaus Baumann  | orcid:0000-0002-7998-0763 | taken from website"
 					}
 				],
 				"seeAlso": []
