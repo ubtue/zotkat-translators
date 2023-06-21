@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-12-01 10:37:50"
+	"lastUpdated": "2023-06-21 12:27:17"
 }
 
 /*
@@ -106,29 +106,20 @@ function postProcess(doc, item) {
 	} else {
 		item.date;
 	}
-
+	
 	//scrape ORCID from website
-	let authorSectionEntries = doc.querySelectorAll('.text-subheading span');
-	let foundOrcid = false;
-	for (let authorSectionEntry of authorSectionEntries) {
-		let authorInfo = authorSectionEntry.querySelector('.c-Button--link');
-		let orcidHref = authorSectionEntry.querySelector('.orcid');
-		if (authorInfo && orcidHref) {
-			let author = authorInfo.childNodes[0].textContent;
-			let orcid = orcidHref.textContent.replace(/.*(\d{4}-\d+-\d+-\d+x?)$/i, '$1');
-			item.notes.push({note: "orcid:" + orcid + ' | ' + author});
-			foundOrcid = true;
-		}
-	}
-	if (!foundOrcid) authorSectionEntries = ZU.xpath(doc, '//div[@class="contributor-details"]');
-	for (let authorSectionEntry of authorSectionEntries) {
-		let authorInfo = ZU.xpathText(authorSectionEntry, './/*[@class="contributor-details-link"][1]')
-		let orcidHref = authorSectionEntry.querySelector('.orcid');
-		if (authorInfo && orcidHref) {
-			let orcid = orcidHref.textContent.replace(/.*(\d{4}-\d+-\d+-\d+x?)$/i, '$1');
-			item.notes.push({note: "orcid:" + orcid + ' | ' + authorInfo});
-		}
-	}
+    let authorSectionEntries = doc.querySelectorAll('.text-subheading span, .content-contributor-author.single-line .contributor-details');
+    for (let authorSectionEntry of authorSectionEntries) {
+        let authorInfo = authorSectionEntry.querySelector('.c-Button--link, .contributor-details-link');
+        let orcidHref = authorSectionEntry.querySelector('.orcid');
+        if (authorInfo && orcidHref) {
+            let author = authorInfo.childNodes[0].textContent;
+            let orcid = orcidHref.textContent.replace(/.*(\d{4}-\d+-\d+-\d+x?)$/i, '$1');
+            item.notes.push({note: "orcid:" + orcid + ' | ' + author + ' | ' + 'taken from website'});
+            foundOrcid = true;
+        }
+    }
+
 	//delete symbols in names
 	for (let i in item.creators) {
 		item.creators[i].lastName = item.creators[i].lastName.replace('†', '');
@@ -203,6 +194,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://brill.com/view/journals/ormo/100/2/article-p147_2.xml",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -226,16 +218,7 @@ var testCases = [
 				"shortTitle": "‘Our Traditions Will Kill Us!’",
 				"url": "https://brill.com/view/journals/ormo/100/2/article-p147_2.xml",
 				"volume": "100",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Tajikistan"
@@ -265,6 +248,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://brill.com/view/journals/ormo/100/2/article-p172_3.xml",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -293,16 +277,7 @@ var testCases = [
 				"shortTitle": "Alignment and Alienation",
 				"url": "https://brill.com/view/journals/ormo/100/2/article-p172_3.xml",
 				"volume": "100",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					},
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Uyghur"
@@ -320,7 +295,11 @@ var testCases = [
 						"tag": "modernisation"
 					}
 				],
-				"notes": [],
+				"notes": [
+					{
+						"note": "LF:"
+					}
+				],
 				"seeAlso": []
 			}
 		]
@@ -328,7 +307,83 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://brill.com/view/journals/ormo/100/2/ormo.100.issue-2.xml",
+		"detectedItemType": "multiple",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://brill.com/view/journals/rrcs/9/2/article-p249_5.xml",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Mapping Religious Sites in China: A Research Note",
+				"creators": [
+					{
+						"firstName": "Jackie",
+						"lastName": "Henke",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Fenggang",
+						"lastName": "Yang (楊鳳崗)",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022/10/24",
+				"DOI": "10.1163/22143955-12340008",
+				"ISSN": "2214-3947, 2214-3955",
+				"abstractNote": "Abstract Drawing from visual studies scholarship, we highlight current and persistent critiques of sociological visualization, note recent developments in visualization tools for sociologists, and propose how sociologists can be reflective about their visualization choices. As a case study, we outline the visualization development and selection process in our project of mapping Chinese religious venues. We explain the visualization challenges we faced, the visual biases we hoped to manage, the strengths and limitations of various visualization methods we identified, and how we selected visualizations for varying research queries. In addition, we provide a list of considerations for fellow sociologists working to visualize geospatial point data.",
+				"issue": "2",
+				"language": "eng",
+				"libraryCatalog": "brill.com",
+				"pages": "249-274",
+				"publicationTitle": "Review of Religion and Chinese Society",
+				"shortTitle": "Mapping Religious Sites in China",
+				"url": "https://brill.com/view/journals/rrcs/9/2/article-p249_5.xml",
+				"volume": "9",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "ArcGIS"
+					},
+					{
+						"tag": "geospatial data"
+					},
+					{
+						"tag": "mapping"
+					},
+					{
+						"tag": "point data"
+					},
+					{
+						"tag": "visualization"
+					},
+					{
+						"tag": "可視化"
+					},
+					{
+						"tag": "地圖製作"
+					},
+					{
+						"tag": "地理空間數據"
+					},
+					{
+						"tag": "點狀數據"
+					}
+				],
+				"notes": [
+					"abs:摘要基於可視化研究的學術領域，我們提出對於社會學可視化研究已有的和持續的批評，指出可視化工具的新近發展，對於社會學學者在可視化選擇過程中應有的反思提出建議。作為一個案例研究，我們簡要概述在製作中國宗教場所地圖過程中關於可視化的種種選擇，坦承解釋所遇到的種種挑戰，如何盡力減少視覺偏見，檢討不同可視化方法的優點和侷限，以及如何根據研究問題而選定可視方式。最後，我們提供一個需要考慮因素的清單，或許可以作為社會學學者在地理空間點狀數據的可視化中的參考。",
+					{
+						"note": "orcid:0000-0002-1935-3215 | Jackie Henke | taken from website"
+					},
+					{
+						"note": "orcid:0000-0002-4723-9735 | Fenggang Yang (楊鳳崗) | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
