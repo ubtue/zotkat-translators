@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-06-21 12:27:17"
+	"lastUpdated": "2023-06-21 13:14:43"
 }
 
 /*
@@ -81,11 +81,14 @@ function postProcess(doc, item) {
 		item.abstractNote.substring(0,30)
 		if (!ZU.xpathText(doc, '//abstract').includes(item.abstractNote.substring(0,30))) {
 			item.notes.push('abs:' + ZU.xpathText(doc, '//abstract'));
+			item.abstractNote = item.abstractNote.replace(/^abstract/i, '');
 		}
 	}
 	// i set 100 as limit of string length, because usually a string of a pseudoabstract has less then 150 character e.g. "abstractNote": "\"Die Vernünftigkeit des jüdischen Dogmas\" published on 05 Sep 2020 by Brill."
 	if (item.abstractNote.length < 100) delete item.abstractNote;
 
+
+	
 	item.tags = ZU.xpath(doc, '//dd[contains(@class, "keywords")]//a');
 	if (item.tags) {
 		let allTags = item.tags.map(i => i.textContent.trim());
@@ -333,7 +336,7 @@ var testCases = [
 				"date": "2022/10/24",
 				"DOI": "10.1163/22143955-12340008",
 				"ISSN": "2214-3947, 2214-3955",
-				"abstractNote": "Abstract Drawing from visual studies scholarship, we highlight current and persistent critiques of sociological visualization, note recent developments in visualization tools for sociologists, and propose how sociologists can be reflective about their visualization choices. As a case study, we outline the visualization development and selection process in our project of mapping Chinese religious venues. We explain the visualization challenges we faced, the visual biases we hoped to manage, the strengths and limitations of various visualization methods we identified, and how we selected visualizations for varying research queries. In addition, we provide a list of considerations for fellow sociologists working to visualize geospatial point data.",
+				"abstractNote": "Drawing from visual studies scholarship, we highlight current and persistent critiques of sociological visualization, note recent developments in visualization tools for sociologists, and propose how sociologists can be reflective about their visualization choices. As a case study, we outline the visualization development and selection process in our project of mapping Chinese religious venues. We explain the visualization challenges we faced, the visual biases we hoped to manage, the strengths and limitations of various visualization methods we identified, and how we selected visualizations for varying research queries. In addition, we provide a list of considerations for fellow sociologists working to visualize geospatial point data.",
 				"issue": "2",
 				"language": "eng",
 				"libraryCatalog": "brill.com",
@@ -380,6 +383,61 @@ var testCases = [
 					{
 						"note": "orcid:0000-0002-4723-9735 | Fenggang Yang (楊鳳崗) | taken from website"
 					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://brill.com/view/journals/rrcs/9/2/article-p170_2.xml",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Toward a Chinese Buddhist Modernism: Khenpo Sodargye and the Han Inundation of Larung Gar",
+				"creators": [
+					{
+						"firstName": "Andrew S.",
+						"lastName": "Taylor (唐安竺)",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022/10/24",
+				"DOI": "10.1163/22143955-12340005",
+				"ISSN": "2214-3947, 2214-3955",
+				"abstractNote": "Larung Gar is often hailed by scholars and practitioners alike as a last bastion of authentic Buddhist practice by ethnic Tibetans within the PRC. And yet, Larung is visited every year by tens of thousands of Han pilgrims and houses hundreds of Han monastics who have taken vows in the Tibetan Buddhist tradition. The author draws on a variety of oral and written sources to show that the Han inundation of Larung was not a byproduct of happenstance, but was actively facilitated by the Larung leadership, especially Khenpo Sodargye (མཁན་པོ་བསོད་དར་རྒྱས་ 索达吉堪布), through the targeted recruitment of Han practitioners. A comparative analysis of Tibetan- and Chinese-language materials shows that the neo-scientific and therapeutic teachings used to recruit Han practitioners superficially resemble similar “Buddhist modernist” discourses in the west and Tibet, but that their content is decidedly more soteriological than this moniker suggests. The article considers whether the encounter between Han practitioners and Tibetan Buddhism might eventually represent a nascent form of inter-ethnic Chinese Buddhist modernism.",
+				"issue": "2",
+				"language": "eng",
+				"libraryCatalog": "brill.com",
+				"pages": "170-197",
+				"publicationTitle": "Review of Religion and Chinese Society",
+				"shortTitle": "Toward a Chinese Buddhist Modernism",
+				"url": "https://brill.com/view/journals/rrcs/9/2/article-p170_2.xml",
+				"volume": "9",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Chinese Buddhist modernism"
+					},
+					{
+						"tag": "Khenpo Sodargye"
+					},
+					{
+						"tag": "Larung Gar"
+					},
+					{
+						"tag": "中国佛教现代主义"
+					},
+					{
+						"tag": "喇荣五明佛学院"
+					},
+					{
+						"tag": "索达吉堪布"
+					}
+				],
+				"notes": [
+					"abs:摘要佛学者和佛教徒都同意喇荣五明佛学院是中国境内真正藏传佛教修行的最后堡垒。然而，每年都有数以万计的汉族朝圣者到访喇荣，其中包含了数百名在藏传佛教传承中出家发愿的汉族僧侣。作者利用各种口头和书面资料表明汉族在喇荣的存在并非偶然的现象，而是喇荣的佛教领袖—尤其是索达吉堪布—主动招募汉族的佛教徒的结果。通过对藏文和语文材料的比较分析，本文展示用于招募汉族佛教徒的“新科学”和“新治疗”的教法，虽然表面上类似于在西方和西藏的“佛教现代主义”的话语，但其内容在“现代主义”之上救世神学的色彩更浓。本文讨论了汉族佛教徒与藏传佛教之间的相遇是否最终可能代表了一种新兴的、跨民族“中国佛教现代主义”。"
 				],
 				"seeAlso": []
 			}
