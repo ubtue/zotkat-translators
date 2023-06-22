@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-03-01 11:56:59"
+	"lastUpdated": "2023-06-22 14:46:46"
 }
 
 /*
@@ -104,7 +104,7 @@ function scrape(doc, url) {
 		let issue = volumesIssuePageEntry.split(reSplitIssue)[1].trim().match(/^\d{1}/)[0];//Z.debug("issue: " + issue)
 		if (!item.issue && issue) item.issue = issue;
 		//four different seperator for page numbers
-		let reSplitPages = /\W:|pp\.|pages|pp\-/;
+		let reSplitPages = /\W[:|,]|pp\.|pages|pp\-/;
 		//two different hypen types for matching pages (-|–) from volumesIssuePageEntry
 		if (!item.pages && volumesIssuePageEntry.split(reSplitPages).length > 1) item.pages = volumesIssuePageEntry.split(reSplitPages)[1].trim().replace(/\.$/, '').match(/\d+(-|–)\d+/).toString().replace(/,(-|–)$/, '');
 		let url = ZU.xpathText(doc, '//meta[@property="og:url"]/@content');
