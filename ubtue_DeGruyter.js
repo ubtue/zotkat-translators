@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-06-14 14:58:29"
+	"lastUpdated": "2023-06-28 09:21:13"
 }
 
 /*
@@ -87,11 +87,11 @@ function invokeEMTranslator(doc) {
 		if (ZU.xpathText(doc, '//span[contains(@class, "accessAccessible") and (contains(., "Öffentlich zugänglich") or contains(., "Publicly Available"))]')) i.notes.push('LF:');
 		
 		if (i.abstractNote === undefined) i.abstractNote = '';
-		if (ZU.xpathText(doc, '//h2[@class="subtitle productSubtitleMainContent"]') != null) {
-			if (ZU.xpathText(doc, '//h2[@class="subtitle productSubtitleMainContent"]') != "") {
-				i.title += ': ' + ZU.xpathText(doc, '//h2[@class="subtitle productSubtitleMainContent"]');
-			}
-		} 
+
+        let subtitle = text(doc, 'h2.subtitle');
+        if (subtitle && !i.title.includes(': ')) {
+            i.title = `${i.title.trim()}: ${subtitle}`;
+        }
 		if (i.abstractNote.match(pseudoabstract) || i.abstractNote.match(/^Der Artikel/)) delete i.abstractNote;
 		for (let keyWord of ZU.xpath(doc, '//div[contains(@class, "keywords")]/a')) {
 			if (!i.tags.includes(keyWord.textContent)) i.tags.push(keyWord.textContent);
@@ -105,6 +105,8 @@ function invokeEMTranslator(doc) {
 			}
 		}
 		if (!i.ISSN) i.ISSN = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "onlineissn", " " )) and contains(concat( " ", @class, " " ), concat( " ", "text-metadata-value", " " ))]');
+		//delete lastPage if the value of firstPage is the same value as lastPage
+		i.pages = i.pages.trim().replace(/^([^-]+)-\1$/, '$1');
 		i.complete();
 	});
 	translator.translate();
@@ -440,128 +442,12 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://www.degruyter.com/document/doi/10.1515/abitech-2019-2004/html?lang=de",
-		"detectedItemType": "journalArticle",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Die Rolle der ORCID iD in der Wissenschaftskommunikation: Der Beitrag des ORCID-Deutschland-Konsortiums und das ORCID-DE-Projekt",
-				"creators": [
-					{
-						"firstName": "Britta",
-						"lastName": "Dreyer",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Stephanie",
-						"lastName": "Hagemann-Wilholt",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Paul",
-						"lastName": "Vierkant",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Dorothea",
-						"lastName": "Strecker",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Stephanie",
-						"lastName": "Glagla-Dietz",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Friedrich",
-						"lastName": "Summann",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Heinz",
-						"lastName": "Pampel",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Marleen",
-						"lastName": "Burger",
-						"creatorType": "author"
-					}
-				],
-				"date": "2019/07/01",
-				"DOI": "10.1515/abitech-2019-2004",
-				"ISSN": "2191-4664",
-				"abstractNote": "ORCID schafft mit Services wie der eindeutigen Verknüpfung von Forschenden und ihren Publikationen die Basis moderner Wissenschaftskommunikation. Das ORCID-Deutschland-Konsortium bietet eine kostenreduzierte ORCID-Premiummitgliedschaft an und unterstützt die Mitglieder bei der erfolgreichen ORCID-Integration. Diese umfasst neben einer Dialogplattform mit deutschsprachigen Informationsmaterialien weitere Supportleistungen. Ein wichtiger Erfolgsfaktor ist außerdem eine umfassende Kommunikationsstrategie der ORCID-Implementierung. Hier können die Mitglieder auf etablierte Kommunikationskanäle innerhalb ihrer Einrichtungen zurückgreifen. Gemeinsam leisten sie mit der Unterstützung des ORCID-DE-Projekts einen wesentlichen Beitrag zur erfolgreichen Verbreitung von ORCID in Deutschland.\\n4207 ORCID’s services such as the unambiguous linking of researchers and their research output form the basis of modern scholarly communication. The ORCID Germany Consortium offers a reduced ORCID premium membership fee and supports its members during ORCID integration. Services include a dialogue platform that provides German-language information and additional support services. Another major success factor is an all-encompassing communication strategy: members of the ORCID implementation can resort to established organizational communication channels. Together and with the support of the ORCID DE project they contribute significantly to the successful distribution of ORCID in Germany.",
-				"issue": "2",
-				"language": "en",
-				"libraryCatalog": "www.degruyter.com",
-				"pages": "112-121",
-				"publicationTitle": "ABI Technik",
-				"shortTitle": "Die Rolle der ORCID iD in der Wissenschaftskommunikation",
-				"url": "https://www.degruyter.com/document/doi/10.1515/abitech-2019-2004/html?lang=de",
-				"volume": "39",
-				"attachments": [
-					{
-						"title": "Snapshot",
-						"mimeType": "text/html"
-					}
-				],
-				"tags": [
-					{
-						"tag": "Autorenidentifikation"
-					},
-					{
-						"tag": "ORCID"
-					},
-					{
-						"tag": "Persistent Identifier"
-					},
-					{
-						"tag": "Persistenter Identifikator"
-					},
-					{
-						"tag": "Researcher Identification"
-					}
-				],
-				"notes": [
-					"LF:",
-					{
-						"note": "Britta Dreyer    | orcid:0000-0002-0687-5460 | taken from website"
-					},
-					{
-						"note": "Stephanie Hagemann-Wilholt    | orcid:0000-0002-0474-2410 | taken from website"
-					},
-					{
-						"note": "Paul Vierkant    | orcid:0000-0003-4448-3844 | taken from website"
-					},
-					{
-						"note": "Dorothea Strecker    | orcid:0000-0002-9754-3807 | taken from website"
-					},
-					{
-						"note": "Stephanie Glagla-Dietz    | orcid:0000-0001-8762-3005 | taken from website"
-					},
-					{
-						"note": "Friedrich Summann    | orcid:0000-0002-6297-3348 | taken from website"
-					},
-					{
-						"note": "Heinz Pampel    | orcid:0000-0003-3334-2771 | taken from website"
-					},
-					{
-						"note": "Marleen Burger   | orcid:0000-0001-6836-1193 | taken from website"
-					}
-				],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
 		"url": "https://www.degruyter.com/document/doi/10.1515/spircare-2021-0065/html",
 		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Hartmut Rosa über den Umgang mit Sterben, Tod und Trauer: Ein Gespräch mit dem Soziologen und Begründer der Resonanztheorie Prof. Dr. Hartmut Rosa, Friedrich-Schiller-Universität Jena: Ein Gespräch mit dem Soziologen und Begründer der Resonanztheorie Prof. Dr. Hartmut Rosa, Friedrich-Schiller-Universität Jena",
+				"title": "Hartmut Rosa über den Umgang mit Sterben, Tod und Trauer: Ein Gespräch mit dem Soziologen und Begründer der Resonanztheorie Prof. Dr. Hartmut Rosa, Friedrich-Schiller-Universität Jena",
 				"creators": [
 					{
 						"firstName": "Heidi",
@@ -609,7 +495,7 @@ var testCases = [
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Psychiatrische Patientinnen und Patienten in Vukovar (Kroatien) und ihre Bedürfnisse nach Vergebung: Psychiatric patients in Vukovar (Croatia) and their needs for forgiveness: Psychiatric patients in Vukovar (Croatia) and their needs for forgiveness",
+				"title": "Psychiatrische Patientinnen und Patienten in Vukovar (Kroatien) und ihre Bedürfnisse nach Vergebung: Psychiatric patients in Vukovar (Croatia) and their needs for forgiveness",
 				"creators": [
 					{
 						"firstName": "Andrijana",
@@ -694,6 +580,92 @@ var testCases = [
 						"note": "Klaus Baumann  | orcid:0000-0002-7998-0763 | taken from website"
 					}
 				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.degruyter.com/document/doi/10.14315/evth-2023-830306/html",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Was kann die Bibel zur aktuellen Schöpfungsethik beitragen?: Das Neue Testament im Kontext neuerer öko-hermeneutischer Ansätze der Schriftinterpretation",
+				"creators": [
+					{
+						"firstName": "Mirjam",
+						"lastName": "Jekel",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Zacharias",
+						"lastName": "Shoukry",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Ruben",
+						"lastName": "Zimmermann",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023/05/01",
+				"DOI": "10.14315/evth-2023-830306",
+				"ISSN": "2198-0470",
+				"abstractNote": "Article Was kann die Bibel zur aktuellen Schöpfungsethik beitragen? was published on May 1, 2023 in the journal Evangelische Theologie (volume 83, issue 3).",
+				"issue": "3",
+				"language": "de",
+				"libraryCatalog": "www.degruyter.com",
+				"pages": "194-210",
+				"publicationTitle": "Evangelische Theologie",
+				"shortTitle": "Was kann die Bibel zur aktuellen Schöpfungsethik beitragen?",
+				"url": "https://www.degruyter.com/document/doi/10.14315/evth-2023-830306/html",
+				"volume": "83",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.degruyter.com/document/doi/10.14315/evth-2023-830303/html",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Zu diesem Heft",
+				"creators": [
+					{
+						"firstName": "Bernd",
+						"lastName": "Oberdorfer",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023/05/01",
+				"DOI": "10.14315/evth-2023-830303",
+				"ISSN": "2198-0470",
+				"issue": "3",
+				"language": "de",
+				"libraryCatalog": "www.degruyter.com",
+				"pages": "163",
+				"publicationTitle": "Evangelische Theologie",
+				"url": "https://www.degruyter.com/document/doi/10.14315/evth-2023-830303/html",
+				"volume": "83",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
