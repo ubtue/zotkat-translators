@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-06-22 14:11:21"
+	"lastUpdated": "2023-06-28 14:16:25"
 }
 
 /*
@@ -84,15 +84,17 @@ function invokeEMTranslator(doc) {
 	translator.setHandler("itemDone", function (t, i) {
 		if (i.ISSN == undefined) i.ISSN = ZU.xpathText(doc, '//meta[@name="DC.Source.ISSN"]/@content');
 		if (i.ISSN == undefined && i.url.match(/\/godsandmonsters\//) != null) i.ISSN = "IXTH-0001";
-		if (i.issue == undefined) i.issue = ZU.xpathText(doc, '//meta[@name="DC.Source.Issue"]/@content');
+		if (i.ISSN == undefined) i.issue = ZU.xpathText(doc, '//meta[@name="DC.Source.Issue"]/@content');
+		//replace issue number with volume number for certain journals and delete year
+		if (i.ISSN == "2297-6469") {
+			i.volume = i.issue.split(/\/\d{4}/i)[0];
+			i.issue = "";
+		}
 		if (i.volume == undefined) i.volume = ZU.xpathText(doc, '//meta[@name="DC.Source.Volume"]/@content');
 		if (i.pages == undefined) i.pages = ZU.xpathText(doc, '//meta[@name="DC.Identifier.Pagenumber"]/@content');
 		if (i.DOI == undefined) i.DOI = ZU.xpathText(doc, '//meta[@name="DC.Identifier.DOI"]/@content');
 		if (i.ISSN == "2521-6465") i.language = ZU.xpathText(doc, '//meta[@name="DC.Language"]/@content');
-		if (i.ISSN == "1988-7949") {
-			i.volume = i.issue;
-			i.issue = "";
-		}
+
 		if (doc.querySelector(".subtitle")) {
 			if (i.title.indexOf(doc.querySelector(".subtitle").textContent.trim().replace(/\s+/g, ' ')) == -1) {
  			i.title = i.title + ' ' + doc.querySelector(".subtitle").textContent.trim();
@@ -168,7 +170,7 @@ function invokeEMTranslator(doc) {
 
 				let name = ZU.xpathText(a, './/strong');
 				let orcid = ZU.xpathText(a, './/a[contains(@href, "orcid.org")]/@href');
-				if (!allORCIDs.includes(orcid)) i.notes.push({note: "orcid:" + orcid.replace(/https?:\/\/orcid\.org\//g, '') + ' | ' + ZU.trimInternal(name) + ' | ' + 'taken from website'});
+				if (!allORCIDs.includes(orcid) && orcid != null) i.notes.push({note: "orcid:" + orcid.replace(/https?:\/\/orcid\.org\//g, '') + ' | ' + ZU.trimInternal(name) + ' | ' + 'taken from website'});
 				allORCIDs.push(orcid);
   			}
   		 }
@@ -404,23 +406,23 @@ function invokeEMTranslator(doc) {
 			i.abstractNote = abstracts[0].textContent + '\\n4207 ' + abstracts[1].textContent;
 			}
 		}
-		if (i.ISSN == "2605-3357") {
+		if (["2952-2196"].includes(i.ISSN)) {
 			let abstractTags = ZU.xpath(doc, '//meta[@name="DC.Description"]/@content');
 			let abstractNum = 0;
-			let abstractSplitters = ["\n&nbsp;\nKeywords:", "\n&nbsp;\nParole chiave:", "\n&nbsp;\nPalabras clave:"]
+			let abstractSplitters = ["\n&nbsp;\nKeywords:", "\nKeywords:", "\n&nbsp;\nParole chiave:", "\nParole chiave:", "\n&nbsp;\nPalabras clave:", "\nPalabras clave:"];
 			for (let abstractTag of abstractTags) {
 				let foundAbstractSplitter = false;
 				abstractTag = abstractTag.textContent;
 				for (let abstractSplitter of abstractSplitters) {
 					if (abstractTag.match(abstractSplitter) != null) {
 						let abstract = abstractTag.split(abstractSplitter)[0];
-						let keywords = abstractTag.split(abstractSplitter)[1];
+						let keywords = abstractTag.split(abstractSplitter)[1];Z.debug(keywords)
 						if (abstractNum == 0) i.abstractNote = abstract;
 						else i.notes.push({'note': 'abs:' + abstract});
-						for (let keyword of keywords.split(/\s*[,;]\s*/)) {
+						for (let keyword of keywords.split(/\s*[,;]\s*/)) {Z.debug(keyword)
 							i.tags.push(keyword.replace(/.$/, '').trim());
 						}
-						break
+						break;
 					}
 				}
 				abstractNum += 1;
@@ -495,13 +497,12 @@ String.prototype.capitalizeFirstLetter = function() {
 
 function extractVolumeIssueFromZ3988(doc, i, z3988Entries) {
 	if (z3988Entries) {
-		if (z3988Entries.indexOf("rft.volume")) {
+		if (z3988Entries.match(/rft.volume=\d+/g)) {
 			let regexVolume = /volume=(\d+)/g;
 			i.volume = regexVolume.exec(z3988Entries)[1];
 		}
-		if (z3988Entries.indexOf("rft.issue")) {
-			let regexIssue = /issue=(\d)/g;
-			i.issue = regexIssue.exec(z3988Entries)[1];
+		if (z3988Entries.match(/rft.issue=\d.*rft/gi)) {
+			i.issue = z3988Entries.split('rft.issue=')[1].split('&')[0].replace('%2B', '/');
 		}
 	}
 }
@@ -555,7 +556,7 @@ var testCases = [
 				"libraryCatalog": "www.zwingliana.ch",
 				"pages": "VII-IX",
 				"publicationTitle": "Zwingliana",
-				"rights": "Copyright (c)",
+				"rights": "Copyright (c) 2019 Christian Oesterheld",
 				"url": "https://www.zwingliana.ch/index.php/zwa/article/view/2516",
 				"attachments": [],
 				"tags": [],
@@ -1742,6 +1743,303 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://archivodominicano.dominicos.org/ojs/article/view/conventualidad-dominica-archivos-merida-badajoz",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Principales líneas de investigación sobre conventualidad dominica según la documentación custodiada en los archivos eclesiásticos de Mérida-Badajoz (siglos XVI-XIX)",
+				"creators": [
+					{
+						"firstName": "María Guadalupe PÉREZ",
+						"lastName": "Ortiz",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022/12/20",
+				"ISSN": "2952-2196",
+				"abstractNote": "The ecclesiastical archives of Mérida-Badajoz guard a great variety of documents on Dominican conventuality from the 16th to the 19th centuries. In the work that we present below, we intend to present said documentation from a perspective that goes beyond the pure analysis of the document and its subject matter. What we want to expose are the fundamental contents that these documents cover to show possible lines of research that, based on them, can give rise to other investigations.",
+				"journalAbbreviation": "AD",
+				"language": "es",
+				"libraryCatalog": "archivodominicano.dominicos.org",
+				"pages": "17-50",
+				"publicationTitle": "Archivo Dominicano",
+				"rights": "Derechos de autor 2022 María Guadalupe PÉREZ ORTIZ",
+				"url": "https://archivodominicano.dominicos.org/ojs/article/view/conventualidad-dominica-archivos-merida-badajoz",
+				"volume": "43",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Dominican"
+					},
+					{
+						"tag": "archivos eclesiástico"
+					},
+					{
+						"tag": "convent"
+					},
+					{
+						"tag": "convento"
+					},
+					{
+						"tag": "dominico"
+					},
+					{
+						"tag": "ecclesiastical archive"
+					},
+					{
+						"tag": "lines of researc"
+					},
+					{
+						"tag": "líneas de investigació"
+					}
+				],
+				"notes": [
+					{
+						"note": "abs:Los archivos eclesiásticos de Mérida-Badajoz custodian gran variedad de documentos sobre conventualidad dominica de entre los siglos XVI al XIX. En el trabajo que presentamos a continuación pretendemos dar a conocer dicha documentación desde una vertiente que va más allá del puro análisis del documento de archivo y su temática. Lo que queremos exponer son los contenidos fundamentales que abarcan dichos documentos para mostrar posibles líneas de investigación que partiendo de ellos puedan dar lugar a otras investigaciones futuras."
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/44463",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Historiografía sobre el Concilio de Nicea: el Concilio de Nicea a la luz de sus historiadores",
+				"creators": [
+					{
+						"firstName": "Almudena",
+						"lastName": "Alba-López",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023/03/30",
+				"DOI": "10.15581/007.32.003",
+				"ISSN": "2174-0887",
+				"abstractNote": "The importance and significance of the first ecumenical council has been a subject of reflection ever since its own time period. It was not long before Eusebius of Caesarea and the various Church historians of the 4th and 5th centuries commented on the development of the synod, inseparably linking the consubstantiality of the Father and Son formulated in Nicaea to Christian orthodoxy and, to a certain extent, conditioning subsequent thought regarding the council and its historical and theological influence. In this contribution we will approach the development of historiographic and theological thought concerning the council of Nicaea by its immediate contemporaries, as well as its influence on the last few decades, focusing on the study of its nature and significance.",
+				"journalAbbreviation": "1",
+				"language": "es",
+				"libraryCatalog": "revistas.unav.edu",
+				"pages": "19-48",
+				"publicationTitle": "Anuario de Historia de la Iglesia",
+				"rights": "Derechos de autor 2023 Anuario de Historia de la Iglesia",
+				"shortTitle": "Historiografía sobre el Concilio de Nicea",
+				"url": "https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/44463",
+				"volume": "32",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Concilio Vaticano II"
+					},
+					{
+						"tag": "Concilio de Nicea (325)"
+					},
+					{
+						"tag": "Concilios Ecuménicos"
+					},
+					{
+						"tag": "Escolástico"
+					},
+					{
+						"tag": "Eusebio de Cesarea"
+					},
+					{
+						"tag": "Hermias Sozomeno"
+					},
+					{
+						"tag": "Historia de la Iglesia en la Antigüedad"
+					},
+					{
+						"tag": "Historia de los Concilios"
+					},
+					{
+						"tag": "Historiografía"
+					},
+					{
+						"tag": "Sócrates"
+					},
+					{
+						"tag": "Teodoreto de Ciro"
+					}
+				],
+				"notes": [
+					{
+						"note": "orcid:0000-0002-6406-1262 | Almudena Alba-López | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://cauriensia.es/index.php/cauriensia/article/view/mis4",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Justicia como imparcialidad o reconocer el bien del otro",
+				"creators": [
+					{
+						"firstName": "María Teresa Cid",
+						"lastName": "Vázquez",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "María Teresa Cid",
+						"lastName": "Vázquez",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022/12/01",
+				"DOI": "10.17398/2340-4256.17.63",
+				"ISSN": "2340-4256",
+				"abstractNote": "The current resonance that Rawls' Theory of Justice is having seems to indicate that this theory is appropriate as a practical solution to the problem of pluralism on the different conceptions of life that characterize democratic societies. The starting point from which the theory parts is subordinate to the objective of reaching an agreement, rather than responding to a common good. Thus, procedural systems are given primacy, as they strive to determine the social structure by justice alone. Justice is seen, therefore, not so much as a virtue of the subject, but as a correct social order that guarantees an equality of possibilities through a procedural channel. However, ignoring the issue of what is good and the right that one has over it, the Theory of Justice contradicts the intrinsic rationality of social relations, since such relations are based on the communication of specific goods. That is why there is a supremacy of good over justice.\\n4207 La actual resonancia de la teoría de Rawls parece indicar que es apropiada como solución práctica al problema del pluralismo sobre las distintas concepciones de la vida que caracteriza a las sociedades democráticas. El punto de inicio del que parte está subordinado al objetivo de alcanzar un acuerdo y no tanto de responder a un bien común. Se da así primacía a los sistemas procedimentales tratando de determinar la estructura social por la sola justicia. La justicia se ve, entonces, no tanto como una virtud del sujeto, cuanto como un recto ordenamiento social que garantice una igualdad de posibilidades a través de un cauce procedimental. Sin embargo, ignorar el tema del bien y del derecho que sobre él se tiene, contradice la racionalidad intrínseca de las relaciones sociales, ya que tales relaciones están fundadas en la comunicación de bienes específicos, por lo que se da una supremacía del bien sobre la justicia.\\n4207",
+				"journalAbbreviation": "RevCau",
+				"language": "es",
+				"libraryCatalog": "cauriensia.es",
+				"pages": "63-83",
+				"publicationTitle": "Cauriensia. Revista anual de Ciencias Eclesiásticas",
+				"rights": "Derechos de autor 2022 CAURIENSIA. Revista anual de Ciencias Eclesiásticas",
+				"url": "https://cauriensia.es/index.php/cauriensia/article/view/mis4",
+				"volume": "17",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Rawls"
+					},
+					{
+						"tag": "bien"
+					},
+					{
+						"tag": "imparcialidad"
+					},
+					{
+						"tag": "justicia"
+					},
+					{
+						"tag": "procedimiento"
+					}
+				],
+				"notes": [
+					{
+						"note": "orcid:0000-0001-9243-9755 | María Teresa Cid Vázquez | taken from website"
+					},
+					{
+						"note": "translatedTitle:Justice as Fairness or as Acknowledging the Good in Others"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://hispaniasacra.revistas.csic.es/index.php/hispaniasacra/article/view/946",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "La ἄσκησις o «ejercicio espiritual» en el tratado De vita contemplativa de Filón de Alejandría",
+				"creators": [
+					{
+						"firstName": "Diego Andrés Cardoso",
+						"lastName": "Bueno",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022/12/30",
+				"DOI": "10.3989/hs.2022.23",
+				"ISSN": "1988-4265",
+				"abstractNote": "The concept of ἄσκησις in Philo’s works, as in other intellectual contexts of Antiquity, is linked to those of effort and advance, because, when dealing with philosophical texts of this time, one must always think about the idea of spiritual ascension, πνευματική πρόοδος, together with the idea of exercise that is inherent in it.",
+				"archiveLocation": "The ἄσκησις or “spiritual exercise” in the treatise De vita contemplativa by Philo of Alexandria",
+				"issue": "150",
+				"journalAbbreviation": "Hisp. Sacra",
+				"language": "es",
+				"libraryCatalog": "hispaniasacra.revistas.csic.es",
+				"pages": "347-355",
+				"publicationTitle": "Hispania Sacra",
+				"rights": "Derechos de autor 2023 Consejo Superior de Investigaciones Científicas (CSIC)",
+				"url": "https://hispaniasacra.revistas.csic.es/index.php/hispaniasacra/article/view/946",
+				"volume": "74",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "contemplación"
+					},
+					{
+						"tag": "ejercicio espiritual"
+					},
+					{
+						"tag": "lago Mareotis"
+					},
+					{
+						"tag": "terapeutas"
+					},
+					{
+						"tag": "técnicas psicagógicas"
+					},
+					{
+						"tag": "ἄσκησις"
+					}
+				],
+				"notes": [
+					{
+						"note": "orcid:0000-0001-6838-6761 | Diego Andrés Cardoso Bueno | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.zfrk-rdsr.ch/article/view/3989",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Zum Umgang mit religiösen Objekten: Drei Expertinnen im Interview Entretien avec trois expertes",
+				"creators": [
+					{
+						"firstName": "Caroline",
+						"lastName": "Widmer",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023/05/15",
+				"DOI": "10.26034/fr.zfrk.2023.3989",
+				"ISSN": "2297-6469",
+				"issue": "11%2F2023",
+				"journalAbbreviation": "RDSR",
+				"language": "de",
+				"libraryCatalog": "www.zfrk-rdsr.ch",
+				"pages": "15-18",
+				"publicationTitle": "Revue de didactique des sciences des religions",
+				"rights": "(c) Tous droits réservés Caroline Widmer 2023",
+				"shortTitle": "Zum Umgang mit religiösen Objekten",
+				"url": "https://www.zfrk-rdsr.ch/article/view/3989",
+				"volume": "11",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.hermeneutische-blaetter.uzh.ch/issue/view/254",
+		"detectedItemType": "multiple",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
