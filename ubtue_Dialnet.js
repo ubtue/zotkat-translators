@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-05-22 14:14:28"
+	"lastUpdated": "2023-06-28 09:05:16"
 }
 
 /*
@@ -123,7 +123,7 @@ function scrape(doc, url) {
 			item.volume = volumeEntry.split('Vol.')[1].split(',')[0].trim();
 		}
 		// replace issue by the volume number
-		if (['1124-1225', '1122-5661', '0039-3258', '0212-1964', '1888-346X'].includes(item.ISSN)) {
+		if (['1124-1225', '1122-5661', '0039-3258', '0212-1964', '1888-346X', '0569-9789'].includes(item.ISSN)) {
 			item.volume = volumeEntry.split('Nº.')[1].split(',')[0].trim();
 		}
 		// replace issue by the volume number and scrape issue number e.g.  Studia monastica, ISSN 0039-3258, Nº. 64, 2, 2022, S. 491-504
@@ -441,6 +441,38 @@ var testCases = [
 				"volume": "14",
 				"attachments": [],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8963458",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Aquella fundación de la calle Santiago Nº 1",
+				"creators": [
+					{
+						"firstName": "José Luis Corzo",
+						"lastName": "Toral",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022",
+				"ISSN": "0569-9789",
+				"abstractNote": "Al celebrar 50 años de la fundación de la Casa-escuela Santiago Uno (1971), el autor –ante otros cuatro de sus seis fundadores– recuerda y comenta tres aspectos: su dimensión escolapia como fundación de la Provincia de Castilla; aquel ambiente social, tras el concilio Vaticano II y el reciente mayo del 68, a solo 4 años de la muerte de Franco; y también la novedad pedagógica de la Casa, basada en los escritos de don Lorenzo Milani (1923-1967) y de su escuela en Barbiana (Florencia). Sobre lo escolapio anota las dificultades –y salidas– para un trabajo duradero con los pobres. En lo socio-cultural estima su vigor creativo o amortiguador. Y destaca en lo pedagógico su vínculo con la fe cristiana, desde una Teología de la educación muy necesaria hoy",
+				"language": "spa",
+				"libraryCatalog": "dialnet.unirioja.es",
+				"pages": "29-36",
+				"publicationTitle": "Analecta calasanctiana: publicación semestral religioso cultural y de investigación histórica",
+				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8963458",
+				"volume": "127",
+				"attachments": [],
+				"notes": [
+					"abs:Upon celebrating the 50th anniversary of the foundation of Santiago One SchoolHouse(1971), the author –before other four of its founders– reminds and comments three aspects: its Piarist dimension as a foundation of the Castille Province; the social environment after Vatican Council II, the recent May of 68, just 4 years after the death of Franco, and also the pedagogical novelty of the House, based upon the writings of Mr. Lorenzo Milani (1923-1967) and his school in Barbiana (Florence). Regarding the Piarist, he stresses the diffi culties –and going out– for a lasting work with the poor. In the social-cultural level, he stresses its creative orcushion vigor. In the pedagogical level, he stresses its connection with the Christian faith, from a Theology of education, so necessary today."
+				],
 				"seeAlso": []
 			}
 		]
