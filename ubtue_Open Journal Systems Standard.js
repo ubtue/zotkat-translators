@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-06-28 14:16:25"
+	"lastUpdated": "2023-07-03 10:09:10"
 }
 
 /*
@@ -230,8 +230,8 @@ function invokeEMTranslator(doc) {
 			}
 		}
 
- 	if (orcidAuthorEntryCaseG && i.ISSN == "1988-7949") {
-  	 	for (let c of orcidAuthorEntryCaseG) {
+ 		if (orcidAuthorEntryCaseG && i.ISSN == "1988-7949") {
+  	 		for (let c of orcidAuthorEntryCaseG) {
   				let name = ZU.xpathText(c, './/strong');
 				let orcid = ZU.xpathText(c, './/a[contains(@href, "orcid.org")]/@href');
 				if (orcid) i.notes.push({note: ZU.trimInternal(name) + orcid.replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
@@ -455,6 +455,9 @@ function invokeEMTranslator(doc) {
 				else i.notes.push('abs:' + abs);
 				absNr += 1;
 			}
+		}
+		if (i.number == 0 && i.ISSN == "2312-878X") {
+			delete i.number
 		}
 		i.attachments = [];
 		let sansidoroAbstract = ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content');
