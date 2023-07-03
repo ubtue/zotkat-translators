@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-04-26 12:38:35"
+	"lastUpdated": "2023-07-05 09:19:06"
 }
 
 /*
@@ -143,6 +143,7 @@ function scrape(doc, url) {
 			if (item.pages.match(/[ABCD]\d+/) != null) {
 				item.pages = "";
 			}
+			item.pages = item.pages.trim().replace(/^([^-]+)-\1$/, '$1');
 			//scrape ORCID from website e.g. https://journals.sagepub.com/doi/full/10.1177/0084672419883339
 			let authorSectionEntries = doc.querySelectorAll('.author-section-div');
 			for (let authorSectionEntry of authorSectionEntries) {
@@ -723,6 +724,37 @@ var testCases = [
 						"note": "orcid:0000-0002-5423-3796 | Emi Alisa Johnson Brand  | taken from website"
 					}
 				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://journals.sagepub.com/doi/10.1177/00033286221149872",
+		"items": [
+				{
+				"itemType": "journalArticle",
+				"title": "Communion",
+				"creators": [
+					{
+						"lastName": "Buckley",
+						"firstName": "B. J.",
+						"creatorType": "author"
+					}
+				],
+				"date": "February 1, 2023",
+				"DOI": "10.1177/00033286221149872",
+				"ISSN": "0003-3286",
+				"issue": "1",
+				"language": "en",
+				"libraryCatalog": "ubtue_SAGE Journals",
+				"pages": "99",
+				"publicationTitle": "Anglican Theological Review",
+				"url": "https://doi.org/10.1177/00033286221149872",
+				"volume": "105",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
