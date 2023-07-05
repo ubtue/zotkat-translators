@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-12-12 13:27:48"
+	"lastUpdated": "2023-07-05 13:30:15"
 }
 
 /*
@@ -116,7 +116,7 @@ function scrape(doc) {
 				item.tags.push("RezensionstagPica");
 			}
 			if (item.publicationTitle == "Buddhist-Christian Studies") item.issue = "";
-			if (item.pages.split('-').length > 1) {
+			if (item.pages && item.pages.split('-').length > 1) {
 				if (item.pages.split('-')[0] == item.pages.split('-')[1]) item.pages = item.pages.split('-')[0];
 			}
 			item.notes = [];
@@ -131,6 +131,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://muse.jhu.edu/article/200965",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -148,7 +149,7 @@ var testCases = [
 				"libraryCatalog": "ubtue_Project MUSE",
 				"pages": "121-164",
 				"publicationTitle": "Past & Present",
-				"url": "https://muse.jhu.edu/article/200965",
+				"url": "https://muse.jhu.edu/pub/8/article/200965",
 				"volume": "191",
 				"attachments": [],
 				"tags": [],
@@ -160,11 +161,13 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://muse.jhu.edu/issue/597",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://muse.jhu.edu/book/785",
+		"detectedItemType": "book",
 		"items": [
 			{
 				"itemType": "book",
@@ -183,7 +186,7 @@ var testCases = [
 				"place": "Pittsburgh",
 				"publisher": "Duquesne University Press",
 				"shortTitle": "Writing the Forest in Early Modern England",
-				"url": "https://muse.jhu.edu/book/785",
+				"url": "https://muse.jhu.edu/pub/149/monograph/book/785",
 				"attachments": [],
 				"tags": [],
 				"notes": [],
@@ -194,6 +197,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://muse.jhu.edu/article/530509",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -214,7 +218,7 @@ var testCases = [
 				"pages": "735-745",
 				"publicationTitle": "Technology and Culture",
 				"shortTitle": "The Pill at Fifty",
-				"url": "https://muse.jhu.edu/article/530509",
+				"url": "https://muse.jhu.edu/pub/1/article/530509",
 				"volume": "54",
 				"attachments": [],
 				"tags": [],
@@ -226,6 +230,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://muse.jhu.edu/article/551992",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -245,7 +250,7 @@ var testCases = [
 				"libraryCatalog": "ubtue_Project MUSE",
 				"pages": "173-195",
 				"publicationTitle": "Latin American Research Review",
-				"url": "https://muse.jhu.edu/article/551992",
+				"url": "https://muse.jhu.edu/pub/101/article/551992",
 				"volume": "49",
 				"attachments": [],
 				"tags": [],
@@ -257,6 +262,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://muse.jhu.edu/article/762340",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -277,47 +283,10 @@ var testCases = [
 				"pages": "25-47",
 				"publicationTitle": "U.S. Catholic Historian",
 				"shortTitle": "American Judaism and the Second Vatican Council",
-				"url": "https://muse.jhu.edu/article/762340",
+				"url": "https://muse.jhu.edu/pub/16/article/762340",
 				"volume": "38",
 				"attachments": [],
-				"tags": [
-					{
-						"tag": " Abram"
-					},
-					{
-						"tag": " American Jewish Committee"
-					},
-					{
-						"tag": " Bea"
-					},
-					{
-						"tag": " Cardinal Augustin"
-					},
-					{
-						"tag": " Declaration on the Relation of the Church with Non-Christian Religions"
-					},
-					{
-						"tag": " Jewish-Catholic relations"
-					},
-					{
-						"tag": " Marc"
-					},
-					{
-						"tag": " Morris B."
-					},
-					{
-						"tag": " Second Vatican Council"
-					},
-					{
-						"tag": " Tanenbaum"
-					},
-					{
-						"tag": " interreligious dialogue"
-					},
-					{
-						"tag": "Nostra Aetate"
-					}
-				],
+				"tags": [],
 				"notes": [],
 				"seeAlso": []
 			}
@@ -326,11 +295,13 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://muse.jhu.edu/issue/44583",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://muse.jhu.edu/article/795002",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -350,7 +321,7 @@ var testCases = [
 				"pages": "222-225",
 				"publicationTitle": "CrossCurrents",
 				"shortTitle": "Climate Change and the Art of Devotion",
-				"url": "https://muse.jhu.edu/article/795002",
+				"url": "https://muse.jhu.edu/pub/12/article/795002",
 				"volume": "71",
 				"attachments": [],
 				"tags": [
@@ -366,6 +337,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://muse.jhu.edu/article/835551",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -384,7 +356,7 @@ var testCases = [
 				"pages": "348-351",
 				"publicationTitle": "Christianity & Literature",
 				"shortTitle": "Dostoevsky’s Incarnational Realism",
-				"url": "https://muse.jhu.edu/article/835551",
+				"url": "https://muse.jhu.edu/pub/1/article/835551",
 				"volume": "70",
 				"attachments": [],
 				"tags": [
@@ -400,6 +372,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://muse.jhu.edu/article/837425",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -418,7 +391,7 @@ var testCases = [
 				"pages": "346-350",
 				"publicationTitle": "Buddhist-Christian Studies",
 				"shortTitle": "True Virtue",
-				"url": "https://muse.jhu.edu/article/837425",
+				"url": "https://muse.jhu.edu/pub/5/article/837425",
 				"volume": "41",
 				"attachments": [],
 				"tags": [
@@ -434,6 +407,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://muse.jhu.edu/article/837448",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -446,8 +420,38 @@ var testCases = [
 				"pages": "297",
 				"publicationTitle": "Buddhist-Christian Studies",
 				"shortTitle": "Public Statement in Solidarity with Persons of Asian and Pacific Island Descent",
-				"url": "https://muse.jhu.edu/article/837448",
+				"url": "https://muse.jhu.edu/pub/5/article/837448",
 				"volume": "41",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://muse.jhu.edu/pub/156/article/879119",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "About this Issue",
+				"creators": [
+					{
+						"lastName": "Rademacher",
+						"firstName": "Nicholas",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022",
+				"DOI": "10.1353/acs.2022.0070",
+				"ISSN": "2161-8534",
+				"issue": "4",
+				"libraryCatalog": "ubtue_Project MUSE",
+				"publicationTitle": "American Catholic Studies",
+				"url": "https://muse.jhu.edu/pub/156/article/879119",
+				"volume": "133",
 				"attachments": [],
 				"tags": [],
 				"notes": [],
