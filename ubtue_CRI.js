@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-12-12 16:47:42"
+	"lastUpdated": "2023-07-05 07:30:01"
 }
 
 /*
@@ -75,11 +75,11 @@ function scrape(doc, url) {
 		}
 		if (ZU.xpathText(p, './strong[contains(., "Source")]')) {
 			let issuedInformation = p.textContent.replace(/\n+|\t+|\s+/g, ' ')
-			if (issuedInformation.match(/Volume \d+, Number \d+, [^\s]+ \d{4} , pp.\d+(?:-\d+)?\(/)) {
-				item.volume = issuedInformation.match(/Volume (\d+), Number \d+, [^\s]+ \d{4} , pp.\d+(?:-\d+)?\(/)[1];
-				item.issue = issuedInformation.match(/Volume \d+, Number 0*(\d+), [^\s]+ \d{4} , pp.\d+(?:-\d+)?\(/)[1];
-				item.date = issuedInformation.match(/Volume \d+, Number \d+, [^\s]+ (\d{4}) , pp.\d+(?:-\d+)?\(/)[1];
-				item.pages = issuedInformation.match(/Volume \d+, Number \d+, [^\s]+ \d{4} , pp.(\d+(?:-\d+)?)\(/)[1];
+			if (issuedInformation.match(/Volume \d+, Number \d+, [^\s]+ \d{4} ? ?, pp.\d+(?:-\d+)?\(/)) {
+				item.volume = issuedInformation.match(/Volume (\d+), Number \d+, [^\s]+ \d{4} ? ?, pp.\d+(?:-\d+)?\(/)[1];
+				item.issue = issuedInformation.match(/Volume \d+, Number 0*(\d+), [^\s]+ \d{4} ? ?, pp.\d+(?:-\d+)?\(/)[1];
+				item.date = issuedInformation.match(/Volume \d+, Number \d+, [^\s]+ (\d{4}) ? ?, pp.\d+(?:-\d+)?\(/)[1];
+				item.pages = issuedInformation.match(/Volume \d+, Number \d+, [^\s]+ \d{4} ? ?, pp.(\d+(?:-\d+)?)\(/)[1];
 			}
 		}
 	}
