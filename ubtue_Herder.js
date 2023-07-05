@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-06-08 13:47:34"
+	"lastUpdated": "2023-07-05 09:31:01"
 }
 
 /*
@@ -76,7 +76,9 @@ function extractIssueAndYearFromURL(item, url) {
 	item.issue = url.match(/\/(\d+)-\d{4}\//)[1];
 	item.date = url.match(/\/\d+-(\d{4})\//)[1];
 	}
-	else item.date = url.match(/(\d{4})\//)[0];
+	else if (url.match(/(\d{4})\//)) {
+		item.date = url.match(/(\d{4})\//)[0];
+	}
 }
 
 function extractPages(doc) {
@@ -331,6 +333,11 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.herder.de/hk/hefte/spezial/ueber-geld-spricht-man-nicht-die-kirche-und-ihre-finanzen/",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
