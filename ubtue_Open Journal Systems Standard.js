@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-06-28 14:16:25"
+	"lastUpdated": "2023-07-05 08:33:27"
 }
 
 /*
@@ -82,6 +82,7 @@ function invokeEMTranslator(doc) {
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
+
 		if (i.ISSN == undefined) i.ISSN = ZU.xpathText(doc, '//meta[@name="DC.Source.ISSN"]/@content');
 		if (i.ISSN == undefined && i.url.match(/\/godsandmonsters\//) != null) i.ISSN = "IXTH-0001";
 		if (i.ISSN == undefined) i.issue = ZU.xpathText(doc, '//meta[@name="DC.Source.Issue"]/@content');
@@ -478,6 +479,7 @@ function invokeEMTranslator(doc) {
 					i.tags.push(tags[t]);
 					}
 				}
+				
 				i.complete();
 			});
 		}
@@ -503,6 +505,7 @@ function extractVolumeIssueFromZ3988(doc, i, z3988Entries) {
 		}
 		if (z3988Entries.match(/rft.issue=\d.*rft/gi)) {
 			i.issue = z3988Entries.split('rft.issue=')[1].split('&')[0].replace('%2B', '/');
+			if (i.issue == "0") delete i.issue;
 		}
 	}
 }
@@ -1454,7 +1457,6 @@ var testCases = [
 				"DOI": "10.7832/49-0-358",
 				"ISSN": "2312-878X",
 				"abstractNote": "Aspirational terms such as world-class, resilient, climate-friendly and a just city stand in contrast to adverse terms such unequal, divided, colonial, violent and segregated to describe the present and future state of the City of Cape Town. How do institutions offering tertiary qualifications in theology engage with the competing narratives of the city in the preparation of faith-based practitioners? The aim of this article is to explore the current landscape of theological education, offered in higher education institutions in Cape Town, in terms of an urban focus. The article will reflect how curricula, pedagogies and epistemologies engage the complexities of the urban context. The connection between theological education and ministry formation of faith-based practitioners will be explored in light of Cape Town’s urban futures.",
-				"issue": "0",
 				"language": "en",
 				"libraryCatalog": "missionalia.journals.ac.za",
 				"publicationTitle": "Missionalia: Southern African Journal of Missiology",
@@ -1618,7 +1620,6 @@ var testCases = [
 				"date": "2021/12/08",
 				"ISSN": "2340-4256",
 				"abstractNote": "Reseña de libro\\n4207 Reseña de libro\\n4207",
-				"issue": "0",
 				"journalAbbreviation": "RevCau",
 				"language": "en",
 				"libraryCatalog": "cauriensia.es",
@@ -1720,7 +1721,6 @@ var testCases = [
 				"date": "2021/12/08",
 				"ISSN": "2340-4256",
 				"abstractNote": "Reseña de libro\\n4207 Reseña de libro\\n4207",
-				"issue": "0",
 				"journalAbbreviation": "RevCau",
 				"language": "en",
 				"libraryCatalog": "cauriensia.es",
@@ -2040,6 +2040,68 @@ var testCases = [
 		"url": "https://www.hermeneutische-blaetter.uzh.ch/issue/view/254",
 		"detectedItemType": "multiple",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://missionalia.journals.ac.za/pub/article/view/505",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Changing Africa Reflections on family involvement in African Christian marriage",
+				"creators": [
+					{
+						"firstName": "Marilyn",
+						"lastName": "Naidoo",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Gugulethu Engelbetter",
+						"lastName": "Ndlovu",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023/06/26",
+				"DOI": "10.7832/51-0-505",
+				"ISSN": "2312-878X",
+				"abstractNote": "The paper describes the lived experiences of present-day African Christian couples in urban South Africa with the aim of understanding the effect family involvement has on their marriages. This article contributes to understanding the marital experiences of contemporary African Christians to understand their views on the involvement of the extended family, which is part of African culture. Understanding these viewpoints sheds light on cultural dynamics, especially how African culture is valued in a changing society which adds value to understanding the modern African. To nurture meaningful ministry engagement for the African context, research and awareness of African cultural nuances are invaluable. The understanding from this article can contribute to the contextualisation of pastoral care and counselling in Africa. This understanding may also contribute to reframing the colonial discourse through which mission work in Africa has long operated.",
+				"language": "en",
+				"libraryCatalog": "missionalia.journals.ac.za",
+				"publicationTitle": "Missionalia: Southern African Journal of Missiology",
+				"rights": "Copyright (c) 2023 Missionalia: Southern African Journal of Missiology",
+				"url": "https://missionalia.journals.ac.za/pub/article/view/505",
+				"volume": "51",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "African Christian Marriage"
+					},
+					{
+						"tag": "African Culture"
+					},
+					{
+						"tag": "Colonial Discourse"
+					},
+					{
+						"tag": "Communalism"
+					},
+					{
+						"tag": "Mission Work"
+					},
+					{
+						"tag": "Pastoral Care"
+					},
+					{
+						"tag": "Ubuntu"
+					},
+					{
+						"tag": "Urbanisation"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
