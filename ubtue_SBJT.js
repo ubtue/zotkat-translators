@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-08-16 14:16:24"
+	"lastUpdated": "2023-07-05 15:33:54"
 }
 
 /*
@@ -61,9 +61,9 @@ function getSearchResults(doc) {
 	return found ? items : false;
 }
 
-function getArticle(doc) {
+function getArticle(doc, url) {
 	let item = new Zotero.Item('journalArticle');
-	item.url = doc.URL;
+	//item.url = doc.URL;
 	item.title = ZU.xpathText(doc, '//h1[contains(@class,"title")]');
 	for (let authorTag of ZU.xpath(doc, '//span[contains(@class,"author")]/span')) {
 		item.creators.push(ZU.cleanAuthor(authorTag.textContent, "author"));
@@ -73,6 +73,7 @@ function getArticle(doc) {
 	item.date = date;
 	item.ISSN = "1520-7307";
 	item.publicationTitle = "The Southern Baptist Journal of Theology";
+	item.url = url;
 	item.complete();
 }
 
@@ -94,5 +95,10 @@ function doWeb(doc, url) {
 }
 /** BEGIN TEST CASES **/
 var testCases = [
+	{
+		"type": "web",
+		"url": "https://equip.sbts.edu/category/publications/journals/journal-of-theology/sbjt-262-summer-2022/",
+		"items": "multiple"
+	}
 ]
 /** END TEST CASES **/
