@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-12 10:22:23"
+	"lastUpdated": "2023-07-17 09:46:22"
 }
 
 /*
@@ -488,16 +488,24 @@ function invokeEMTranslator(doc) {
 					i.tags.push(tags[t]);
 					}
 				}
-				
-				i.complete();
 			});
 		}
 		else {
 			//extract item.volume and item.issue if ojs provides z3988 metadata e.g.1660-5578
 			let z3988Entries = ZU.xpathText(doc, '//span[@class="Z3988"]/@title');
 			extractVolumeIssueFromZ3988(doc, i, z3988Entries);
-			i.complete();
 		}
+		if (i.tags[1] == undefined && ZU.xpath(doc, '//section[@class="item keywords"]')[0]
+		&& ZU.xpath(doc, '//section[@class="item keywords"]')[0]["textContent"]) {
+			let tagsstring = ZU.xpath(doc, '//section[@class="item keywords"]')[0]["textContent"].replace(/Keywords?./g,'');
+			tagsstring = tagsstring.replace(/Mots-clés?./g,'');
+			tagsstring = tagsstring.replace(/\s/g,' ');
+			let tags = tagsstring.match(/(?:[^\s,]+ ?)+,?/g);
+			for (let t in tags) {
+				i.tags.push(tags[t].substring(0,tags[t].length-1));
+			} 
+		}
+		i.complete();
 	});
 	translator.translate();
 }
@@ -549,7 +557,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.zwingliana.ch/index.php/zwa/article/view/2516",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -580,7 +587,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "http://jsri.ro/ojs/index.php/jsri/article/view/1194",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -642,7 +648,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ojs.reformedjournals.co.za/stj/article/view/1743",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -714,13 +719,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.sanisidoro.net/publicaciones/index.php/isidorianum/issue/view/11",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://journal.equinoxpub.com/JSRNC/article/view/19598",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -774,19 +777,16 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://verbumetecclesia.org.za/index.php/ve/issue/view/12",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://periodicos.uem.br/ojs/index.php/RbhrAnpuh/issue/view/1635",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://journal.equinoxpub.com/JSRNC/article/view/19606",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -831,7 +831,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://jrfm.eu/index.php/ojs_jrfm/article/view/256",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -850,7 +849,7 @@ var testCases = [
 				"journalAbbreviation": "JRFM",
 				"language": "en",
 				"libraryCatalog": "jrfm.eu",
-				"pages": "197-199",
+				"pages": "197–199",
 				"publicationTitle": "Journal for Religion, Film and Media (JRFM)",
 				"rights": "Copyright (c) 2021 Daria Pezzoli-Olgiati",
 				"shortTitle": "Book Review. Christopher Ocker / Susanne Elm (eds.), Material Christianity",
@@ -882,19 +881,16 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://revistasfranciscanas.org/index.php/ArchivoIberoAmericano/issue/view/16",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://jeac.de/ojs/index.php/jeac/issue/view/16",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://aabner.org/ojs/index.php/beabs/article/view/781",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -924,7 +920,7 @@ var testCases = [
 				"date": "2021/06/18",
 				"DOI": "10.35068/aabner.v1i1.781",
 				"ISSN": "2748-6419",
-				"abstractNote": "Die Chefredaktion von AABNER beschreibt die Schwächen und Probleme destraditionellen ‚Double-Blind-Peer-Review‘ und bietet eine innovative Lösung:den von uns weiterentwickelten ‚Forum-Peer-Review‘.",
+				"abstractNote": "The AABNER founding editors-in-chief describe some of the problems with traditional double-blind peer review and describe our solution for them, forum peerreview, which we have developed for use within AABNER.",
 				"issue": "1",
 				"journalAbbreviation": "1",
 				"language": "en",
@@ -963,10 +959,10 @@ var testCases = [
 						"note": "orcid:0000-0002-0240-9219 | Jason M. Silverman | taken from website"
 					},
 					{
-						"note": "abs:The AABNER founding editors-in-chief describe some of the problems with traditional double-blind peer review and describe our solution for them, forum peerreview, which we have developed for use within AABNER."
+						"note": "abs:L’équipe de rédaction en chef initiale d’AABNER décrit quelques problèmes liésau système traditionnel de la “double-blind peer review” et propose une solution, le système “forum peer review”, développé et mis en place pour la créationd’AABNER."
 					},
 					{
-						"note": "abs:L’équipe de rédaction en chef initiale d’AABNER décrit quelques problèmes liésau système traditionnel de la “double-blind peer review” et propose une solution, le système “forum peer review”, développé et mis en place pour la créationd’AABNER."
+						"note": "abs:Die Chefredaktion von AABNER beschreibt die Schwächen und Probleme destraditionellen ‚Double-Blind-Peer-Review‘ und bietet eine innovative Lösung:den von uns weiterentwickelten ‚Forum-Peer-Review‘."
 					}
 				],
 				"seeAlso": []
@@ -976,7 +972,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ote-journal.otwsa-otssa.org.za/index.php/journal/article/view/433",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1047,13 +1042,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://jebs.eu/ojs/index.php/jebs/issue/view/75",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://limina-graz.eu/index.php/limina/article/view/103",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1113,7 +1106,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/781",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1195,7 +1187,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/787",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1263,7 +1254,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://open-journals.uni-tuebingen.de/ojs/index.php/eug/article/view/1-2021-rez-1",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1300,7 +1290,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://revistaseletronicas.pucrs.br/index.php/teo/article/view/36941",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1362,13 +1351,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://revistas.ucm.es/index.php/ILUR/issue/view/3773",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://www.journals.us.edu.pl/index.php/EL/article/view/13012",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1403,13 +1390,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://bulletin-religious.kaznu.kz/index.php/relig/issue/view/40",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://zfbeg.org/ojs/index.php/cjbk/article/view/631",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1444,13 +1429,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ztp.jesuiten.org/index.php/ZTP/issue/view/319",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://missionalia.journals.ac.za/pub/article/view/358",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1506,13 +1489,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://bildungsforschung.org/ojs/index.php/beabs/issue/view/v01i02",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/42868",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1550,7 +1531,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ztp.jesuiten.org/index.php/ZTP/article/view/3820",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1609,7 +1589,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://cauriensia.es/index.php/cauriensia/article/view/477",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1650,7 +1629,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://limina-graz.eu/index.php/limina/article/view/141",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1704,8 +1682,47 @@ var testCases = [
 	},
 	{
 		"type": "web",
+		"url": "https://cauriensia.es/index.php/cauriensia/article/view/477",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Melinda L. DENTON, Richard FLORY. Back pocket God: Religion and spirituality in the lives of emerging adults",
+				"creators": [
+					{
+						"firstName": "José Pereira",
+						"lastName": "Coutinho",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021/12/08",
+				"ISSN": "2340-4256",
+				"abstractNote": "Reseña de libro\\n4207 Reseña de libro\\n4207",
+				"journalAbbreviation": "RevCau",
+				"language": "en",
+				"libraryCatalog": "cauriensia.es",
+				"pages": "682-685",
+				"publicationTitle": "Cauriensia. Revista anual de Ciencias Eclesiásticas",
+				"rights": "Derechos de autor 2021",
+				"shortTitle": "Melinda L. DENTON, Richard FLORY. Back pocket God",
+				"url": "https://cauriensia.es/index.php/cauriensia/article/view/477",
+				"volume": "16",
+				"attachments": [],
+				"tags": [],
+				"notes": [
+					{
+						"note": "orcid:0000-0002-2733-3476 | José Pereira Coutinho | taken from website"
+					},
+					{
+						"note": "translatedTitle:Melinda L. DENTON, Richard FLORY. Back pocket God: Religion and spirituality in the lives of emerging adults"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
 		"url": "https://archivodominicano.dominicos.org/ojs/article/view/conventualidad-dominica-archivos-merida-badajoz",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1767,7 +1784,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/44463",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1840,7 +1856,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://cauriensia.es/index.php/cauriensia/article/view/mis4",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1897,7 +1912,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://hispaniasacra.revistas.csic.es/index.php/hispaniasacra/article/view/946",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1956,7 +1970,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.zfrk-rdsr.ch/article/view/3989",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1977,7 +1990,7 @@ var testCases = [
 				"libraryCatalog": "www.zfrk-rdsr.ch",
 				"pages": "15-18",
 				"publicationTitle": "Revue de didactique des sciences des religions",
-				"rights": "(c) Tous droits réservés Caroline Widmer 2023",
+				"rights": "(c) Caroline Widmer, 2023",
 				"shortTitle": "Zum Umgang mit religiösen Objekten",
 				"url": "https://www.zfrk-rdsr.ch/article/view/3989",
 				"volume": "11",
@@ -1991,13 +2004,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.hermeneutische-blaetter.uzh.ch/issue/view/254",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://missionalia.journals.ac.za/pub/article/view/505",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2059,7 +2070,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://cauriensia.es/index.php/cauriensia/article/view/498",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2146,7 +2156,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://cauriensia.es/index.php/cauriensia/article/view/497",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2274,7 +2283,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://cauriensia.es/index.php/cauriensia/article/view/456",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2336,6 +2344,60 @@ var testCases = [
 						"note": "orcid:0000-0002-8231-6855 | Simona Langella | taken from website"
 					}
 				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://jps.library.utoronto.ca/index.php/renref/article/view/40431",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Le poète et le roi : les Poemata de Benedetto Tagliacarne (ca. 1480–1536), dit Théocrène",
+				"creators": [
+					{
+						"firstName": "Virginie",
+						"lastName": "Leroux",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022",
+				"DOI": "10.33137/rr.v45i3.40431",
+				"ISSN": "2293-7374",
+				"abstractNote": "The Italian Benedetto Tagliacarne, known as Theocrenus, was tutor to the sons of Francis I from 1527 to 1533. In this capacity, he was closely involved with the royal family, as witnessed by his poetic works, published in Poitiers by Marnef in 1536, and in particular his epigrams, which shaped court events and portray an artistically refined and poetic king. Theocrenus thus celebrates the wedding of the king and Eleanor of Austria and pays tribute to Louise of Savoy; he praises the poetic compositions of Francis I, choosing the epitaph of Petrarch’s muse, Laura de Noves, but also the translation of an epigram attributed to Germanicus; finally, he composes numerous ekphraseis of the king’s works of art. The study of these epigrams allows us to evaluate the contribution of the Italian poet to the cultural policy of Francis I and to the mythology of the reign.",
+				"issue": "3",
+				"journalAbbreviation": "RR",
+				"language": "fr",
+				"libraryCatalog": "jps.library.utoronto.ca",
+				"pages": "189-214",
+				"publicationTitle": "Renaissance and Reformation",
+				"rights": "Copyright (c) 2023",
+				"shortTitle": "Le poète et le roi",
+				"url": "https://jps.library.utoronto.ca/index.php/renref/article/view/40431",
+				"volume": "45",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "François Ier"
+					},
+					{
+						"tag": "Louise de Savoie"
+					},
+					{
+						"tag": "Pétrarque"
+					},
+					{
+						"tag": "Théocrène"
+					},
+					{
+						"tag": "Vénus d’Amboise"
+					},
+					{
+						"tag": "Éléonore d’Autriche"
+					}
+				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
