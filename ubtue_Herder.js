@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-05 09:31:01"
+	"lastUpdated": "2023-07-06 13:05:24"
 }
 
 /*
@@ -142,6 +142,14 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 				}
 			}
 			item.ISSN = "0018-0645";
+			if (item.url.match(/spezial/)){
+				item.ISSN = "IXTH-0004";
+				if (ZU.xpathText(doc, '//img[contains(@src, "hk")]/@src')){
+					item.date = ZU.xpathText(doc, '//img[contains(@src, "hk")]/@src').match(/\/hk-\d+-(\d{4})/)[1];
+					item.issue = ZU.xpathText(doc, '//img[contains(@src, "hk")]/@src').match(/\/hk-\d+-\d{4}-s(\d)/)[1];
+					delete item.volume;
+				}
+			}
 		}
 		item.attachments = [];
 		item.complete();
@@ -338,6 +346,35 @@ var testCases = [
 		"type": "web",
 		"url": "https://www.herder.de/hk/hefte/spezial/ueber-geld-spricht-man-nicht-die-kirche-und-ihre-finanzen/",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://www.herder.de/hk/hefte/spezial/ueber-geld-spricht-man-nicht-die-kirche-und-ihre-finanzen/wichtiger-als-man-denkt/",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Wichtiger, als man denkt",
+				"creators": [
+					{
+						"firstName": "Redaktion Herder",
+						"lastName": "Korrespondenz",
+						"creatorType": "authors"
+					}
+				],
+				"date": "2023",
+				"ISSN": "IXTH-0004",
+				"issue": "1",
+				"language": "de",
+				"libraryCatalog": "www.herder.de",
+				"pages": "1",
+				"publicationTitle": "Herder Korrespondenz",
+				"url": "https://www.herder.de/hk/hefte/spezial/ueber-geld-spricht-man-nicht-die-kirche-und-ihre-finanzen/wichtiger-als-man-denkt/",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
