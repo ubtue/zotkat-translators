@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-02-03 19:05:52"
+	"lastUpdated": "2023-07-07 10:53:23"
 }
 
 /*
@@ -115,8 +115,22 @@ function scrape(doc, url) {
 			}
 
 			// Subtitles could be in i or b
-		if (doc.querySelector('.sous-titre-article i')) item.title = item.title + ': ' + doc.querySelector('.sous-titre-article i').textContent.trim();
-		if (doc.querySelector('.sous-titre-article b')) item.title = item.title + ': ' + doc.querySelector('.sous-titre-article b').textContent.trim();
+		if (doc.querySelector('.sous-titre-article i')){
+			let addtitle = doc.querySelector('.sous-titre-article i').textContent.trim();
+			if (item.title.match(/\..*/) && addtitle == item.title.substring(item.title.match(/\..*/).index+1).trim()) {
+				item.title = item.title.substring(0,item.title.match(/\..*/).index);
+			}
+			item.title = item.title + ': ' + addtitle;
+		} 
+		if (doc.querySelector('.sous-titre-article b')){
+			let addtitle = doc.querySelector('.sous-titre-article b').textContent.trim();
+			if (item.title.match(/\..*/) && addtitle == item.title.substring(item.title.match(/\..*/).index+1).trim()) {
+				item.title = item.title.substring(0,item.title.match(/\..*/).index);
+			}
+			item.title = item.title + ': ' + addtitle;
+		}
+		//if (doc.querySelector('.sous-titre-article i')) item.title = item.title + ': ' + doc.querySelector('.sous-titre-article i').textContent.trim();
+		//if (doc.querySelector('.sous-titre-article b')) item.title = item.title + ': ' + doc.querySelector('.sous-titre-article b').textContent.trim();
 		// Correct volume and issue information
 		if (item.volume) {
 			if (item.volume.search(/^n°/i) != -1) {
@@ -409,7 +423,7 @@ var testCases = [
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "La philosophie morale d’Alasdair MacIntyre. Une défense historiciste de l’impératif catégorique ?: Une défense historiciste de l’impératif catégorique ?",
+				"title": "La philosophie morale d’Alasdair MacIntyre: Une défense historiciste de l’impératif catégorique ?",
 				"creators": [
 					{
 						"lastName": "Boss",
@@ -951,6 +965,112 @@ var testCases = [
 				],
 				"notes": [
 					"abs:The question of the effective political freedom of men in a globalized world affects the crisis of the nation-state. This crisis in no way refers to a decline but to a twofold contradiction, that of being both the birthplace of the freedom of the citizen and that of a constrained collective will, not to say thwarted in certain cases. It is not a question of praising or blaming the dynamics of globalization but of understanding its ambivalence when one considers the alliance of power and will as a factor in a more effective national freedom at the internal level as well as in the international order. At once irreducible and surpassable, the nation-state as a critical reality emerged in the interwar period in the debates that animated all intellectual circles, particularly Catholic ones, as evidenced by the divided positions of Joseph Delos and Gaston Fessard. This initial moment establishes the questions at work in our present reflection, balanced between the desire to put democratic nations back at the heart of the globalized world and the need for regional strategic integrations."
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.cairn.info/revue-deviance-et-societe-2023-1-page-35.html",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Une accessibilité bien ordonnée: Les politiques du handicap comme instrument de statu quo social",
+				"creators": [
+					{
+						"lastName": "Bodin",
+						"firstName": "Romuald",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Douat",
+						"firstName": "Étienne",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023",
+				"DOI": "10.3917/ds.471.0037",
+				"ISSN": "0378-7931",
+				"abstractNote": "L’article s’intéresse au nouvel « ordre symbolique » que la loi française du 11 février 2005 (pour l’égalité des droits et des chances, la participation et la citoyenneté des personnes handicapées) et les débats publics qui l’entourent contribuent à constituer ainsi qu’à ses conséquences concrètes en termes d’organisation sociale. L’enjeu est de montrer qu’à l’encontre d’une lecture conventionnelle qui fait de cette loi un point de basculement vers un nouveau modèle du handicap, dont l’accessibilité et le « vivre ensemble » seraient devenus les mots d’ordre, l’ordre symbolique qui s’impose dans les années 2000 est en réalité un instrument de maintien du statu quo et de préservation de l’ordre public.",
+				"archive": "Cairn.info",
+				"issue": "1",
+				"journalAbbreviation": "Déviance et Société",
+				"language": "FR",
+				"libraryCatalog": "ubtue_Cairn.info",
+				"pages": "35-63",
+				"publicationTitle": "Déviance et Société",
+				"shortTitle": "Une accessibilité bien ordonnée",
+				"url": "https://www.cairn.info/revue-deviance-et-societe-2023-1-page-35.htm",
+				"volume": "47",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Accesibilidad"
+					},
+					{
+						"tag": "Accessibility"
+					},
+					{
+						"tag": "Accessibilité"
+					},
+					{
+						"tag": "Acción pública"
+					},
+					{
+						"tag": "Action publique"
+					},
+					{
+						"tag": "Barrierefreiheit"
+					},
+					{
+						"tag": "Behinderung"
+					},
+					{
+						"tag": "Disability"
+					},
+					{
+						"tag": "Discapacidad"
+					},
+					{
+						"tag": "Exclusion"
+					},
+					{
+						"tag": "Exclusion"
+					},
+					{
+						"tag": "Exclusión"
+					},
+					{
+						"tag": "Exklusion"
+					},
+					{
+						"tag": "Handicap"
+					},
+					{
+						"tag": "Orden\npúblico"
+					},
+					{
+						"tag": "Ordre\npublic"
+					},
+					{
+						"tag": "Public\norder"
+					},
+					{
+						"tag": "Public policy"
+					},
+					{
+						"tag": "Öffentliche klage"
+					},
+					{
+						"tag": "Öffentliche ordnung"
+					}
+				],
+				"notes": [
+					"abs:The article focuses on the new “symbolic order” the French law of 11 February 2005 (for equal rights and opportunities, participation and citizenship of people with disabilities) and the public debates that surround it contribute to constitute, as well as on its concrete consequences in terms of social organization. The challenge is to show that, contrary to a conventional reading that makes this law a tipping point towards a new model of disability, in which accessibility and “living together” would have become the watchwords, the symbolic order that was imposed in the 2000s is in fact an instrument for maintaining the status quo and preserving public order.",
+					"abs:Der Artikel befasst sich mit der neuen „symbolischen Ordnung“ des französischen Gesetzes vom 11. Februar 2005 (für gleiche Rechte und Chancen, Teilhabe und Staatsbürgerschaft von Menschen mit Behinderungen) und den damit verbundenen öffentlichen Debatten, die dazu beitragen, es zu konstituieren, ebenso wie den konkreten Auswirkungen in Bezug auf die soziale Organisation. Die Herausforderung besteht darin, zu zeigen, dass entgegen einer konventionellen Lesart, welche dieses Gesetz zu einem Wendepunkt in Richtung eines neuen Behindertenmodells macht, in welchem Barrierefreiheit und „Zusammenleben“ zu Schlagworten geworden wären, die symbolische Ordnung, die sich in den 2000er Jahren durchgesetzt hat, in Wirklichkeit ein Instrument zur Aufrechterhaltung des Status Quo und zur Wahrung der öffentlichen Ordnung ist.",
+					"abs:Este artículo analiza el nuevo “orden simbólico” que están contribuyendo a crear la ley francesa de 11 de febrero de 2005 (para la igualdad de derechos y oportunidades, la participación y la ciudadanía de las personas con discapacidad) y los debates públicos sobre ella ; así como las consecuencias concretas en términos de organización social. El reto consiste en demostrar que, contrariamente a la lectura más convencional que analiza esta ley como un punto de inflexión hacia un nuevo modelo de discapacidad, en el que la accesibilidad y la “convivencia” se habrían convertido en las consignas, el orden simbólico que se impuso en los años 2000 es en realidad un instrumento para mantener el statu quo y preservar el orden público.",
+					"LF:"
 				],
 				"seeAlso": []
 			}
