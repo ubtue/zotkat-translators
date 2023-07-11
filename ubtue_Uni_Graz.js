@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-07 15:27:25"
+	"lastUpdated": "2023-07-11 11:59:22"
 }
 
 /*
@@ -66,7 +66,7 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		if (ZU.xpathText(doc, '//table[contains(@id, "Abstract")]')) {
 			let abss = ZU.xpathText(doc, '//table[contains(@id, "Abstract")]').split("Abstract");
 			item.abstractNote = abss[1];
-			for (let i = 1; i<abss.length; i++) {
+			for (let i = 2; i<abss.length; i++) {
 				item.notes.push({'note': 'abs:' + abss[i]});
 			}
 		}
@@ -76,6 +76,18 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			item.issue = issueinfo.match(/Heft (\d+)/)[1];
 			item.pages = issueinfo.match(/Seite ([^\s,]+)/)[1];
 			item.pages = item.pages.trim().replace(/^([^-]+)-\1$/, '$1');
+		}
+		if (ZU.xpathText(doc, '//tr[@id="mods_IdentifierDoi"]//span')) {
+			item.DOI = ZU.xpathText(doc, '//tr[@id="mods_IdentifierDoi"]//span');
+		}
+		if (ZU.xpathText(doc, '//tr[@id="mods_subject"]//span[@class="topic"]')) {
+			tags = ZU.xpathText(doc, '//tr[@id="mods_subject"]//span[@class="topic"]').split('/,');
+			for (let i in tags) {
+				item.tags.push(tags[i].trim());
+			}
+		}
+		if (item.publicationTitle == "Limina") {
+			item.ISSN = "2617-1953";
 		}
 		item.attachments = [];
 		item.complete();
@@ -120,6 +132,8 @@ var testCases = [
 					}
 				],
 				"date": "2023",
+				"DOI": "10.25364/17.6:2023.1.4",
+				"ISSN": "2617-1953",
 				"abstractNote": "Wo steht die akademische katholische Theologie im deutschen Sprachraum? Worum geht es ihr? Will man diese Frage nicht moralisierend behandeln, muss man sie topologisch fassen: Wo sind wir, die wir Theologie treiben, und in welchen Machtkonstellationen tun wir es? Dabei stellt sich von unserem Fach her eine drängende Frage: Geht es der Theologie um die akademische Form ihrer Themen oder um ihre Themen in akademischer Form? Nur Letzteres hätte irgendeinen religiösen Sinn und existentielle Bedeutung. Natürlich stellt sich diese Frage nach Nietzsche erst jenseits antiquarischer oder gar monumentalisch-triumphaler Traditionsverwaltung und selbst noch jenseits eines kritisch-akademischen Habitus, der zwar nicht der Dummheit des Traditionalismus oder gar den Untaten der Repression erliegt, aber doch recht schnell seinen Frieden macht mit der eigenen intellektuellen Selbstbehauptung und sich zu früh beruhigt in seinem Sieg gegen jene, die zu besiegen notwendig, aber nicht hinreichend ist. Der Aufsatz reflektiert die Machtkonstellationen der Theologie in ihrer gesellschaftlichen, universitären und kirchlichen Verortung. Und er fragt schließlich, wohin der Weg einer nicht kolonialisierten akademischen Theologie führen könnte, die wieder wird, was sie schon einmal war: ein authentisches Lehramt der Kirche und die produktive Verunsicherung ­eines bisweilen allzu irritationsresistenten Wissenschaftsbetriebes.",
 				"issue": "1",
 				"language": "en",
@@ -130,11 +144,27 @@ var testCases = [
 				"url": "http://unipub.uni-graz.at/limina/8653631",
 				"volume": "6",
 				"attachments": [],
-				"tags": [],
-				"notes": [
+				"tags": [
 					{
-						"note": "abs:Wo steht die akademische katholische Theologie im deutschen Sprachraum? Worum geht es ihr? Will man diese Frage nicht moralisierend behandeln, muss man sie topologisch fassen: Wo sind wir, die wir Theologie treiben, und in welchen Machtkonstellationen tun wir es? Dabei stellt sich von unserem Fach her eine drängende Frage: Geht es der Theologie um die akademische Form ihrer Themen oder um ihre Themen in akademischer Form? Nur Letzteres hätte irgendeinen religiösen Sinn und existentielle Bedeutung. Natürlich stellt sich diese Frage nach Nietzsche erst jenseits antiquarischer oder gar monumentalisch-triumphaler Traditionsverwaltung und selbst noch jenseits eines kritisch-akademischen Habitus, der zwar nicht der Dummheit des Traditionalismus oder gar den Untaten der Repression erliegt, aber doch recht schnell seinen Frieden macht mit der eigenen intellektuellen Selbstbehauptung und sich zu früh beruhigt in seinem Sieg gegen jene, die zu besiegen notwendig, aber nicht hinreichend ist. Der Aufsatz reflektiert die Machtkonstellationen der Theologie in ihrer gesellschaftlichen, universitären und kirchlichen Verortung. Und er fragt schließlich, wohin der Weg einer nicht kolonialisierten akademischen Theologie führen könnte, die wieder wird, was sie schon einmal war: ein authentisches Lehramt der Kirche und die produktive Verunsicherung ­eines bisweilen allzu irritationsresistenten Wissenschaftsbetriebes."
+						"tag": "Orte der Theologie"
 					},
+					{
+						"tag": "Perspektiven der Theologie als Irritationspotential von Kirche"
+					},
+					{
+						"tag": "Wissenschaft und Geselschaft"
+					},
+					{
+						"tag": "gesellschaftliche,"
+					},
+					{
+						"tag": "katholische Theologie an Universitäten"
+					},
+					{
+						"tag": "universitäre und kirchliche Kontexte der Theologie"
+					}
+				],
+				"notes": [
 					{
 						"note": "abs:Where is academic Catholic theology situated in the German-speaking countries? What is its position? If we want to avoid moralising stances, we can turn to topological approaches: Where are we, those who practice theology, located? What are the power structures within which we operate? The core question that determines the position of our discipline must be answered first: Is theology’s main concern the academic process that is applied to its subject matter, or how its subject matter can be academically processed? Only the latter is worthwhile for religion and its existential meaning. This Nietzschean question presupposes that we have moved beyond an antiquated or even monumentalising and triumphal preservation of tradition. It also presupposes that we have abandoned a critical academic habitus that might not succumb to the fallacies of traditionalism or might not commit the crimes of repression, but still perpetuates intellectual self-affirmation and rests on the laurels of having won its battles, although not conclusively. This essay reflects on the power constellations that shape theology’s place within society, the university and the church. It also looks to the future and asks what the path of a decolonised, academic theology could look like – a theology that returns to what it once was: the authentic teaching of the Gospel and the stimulating disruption of at times disruption-resistant academia."
 					}
