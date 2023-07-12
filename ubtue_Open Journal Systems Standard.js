@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-05 08:33:27"
+	"lastUpdated": "2023-07-12 10:22:23"
 }
 
 /*
@@ -120,11 +120,12 @@ function invokeEMTranslator(doc) {
 		if (articleType && articleType.match(/^(Book Reviews?)/) != null) i.tags.push("RezensionstagPica");
 
  		//orcid for pica-field 8910
-   		let orcidAuthorEntryCaseA = doc.querySelectorAll('.authors, .div.authors > strong');//Z.debug(orcidAuthorEntryCaseA)
+   		let orcidAuthorEntryCaseA = doc.querySelectorAll('.authors, .div.authors > strong, author');//Z.debug(orcidAuthorEntryCaseA)
   		let orcidAuthorEntryCaseB = doc.querySelectorAll('.authors li');//Z.debug(orcidAuthorEntryCaseB)
   		let orcidAuthorEntryCaseC = doc.querySelectorAll('.authors-string');//Z.debug(orcidAuthorEntryCaseC)
-		let orcidAuthorEntryCaseE = doc.querySelectorAll('.authorBio');//Z.debug(orcidAuthorEntryCaseC)
-		let orcidAuthorEntryCaseG = ZU.xpath(doc, '//div[@class="list-group-item date-published"]');
+		let orcidAuthorEntryCaseD = doc.querySelectorAll('.authorBio');//Z.debug(orcidAuthorEntryCaseC)
+		let orcidAuthorEntryCaseE = ZU.xpath(doc, '//div[@class="list-group-item date-published"]');
+		let orcidAuthorEntryCaseF = doc.querySelectorAll('.article-main');
   		//AuthorEntryCaseA && childNodes[0]
   		if (orcidAuthorEntryCaseA && ['2653-1372', '2627-6062', '0718-4727', '1983-2850'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
@@ -138,7 +139,7 @@ function invokeEMTranslator(doc) {
   			}
   		 }
 		//AuthorEntryCaseA && childNodes[1]
-		if (orcidAuthorEntryCaseA && ['2340-4256', '2617-1953'].includes(i.ISSN)) {
+		if (orcidAuthorEntryCaseA && ['2617-1953'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
 				let orcidTag = a.querySelector('.orcid');//Z.debug(orcidTag)
 				let authorTag = a.querySelector('.author');//Z.debug(authorTag)
@@ -150,19 +151,33 @@ function invokeEMTranslator(doc) {
   			}
   		 }
 		//e.g.  https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/785 or https://aabner.org/ojs/index.php/beabs/article/view/781
-		if (orcidAuthorEntryCaseA && ['2748-6419'].includes(i.ISSN)) {
+		if (orcidAuthorEntryCaseA && ['2748-6419', '2340-4256'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
   				if (a && a.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
   					let orcidTag = ZU.trimInternal(a.innerHTML);
-					  if (orcidTag.match(/<strong>(.+?)<\/strong>.+?<a href="http:\/\/orcid.org\/(.+?)" target="_blank">/g) != null) {
-						  for (o of orcidTag.match(/<strong>(.+?)<\/strong>.+?<a href="http:\/\/orcid.org\/(.+?)" target="_blank">/g)) {
-							  i.notes.push({note: 'orcid:' + o.match(/<a href="http:\/\/orcid.org\/(.+?)" target="_blank">/)[1] + ' | ' + o.match(/<strong>(.+?)<\/strong>/)[1] + ' | taken from website'});
-						  }
-						}
-  					
-  				}
-  			}
-  		 }
+						if (orcidTag.match(/<strong>(.+?)<\/strong>.+?<a href="https?:\/\/orcid.org\/(.+?)" target="_blank">/g) != null) {
+						  	for (o of orcidTag.match(/<strong>(.+?)<\/strong>.+?<a href="https?:\/\/orcid.org\/(.+?)" target="_blank">/g)) {
+							  	i.notes.push({note: 'orcid:' + o.match(/<a href="https?:\/\/orcid.org\/(.+?)" target="_blank">/)[1] + ' | ' + o.match(/<strong>(.+?)<\/strong>/)[1] + ' | taken from website'});
+							} 
+						} 
+
+				}
+			}
+		}
+		//https://cauriensia.es/index.php/cauriensia/article/view/456
+		if (orcidAuthorEntryCaseA[0] && orcidAuthorEntryCaseA[0].innerHTML.match(/\d+-\d+-\d+-\d+x?/gi) == null && i.ISSN == "2340-4256") {
+			for (let c of orcidAuthorEntryCaseF) {
+					let name = ZU.xpathText(c, './/strong').split(',')[0];
+					let orcid = ZU.xpathText(c, '//*[contains(@href, "orcid.org")]/@href');
+					if (orcid) {
+					orcid = ZU.xpathText(c, '//*[contains(@href, "orcid.org")]/@href').match(/\d+-\d+-\d+-\d+x?/gi)[0];
+					i.notes.push({note: 'orcid:' + orcid + ' | ' + ZU.trimInternal(name) + ' | ' + 'taken from website'});
+				} else {
+					orcid = '';
+				}
+			}
+		}
+		
 
 		//e.g. https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/42867
 		   if (orcidAuthorEntryCaseA && ['2174-0887'].includes(i.ISSN)) {
@@ -177,14 +192,6 @@ function invokeEMTranslator(doc) {
   		 }
 
   		
-  		if (orcidAuthorEntryCaseA && !orcidAuthorEntryCaseB && i.ISSN !== "2660-7743") {
-  			for (let a of orcidAuthorEntryCaseA) {
-  				if (a && a.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
-  					let author = a.innerText;//Z.debug(author + '   AAA1')
-  					i.notes.push({note: "orcid:" + ZU.unescapeHTML(ZU.trimInternal(author)).replace(/https?:\/\/orcid\.org\//g, '') + ' | ' + 'taken from website'});
-  				}
-  			}
-  		 }
   		 //e.g. https://journal.equinoxpub.com/JSRNC/article/view/19606
   		 if (orcidAuthorEntryCaseA && !orcidAuthorEntryCaseB && i.ISSN !== "2660-7743") {
   		 	for (let a of orcidAuthorEntryCaseA) {
@@ -217,10 +224,10 @@ function invokeEMTranslator(doc) {
   			}
   		}	
 		//e.g. https://missionalia.journals.ac.za/pub/article/view/422
-		if (orcidAuthorEntryCaseE) {
-			for (let c of orcidAuthorEntryCaseE) {
+		if (orcidAuthorEntryCaseD) {
+			for (let c of orcidAuthorEntryCaseD) {
 				if (c && c.innerHTML.match(/\d+-\d+-\d+-\d+x?/gi)) {
-					let orcid = ZU.xpathText(c, './/a[@class="orcid"]/@href', '');Z.debug(orcid)
+					let orcid = ZU.xpathText(c, './/a[@class="orcid"]/@href', '');//Z.debug(orcid)
 					let author = ZU.xpathText(c, './/em', '');
 					if (orcid != null && author != null) {
 						author = ZU.unescapeHTML(ZU.trimInternal(author)).trim();
@@ -231,13 +238,15 @@ function invokeEMTranslator(doc) {
 			}
 		}
 
- 	if (orcidAuthorEntryCaseG && i.ISSN == "1988-7949") {
-  	 	for (let c of orcidAuthorEntryCaseG) {
-  				let name = ZU.xpathText(c, './/strong');
-				let orcid = ZU.xpathText(c, './/a[contains(@href, "orcid.org")]/@href');
-				if (orcid) i.notes.push({note: ZU.trimInternal(name) + orcid.replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
-  			}
-  		}	
+		if (orcidAuthorEntryCaseE && i.ISSN == "1988-7949") {
+			for (let c of orcidAuthorEntryCaseE) {
+					let name = ZU.xpathText(c, './/strong');
+					let orcid = ZU.xpathText(c, './/a[contains(@href, "orcid.org")]/@href');
+					if (orcid) i.notes.push({note: orcid.replace(/https?:\/\/orcid\.org\//g, 'orcid:') + ' | ' + ZU.trimInternal(name) + ' | ' + 'taken from website'});
+			}
+		}
+
+
  		//clean pages e.g. pages": "6.-6." > 10.25786/cjbk.v0i01-02.631; or "pages": "01-07" > 10.25786/zfbeg.v0i01-02.793
  		if (i.pages != null) i.pages = i.pages.replace('S.', '').replace(/\./g, '').replace(/^([^-]+)-\1$/, '$1').replace(/^0/g, '').replace(/-0/g, '-').replace('â€“', '-');
  		
@@ -305,7 +314,7 @@ function invokeEMTranslator(doc) {
 				}
 			}
 		}
-		var authorNames = ZU.xpath(doc, '//meta[@name = "DC.Creator.PersonalName"]');
+		var authorNames = ZU.xpath(doc, '//meta[@name = "DC.Creator.PersonalName"]');//Z.debug(authorNames)
 		newCreators = [];
 		for (let entry in authorNames) {
 			var authorName = authorNames[entry].content;
@@ -383,8 +392,8 @@ function invokeEMTranslator(doc) {
 					i.abstractNote += abstractText.split(/Resumen|Abstract/)[0].replace(/\.?Orcid:.+$/, '').replace(/\.?Keywords:.+$/, '').replace(/\.?Palavas clave:.+$/, '') + "\\n4207 ";
 					let keyWords = abstractText.split(/(?:\bKey\s*words:\s)|(?:\nКлючевые\s+слова:\s)|(?:\nТүйін\s+сөздер:\s)|(?:\bPalabras\s*clave:)/)[1];
 					if (keyWords != undefined) {
-						for (let keyWord of keyWords.split(/,\s+/)) {
-							i.tags.push(keyWord.replace(/\.?Orcid:.+$/, ''));
+						for (let keyWord of keyWords.split(/[,|;]\s+/)) {
+							i.tags.push(keyWord.replace(/\.?Orcid:.+$/, '').replace(/\.Doi:.+/g, '').replace(/Doi:.+/g, '').replace(/\..+/g, ''));
 						}
 					}
 				}
@@ -397,9 +406,9 @@ function invokeEMTranslator(doc) {
 			for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"]/@content')) {
 				i.notes.push({'note': 'translatedTitle:' + parallelTitle.textContent.trim()});
 			}
-			for (let creator of ZU.xpath(doc, '//meta[@name="citation_author"]/@content')) {
+			/*for (let creator of ZU.xpath(doc, '//meta[@name="citation_author"]/@content')) {
 				i.creators.push(ZU.cleanAuthor(creator.textContent, "author", false));
-			}
+			}*/
 		}
 		if (["2709-8435", "1018-1539"].includes(i.ISSN)) {
 			let abstracts = ZU.xpath(doc, '//meta[@name="DC.Description"]/@content');
@@ -417,10 +426,10 @@ function invokeEMTranslator(doc) {
 				for (let abstractSplitter of abstractSplitters) {
 					if (abstractTag.match(abstractSplitter) != null) {
 						let abstract = abstractTag.split(abstractSplitter)[0];
-						let keywords = abstractTag.split(abstractSplitter)[1];Z.debug(keywords)
+						let keywords = abstractTag.split(abstractSplitter)[1];
 						if (abstractNum == 0) i.abstractNote = abstract;
 						else i.notes.push({'note': 'abs:' + abstract});
-						for (let keyword of keywords.split(/\s*[,;]\s*/)) {Z.debug(keyword)
+						for (let keyword of keywords.split(/\s*[,;]\s*/)) {
 							i.tags.push(keyword.replace(/.$/, '').trim());
 						}
 						break;
@@ -1610,11 +1619,6 @@ var testCases = [
 						"firstName": "José Pereira",
 						"lastName": "Coutinho",
 						"creatorType": "author"
-					},
-					{
-						"firstName": "José Pereira",
-						"lastName": "Coutinho",
-						"creatorType": "author"
 					}
 				],
 				"date": "2021/12/08",
@@ -1692,52 +1696,6 @@ var testCases = [
 				"notes": [
 					{
 						"note": "orcid:0000-0002-5890-3080 | Eva-Maria Trinkaus | taken from website"
-					}
-				],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "https://cauriensia.es/index.php/cauriensia/article/view/477",
-		"detectedItemType": "journalArticle",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Melinda L. DENTON, Richard FLORY. Back pocket God: Religion and spirituality in the lives of emerging adults",
-				"creators": [
-					{
-						"firstName": "José Pereira",
-						"lastName": "Coutinho",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "José Pereira",
-						"lastName": "Coutinho",
-						"creatorType": "author"
-					}
-				],
-				"date": "2021/12/08",
-				"ISSN": "2340-4256",
-				"abstractNote": "Reseña de libro\\n4207 Reseña de libro\\n4207",
-				"journalAbbreviation": "RevCau",
-				"language": "en",
-				"libraryCatalog": "cauriensia.es",
-				"pages": "682-685",
-				"publicationTitle": "Cauriensia. Revista anual de Ciencias Eclesiásticas",
-				"rights": "Derechos de autor 2021",
-				"shortTitle": "Melinda L. DENTON, Richard FLORY. Back pocket God",
-				"url": "https://cauriensia.es/index.php/cauriensia/article/view/477",
-				"volume": "16",
-				"attachments": [],
-				"tags": [],
-				"notes": [
-					{
-						"note": "orcid:0000-0002-2733-3476 | José Pereira Coutinho | taken from website"
-					},
-					{
-						"note": "translatedTitle:Melinda L. DENTON, Richard FLORY. Back pocket God: Religion and spirituality in the lives of emerging adults"
 					}
 				],
 				"seeAlso": []
@@ -1888,11 +1846,6 @@ var testCases = [
 				"itemType": "journalArticle",
 				"title": "Justicia como imparcialidad o reconocer el bien del otro",
 				"creators": [
-					{
-						"firstName": "María Teresa Cid",
-						"lastName": "Vázquez",
-						"creatorType": "author"
-					},
 					{
 						"firstName": "María Teresa Cid",
 						"lastName": "Vázquez",
@@ -2099,6 +2052,290 @@ var testCases = [
 					}
 				],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://cauriensia.es/index.php/cauriensia/article/view/498",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "El perdón en el pensamiento de Dietrich von Hildebrand / The Forgiveness in Dietrich von Hildebrand’s Thought",
+				"creators": [
+					{
+						"firstName": "Eugénio",
+						"lastName": "Lopes",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021",
+				"DOI": "10.17398/2340-4256.16.455",
+				"ISSN": "2340-4256",
+				"abstractNote": "\\n4207 Todos nosotros necesitamos perdonar y ser perdonados, a fin de autorrealizarnos. En este sentido, en este articulo, pretendo analizar la propuesta de Dietrich von Hildebrand con relación al tema del perdón y ver así de que forma esta propuesta nos permite entender mejor en que consiste esencialmente el perdón.Palabras clave: Arrepentimiento, Conversión, Perdón, Pedir Disculpa, Bien y Malo Objetivo para la Persona, Culpa, Valor y Disvalor, Dios. \\n4207 Everybody needs to forgive and to be forgiven in order to self-realize. In this sense, in this article, I intend to analyze Dietrich von Hildebrand's proposal concerning the topic of forgiveness and, in this way, why his proposal allows us to better understand what forgiveness essentially is\\n4207",
+				"journalAbbreviation": "RevCau",
+				"language": "es",
+				"libraryCatalog": "cauriensia.es",
+				"pages": "455-473",
+				"publicationTitle": "Cauriensia. Revista anual de Ciencias Eclesiásticas",
+				"rights": "Derechos de autor 2021 CAURIENSIA. Revista anual de Ciencias Eclesiásticas",
+				"url": "https://cauriensia.es/index.php/cauriensia/article/view/498",
+				"volume": "16",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": " Arrepentimiento"
+					},
+					{
+						"tag": "Apologize"
+					},
+					{
+						"tag": "Bien y Malo Objetivo para la Persona"
+					},
+					{
+						"tag": "Conversion"
+					},
+					{
+						"tag": "Conversión"
+					},
+					{
+						"tag": "Culpa"
+					},
+					{
+						"tag": "Dios"
+					},
+					{
+						"tag": "Forgiveness"
+					},
+					{
+						"tag": "God"
+					},
+					{
+						"tag": "Guilt"
+					},
+					{
+						"tag": "Objective Good and Bad for the Person"
+					},
+					{
+						"tag": "Pedir Disculpa"
+					},
+					{
+						"tag": "Perdón"
+					},
+					{
+						"tag": "Repentance"
+					},
+					{
+						"tag": "Valor y Disvalor"
+					},
+					{
+						"tag": "Value and Disvalue"
+					}
+				],
+				"notes": [
+					{
+						"note": "orcid:0000-0001-8474-3538 | Eugénio Lopes | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://cauriensia.es/index.php/cauriensia/article/view/497",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "La reducción secular de la laicidad religiosa / Secular Reduction of Religious Secularity",
+				"creators": [
+					{
+						"firstName": "Manuel Lázaro",
+						"lastName": "Pulido",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Esteban Anchústegui",
+						"lastName": "Igartua",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021",
+				"DOI": "10.17398/2340-4256.16.421",
+				"ISSN": "2340-4256",
+				"abstractNote": "\\n4207 Este artículo analiza cómo las democracias europeas están tolerando –cuando no promoviendo– la proliferación de mensajes denigrantes hacia aquellos ciudadanos que viven su religión, especialmente la católica, y reclaman la presencia de esta experiencia en el ámbito público; sufriendo por todo ello una discriminación que es amparada sistemáticamente por las instituciones políticas, alcanzando niveles de delitos de odio que en ningún caso serían admisibles en relación al género, la raza, la discapacidad o la orientación sexual.Los delitos de odio por motivos religiosos hacia el catolicismo se han convertido en norma, legitimando las afrentas hacia una religión que se caricaturiza como colonialista y a unos seguidores a los que se etiqueta como privilegiados explotadores, siendo todo ello producto de una confusión interesada entre el fenómeno de la secularización y el del laicismo. Así, desde la premisa jurídico-político de la laicidad del Estado, se demoniza como fundamentalista cualquier manifestación de un creyente católico que, desde el respeto absoluto a los valores democráticos, proponga sus principios como valores propositivos para la sociedad y la vida pública; aptitud que, en aras de la paz social y como manifesta-ción de un laicismo que se ha convertido en una ideología que busca erradicar del ámbito púbico cualquier vinculación de Dios en las vidas humanas y en sus estructuras, es tole-rada paradójicamente en relación a religiones objetivamente fundamentalistas o respecto a posiciones visceralmente hostiles hacia la religión.Consideramos que este trato es aplicado al catolicismo con el fin de acallar su influencia moral, ya que, además de agente fundamental en el proceso histórico de institucionalización del poder temporal, constituye un baluarte frente a cualquier abuso de intromisión política en la vida de las personas. En definitiva, en aras de instaurar el pensamiento único del Estado, se trataría de deslegitimar el mensaje evangélico de la Iglesia en su denuncia a todo tipo intervencionismo, dependencia y control estatal que vulnere el pleno desarrollo de la libertad y la dignidad humana.Palabras clave: Catolicismo, delitos de odio, pluralismo, bien común, comunidad, persona, ciudadano, secularización, laicismo, laicidad, religión, democracia, Estado. \\n4207 This article analyses how European democracies are tolerating - if not promoting - the proliferation of denigrating messages towards those citizens who live their religion, especially Catholicism, and demand the presence of this experience in the public sphere; suffering discrimination that is systematically protected by political institutions, reaching levels of hate crimes that would never be admissible in relation to gender, race, disability or sexual orientation.Religiously motivated hate crimes against Catholicism have become the norm, legitimising affronts towards a religion that is caricatured as colonialist and followers who are labelled as privileged exploiters, all of this being the product of a self-interested confusion between the phenomenon of secularisation and that of secularism. Thus, from the legal-political premise of the secularity of the State, any manifestation of a Catholic believer who, with absolute respect for democratic values, proposes his or her principles as propositional values for society and public life, is demonised as fundamentalist; An attitude that, for the sake of social peace and as a manifestation of a secularism that has become an ideology that seeks to eradicate from the public sphere any link to God in human lives and their structures, is paradoxically tolerated in relation to objectively fundamentalist religions or in relation to positions that are viscerally hostile to religion.We consider that this treatment is applied to Catholicism in order to silence its moral influence, since, in addition to being a fundamental agent in the historical process of institutionalisation of temporal power, it constitutes a bulwark against any abuse of political meddling in people's lives. In short, in order to establish the State's single way of thinking, the aim would be to delegitimise the Church's evangelical message in its denunciation of any kind of state interventionism, dependence and control that violates the full development of freedom and human dignity\\n4207",
+				"journalAbbreviation": "RevCau",
+				"language": "es",
+				"libraryCatalog": "cauriensia.es",
+				"pages": "421-454",
+				"publicationTitle": "Cauriensia. Revista anual de Ciencias Eclesiásticas",
+				"rights": "Derechos de autor 2021 CAURIENSIA. Revista anual de Ciencias Eclesiásticas",
+				"url": "https://cauriensia.es/index.php/cauriensia/article/view/497",
+				"volume": "16",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": " Catolicismo"
+					},
+					{
+						"tag": "Catholicism"
+					},
+					{
+						"tag": "Estado"
+					},
+					{
+						"tag": "State"
+					},
+					{
+						"tag": "bien común"
+					},
+					{
+						"tag": "citizen"
+					},
+					{
+						"tag": "ciudadano"
+					},
+					{
+						"tag": "common good"
+					},
+					{
+						"tag": "community"
+					},
+					{
+						"tag": "comunidad"
+					},
+					{
+						"tag": "delitos de odio"
+					},
+					{
+						"tag": "democracia"
+					},
+					{
+						"tag": "democracy"
+					},
+					{
+						"tag": "hate crimes"
+					},
+					{
+						"tag": "laicidad"
+					},
+					{
+						"tag": "laicismo"
+					},
+					{
+						"tag": "person"
+					},
+					{
+						"tag": "persona"
+					},
+					{
+						"tag": "pluralism"
+					},
+					{
+						"tag": "pluralismo"
+					},
+					{
+						"tag": "religion"
+					},
+					{
+						"tag": "religion"
+					},
+					{
+						"tag": "religión"
+					},
+					{
+						"tag": "secularisation"
+					},
+					{
+						"tag": "secularism"
+					},
+					{
+						"tag": "secularism"
+					},
+					{
+						"tag": "secularity"
+					},
+					{
+						"tag": "secularización"
+					}
+				],
+				"notes": [
+					{
+						"note": "orcid:0000-0001-8471-7305 | Manuel Lázaro Pulido | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://cauriensia.es/index.php/cauriensia/article/view/456",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Perspectiva mística desde la mirada sanjuanista / Mystical Prospective from Saint John of the Regard",
+				"creators": [
+					{
+						"firstName": "Simona",
+						"lastName": "Langella",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021",
+				"DOI": "10.17398/2340-4256.16.19",
+				"ISSN": "2340-4256",
+				"abstractNote": "\\n4207 Atravesar la \"noche oscura\" quiere decir para san Juan de la Cruz elevar al hombre desde la meditación a la contemplación. Este trabajo quiere mostrar como este tránsito puede comprenderse por medio de tres palabras clave (purificación, presencias y unión) propias de la obra sanjuanista y como a cada una de estas palabras el místico castellano hace corresponder diferentes grados de la realidad ontológica enfrentadas por el sujeto teopático en su itinerario hacia a Dios.Palabras clave: Juan de la Cruz, mística, purificación, presencias, unión.\\n4207 Going through the \"dark night\" means for Saint John of the Cross to lift man from meditation to contemplation. This article wants to show how this transit can be understood by means of three key words (purification, presences and union) typical of Saint John of the Cross’ work and how to each of these words correspond different degrees of the ontological reality faced by the subject theopathic on his itinerary to God\\n4207",
+				"journalAbbreviation": "RevCau",
+				"language": "es",
+				"libraryCatalog": "cauriensia.es",
+				"pages": "19-37",
+				"publicationTitle": "Cauriensia. Revista anual de Ciencias Eclesiásticas",
+				"rights": "Derechos de autor 2021 CAURIENSIA. Revista anual de Ciencias Eclesiásticas",
+				"url": "https://cauriensia.es/index.php/cauriensia/article/view/456",
+				"volume": "16",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": " Juan de la Cruz"
+					},
+					{
+						"tag": "John of the Cross"
+					},
+					{
+						"tag": "mysticism"
+					},
+					{
+						"tag": "mística"
+					},
+					{
+						"tag": "presences"
+					},
+					{
+						"tag": "presencias"
+					},
+					{
+						"tag": "purificación"
+					},
+					{
+						"tag": "purification"
+					},
+					{
+						"tag": "union"
+					},
+					{
+						"tag": "unión."
+					}
+				],
+				"notes": [
+					{
+						"note": "orcid:0000-0002-8231-6855 | Simona Langella | taken from website"
+					}
+				],
 				"seeAlso": []
 			}
 		]
