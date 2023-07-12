@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-12-12 13:02:20"
+	"lastUpdated": "2023-07-05 12:20:14"
 }
 
 /*
@@ -113,6 +113,7 @@ function scrape(doc, url) {
 			}
 
 			item.bookTitle = item.publicationTitle;
+			item.pages = item.pages.trim().replace(/^([^-]+)-\1$/, '$1');
 
 			//unfortunately, bibtex is missing some data
 			//publisher, ISSN/ISBN
@@ -239,7 +240,7 @@ var testCases = [
 				"abstractNote": "This article analyzes the evolution of informal employment in Peru from 1986 to 2001. Contrary to what one would expect, the informality rates increased steadily during the 1990s despite the introduction of flexible contracting mechanisms, a healthy macroeconomic recovery, and tighter tax codes and regulation. We explore different factors that may explain this upward trend including the role of labor legislation and labor allocation between/within sectors of economic activity. Finally, we illustrate the negative correlation between productivity and informality by evaluating the impacts of the Youth Training PROJOVEN Program that offers vocational training to disadvantaged young individuals. We find significant training impacts on the probability of formal employment for both males and females.",
 				"issue": "4",
 				"itemID": "doi:10.1080/17487870802543480",
-				"libraryCatalog": "Taylor and Francis+NEJM",
+				"libraryCatalog": "ubtue_Taylor and Francis+NEJM",
 				"pages": "229-245",
 				"publicationTitle": "Journal of Economic Policy Reform",
 				"url": "https://doi.org/10.1080/17487870802543480",
@@ -302,7 +303,7 @@ var testCases = [
 				"abstractNote": "This article analyzes the evolution of informal employment in Peru from 1986 to 2001. Contrary to what one would expect, the informality rates increased steadily during the 1990s despite the introduction of flexible contracting mechanisms, a healthy macroeconomic recovery, and tighter tax codes and regulation. We explore different factors that may explain this upward trend including the role of labor legislation and labor allocation between/within sectors of economic activity. Finally, we illustrate the negative correlation between productivity and informality by evaluating the impacts of the Youth Training PROJOVEN Program that offers vocational training to disadvantaged young individuals. We find significant training impacts on the probability of formal employment for both males and females.",
 				"issue": "4",
 				"itemID": "doi:10.1080/17487870802543480",
-				"libraryCatalog": "Taylor and Francis+NEJM",
+				"libraryCatalog": "ubtue_Taylor and Francis+NEJM",
 				"pages": "229-245",
 				"publicationTitle": "Journal of Economic Policy Reform",
 				"url": "https://doi.org/10.1080/17487870802543480",
@@ -355,7 +356,7 @@ var testCases = [
 				"abstractNote": "Measuring consumers’ Willingness To Pay (WTP) without considering the level of uncertainty in valuation and the consequent risk premiums will result in estimates that are biased toward lower values. This research proposes a model and method for correctly assessing WTP in cases involving valuation uncertainty. The new method, called Risk Adjustment Mechanism (RAM), is presented theoretically and demonstrated empirically. It is shown that the RAM outperforms the traditional method for assessing WTP, especially in a context of a nonmarket good such as a totally new product.",
 				"issue": "1",
 				"itemID": "doi:10.1080/00036846.2011.568404",
-				"libraryCatalog": "Taylor and Francis+NEJM",
+				"libraryCatalog": "ubtue_Taylor and Francis+NEJM",
 				"pages": "37-46",
 				"publicationTitle": "Applied Economics",
 				"url": "https://doi.org/10.1080/00036846.2011.568404",
@@ -409,7 +410,7 @@ var testCases = [
 				"abstractNote": "This article deals with a multicriteria evaluation of High-Speed Rail, Transrapid Maglev and Air Passenger Transport in Europe. Operational, socio-economic and environmental performance indicators of the specific high-speed transport systems are adopted as the evaluation criteria. By using the entropy method, weights are assigned to particular criteria in order to indicate their relative importance in decision-making. The TOPSIS method is applied to carry out the multicriteria evaluation and selection of the preferable alternative (high-speed system) under given circumstances.",
 				"issue": "6",
 				"itemID": "doi:10.1080/0308106032000167373",
-				"libraryCatalog": "Taylor and Francis+NEJM",
+				"libraryCatalog": "ubtue_Taylor and Francis+NEJM",
 				"pages": "491-512",
 				"publicationTitle": "Transportation Planning and Technology",
 				"url": "https://doi.org/10.1080/0308106032000167373",
@@ -467,7 +468,7 @@ var testCases = [
 				"abstractNote": "Concentration dependence of CO2 evolution from soil was studied under field and laboratory conditions. Under field conditions, when the CO2 concentration was measured with an infrared gas analyzer (IRGA) in a small and column-shaped chamber placed on the ground, the relationship among the CO2 concentration c (m3 m-3), time t (h), height of the chamber h, a constant rate of CO2 evolution from the soil v (m3 m-2 h-1), and an appropriate constant k, was expressed by the following equation, d c/d t = v/ h—k(c— a) (c=a at t = 0). Although most of the data of measured CO2 evolution fitted to this equation, the applicability of the equation was limited to the data to which a linear equation could not be fitted, because the estimated value of v had a larger error than that estimated by linear regression analysis, as observed by computer simulation. The concentration dependence shown above and some other variations were analyzed based on a sorption/diffusion model, i.e. they were associated with CO2-sorption by the soil and modified by the conditions of CO2 diffusion in the soil.",
 				"issue": "3",
 				"itemID": "doi:10.1080/00380768.1991.10415050",
-				"libraryCatalog": "Taylor and Francis+NEJM",
+				"libraryCatalog": "ubtue_Taylor and Francis+NEJM",
 				"pages": "381-386",
 				"publicationTitle": "Soil Science and Plant Nutrition",
 				"url": "https://doi.org/10.1080/00380768.1991.10415050",
@@ -522,7 +523,7 @@ var testCases = [
 				"abstractNote": "This paper examines the credibility of performance audit at the micro-level of practice using the general framework of Birnbaum and Stegner's theory of source credibility in which credibility is dependent upon perceptions of the independence of the auditors, their technical competence and the usefulness of audit findings. It reports the results of a field study of a performance audit by the Australian National Audit Office conducted in a major government department. The paper establishes that problems of auditor independence, technical competence and perceived audit usefulness continue to limit the credibility of performance auditing.",
 				"issue": "6",
 				"itemID": "doi:10.1080/00014788.2016.1157680",
-				"libraryCatalog": "Taylor and Francis+NEJM",
+				"libraryCatalog": "ubtue_Taylor and Francis+NEJM",
 				"pages": "601-619",
 				"publicationTitle": "Accounting and Business Research",
 				"url": "https://doi.org/10.1080/00014788.2016.1157680",
@@ -553,7 +554,7 @@ var testCases = [
 				"ISSN": "1475-5610",
 				"issue": "1",
 				"itemID": "doi:10.1080/14755610.2019.1572099",
-				"libraryCatalog": "Taylor and Francis+NEJM",
+				"libraryCatalog": "ubtue_Taylor and Francis+NEJM",
 				"pages": "124-128",
 				"publicationTitle": "Culture and Religion",
 				"shortTitle": "(Un)believing in modern society",
@@ -593,7 +594,7 @@ var testCases = [
 				"abstractNote": "Despite its diplomatic isolation, Taiwan shines in East Asia as a beacon for pluralism. This is a rare example of a progressive and liberal society where both deep religious diversity and a tolerant secular state co-exist. Taiwan’s liminality between world empires, and its unique position in the global economy partly explain its openness to a diversity of worldviews, but also exposes it to greater challenges to achieve covenantal pluralism. Taiwan’s hard-won democracy has entrenched positive trends, but three issues threaten to undermine it: the political pressure of a domineering China that limits its own religious diversity and that wants to annex Taiwan; the rise in influence of a rather intransigent and divisive religious minority that demonizes its opponents; and the increasing labor immigration addressing the challenges of an aging society.",
 				"issue": "1",
 				"itemID": "doi:10.1080/15570274.2021.1874144",
-				"libraryCatalog": "Taylor and Francis+NEJM",
+				"libraryCatalog": "ubtue_Taylor and Francis+NEJM",
 				"pages": "42-55",
 				"publicationTitle": "The Review of Faith & International Affairs",
 				"url": "https://doi.org/10.1080/15570274.2021.1874144",
@@ -627,7 +628,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "orcid:0000-0003-3285-5188|André Laliberté"
+						"note": "orcid:0000-0003-3285-5188 | André Laliberté"
 					}
 				],
 				"seeAlso": []
@@ -654,7 +655,7 @@ var testCases = [
 				"abstractNote": "This article presents an exploration of the ways in which law, education, and religious propagation have been deployed as mutually reinforcing means for engineering social transformation in the Indonesian province of Aceh, and how these agendas were dramatically accelerated in the context of humanitarian and development interventions in post-conflict/post-disaster reconstruction. In doing so, it demonstrates and critically analyzes the ways in which contemporary Muslim visions of instrumentalist, future-oriented models of Islamic law have been formally implemented through the apparatus of the state as part of an over-arching project of engineering a new society, and of redefining conceptions of proper Islamic religious belief and practice. This case presents a striking instance of an agenda of religious revival envisioned not as an attempt to preserve or resuscitate established tradition, but rather as a tool in interventions for future-oriented projects for ‘improving’ the conditions of Muslims in both this world, and the next.",
 				"issue": "1",
 				"itemID": "doi:10.1080/0048721X.2020.1792051",
-				"libraryCatalog": "Taylor and Francis+NEJM",
+				"libraryCatalog": "ubtue_Taylor and Francis+NEJM",
 				"pages": "40-57",
 				"publicationTitle": "Religion",
 				"shortTitle": "Engineering transformations in the ‘religion-development nexus’",
@@ -683,7 +684,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "orcid:0000-0002-1222-6766|R. Michael Feener"
+						"note": "orcid:0000-0002-1222-6766 | R. Michael Feener"
 					}
 				],
 				"seeAlso": []
@@ -715,7 +716,7 @@ var testCases = [
 				"abstractNote": "The current study is a qualitative investigation aimed at exploring the lived experiences of Tibetan youth who had escaped to India as unaccompanied minors and since then have been living as refugees in India without their parents. The study attempts to explore the challenges, struggles and coping of this unique population of youth refugees growing up in exile in India without the support of parents. Ten Tibetan refugee youth now studying at university level were interviewed in depth. Interpretative phenomenological analysis was used to analyse their narratives. Major findings included the unique sociocultural, political and emotional challenges they faced related to acclimatisation, status of their own political identity, difficulties pertaining to retaining their Tibetan culture in a host country, and loneliness. Their adaptation in the host country was perceived to be facilitated by their unique Buddhist spiritual and cultural beliefs, strong faith in the Dalai Lama, community bonding and peer support and the use of social media to communicate with family in Tibet. The Tibetan refugee youth derived a sense of growth from their adversities related to appreciating the value of family, personal growth in the form of self-reliance, and finding meaning in life by feeling part of a larger purpose related to the Tibetan cause. Implications for practice: The study highlights the unique psychosocial issues of Tibetan refugee youth in exile in India. Culturally sensitive psychosocial support and an understanding of traditional spiritual and religious coping mechanisms may be integrated into health services for the Tibetan refugees who lack family support and may not be familiar with the Western constructs of mental health.",
 				"issue": "1",
 				"itemID": "doi:10.1080/20797222.2020.1850489",
-				"libraryCatalog": "Taylor and Francis+NEJM",
+				"libraryCatalog": "ubtue_Taylor and Francis+NEJM",
 				"pages": "article e1850489",
 				"publicationTitle": "Indo-Pacific Journal of Phenomenology",
 				"shortTitle": "Facing challenges and drawing strength from adversity",
@@ -738,10 +739,35 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "orcid:0000-0002-7049-9383|Parisha Jijina"
+						"note": "orcid:0000-0002-7049-9383 | Parisha Jijina"
 					},
 					"LF:"
 				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.tandfonline.com/doi/abs/10.1080/09596419008720919",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Editorial",
+				"creators": [],
+				"date": "January 1, 1990",
+				"DOI": "10.1080/09596419008720919",
+				"ISSN": "0959-6410",
+				"issue": "1",
+				"itemID": "doi:10.1080/09596419008720919",
+				"libraryCatalog": "ubtue_Taylor and Francis+NEJM",
+				"pages": "1",
+				"publicationTitle": "Islam and Christian–Muslim Relations",
+				"url": "https://doi.org/10.1080/09596419008720919",
+				"volume": "1",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
