@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-07 10:53:23"
+	"lastUpdated": "2023-07-17 13:50:58"
 }
 
 /*
@@ -167,15 +167,18 @@ function scrape(doc, url) {
 		let abstractES = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "lang-es", " " ))]//p');
 		
 		if (item.abstractNote) item.abstractNote = item.abstractNote.replace(/\n/g, ' ');
+		if (abstractDE) item.notes.push('abs:' + abstractDE.replace(/\n/g, ' '))
 		if (abstractEN && abstractEN.length > 100) {
 			item.notes.push('abs:' + abstractEN.replace(/\n/g, ' '))
-			if (abstractDE) item.notes.push('abs:' + abstractDE.replace(/\n/g, ' '))
-			if (abstractES) item.notes.push('abs:' + abstractES.replace(/\n/g, ' '))
 		}
 		else if (ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="en"]/@content') && ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="en"]/@content').length > 100) {
 			item.notes.push('abs:' + ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="en"]/@content').replace(/\n/g, ' '));
-			if (abstractDE) item.notes.push('abs:' + abstractDE.replace(/\n/g, ' '))
-			if (abstractES) item.notes.push('abs:' + abstractES.replace(/\n/g, ' '))
+		}
+		if (abstractES && abstractES.length > 100) {
+			item.notes.push('abs:' + abstractES.replace(/\n/g, ' '))
+		}
+		else if (ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="es"]/@content') && ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="es"]/@content').length > 100) {
+			item.notes.push('abs:' + ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="es"]/@content').replace(/\n/g, ' '));
 		}
 		let DOIentry = ZU.xpathText(doc, '//dd');
 		if (!item.DOI && DOIentry) {
