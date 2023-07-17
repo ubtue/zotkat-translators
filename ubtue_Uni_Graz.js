@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-11 11:59:22"
+	"lastUpdated": "2023-07-17 12:35:20"
 }
 
 /*
@@ -64,10 +64,10 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 	translator.setHandler("itemDone", function (t, item) {
 		item.itemType = 'journalArticle';
 		if (ZU.xpathText(doc, '//table[contains(@id, "Abstract")]')) {
-			let abss = ZU.xpathText(doc, '//table[contains(@id, "Abstract")]').split("Abstract");
-			item.abstractNote = abss[1];
-			for (let i = 2; i<abss.length; i++) {
-				item.notes.push({'note': 'abs:' + abss[i]});
+			let abss = ZU.xpathText(doc, '//table[contains(@id, "Abstract")]').split(/(Abstract|Zusammenfassung)/);
+			item.abstractNote = abss[2];
+			for (let i = 2; i<abss.length/2; i++) {
+				item.notes.push({'note': 'abs:' + abss[2*i]});
 			}
 		}
 		if (ZU.xpathText(doc, '//div[@class="valueDiv-3"]')) {
@@ -88,6 +88,18 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		}
 		if (item.publicationTitle == "Limina") {
 			item.ISSN = "2617-1953";
+		}
+		if (ZU.xpath(doc, '//tr[@id="mods_name-roleTerm_Author"]')) {
+			authors = ZU.xpath(doc, '//tr[@id="mods_name-roleTerm_Author"]');
+			for (let i in authors) {
+				if(authors[i].innerHTML.includes("orcid")) {
+					let name = authors[i].innerHTML.match(/>([^<]*),\s?([^<]*)<\/a>\s?<a\shref=\s?"https?:\/\/orcid/);
+					firstname = name[2];
+					lastname = name[1];
+					orcid = authors[i].innerHTML.match(/<a\shref=\s?"https?:\/\/orcid\.org\/(\d{4}-\d{4}-\d{4}-\d{4})/)[1];
+					item.notes.push({"note": "orcid:" + orcid + " | " + firstname + " " + lastname + " | taken from website"});
+				}
+			}
 		}
 		item.attachments = [];
 		item.complete();
