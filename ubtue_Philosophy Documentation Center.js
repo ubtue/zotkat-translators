@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-07 09:24:46"
+	"lastUpdated": "2023-07-18 12:57:12"
 }
 
 /*
@@ -87,7 +87,7 @@ function doWeb(doc, url) {
   }
 }
 
-function scrape(doc, url) {Z.debug(url);
+function scrape(doc, url) {
 	var translator = Zotero.loadTranslator("web");
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 	translator.setDocument(doc);
@@ -98,6 +98,16 @@ function scrape(doc, url) {Z.debug(url);
 		if(issnEntry && issnEntry.match(/Online_ISSN/i) && issnEntry.match(/Online_ISSN=(\d{4}-\d{3}[\dx])/i)) i.ISSN = issnEntry.match(/Online_ISSN=(\d{4}-\d{3}[\dx])/i)[1];
 		if(issnEntry && issnEntry.match(/Print_ISSN/i) && issnEntry.match(/Print_ISSN=(\d{4}-\d{3}[\dx])/i)) i.ISSN = issnEntry.match(/Print_ISSN=(\d{4}-\d{3}[\dx])/i)[1];
 		if(issnEntry && issnEntry.match(/Book Review/i)) i.tags.push('RezensionstagPica');
+
+		let authors = ZU.xpath(doc, '//div[contains(@id, "articleInfo")]')[0].innerHTML.match(/>[^<]+<a\shref=[^<]+</g);
+		for (let j in authors) {
+			let author = authors[j].match(/^>([^<]+)</)[1];
+			if (authors[j].match(/orcid\.org\/\d{4}-\d{4}-\d{4}-\d{4}/)) {
+				let orcid = authors[j].match(/orcid\.org\/(\d{4}-\d{4}-\d{4}-\d{4})/)[1];
+				i.notes.push("orcid:" + orcid + " | " + author + " | taken from website");
+			}
+		}
+
 		i.attachments = [];
 		//i.url = url;
 		i.complete();
@@ -216,6 +226,40 @@ var testCases = [
 		"type": "web",
 		"url": "https://www.pdcnet.org/collection-anonymous/browse?fp=agstm&fq=agstm/Volume/8937%7C63/8999%7CIssue:%201/",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://www.pdcnet.org/pdc/bvdb.nsf/purchase_mobile?openform&fp=agstm&id=agstm_2023_0063_0001_0165_0194",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Isidore of Pelusium on Providence, Fate and Divine Longanimity",
+				"creators": [
+					{
+						"firstName": "Francesco",
+						"lastName": "Celia",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023/06/22",
+				"DOI": "10.5840/agstm20236316",
+				"ISSN": "0004-8011",
+				"abstractNote": "The subjects of this research are the doctrine of providence, the criticism of fate, and the concept of divine makrothymia in the Greek letters of Isidore of Pelusium. These letters offer neither comprehensive theories nor compelling arguments but relevant, though miscellaneous, information which may help in tracing Isidore’s intellectual profile. More specifically, this study explores the interaction of Isidore with his sources, and unearths substantial new evidence of the direct influence on him of the works of Chrysostom and Pseudo-Chrysostom.",
+				"issue": "1",
+				"language": "en",
+				"libraryCatalog": "www.pdcnet.org",
+				"pages": "165-194",
+				"publicationTitle": "Augustinianum",
+				"url": "https://www.pdcnet.org/pdc/bvdb.nsf/purchase?openform&fp=agstm&id=agstm_2023_0063_0001_0165_0194",
+				"volume": "63",
+				"attachments": [],
+				"tags": [],
+				"notes": [
+					"orcid:0000-0001-5997-4107 | Francesco Celia | taken from website"
+				],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
