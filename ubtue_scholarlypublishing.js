@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-11-30 16:11:33"
+	"lastUpdated": "2023-07-18 13:58:02"
 }
 
 /*
@@ -78,8 +78,12 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			i.abstractNote = i.abstractNote.replace(/^Abstract[\.:]\s*/, "");
 		}
 		else i.abstractNote = "";
-		if (ZU.xpathText(doc, '//i[@class="icon-availability_unlocked"]/@title') == "Available") {
-		i.notes.push('LF:');
+		//if (ZU.xpathText(doc, '//i[@class="icon-availability_unlocked"]/@title') == "Available") {
+		if (ZU.xpathText(doc, '//div[@class="license-p"]') && ZU.xpathText(doc, '//div[@class="license-p"]').includes("free")) {
+			i.notes.push('LF:');
+		}
+		if (i.url.match(/doi\.org/) && i.DOI) {
+			delete i.url;
 		}
 		i.complete();
 	});
@@ -126,14 +130,13 @@ var testCases = [
 				"date": "2021/12/15",
 				"DOI": "10.5325/bullbiblrese.31.4.0463",
 				"ISSN": "1065-223X",
-				"abstractNote": "Abstract. Jesus begins his ministry with appeals to Elijah and the widow, making bold and controversial claims about the true beneficiaries of the kingdom of God (Luke 4:25–26; cf. 1 Kgs 17:8–24). Although commentators recognize subsequent allusions to this episode throughout Luke-Acts, these are generally noted in passing and in isolation from each other. This article draws from recent studies that examine “redundant” narrations in the Lukan narrative, applying the same methodology to the phenomenon of the narrator’s repetitive reappropriation of a given OT episode. In examining repeated appeals to the Zarephath account within the Lukan narrative (Luke 4:26; 7:11–17; Acts 9:32–43; 20:7–12; cf. 1 Kgs 17:17–24), it is argued that these passages, when linked together, create a literary arc that spans almost the entirety of Luke-Acts. Viewed as a whole, this arc highlights the unfolding understanding of the true people of God in Lukan theology.",
+				"abstractNote": "Jesus begins his ministry with appeals to Elijah and the widow, making bold and controversial claims about the true beneficiaries of the kingdom of God (Luke 4:25–26; cf. 1 Kgs 17:8–24). Although commentators recognize subsequent allusions to this episode throughout Luke-Acts, these are generally noted in passing and in isolation from each other. This article draws from recent studies that examine “redundant” narrations in the Lukan narrative, applying the same methodology to the phenomenon of the narrator’s repetitive reappropriation of a given OT episode. In examining repeated appeals to the Zarephath account within the Lukan narrative (Luke 4:26; 7:11–17; Acts 9:32–43; 20:7–12; cf. 1 Kgs 17:17–24), it is argued that these passages, when linked together, create a literary arc that spans almost the entirety of Luke-Acts. Viewed as a whole, this arc highlights the unfolding understanding of the true people of God in Lukan theology.",
 				"issue": "4",
 				"language": "en",
 				"libraryCatalog": "scholarlypublishingcollective.org",
 				"pages": "463-477",
 				"publicationTitle": "Bulletin for Biblical Research",
 				"shortTitle": "From Widows to Windows",
-				"url": "https://scholarlypublishingcollective.org/psup/biblical-research/article/31/4/463/293318/From-Widows-to-Windows-Luke-s-Use-of-Repetition",
 				"volume": "31",
 				"attachments": [],
 				"tags": [
@@ -184,7 +187,6 @@ var testCases = [
 				"pages": "533-535",
 				"publicationTitle": "Bulletin for Biblical Research",
 				"shortTitle": "Douglas Estes, ed. The Tree of Life. Themes in Biblical Narrative",
-				"url": "https://scholarlypublishingcollective.org/psup/biblical-research/article/31/4/533/293303/Douglas-Estes-ed-The-Tree-of-Life-Themes-in",
 				"volume": "31",
 				"attachments": [],
 				"tags": [
@@ -193,6 +195,39 @@ var testCases = [
 					}
 				],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://scholarlypublishingcollective.org/uip/ajtp/article/43/2-3/7/332277/Michael-L-Raposa-Plays-with-Peirce-Love-and-Signs",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Michael L. Raposa Plays with Peirce, Love, and Signs: Review Essay on Theosemiotic: Religion, Reading, and the Gift of Meaning",
+				"creators": [
+					{
+						"firstName": "Brandon",
+						"lastName": "Daniel-Hughes",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022/09/01",
+				"DOI": "10.5406/21564795.43.2.3.01",
+				"ISSN": "0194-3448",
+				"issue": "2-3",
+				"language": "en",
+				"libraryCatalog": "scholarlypublishingcollective.org",
+				"pages": "7-24",
+				"publicationTitle": "American Journal of Theology & Philosophy",
+				"shortTitle": "Michael L. Raposa Plays with Peirce, Love, and Signs",
+				"volume": "43",
+				"attachments": [],
+				"tags": [],
+				"notes": [
+					"LF:"
+				],
 				"seeAlso": []
 			}
 		]
