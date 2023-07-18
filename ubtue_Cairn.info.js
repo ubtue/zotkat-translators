@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-17 13:50:58"
+	"lastUpdated": "2023-07-18 11:19:54"
 }
 
 /*
@@ -60,6 +60,13 @@ function romanToInt(r) {
 	else return r;
 };
 
+function decoding(text) {
+	text = text.replace(/&#\d+;/g, function(t) {
+		let value = parseInt(t.match(/&#(\d+);/)[1]);
+		return String.fromCharCode(parseInt(value));
+		});
+	return text;
+}
 
 
 function detectWeb(doc, url) {
@@ -172,13 +179,15 @@ function scrape(doc, url) {
 			item.notes.push('abs:' + abstractEN.replace(/\n/g, ' '))
 		}
 		else if (ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="en"]/@content') && ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="en"]/@content').length > 100) {
-			item.notes.push('abs:' + ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="en"]/@content').replace(/\n/g, ' '));
+			let abs = ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="en"]/@content').replace(/\n/g, ' ')
+			item.notes.push('abs:' + decoding(abs));
 		}
 		if (abstractES && abstractES.length > 100) {
 			item.notes.push('abs:' + abstractES.replace(/\n/g, ' '))
 		}
 		else if (ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="es"]/@content') && ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="es"]/@content').length > 100) {
-			item.notes.push('abs:' + ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="es"]/@content').replace(/\n/g, ' '));
+			let abs = ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="es"]/@content').replace(/\n/g, ' ');
+			item.notes.push('abs:' + decoding(abs));
 		}
 		let DOIentry = ZU.xpathText(doc, '//dd');
 		if (!item.DOI && DOIentry) {
@@ -280,7 +289,7 @@ var testCases = [
 					}
 				],
 				"notes": [
-					"abs:Since the Fourth World Conference on Women in Beijing in 1995, the Catholic Magisterium has consistently opposed the use of the term gender, accused of propagating an ideology seeking to deconstruct sexuality, procreation and the family. A recent valorization of gender as a &#8220;socio-cultural role of sex&#8221; continues to underline the dangers of a dissociation between sex and gender. By adopting a historical perspective, the article analyzes the meanings and uses of the notion of gender. It also proposes an assessment of the theological changes that have taken place (justification of roles and powers, sexuality), the possible changes (homosexuality), the unthought (transidentity and transsexuality), and the firm points of ethical resistance (relationship to the body, procreation, ecology)."
+					"abs:Since the Fourth World Conference on Women in Beijing in 1995, the Catholic Magisterium has consistently opposed the use of the term gender, accused of propagating an ideology seeking to deconstruct sexuality, procreation and the family. A recent valorization of gender as a “socio-cultural role of sex” continues to underline the dangers of a dissociation between sex and gender. By adopting a historical perspective, the article analyzes the meanings and uses of the notion of gender. It also proposes an assessment of the theological changes that have taken place (justification of roles and powers, sexuality), the possible changes (homosexuality), the unthought (transidentity and transsexuality), and the firm points of ethical resistance (relationship to the body, procreation, ecology)."
 				],
 				"seeAlso": []
 			}
@@ -345,8 +354,7 @@ var testCases = [
 					}
 				],
 				"notes": [
-					"abs:The Covid-19 crisis was predicted by far-sighted scientists. Long before they did, the Bible sounded a warning that must be heard again. In Gen&#160;1:28, the Creator God ordained Adam as the guardian of the animal species and made him the guarantor of their distinction. Far from being an anthology of obscurantism, the Bible is the precipitate of an immemorial and prophetic wisdom; it knows that man&#8217;s relationship with animal species is a awe-inspiring space, where something divine is at stake.",
-					"abs:                     Resumen en español disponible en Cairn Mundo                 "
+					"abs:The Covid-19 crisis was predicted by far-sighted scientists. Long before they did, the Bible sounded a warning that must be heard again. In Gen 1:28, the Creator God ordained Adam as the guardian of the animal species and made him the guarantor of their distinction. Far from being an anthology of obscurantism, the Bible is the precipitate of an immemorial and prophetic wisdom; it knows that man’s relationship with animal species is a awe-inspiring space, where something divine is at stake."
 				],
 				"seeAlso": []
 			}
@@ -414,7 +422,7 @@ var testCases = [
 					}
 				],
 				"notes": [
-					"abs:Since the Fourth World Conference on Women in Beijing in 1995, the Catholic Magisterium has consistently opposed the use of the term gender, accused of propagating an ideology seeking to deconstruct sexuality, procreation and the family. A recent valorization of gender as a &#8220;socio-cultural role of sex&#8221; continues to underline the dangers of a dissociation between sex and gender. By adopting a historical perspective, the article analyzes the meanings and uses of the notion of gender. It also proposes an assessment of the theological changes that have taken place (justification of roles and powers, sexuality), the possible changes (homosexuality), the unthought (transidentity and transsexuality), and the firm points of ethical resistance (relationship to the body, procreation, ecology)."
+					"abs:Since the Fourth World Conference on Women in Beijing in 1995, the Catholic Magisterium has consistently opposed the use of the term gender, accused of propagating an ideology seeking to deconstruct sexuality, procreation and the family. A recent valorization of gender as a “socio-cultural role of sex” continues to underline the dangers of a dissociation between sex and gender. By adopting a historical perspective, the article analyzes the meanings and uses of the notion of gender. It also proposes an assessment of the theological changes that have taken place (justification of roles and powers, sexuality), the possible changes (homosexuality), the unthought (transidentity and transsexuality), and the firm points of ethical resistance (relationship to the body, procreation, ecology)."
 				],
 				"seeAlso": []
 			}
@@ -482,7 +490,7 @@ var testCases = [
 					}
 				],
 				"notes": [
-					"abs:The moral philosophy of Alasdair MacIntyre is based on an openly historicist epistemology. Historicism is typically accused of dissolving into relativism since it rejects any claim to an absolute knowledge that could offer the final word in history, but MacIntyre&#8217;s thesis maintains, despite a claimed fallibility, that evaluative discourses can be subject to rationally justifiable norms of decidability. In light of the corollary theses of the rationality of traditions and the constitutive indeterminacy of conceptions of the good, this article suggests that MacIntyre&#8217;s historicism renews the main characteristics of a moral categorical imperative within a theoretical framework that provides an alternative to that of Kant.",
+					"abs:The moral philosophy of Alasdair MacIntyre is based on an openly historicist epistemology. Historicism is typically accused of dissolving into relativism since it rejects any claim to an absolute knowledge that could offer the final word in history, but MacIntyre’s thesis maintains, despite a claimed fallibility, that evaluative discourses can be subject to rationally justifiable norms of decidability. In light of the corollary theses of the rationality of traditions and the constitutive indeterminacy of conceptions of the good, this article suggests that MacIntyre’s historicism renews the main characteristics of a moral categorical imperative within a theoretical framework that provides an alternative to that of Kant.",
 					"LF:"
 				],
 				"seeAlso": []
@@ -653,8 +661,7 @@ var testCases = [
 					}
 				],
 				"notes": [
-					"abs:The Covid-19 crisis was predicted by far-sighted scientists. Long before they did, the Bible sounded a warning that must be heard again. In Gen&#160;1:28, the Creator God ordained Adam as the guardian of the animal species and made him the guarantor of their distinction. Far from being an anthology of obscurantism, the Bible is the precipitate of an immemorial and prophetic wisdom; it knows that man&#8217;s relationship with animal species is a awe-inspiring space, where something divine is at stake.",
-					"abs:                     Resumen en español disponible en Cairn Mundo                 "
+					"abs:The Covid-19 crisis was predicted by far-sighted scientists. Long before they did, the Bible sounded a warning that must be heard again. In Gen 1:28, the Creator God ordained Adam as the guardian of the animal species and made him the guarantor of their distinction. Far from being an anthology of obscurantism, the Bible is the precipitate of an immemorial and prophetic wisdom; it knows that man’s relationship with animal species is a awe-inspiring space, where something divine is at stake."
 				],
 				"seeAlso": []
 			}
@@ -1070,8 +1077,8 @@ var testCases = [
 					}
 				],
 				"notes": [
-					"abs:The article focuses on the new “symbolic order” the French law of 11 February 2005 (for equal rights and opportunities, participation and citizenship of people with disabilities) and the public debates that surround it contribute to constitute, as well as on its concrete consequences in terms of social organization. The challenge is to show that, contrary to a conventional reading that makes this law a tipping point towards a new model of disability, in which accessibility and “living together” would have become the watchwords, the symbolic order that was imposed in the 2000s is in fact an instrument for maintaining the status quo and preserving public order.",
 					"abs:Der Artikel befasst sich mit der neuen „symbolischen Ordnung“ des französischen Gesetzes vom 11. Februar 2005 (für gleiche Rechte und Chancen, Teilhabe und Staatsbürgerschaft von Menschen mit Behinderungen) und den damit verbundenen öffentlichen Debatten, die dazu beitragen, es zu konstituieren, ebenso wie den konkreten Auswirkungen in Bezug auf die soziale Organisation. Die Herausforderung besteht darin, zu zeigen, dass entgegen einer konventionellen Lesart, welche dieses Gesetz zu einem Wendepunkt in Richtung eines neuen Behindertenmodells macht, in welchem Barrierefreiheit und „Zusammenleben“ zu Schlagworten geworden wären, die symbolische Ordnung, die sich in den 2000er Jahren durchgesetzt hat, in Wirklichkeit ein Instrument zur Aufrechterhaltung des Status Quo und zur Wahrung der öffentlichen Ordnung ist.",
+					"abs:The article focuses on the new “symbolic order” the French law of 11 February 2005 (for equal rights and opportunities, participation and citizenship of people with disabilities) and the public debates that surround it contribute to constitute, as well as on its concrete consequences in terms of social organization. The challenge is to show that, contrary to a conventional reading that makes this law a tipping point towards a new model of disability, in which accessibility and “living together” would have become the watchwords, the symbolic order that was imposed in the 2000s is in fact an instrument for maintaining the status quo and preserving public order.",
 					"abs:Este artículo analiza el nuevo “orden simbólico” que están contribuyendo a crear la ley francesa de 11 de febrero de 2005 (para la igualdad de derechos y oportunidades, la participación y la ciudadanía de las personas con discapacidad) y los debates públicos sobre ella ; así como las consecuencias concretas en términos de organización social. El reto consiste en demostrar que, contrariamente a la lectura más convencional que analiza esta ley como un punto de inflexión hacia un nuevo modelo de discapacidad, en el que la accesibilidad y la “convivencia” se habrían convertido en las consignas, el orden simbólico que se impuso en los años 2000 es en realidad un instrumento para mantener el statu quo y preservar el orden público.",
 					"LF:"
 				],
