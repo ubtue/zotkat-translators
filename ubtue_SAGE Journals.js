@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-05 09:19:06"
+	"lastUpdated": "2023-07-19 15:06:50"
 }
 
 /*
@@ -158,21 +158,22 @@ function scrape(doc, url) {
 			let newAuthorSectionEntries = ZU.xpath(doc, '//span[@property="author"]');
 			for (let authorSectionEntry of newAuthorSectionEntries) {
 				if (ZU.xpathText(authorSectionEntry, './a[contains(@href, "orcid")]')) {
-					let orcid = ZU.xpathText(authorSectionEntry, './a[contains(@href, "orcid")]').replace(/https?:\/\/orcid.org\//, '');
+					var orcid = ZU.xpathText(authorSectionEntry, './a[contains(@href, "orcid")]').replace(/https?:\/\/orcid.org\//, '');
 					let authorName = ZU.xpathText(authorSectionEntry, './/span[@property="givenName"]') + ' ' + ZU.xpathText(authorSectionEntry, './/span[@property="familyName"]');
 					item.notes.push({"note": "orcid:" + orcid + ' | ' + authorName + ' | taken from website'});
+				} else if (!orcid) {
+ 					let bottomAuthorSectionEntries = doc.querySelectorAll('#orcid');
+					for (let bottomSectionEntry of bottomAuthorSectionEntries) {
+						let entry = bottomSectionEntry.innerText;
+						let regexOrcid = /\d+-\d+-\d+-\d+x?/i;
+						let entryOrcidAuthor = entry.split('\n')[1].split('https://orcid.org/');
+							if(entryOrcidAuthor[1].match(regexOrcid)) {
+							item.notes.push({note: "orcid:" + entryOrcidAuthor[1] + ' | ' + entryOrcidAuthor[0] + ' | taken from website'});
+						}
+					}	
 				}	
 			}
-			//scrape ORCID at the bottom of website for review e.g. https://journals.sagepub.com/doi/10.1177/15423050211028189
-			let bottomAuthorSectionEntries = doc.querySelectorAll('#orcid');
-			for (let bottomSectionEntry of bottomAuthorSectionEntries) {
-				let entry = bottomSectionEntry.innerText;
-				let regexOrcid = /\d+-\d+-\d+-\d+x?/i;
-				let entryOrcidAuthor = entry.split('\n')[1].split('https://orcid.org/');
-				if(entryOrcidAuthor[1].match(regexOrcid)) {
-					item.notes.push({note: "orcid:" + entryOrcidAuthor[1] + ' | ' + entryOrcidAuthor[0] + ' | taken from website'});
-				}
-			}
+
 			// Workaround to address address weird incorrect multiple extraction by both querySelectorAll and xpath
 			// So, let's deduplicate...
 			item.notes = Array.from(new Set(item.notes.map(JSON.stringify))).map(JSON.parse);
@@ -271,15 +272,12 @@ function scrape(doc, url) {
 	});
 }
 
-
-
-
-
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "web",
 		"url": "https://journals.sagepub.com/doi/full/10.1177/0040573620918177",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -311,6 +309,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://journals.sagepub.com/doi/full/10.1177/0040573619865711",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -342,6 +341,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://journals.sagepub.com/doi/full/10.1177/0040573619826522",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -374,6 +374,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://journals.sagepub.com/doi/full/10.1177/0969733020929062",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -430,9 +431,6 @@ var testCases = [
 						"note": "orcid:0000-0002-0893-3054 | Stinne Glasdam | taken from website"
 					},
 					{
-						"note": "orcid:0000-0002-0893-3054 | Stinne Glasdam  | taken from website"
-					},
-					{
 						"note": "LF:"
 					}
 				],
@@ -443,6 +441,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://journals.sagepub.com/doi/full/10.1177/0037768620920172",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -518,6 +517,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://journals.sagepub.com/doi/full/10.1177/0146107920958985",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -564,6 +564,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://journals.sagepub.com/doi/full/10.1177/0040573620947051",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -617,6 +618,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://journals.sagepub.com/doi/full/10.1177/0084672420926259",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -682,9 +684,6 @@ var testCases = [
 					},
 					{
 						"note": "orcid:0000-0003-2751-3204 | Halina Grzymała-Moszczyńska | taken from website"
-					},
-					{
-						"note": "orcid:0000-0001-6906-3104 | Adam Anczyk  | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -694,6 +693,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://journals.sagepub.com/doi/10.1177/15423050211028189",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -730,31 +730,103 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://journals.sagepub.com/doi/10.1177/00033286221149872",
+		"url": "https://journals.sagepub.com/doi/full/10.1177/09518207221115929",
+		"detectedItemType": "journalArticle",
 		"items": [
-				{
+			{
 				"itemType": "journalArticle",
-				"title": "Communion",
+				"title": "The phallus in our stars: Sexual violence in the Animal Apocalypse",
 				"creators": [
 					{
-						"lastName": "Buckley",
-						"firstName": "B. J.",
+						"lastName": "Remington",
+						"firstName": "Megan R",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Smith",
+						"firstName": "Julianna Kaye",
 						"creatorType": "author"
 					}
 				],
-				"date": "February 1, 2023",
-				"DOI": "10.1177/00033286221149872",
-				"ISSN": "0003-3286",
+				"date": "September 1, 2022",
+				"DOI": "10.1177/09518207221115929",
+				"ISSN": "0951-8207",
+				"abstractNote": "The Animal Apocalypse (1 En. 85?90) provides some of the most vivid imagery in Second Temple literature. In reference to the descent of the Watchers allegorized as stars, the narrative invokes the simile ?they let out their phalluses like stallions? three times. Beyond the simile?s allusion to the oracle in Ezek 23:20, the stallion phallus remains largely unexplored. Our investigation demonstrates the associations of stallions with ?aggressive virility? and foreignness based on the Hebrew Bible and contemporary Hellenistic and early Jewish literature. Moreover, we show the Animal Apocalypse?s innovative emphasis on the violent nature of the sexual acts, a feature absent in Gen 6 and the Book of Watchers, and argue for the episode?s contextualization with other early Jewish texts in which sexual violence is present. By spotlighting the stallion-phallused stars with their foreign genitalia, the Animal Apocalypse highlights anxieties surrounding communal boundary crossing and its violent repercussions.",
 				"issue": "1",
 				"language": "en",
 				"libraryCatalog": "ubtue_SAGE Journals",
-				"pages": "99",
-				"publicationTitle": "Anglican Theological Review",
-				"url": "https://doi.org/10.1177/00033286221149872",
-				"volume": "105",
+				"pages": "57-74",
+				"publicationTitle": "Journal for the Study of the Pseudepigrapha",
+				"shortTitle": "The phallus in our stars",
+				"url": "https://doi.org/10.1177/09518207221115929",
+				"volume": "32",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "1 Enoch"
+					},
+					{
+						"tag": "animal symbolism"
+					},
+					{
+						"tag": "early Judaism"
+					},
+					{
+						"tag": "reception history"
+					},
+					{
+						"tag": "sexual violence"
+					}
+				],
+				"notes": [
+					{
+						"note": "orcid:0000-0001-7826-6659 | Megan R Remington | taken from website"
+					},
+					{
+						"note": "orcid:0000-0002-8956-2709 | Julianna Kaye Smith | taken from website"
+					},
+					{
+						"note": "LF:"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://journals.sagepub.com/doi/10.1177/15423050211028189",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Mitchell, Kenneth R., All Our Losses, All Our Griefs: Resources for Pastoral Care",
+				"creators": [
+					{
+						"lastName": "Johnson Brand",
+						"firstName": "Emi Alisa",
+						"creatorType": "author"
+					}
+				],
+				"date": "September 1, 2021",
+				"DOI": "10.1177/15423050211028189",
+				"ISSN": "1542-3050",
+				"issue": "3",
+				"journalAbbreviation": "J Pastoral Care Counsel",
+				"language": "en",
+				"libraryCatalog": "ubtue_SAGE Journals",
+				"pages": "229-230",
+				"publicationTitle": "Journal of Pastoral Care & Counseling",
+				"shortTitle": "Mitchell, Kenneth R., All Our Losses, All Our Griefs",
+				"url": "https://doi.org/10.1177/15423050211028189",
+				"volume": "75",
 				"attachments": [],
 				"tags": [],
-				"notes": [],
+				"notes": [
+					{
+						"note": "orcid:0000-0002-5423-3796 | Emi Alisa Johnson Brand  | taken from website"
+					}
+				],
 				"seeAlso": []
 			}
 		]
