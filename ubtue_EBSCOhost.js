@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-05-10 11:29:18"
+	"lastUpdated": "2023-07-19 10:09:36"
 }
 
 /*
@@ -82,8 +82,8 @@ function downloadFunction(text, url, prefs) {
 	// remove M3 so it does not interfere with DOI.
 	// hopefully EBCSOhost doesn't use this for anything useful
 	// clean L2 due to "TypeError: URL constructor: https://digital.journalworship.org (Subscriber access); is not a valid URL."
-	text = text.replace(/^M3\s\s?-.*/gm, '').replace(/(^L2\s\s?-.*\s)(\(Subscriber access\)\;?)/gm,'$1');
-	
+	text = text.replace(/^M3\s\s?-.*/gm, '').replace(/(^L2\s\s?-.*\s)(\(Subscriber access\)\;?)/gm,'$1').replace(/(^L2\s\s?-.*\s)(\(View online\)\;?)/gm,'$1');
+	Z.debug(text)
 	// we'll save this for later, in case we have to throw away a subtitle
 	// from the RIS
 	let subtitle;
