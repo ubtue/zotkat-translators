@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-19 12:06:47"
+	"lastUpdated": "2023-07-19 12:30:13"
 }
 
 /*
@@ -410,7 +410,7 @@ function invokeEMTranslator(doc) {
 				i.creators.push(ZU.cleanAuthor(creator.textContent, "author", false));
 			}*/
 		}
-		if (["2709-8435", "1018-1539"].includes(i.ISSN)) {
+		if (["2709-8435", "1018-1539", "1988-4265"].includes(i.ISSN)) {
 			let abstracts = ZU.xpath(doc, '//meta[@name="DC.Description"]/@content');
 			if (abstracts[1] != null) {
 			i.abstractNote = abstracts[0].textContent + '\\n4207 ' + abstracts[1].textContent;
@@ -1290,6 +1290,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://revistaseletronicas.pucrs.br/index.php/teo/article/view/36941",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1351,11 +1352,13 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://revistas.ucm.es/index.php/ILUR/issue/view/3773",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://www.journals.us.edu.pl/index.php/EL/article/view/13012",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1390,6 +1393,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://bulletin-religious.kaznu.kz/index.php/relig/issue/view/40",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
@@ -1939,7 +1943,7 @@ var testCases = [
 				"date": "2022/12/30",
 				"DOI": "10.3989/hs.2022.23",
 				"ISSN": "1988-4265",
-				"abstractNote": "The concept of ἄσκησις in Philo’s works, as in other intellectual contexts of Antiquity, is linked to those of effort and advance, because, when dealing with philosophical texts of this time, one must always think about the idea of spiritual ascension, πνευματική πρόοδος, together with the idea of exercise that is inherent in it.",
+				"abstractNote": "The concept of ἄσκησις in Philo’s works, as in other intellectual contexts of Antiquity, is linked to those of effort and advance, because, when dealing with philosophical texts of this time, one must always think about the idea of spiritual ascension, πνευματική πρόοδος, together with the idea of exercise that is inherent in it.\\n4207 El concepto de ἄσκησις en el contexto filónico al igual que en otros entornos intelectuales de la Antigüedad, está ligado a los de esfuerzo y avance, porque, cuando se afronta un texto filosófico de esta época, hay que pensar siempre en la idea de ascenso espiritual, πνευματική πρόοδος, además de en el ejercicio que lleva consigo.",
 				"archiveLocation": "The ἄσκησις or “spiritual exercise” in the treatise De vita contemplativa by Philo of Alexandria",
 				"issue": "150",
 				"journalAbbreviation": "Hisp. Sacra",
@@ -2478,6 +2482,65 @@ var testCases = [
 				"notes": [
 					{
 						"note": "abs:Los archivos eclesiásticos de Mérida-Badajoz custodian gran variedad de documentos sobre conventualidad dominica de entre los siglos XVI al XIX. En el trabajo que presentamos a continuación pretendemos dar a conocer dicha documentación desde una vertiente que va más allá del puro análisis del documento de archivo y su temática. Lo que queremos exponer son los contenidos fundamentales que abarcan dichos documentos para mostrar posibles líneas de investigación que partiendo de ellos puedan dar lugar a otras investigaciones futuras."
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://hispaniasacra.revistas.csic.es/index.php/hispaniasacra/article/view/946",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "La ἄσκησις o «ejercicio espiritual» en el tratado De vita contemplativa de Filón de Alejandría",
+				"creators": [
+					{
+						"firstName": "Diego Andrés Cardoso",
+						"lastName": "Bueno",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022/12/30",
+				"DOI": "10.3989/hs.2022.23",
+				"ISSN": "1988-4265",
+				"abstractNote": "The concept of ἄσκησις in Philo’s works, as in other intellectual contexts of Antiquity, is linked to those of effort and advance, because, when dealing with philosophical texts of this time, one must always think about the idea of spiritual ascension, πνευματική πρόοδος, together with the idea of exercise that is inherent in it.\\n4207 El concepto de ἄσκησις en el contexto filónico al igual que en otros entornos intelectuales de la Antigüedad, está ligado a los de esfuerzo y avance, porque, cuando se afronta un texto filosófico de esta época, hay que pensar siempre en la idea de ascenso espiritual, πνευματική πρόοδος, además de en el ejercicio que lleva consigo.",
+				"archiveLocation": "The ἄσκησις or “spiritual exercise” in the treatise De vita contemplativa by Philo of Alexandria",
+				"issue": "150",
+				"journalAbbreviation": "Hisp. Sacra",
+				"language": "es",
+				"libraryCatalog": "hispaniasacra.revistas.csic.es",
+				"pages": "347-355",
+				"publicationTitle": "Hispania Sacra",
+				"rights": "Derechos de autor 2023 Consejo Superior de Investigaciones Científicas (CSIC)",
+				"url": "https://hispaniasacra.revistas.csic.es/index.php/hispaniasacra/article/view/946",
+				"volume": "74",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "contemplación"
+					},
+					{
+						"tag": "ejercicio espiritual"
+					},
+					{
+						"tag": "lago Mareotis"
+					},
+					{
+						"tag": "terapeutas"
+					},
+					{
+						"tag": "técnicas psicagógicas"
+					},
+					{
+						"tag": "ἄσκησις"
+					}
+				],
+				"notes": [
+					{
+						"note": "orcid:0000-0001-6838-6761 | Diego Andrés Cardoso Bueno | taken from website"
 					}
 				],
 				"seeAlso": []
