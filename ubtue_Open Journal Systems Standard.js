@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-17 09:46:22"
+	"lastUpdated": "2023-07-19 12:06:47"
 }
 
 /*
@@ -430,7 +430,7 @@ function invokeEMTranslator(doc) {
 						if (abstractNum == 0) i.abstractNote = abstract;
 						else i.notes.push({'note': 'abs:' + abstract});
 						for (let keyword of keywords.split(/\s*[,;]\s*/)) {
-							i.tags.push(keyword.replace(/.$/, '').trim());
+							i.tags.push(keyword.replace(/\.$/, '').trim());
 						}
 						break;
 					}
@@ -1395,6 +1395,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://zfbeg.org/ojs/index.php/cjbk/article/view/631",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1429,11 +1430,13 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ztp.jesuiten.org/index.php/ZTP/issue/view/319",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://missionalia.journals.ac.za/pub/article/view/358",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1489,11 +1492,13 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://bildungsforschung.org/ojs/index.php/beabs/issue/view/v01i02",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/42868",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1531,6 +1536,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ztp.jesuiten.org/index.php/ZTP/article/view/3820",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1589,6 +1595,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://cauriensia.es/index.php/cauriensia/article/view/477",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1629,6 +1636,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://limina-graz.eu/index.php/limina/article/view/141",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1683,6 +1691,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://cauriensia.es/index.php/cauriensia/article/view/477",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1723,6 +1732,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://archivodominicano.dominicos.org/ojs/article/view/conventualidad-dominica-archivos-merida-badajoz",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1748,28 +1758,28 @@ var testCases = [
 				"attachments": [],
 				"tags": [
 					{
-						"tag": "Dominican"
+						"tag": "Dominicans"
 					},
 					{
-						"tag": "archivos eclesiástico"
+						"tag": "archivos eclesiásticos"
 					},
 					{
-						"tag": "convent"
+						"tag": "conventos"
 					},
 					{
-						"tag": "convento"
+						"tag": "convents"
 					},
 					{
-						"tag": "dominico"
+						"tag": "dominicos"
 					},
 					{
-						"tag": "ecclesiastical archive"
+						"tag": "ecclesiastical archives"
 					},
 					{
-						"tag": "lines of researc"
+						"tag": "lines of research"
 					},
 					{
-						"tag": "líneas de investigació"
+						"tag": "líneas de investigación"
 					}
 				],
 				"notes": [
@@ -1784,6 +1794,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/44463",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1856,6 +1867,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://cauriensia.es/index.php/cauriensia/article/view/mis4",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1912,6 +1924,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://hispaniasacra.revistas.csic.es/index.php/hispaniasacra/article/view/946",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1970,6 +1983,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.zfrk-rdsr.ch/article/view/3989",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2004,11 +2018,13 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.hermeneutische-blaetter.uzh.ch/issue/view/254",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://missionalia.journals.ac.za/pub/article/view/505",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2070,6 +2086,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://cauriensia.es/index.php/cauriensia/article/view/498",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2156,6 +2173,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://cauriensia.es/index.php/cauriensia/article/view/497",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2283,6 +2301,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://cauriensia.es/index.php/cauriensia/article/view/456",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2351,6 +2370,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://jps.library.utoronto.ca/index.php/renref/article/view/40431",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2398,6 +2418,68 @@ var testCases = [
 					}
 				],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://archivodominicano.dominicos.org/ojs/article/view/conventualidad-dominica-archivos-merida-badajoz",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Principales líneas de investigación sobre conventualidad dominica según la documentación custodiada en los archivos eclesiásticos de Mérida-Badajoz (siglos XVI-XIX)",
+				"creators": [
+					{
+						"firstName": "María Guadalupe PÉREZ",
+						"lastName": "Ortiz",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022/12/20",
+				"ISSN": "2952-2196",
+				"abstractNote": "The ecclesiastical archives of Mérida-Badajoz guard a great variety of documents on Dominican conventuality from the 16th to the 19th centuries. In the work that we present below, we intend to present said documentation from a perspective that goes beyond the pure analysis of the document and its subject matter. What we want to expose are the fundamental contents that these documents cover to show possible lines of research that, based on them, can give rise to other investigations.",
+				"journalAbbreviation": "AD",
+				"language": "es",
+				"libraryCatalog": "archivodominicano.dominicos.org",
+				"pages": "17-50",
+				"publicationTitle": "Archivo Dominicano",
+				"rights": "Derechos de autor 2022 María Guadalupe PÉREZ ORTIZ",
+				"url": "https://archivodominicano.dominicos.org/ojs/article/view/conventualidad-dominica-archivos-merida-badajoz",
+				"volume": "43",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Dominicans"
+					},
+					{
+						"tag": "archivos eclesiásticos"
+					},
+					{
+						"tag": "conventos"
+					},
+					{
+						"tag": "convents"
+					},
+					{
+						"tag": "dominicos"
+					},
+					{
+						"tag": "ecclesiastical archives"
+					},
+					{
+						"tag": "lines of research"
+					},
+					{
+						"tag": "líneas de investigación"
+					}
+				],
+				"notes": [
+					{
+						"note": "abs:Los archivos eclesiásticos de Mérida-Badajoz custodian gran variedad de documentos sobre conventualidad dominica de entre los siglos XVI al XIX. En el trabajo que presentamos a continuación pretendemos dar a conocer dicha documentación desde una vertiente que va más allá del puro análisis del documento de archivo y su temática. Lo que queremos exponer son los contenidos fundamentales que abarcan dichos documentos para mostrar posibles líneas de investigación que partiendo de ellos puedan dar lugar a otras investigaciones futuras."
+					}
+				],
 				"seeAlso": []
 			}
 		]
