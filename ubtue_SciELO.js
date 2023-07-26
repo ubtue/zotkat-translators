@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-11-09 16:19:37"
+	"lastUpdated": "2023-07-26 11:23:40"
 }
 
 /*
@@ -29,27 +29,6 @@
    You should have received a copy of the GNU Affero General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-function getTitle(item) {
-	if (item.DOI) {
-		if (item.DOI.split('/').length > 1) {
-			pid = item.DOI.split('/')[1];
-		ZU.doGet('https://www.scielo.cl/scielo.php?download&format=RefMan&pid=' + pid,
-		function (text) {
-			var translator = Zotero.loadTranslator("import");
-			translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
-			translator.setString(text);
-			translator.setHandler("itemDone", function(obj, i) {
-				if (i.title != undefined && i.title != item.title) {
-					item.notes.push("Paralleltitel:" + ZU.trimInternal(item.title));
-					item.title = ZU.trimInternal(i.title);
-				}
-			});
-			translator.translate(); 
-		});
-	}
-	}
-}
 
 function detectWeb(doc,url) {
 	if (url.indexOf("script=sci_issuetoc")!=-1 && getSearchResults(doc, true)) {
@@ -77,7 +56,7 @@ function getSearchResults(doc, checkOnly) {
 		if (checkOnly) return true;
 		found = true;
 		items[href] = title;
-	}
+		}
 	}
 	if (rows.length == 0) {
 		//http://www.scielo.cl/scielo.php?script=sci_arttext&amp;
@@ -109,7 +88,8 @@ function doWeb(doc, url) {
 			}
 			ZU.processDocuments(articles, scrape);
 		});
-	} else {
+	} 
+	else {
 		scrape(doc, url);
 	}
 }
@@ -136,7 +116,12 @@ function scrape(doc, url) {
 		item.language = ZU.xpathText(doc, '//meta[@name="citation_pdf_url"]/@language');
 		//meta xmlns="" name="citation_pdf_url" language="en"
 	}
-	
+	let checkTitle = ZU.xpathText(doc, '//p[@class="title"]');
+	if (item.ISSN == "0718-9273" && checkTitle && checkTitle!= item.title) {
+		item.title = checkTitle;
+		let transTitle = ZU.xpathText(doc, '//p[@class="trans-title"]');
+		if (transTitle != null) item.notes.push("Paralleltitel:" + ZU.trimInternal(transTitle));
+	}
 	let keywords = ZU.xpath(doc, '//*[contains(text(), "Keywords:")  or contains(text(), "Keywords") or contains(text(), "Key words") or contains(text(), "Key Words") or contains(text(), "Kew words")]/..');
 	if (keywords && keywords.length > 0) {
 		item.tags = keywords[0].textContent
@@ -169,10 +154,7 @@ function scrape(doc, url) {
 		item.volume = item.issue;
 		delete item.issue;
 	}
-		item.libraryCatalog = "SciELO"
-	if (item.ISSN == "0718-9273") {
-			getTitle(item);
-		}
+	item.libraryCatalog = "SciELO"
 	if (item.pages && item.pages.match(/^0/)) {
 		item.pages = item.pages.replace(/^0/, '');
 	}
@@ -223,9 +205,7 @@ function scrape(doc, url) {
 		}
 		item.complete();
 		});
-	
 	}
-	//item.complete();
 	});
 	translator.translate();
 }
@@ -237,6 +217,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://scielo.conicyt.cl/scielo.php?script=sci_arttext&pid=S0049-34492019000400457&lng=en&nrm=iso&tlng=en",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -312,6 +293,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.scielo.cl/scielo.php?script=sci_arttext&pid=S0718-92732020000300151&lng=en&nrm=iso&tlng=en",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -373,10 +355,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.scielo.cl/scielo.php?script=sci_arttext&pid=S0718-92732016000100002&lng=en&nrm=iso&tlng=en",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "La memoria histórica en los procesos de acompañamiento pastoral a personas en situación de desplazamiento",
+				"title": "The historical memory in the process of pastoral support to displaced persons",
 				"creators": [
 					{
 						"firstName": "Olga Consuelo",
@@ -443,7 +426,6 @@ var testCases = [
 					}
 				],
 				"notes": [
-					"Paralleltitel:The historical memory in the process of pastoral support to displaced persons",
 					"abs:In socio-political processes of overcoming armed conflict, the Historical Memory is taking a central point because of the role it plays for effective reconciliation where \"truth, reparation and forgiveness\" are part of that process. Christian experience, as memory community has much to contribute to articulate the critical reflection about what memory, from where, from whom; with the liberating potential of the God who takes the side of the victims and doesn’t allow to forget them neither their pain and seeks transformation. Besides, incorporate the gender perspective, allow to recognize the gender differences and their influences in the recovery of historical memory. Show the relevance of these articulations is the purpose of this article with an invitation to transform urban pastoral in order to support displaced people."
 				],
 				"seeAlso": []
@@ -453,6 +435,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0718-92732016000100001&lng=en&nrm=iso&tlng=es",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -472,12 +455,13 @@ var testCases = [
 				"date": "03/2016",
 				"DOI": "10.4067/S0718-92732016000100001",
 				"ISSN": "0718-9273",
+				"abstractNote": "La condición de discapacidad es una realidad antropológica que no sólo afecta la integridad biológica de los individuos que la padecen sino también su interacción social y hasta su experiencia religiosa. Como una vía de aproximación a dicha realidad, el presente artículo propone un marco histórico-literario que permita comprender el trasfondo teológico de dos situaciones de discapacidad concretas, la ceguera y la sordera, a través de un estudio sobre tales condiciones en las tradiciones bíblicas y extra-bíblicas y en la literatura judía y greco-romana contemporánea a la redacción del Nuevo Testamento.",
 				"language": "es",
 				"libraryCatalog": "SciELO",
 				"pages": "9-32",
 				"publicationTitle": "Veritas",
 				"shortTitle": "Entre la oscuridad y el silencio",
-				"url": "http://www.scielo.cl/scielo.php?script=sci_arttext&pid=S0718-92732016000100001&lng=en&nrm=iso&tlng=es",
+				"url": "http://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0718-92732016000100001&lng=en&nrm=iso&tlng=es",
 				"volume": "34",
 				"attachments": [],
 				"tags": [
@@ -505,10 +489,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.scielo.cl/scielo.php?script=sci_arttext&pid=S0718-92732016000100006&lng=en&nrm=iso&tlng=es",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Presupuestos metafísicos de una sana historiografía crítica aplicada al texto bíblico",
+				"title": "Metaphysical presuppositions for a sound critical historiography applied to the biblical text",
 				"creators": [
 					{
 						"firstName": "Carlos",
@@ -545,7 +530,6 @@ var testCases = [
 					}
 				],
 				"notes": [
-					"Paralleltitel:Metaphysical presuppositions for a sound critical historiography applied to the biblical text",
 					"abs:This paper deals with the metaphysical presuppositions which underlie the acceptance of the Bible as the Word of God. In particular, it deals with the possibility of divine interventions, miracles and prophecies. It answers to the Hobbesian argument for determinism, to the principle of the causal closure of the world, to Hume’s criticism of the possibility to prove miracles and to the negation of prophecies."
 				],
 				"seeAlso": []
@@ -555,6 +539,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "http://www.scielo.org.za/scielo.php?script=sci_issuetoc&pid=1011-760120210002&lng=en&nrm=iso",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	}
 ]
