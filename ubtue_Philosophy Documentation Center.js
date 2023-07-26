@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-18 12:57:12"
+	"lastUpdated": "2023-07-26 07:32:26"
 }
 
 /*
@@ -103,7 +103,7 @@ function scrape(doc, url) {
 		for (let j in authors) {
 			let author = authors[j].match(/^>([^<]+)</)[1];
 			if (authors[j].match(/orcid\.org\/\d{4}-\d{4}-\d{4}-\d{4}/)) {
-				let orcid = authors[j].match(/orcid\.org\/(\d{4}-\d{4}-\d{4}-\d{4})/)[1];
+				let orcid = authors[j].match(/orcid\.org\/(\d{4}-\d{4}-\d{4}-\d{3}(?:\d|X|x))/)[1];
 				i.notes.push("orcid:" + orcid + " | " + author + " | taken from website");
 			}
 		}
