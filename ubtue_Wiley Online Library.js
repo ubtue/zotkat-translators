@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-11-30 14:00:47"
+	"lastUpdated": "2023-07-26 12:56:24"
 }
 
 /*
@@ -152,7 +152,7 @@ function scrapeEM(doc, url) {
 	if (!date) {
 		date = ZU.xpathText(doc, '//span[@class="epub-date" and preceding-sibling::span[@class="epub-state" and contains(text(), "First published:")]]/text()');
 	}
-
+	
 	//remove duplicate meta tags
 	var metas = ZU.xpath(doc,
 		'//head/link[@media="screen,print"]/following-sibling::meta');
@@ -210,6 +210,7 @@ function scrapeEM(doc, url) {
 		}
 		if (item.issue != undefined) item.issue = item.issue.replace(/-/g, "/");
 		item.title = item.title.replace(/\*+$/, '').replace(/℡/g, 'tel');
+		
 		item.complete();
 	});
 
@@ -268,7 +269,7 @@ function scrapeBibTeX(doc, url) {
 		//use BibTeX translator
 		translator.setTranslator("9cb70025-a888-4a29-a210-93ec52da40d4");
 		translator.setString(text);
-
+		
 		translator.setHandler('itemDone', function(obj, item) {
 			if (item.title == undefined) item.title = ZU.xpathText(doc, '//meta[@name="citation_title"]/@content');
 			//fix author case
@@ -276,7 +277,9 @@ function scrapeBibTeX(doc, url) {
 				item.creators[i].firstName = fixCase(item.creators[i].firstName);
 				item.creators[i].lastName = fixCase(item.creators[i].lastName);
 			}
-
+			let checkSupElementAtEndOfTitle = ZU.xpathText(doc, '//h1[@class="citation__title"]//sup');
+			//delete the number at the end of the title string if it is a footnote and not part of the title
+			if (checkSupElementAtEndOfTitle && checkDotFromEndOfTitle.match(/^\d/)) item.title = item.title.replace(/\d$/, '');
 			//delete nonsense author Null, Null
 			if (item.creators.length && item.creators[item.creators.length-1].lastName == "Null"
 				&& item.creators[item.creators.length-1].firstName == "Null"
@@ -391,6 +394,7 @@ function scrapeBibTeX(doc, url) {
 				}
 			}
 			item.title = item.title.replace(/\*+$/, '').replace(/℡/g, 'tel');
+			
 			item.complete();
 		});
 
@@ -572,6 +576,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://onlinelibrary.wiley.com/doi/10.1002/9781118269381.notes",
+		"detectedItemType": "bookSection",
 		"items": [
 			{
 				"itemType": "bookSection",
@@ -597,16 +602,19 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://onlinelibrary.wiley.com/toc/15251497/19/s1",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://onlinelibrary.wiley.com/doi/book/10.1002/9783527610853",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://onlinelibrary.wiley.com/doi/10.1002/9781444304794.ch1",
+		"detectedItemType": "bookSection",
 		"items": [
 			{
 				"itemType": "bookSection",
@@ -673,16 +681,19 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://onlinelibrary.wiley.com/doi/book/10.1002/9781444390124",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://ceramics.onlinelibrary.wiley.com/doi/book/10.1002/9780470320419",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://analyticalsciencejournals.onlinelibrary.wiley.com/doi/full/10.1002/pmic.201100327",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -744,6 +755,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://analyticalsciencejournals.onlinelibrary.wiley.com/doi/full/10.1002/pmic.201100327",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -805,6 +817,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://analyticalsciencejournals.onlinelibrary.wiley.com/doi/full/10.1002/pmic.201100327#references-section",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -866,6 +879,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://analyticalsciencejournals.onlinelibrary.wiley.com/doi/full/10.1002/pmic.201100327#citedBy",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -927,6 +941,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://onlinelibrary.wiley.com/doi/10.1002/3527603018.ch17",
+		"detectedItemType": "bookSection",
 		"items": [
 			{
 				"itemType": "bookSection",
@@ -968,6 +983,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://onlinelibrary.wiley.com/doi/full/10.1111/j.1468-5930.2011.00548.x",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1008,6 +1024,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-6261.1986.tb04559.x",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1047,6 +1064,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/(SICI)1521-3773(20000103)39:1%3C165::AID-ANIE165%3E3.0.CO;2-B",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1099,6 +1117,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/jhet.5570200408",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1137,6 +1156,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://onlinelibrary.wiley.com/doi/full/10.1002/ev.20077",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1175,11 +1195,13 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://onlinelibrary.wiley.com/toc/17480922/2020/46/3",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://onlinelibrary.wiley.com/doi/10.1111/rsr.14681",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1200,6 +1222,7 @@ var testCases = [
 				"libraryCatalog": "ubtue_Wiley Online Library",
 				"pages": "378-378",
 				"publicationTitle": "Religious Studies Review",
+				"rights": "© 2020 Rice University",
 				"shortTitle": "SACRED MISINTERPRETATION",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/rsr.14681",
 				"volume": "46",
@@ -1217,11 +1240,13 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://onlinelibrary.wiley.com/toc/17586623/2021/73/1",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://anthrosource.onlinelibrary.wiley.com/doi/full/10.1111/etho.12311",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1258,6 +1283,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://onlinelibrary.wiley.com/doi/10.1111/dial.12675",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
