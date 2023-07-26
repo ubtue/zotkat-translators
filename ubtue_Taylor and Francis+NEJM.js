@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-05 12:20:14"
+	"lastUpdated": "2023-07-26 11:49:52"
 }
 
 /*
@@ -178,9 +178,9 @@ function finalizeItem(item, doc, doi, baseUrl) {
 	if (sectionheading) {
 		sectionheading = sectionheading.trim();
 		if (sectionheading.match(/^Book\s+Reviews?$/i))
-			item.tags.push("Book Reviews");
+			item.tags.push("Book Review");
 	}
-	
+	item.tags = [...new Set(item.tags.map(x => x))];
 	// numbering issues with slash, e.g. in case of  double issue "1-2" > "1/2"
 	if (item.issue) item.issue = item.issue.replace('-', '/');
 	
@@ -213,6 +213,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.tandfonline.com/doi/full/10.1080/17487870802543480",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -271,11 +272,13 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.tandfonline.com/toc/clah20/22/4",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://www.tandfonline.com/doi/full/10.1080/17487870802543480",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -334,6 +337,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.tandfonline.com/doi/full/10.1080/00036846.2011.568404",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -393,6 +397,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.tandfonline.com/doi/abs/10.1080/0308106032000167373",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -441,11 +446,13 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.tandfonline.com/action/doSearch?AllField=labor+market&",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://www.tandfonline.com/doi/abs/10.1080/00380768.1991.10415050#.U_vX3WPATVE",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -496,6 +503,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.tandfonline.com/doi/figure/10.1080/00014788.2016.1157680?scroll=top&needAccess=true&",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -538,6 +546,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.tandfonline.com/doi/full/10.1080/14755610.2019.1572099",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -564,9 +573,6 @@ var testCases = [
 				"tags": [
 					{
 						"tag": "Book Review"
-					},
-					{
-						"tag": "Book Reviews"
 					}
 				],
 				"notes": [],
@@ -577,6 +583,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.tandfonline.com/doi/full/10.1080/15570274.2021.1874144",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -638,6 +645,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.tandfonline.com/doi/full/10.1080/0048721X.2020.1792051",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -694,6 +702,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.tandfonline.com/doi/abs/10.1080/20797222.2020.1850489",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -750,6 +759,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.tandfonline.com/doi/abs/10.1080/09596419008720919",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",

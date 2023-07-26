@@ -435,7 +435,7 @@ function performExport() {
 
         //1131 Art des Inhalts
         for (i=0; i<item.tags.length; i++) {
-            if (item.tags[i].tag.match(/RezensionstagPica/gi)) {
+            if (item.tags[i].tag.match(/RezensionstagPica|Book\s?reviews?/gi)) {
                 addLine(currentItemId, "\\n1131", "!106186019!");
             }
         }
