@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-26 15:38:22"
+	"lastUpdated": "2023-07-26 15:54:55"
 }
 
 /*
@@ -304,8 +304,7 @@ function scrape(doc, url, extras) {
 	}
 	let isReview = false;
 	if (ZU.xpathText(doc, '//meta[@name="dc.Type"]/@content')) {
-		if (ZU.xpathText(doc, '//meta[@name="dc.Type"]/@content').trim() == "book-review");
-		isReview = true;
+		if (ZU.xpathText(doc, '//meta[@name="dc.Type"]/@content').trim() == "book-review") isReview = true;
 	}
 	Z.debug("Citation URL: " + citationurl);
 	
@@ -542,9 +541,6 @@ var testCases = [
 				"attachments": [],
 				"tags": [
 					{
-						"tag": "RezensionstagPica"
-					},
-					{
 						"tag": "de Bruijn graphs"
 					},
 					{
@@ -579,17 +575,13 @@ var testCases = [
 				"abstractNote": "Zurek claims to have derived Born's rule noncircularly in the context of an ontological no-collapse interpretation of quantum states, without any \"deus ex machina imposition of the symptoms of classicality\". After a brief review of Zurek's derivation it is argued that this claim is exaggerated if not wholly unjustified. In order to demonstrate that Born's rule arises noncircularly from deterministically evolving quantum states, it is not sufficient to assume that quantum states are somehow associated with probabilities and then prove that these probabilities are given by Born's rule. One has to show how irreducible probabilities can arise in the context of an ontological no-collapse interpretation of quantum states. It is argued that the reason why all attempts to do this have so far failed is that quantum states are fundamentally algorithms for computing correlations between possible measurement outcomes, rather than evolving ontological states.",
 				"issue": "02",
 				"journalAbbreviation": "Int. J. Quantum Inform.",
+				"language": "eng",
 				"libraryCatalog": "worldscientific.com (Atypon)",
 				"pages": "221-229",
 				"publicationTitle": "International Journal of Quantum Information",
 				"url": "https://www.worldscientific.com/doi/abs/10.1142/S0219749904000195",
 				"volume": "02",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Born's rule"
@@ -646,18 +638,14 @@ var testCases = [
 				"abstractNote": "A two-part review of research concerning block copolymer thin films is presented. The first section summarizes experimental and theoretical studies of the fundamental physics of these systems, concentrating upon the forces that govern film morphology. The role of film thickness and surface energetics on the morphology of compositionally symmetric, amorphous diblock copolymer films is emphasized, including considerations of boundary condition symmetry, so-called hybrid structures, and surface chemical expression. Discussions of compositionally asymmetric systems and emerging research areas, e.g., liquid-crystalline and A-B-C triblock systems, are also included. In the second section, technological applications of block copolymer films, e.g., as lithographic masks and photonic materials, are considered. Particular attention is paid to means by which microphase domain order and orientation can be controlled, including exploitation of thickness and surface effects, the application of external fields, and the use of patterned substrates.",
 				"issue": "1",
 				"journalAbbreviation": "Annu. Rev. Mater. Res.",
+				"language": "eng",
 				"libraryCatalog": "annualreviews.org (Atypon)",
 				"pages": "323-355",
 				"publicationTitle": "Annual Review of Materials Research",
 				"shortTitle": "Block Copolymer Thin Films",
 				"url": "https://www.annualreviews.org/doi/abs/10.1146/annurev.matsci.31.1.323",
 				"volume": "31",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "confinement"
@@ -702,7 +690,7 @@ var testCases = [
 						"creatorType": "author"
 					},
 					{
-						"lastName": "COVID-19 Review Consortium",
+						"lastName": "COVID-19 Review Consortium ",
 						"creatorType": "author",
 						"fieldMode": 1
 					},
@@ -713,20 +701,16 @@ var testCases = [
 					}
 				],
 				"date": "2021-05-04",
-				"DOI": "10.1128/mSystems.00122-21",
+				"DOI": "10.1128/msystems.00122-21",
 				"abstractNote": "Coronavirus disease 2019 (COVID-19) has caused global disruption and a significant loss of life. Existing treatments that can be repurposed as prophylactic and therapeutic agents may reduce the pandemic’s devastation. Emerging evidence of potential applications in other therapeutic contexts has led to the investigation of dietary supplements and nutraceuticals for COVID-19. Such products include vitamin C, vitamin D, omega 3 polyunsaturated fatty acids, probiotics, and zinc, all of which are currently under clinical investigation. In this review, we critically appraise the evidence surrounding dietary supplements and nutraceuticals for the prophylaxis and treatment of COVID-19. Overall, further study is required before evidence-based recommendations can be formulated, but nutritional status plays a significant role in patient outcomes, and these products may help alleviate deficiencies. For example, evidence indicates that vitamin D deficiency may be associated with a greater incidence of infection and severity of COVID-19, suggesting that vitamin D supplementation may hold prophylactic or therapeutic value. A growing number of scientific organizations are now considering recommending vitamin D supplementation to those at high risk of COVID-19. Because research in vitamin D and other nutraceuticals and supplements is preliminary, here we evaluate the extent to which these nutraceutical and dietary supplements hold potential in the COVID-19 crisis.\nIMPORTANCE Sales of dietary supplements and nutraceuticals have increased during the pandemic due to their perceived “immune-boosting” effects. However, little is known about the efficacy of these dietary supplements and nutraceuticals against the novel coronavirus (severe acute respiratory syndrome coronavirus 2 [SARS-CoV-2]) or the disease that it causes, CoV disease 2019 (COVID-19). This review provides a critical overview of the potential prophylactic and therapeutic value of various dietary supplements and nutraceuticals from the evidence available to date. These include vitamin C, vitamin D, and zinc, which are often perceived by the public as treating respiratory infections or supporting immune health. Consumers need to be aware of misinformation and false promises surrounding some supplements, which may be subject to limited regulation by authorities. However, considerably more research is required to determine whether dietary supplements and nutraceuticals exhibit prophylactic and therapeutic value against SARS-CoV-2 infection and COVID-19. This review provides perspective on which nutraceuticals and supplements are involved in biological processes that are relevant to recovery from or prevention of COVID-19.",
 				"issue": "3",
+				"language": "eng",
 				"libraryCatalog": "journals.asm.org (Atypon)",
-				"pages": "e00122-21",
+				"pages": "10.1128/msystems.00122-21",
 				"publicationTitle": "mSystems",
 				"url": "https://journals.asm.org/doi/10.1128/mSystems.00122-21",
 				"volume": "6",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					}
-				],
+				"attachments": [],
 				"tags": [],
 				"notes": [],
 				"seeAlso": []
@@ -735,7 +719,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://journals.asm.org/action/doSearch?AllField=E.+coli&SeriesKey=mra",
+		"url": "https://journals.asm.org/action/doSearch?AllField=E.+coli&SeriesKey=mra&",
 		"items": "multiple"
 	},
 	{
@@ -757,20 +741,17 @@ var testCases = [
 						"firstName": "Amy T."
 					}
 				],
+				"date": "2020-11-10",
 				"DOI": "10.3316/informit.147509991486632",
 				"abstractNote": "The rapid fluorescent focus inhibition test (RFFIT) is routinely used in the United States to measure rabies virus neutralizing antibodies (rVNA). RFFIT has a long history of reproducible and reliable results. The test has been modified over the years to use smaller volumes of reagents and samples, but requires a 50 muL minimum volume of test serum. To conduct pathogenesis studies, small laboratory animals such as mice are regularly tested for rVNA, but the minimum volume for a standard RFFIT may be impossible to obtain, particularly in scenarios of repeated sampling. To address this problem, a micro-neutralization test was developed previously. In the current study, the micro-neutralization test was compared to the RFFIT using 129 mouse serum samples from rabies vaccine studies. Using a cut-off value of 0.1 IU/mL, the sensitivity, specificity, and concordance of the micro-neutralization test were 100%, 97.5%, and 98%, respectively. The geometric mean titer of all samples above the cut-off was 2.0 IU/mL using RFFIT and 3.4 IU/mL using the micro-neutralization test, indicating that titers determined using the micro-neutralization test are not equivalent to RFFIT titers. Based on four rVNA-positive hamster serum samples, the intra-assay coefficient of variability was 24% and inter-assay coefficient of variability was 30.4%. These results support continued use of the micro-neutralization test to determine rabies virus neutralizing antibody titers for low-volume serum samples.",
 				"issue": "3",
+				"language": "eng",
 				"libraryCatalog": "search.informit.org (Atypon)",
 				"pages": "1-5",
 				"publicationTitle": "Tropical Medicine and Infectious Disease",
 				"url": "https://search.informit.org/doi/10.3316/informit.147509991486632",
 				"volume": "2",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Diagnosis, Laboratory"
@@ -807,17 +788,14 @@ var testCases = [
 						"firstName": "Jim"
 					}
 				],
+				"date": "2020-08-22",
 				"DOI": "10.3316/informit.745150560334180",
+				"language": "eng",
 				"libraryCatalog": "search.informit.org (Atypon)",
 				"pages": "29-31",
 				"proceedingsTitle": "AIM-TEC 94: Third Australasian Instrumentation and Measurement Conference; Test and Evaluation in the Asia-Pacific Region; Preprints of Papers",
 				"url": "https://search.informit.org/doi/10.3316/informit.745150560334180",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					}
-				],
+				"attachments": [],
 				"tags": [
 					{
 						"tag": "Defense Test and Evaluation Professional Institute (DTEPI)"
@@ -891,17 +869,13 @@ var testCases = [
 				"DOI": "10.1126/science.aag1582",
 				"abstractNote": "The appearance of molecular replicators (molecules that can be copied) was probably a critical step in the origin of life. However, parasitic replicators would take over and would have prevented life from taking off unless the replicators were compartmentalized in reproducing protocells. Paradoxically, control of protocell reproduction would seem to require evolved replicators. We show here that a simpler population structure, based on cycles of transient compartmentalization (TC) and mixing of RNA replicators, is sufficient to prevent takeover by parasitic mutants. TC tends to select for ensembles of replicators that replicate at a similar rate, including a diversity of parasites that could serve as a source of opportunistic functionality. Thus, TC in natural, abiological compartments could have allowed life to take hold.",
 				"issue": "6317",
+				"language": "eng",
 				"libraryCatalog": "science.org (Atypon)",
 				"pages": "1293-1296",
 				"publicationTitle": "Science",
 				"url": "https://www.science.org/doi/10.1126/science.aag1582",
 				"volume": "354",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					}
-				],
+				"attachments": [],
 				"tags": [],
 				"notes": [],
 				"seeAlso": []
@@ -941,17 +915,13 @@ var testCases = [
 				"DOI": "10.1073/pnas.2117831119",
 				"abstractNote": "The history of the scientific enterprise demonstrates that it has supported gender, identity, and racial inequity. Further, its institutions have allowed discrimination, harassment, and personal harm of racialized persons and women. This has resulted in a suboptimal and demographically narrow research and innovation system, a concomitant limited lens on research agendas, and less effective knowledge translation between science and society. We argue that, to reverse this situation, the scientific community must reexamine its values and then collectively embark upon a moonshot-level new agenda for equity. This new agenda should be based upon the foundational value that scientific research and technological innovation should be prefaced upon progress toward a better world for all of society and that the process of how we conduct research is just as important as the results of research. Such an agenda will attract individuals who have been historically excluded from participation in science, but we will need to engage in substantial work to overcome the longstanding obstacles to their full participation. We highlight the need to implement this new agenda via a coordinated systems approach, recognizing the mutually reinforcing feedback dynamics among all science system components and aligning our equity efforts across them.",
 				"issue": "10",
+				"language": "eng",
 				"libraryCatalog": "pnas.org (Atypon)",
 				"pages": "e2117831119",
 				"publicationTitle": "Proceedings of the National Academy of Sciences",
 				"url": "https://www.pnas.org/doi/10.1073/pnas.2117831119",
 				"volume": "119",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					}
-				],
+				"attachments": [],
 				"tags": [],
 				"notes": [],
 				"seeAlso": []
@@ -1081,17 +1051,13 @@ var testCases = [
 				"DOI": "10.1126/sciadv.abj8030",
 				"abstractNote": "Polar textures have attracted substantial attention in recent years as a promising analog to spin-based textures in ferromagnets. Here, using optical second-harmonic generation–based circular dichroism, we demonstrate deterministic and reversible control of chirality over mesoscale regions in ferroelectric vortices using an applied electric field. The microscopic origins of the chirality, the pathway during the switching, and the mechanism for electric field control are described theoretically via phase-field modeling and second-principles simulations, and experimentally by examination of the microscopic response of the vortices under an applied field. The emergence of chirality from the combination of nonchiral materials and subsequent control of the handedness with an electric field has far-reaching implications for new electronics based on chirality as a field-controllable order parameter.",
 				"issue": "1",
+				"language": "eng",
 				"libraryCatalog": "science.org (Atypon)",
 				"pages": "eabj8030",
 				"publicationTitle": "Science Advances",
 				"url": "https://www.science.org/doi/10.1126/sciadv.abj8030",
 				"volume": "8",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					}
-				],
+				"attachments": [],
 				"tags": [],
 				"notes": [],
 				"seeAlso": []
@@ -1142,17 +1108,13 @@ var testCases = [
 				"ISSN": "0261-4189",
 				"abstractNote": "The MSN2 and MSN4 genes encode homologous and functionally redundant Cys2His2 zinc finger proteins. A disruption of both MSN2 and MSN4 genes results in a higher sensitivity to different stresses, including carbon source starvation, heat shock and severe osmotic and oxidative stresses. We show that MSN2 and MSN4 are required for activation of several yeast genes such as CTT1, DDR2 and HSP12, whose induction is mediated through stress-response elements (STREs). Msn2p and Msn4p are important factors for the stress-induced activation of STRE dependent promoters and bind specifically to STRE-containing oligonucleotides. Our results suggest that MSN2 and MSN4 encode a DNA-binding component of the stress responsive system and it is likely that they act as positive transcription factors.",
 				"issue": "9",
+				"language": "eng",
 				"libraryCatalog": "embopress.org (Atypon)",
 				"pages": "2227-2235",
 				"publicationTitle": "The EMBO Journal",
 				"url": "https://www.embopress.org/doi/abs/10.1002/j.1460-2075.1996.tb00576.x",
 				"volume": "15",
-				"attachments": [
-					{
-						"title": "Full Text PDF",
-						"mimeType": "application/pdf"
-					}
-				],
+				"attachments": [],
 				"tags": [],
 				"notes": [],
 				"seeAlso": []
@@ -1190,11 +1152,7 @@ var testCases = [
 				"url": "https://www.liverpooluniversitypress.co.uk/doi/10.3828/quaker.2022.27.2.3",
 				"volume": "27",
 				"attachments": [],
-				"tags": [
-					{
-						"tag": "RezensionstagPica"
-					}
-				],
+				"tags": [],
 				"notes": [],
 				"seeAlso": []
 			}
