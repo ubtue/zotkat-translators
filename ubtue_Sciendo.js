@@ -86,7 +86,7 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			i.tags.push(keyword.textContent);
 		}
 		if (articleData.articleType == "book-review") i.tags.push("RezensionstagPica");
-		if (ZU.xpathText(doc, '//h1/article-title') != null) i.title = ZU.xpathText(doc, '//h1/article-title');
+		i.title = ZU.unescapeHTML(jsonData.props.pageProps.product.articleData.name);
 		
 		i.attachments = [];
 		i.complete();
