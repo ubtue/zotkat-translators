@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-06 13:05:24"
+	"lastUpdated": "2023-07-27 14:00:25"
 }
 
 /*
@@ -126,6 +126,15 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			item.tags.push('RezensionstagPica');
 		if (pageTitle.match(item.title.trim().replace(/\s+/g, ' '))) {
 			item.title = pageTitle.split(/\s*\|/)[0];
+		}
+		if (ZU.xpathText(doc, '//main/script[@type="application/ld+json"]').match(/"name":"([^"]+)"/)) {
+			let possibleTitle = ZU.xpathText(doc, '//main/script[@type="application/ld+json"]').match(/"name":"([^"]+)"/g);
+			for (let possTitle of possibleTitle) {
+				possTitle = possTitle.match(/"name":"([^"]+)"/)[1];
+				if (possTitle.includes(item.title.trim().replace(/\s+/g, ' '))) {
+					item.title = possTitle;
+				}
+			}
 		}
 		if (item.publicationTitle == "Biblische Notizen") {
 			item.ISSN = "2628-5762";
@@ -369,6 +378,38 @@ var testCases = [
 				"pages": "1",
 				"publicationTitle": "Herder Korrespondenz",
 				"url": "https://www.herder.de/hk/hefte/spezial/ueber-geld-spricht-man-nicht-die-kirche-und-ihre-finanzen/wichtiger-als-man-denkt/",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.herder.de/hk/hefte/archiv/2023/6-2023/verpasste-chance-oder-erkennbarer-fortschritt-das-neue-kirchliche-vermoegensverwaltungsgesetz-in-nordrhein-westfalen/",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Verpasste Chance oder erkennbarer Fortschritt? Das neue Kirchliche Vermögensverwaltungsgesetz in Nordrhein-Westfalen",
+				"creators": [
+					{
+						"firstName": "Thomas",
+						"lastName": "Schüller",
+						"creatorType": "authors"
+					}
+				],
+				"date": "2023",
+				"ISSN": "0018-0645",
+				"abstractNote": "Die fünf nordrhein-westfälischen (Erz-)Bistümer wollen die kirchliche Vermögensverwaltung reformieren. Neben einigen notwendigen Anpassungen an das digitale Zeitalter bleiben demotivierende, klerikerzentrierte Vorgaben erhalten.",
+				"issue": "6",
+				"language": "de",
+				"libraryCatalog": "www.herder.de",
+				"pages": "38-40",
+				"publicationTitle": "Herder Korrespondenz",
+				"shortTitle": "Verpasste Chance oder erkennbarer Fortschritt?",
+				"url": "https://www.herder.de/hk/hefte/archiv/2023/6-2023/verpasste-chance-oder-erkennbarer-fortschritt-das-neue-kirchliche-vermoegensverwaltungsgesetz-in-nordrhein-westfalen/",
+				"volume": "77",
 				"attachments": [],
 				"tags": [],
 				"notes": [],
