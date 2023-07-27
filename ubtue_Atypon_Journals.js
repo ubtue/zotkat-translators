@@ -9,29 +9,29 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-26 15:54:55"
+	"lastUpdated": "2023-07-27 11:09:45"
 }
 
 /*
 	***** BEGIN LICENSE BLOCK *****
 
-	Atypon Journals Translator
-	Copyright © 2011-2022 Sebastian Karcher and Abe Jellinek
+	based on Atypon Journals Translator Copyright © 2011-2022 Sebastian Karcher and Abe Jellinek
 
-	This file is part of Zotero.
-
-	Zotero is free software: you can redistribute it and/or modify
+	Copyright © 2023 Universitätsbibliothek Tübingen.  All rights reserved.
+	Modified 2023 by Paula Hähndel
+	
+	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	Zotero is distributed in the hope that it will be useful,
+	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Affero General Public License for more details.
 
 	You should have received a copy of the GNU Affero General Public License
-	along with Zotero. If not, see <http://www.gnu.org/licenses/>.
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 	***** END LICENSE BLOCK *****
 */

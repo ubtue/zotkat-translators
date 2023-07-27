@@ -9,14 +9,14 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-20 11:30:05"
+	"lastUpdated": "2023-07-27 11:19:06"
 }
 
 /*
 	***** BEGIN LICENSE BLOCK *****
 
-	Copyright © 2021 Universitätsbibliothek Tübingen.  All rights reserved.
-	Modified 2021 by Paula Hähndel
+	Copyright © 2023 Universitätsbibliothek Tübingen.  All rights reserved.
+	
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
