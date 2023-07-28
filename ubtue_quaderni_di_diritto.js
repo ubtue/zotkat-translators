@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-27 13:12:50"
+	"lastUpdated": "2023-07-28 14:35:45"
 }
 
 /*
@@ -117,11 +117,13 @@ function GetMetaData(pages, doc) {
 				title = rows[i].trim().match(/\d\s*-\s*(.+)/)[1];
 			}
 			for (let r in rowshtml) {
-				if (title && rowshtml[r].innerHTML.includes(page) && rowshtml[r].innerHTML.includes(title.substr(3,7))) {
+				if (title && rowshtml[r].innerHTML.includes(page) && rowshtml[r].innerHTML.includes(title.substr(2,3))) {
 					if (rowshtml[r].innerHTML.match(/>\s*(?:a cura )?di/)) {
 						authors = rowshtml[r].innerHTML.match(/>\s*(?:a cura )?di\s*([^<]*)/)[1];
+						if (!title.match(RegExp(authors))) continue;
 						let indexAuthors = title.match(RegExp(authors)).index;
-						title = title.substr(0,indexAuthors);
+						title = title.substr(0,indexAuthors-3);
+						if (title.substr(title.length-7) == "a cura ") title = title.substr(0,title.length-7)
 						if (title.includes("(in formato")) {
 							let indexEx = title.match(/\(in formato[^)]*\)/).index;
 							title = title.substr(0,indexEx).trim();
@@ -131,7 +133,7 @@ function GetMetaData(pages, doc) {
 			}
 			items.push({"title" : title, "author" : authors, "page" : page});
 		}
-	}
+	} //Z.debug(items)
 	for (let j = 0; j < items.length; j++) {
 		if (pages[items[j]["page"]]) {
 			item = new Zotero.Item('journalArticle');
@@ -143,8 +145,8 @@ function GetMetaData(pages, doc) {
 			}
 			if (items[j]["author"]) {
 				let indexLastSpace = items[j]["author"].match(/(?!.*\s)/).index
-				let lastname = items[j]["author"].substring(indexLastSpace).trim();
-				let firstname = items[j]["author"].substring(0,indexLastSpace).trim();
+				let lastname = items[j]["author"].substr(indexLastSpace).trim();
+				let firstname = items[j]["author"].substr(0,indexLastSpace).trim();
 				item.creators.push({"firstName" : firstname, "lastName" : lastname, "creatorType" : "author"});
 			}
 		item.volume = volume;
