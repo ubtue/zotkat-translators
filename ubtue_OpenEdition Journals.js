@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-30 13:17:42"
+	"lastUpdated": "2023-07-28 13:25:31"
 }
 
 /*
@@ -82,7 +82,7 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			}
 		}
 		//issue number as volume
-		if (item.issue && ['1972-2516', '0776-3824'].includes(item.ISSN)) {
+		if (item.issue && ['1972-2516', '0776-3824', '0335-5985'].includes(item.ISSN)) {
 			item.volume = item.issue;
 			delete item.issue;
 		}
@@ -91,10 +91,10 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 				item.abstractNote == '';
 			let abstractTags = ZU.xpath(doc, '//meta[@name="description"]');
 			for (let i in abstractTags) {
-				if (i!=0) {
-					item.abstractNote += "\\n4207 ";
+				if (!item.abstractNote.match(abstractTags[i].content.trim())) {
+					if (item.abstractNote) item.abstractNote += "\\n4207 ";
+					item.abstractNote += abstractTags[i].content;
 				}
-				item.abstractNote += abstractTags[i].content;
 			}
 			}
 		let section = ZU.xpathText(doc, '//div[contains(@class, "souspartie")]//span[@class="title"]');
@@ -143,15 +143,19 @@ var testCases = [
 				"date": "2020/10/22",
 				"DOI": "10.4000/assr.51741",
 				"ISSN": "0335-5985",
-				"abstractNote": "Les monts-de-piété frumentaires sont des protobanques de l’époque moderne qui octroient des prêts en céréales, en semences et en pain aux paysans castillans contre un intérêt modéré de 3 à 4 %. Leurs comptabilités ont été conservées pour la région de la Sierra de Alcaraz en Nouvelle-Castille, espace qui se caractérise par une forte polarisation sociale et la présence massive de journaliers et de serviteurs agricoles en raison d’une répartition très inégalitaire de la terre. Les documents montrent que les monts fonctionnent comme des organismes collectifs dans le cadre d’une économie morale dans laquelle le microcrédit fait partie des multiples recours qui permettent de souder la communauté et de compenser les inégalités sociales et les liens de dépendance. Leurs patrons sont des curés de paroisse qui participent à leur gestion aux côtés de la bourgeoisie agraire qui monopolise les charges municipales. Les uns et les autres ne contrôlent pas seulement le crédit mais aussi le marché des céréales.Les monts-de-piété frumentaires sont des protobanques de l’époque moderne qui octroient des prêts en céréales, en semences et en pain aux paysans castillans contre un intérêt modéré de 3 à 4 %. Leurs comptabilités ont été conservées pour la région de la Sierra de Alcaraz en Nouvelle-Castille, espace qui se caractérise par une forte polarisation sociale et la présence massive de journaliers et de serviteurs agricoles en raison d’une répartition très inégalitaire de la terre. Les documents montrent que les monts fonctionnent comme des organismes collectifs dans le cadre d’une économie morale dans laquelle le microcrédit fait partie des multiples recours qui permettent de souder la communauté et de compenser les inégalités sociales et les liens de dépendance. Leurs patrons sont des curés de paroisse qui participent à leur gestion aux côtés de la bourgeoisie agraire qui monopolise les charges municipales. Les uns et les autres ne contrôlent pas seulement le crédit mais aussi le marché des céréales. \\n4207 In early modern Europe, food pawnshops were protobanks that lent cereals, seeds and bread to Castilian peasants for a moderate rate of interest of three or four per cent. The accounts of these institutions are available from the Sierra de Alcaraz, in New-Castile, a zone characterized by sharp social polarization and the massive presence of agricultural day-labourers and servants due to a very inegalitarian land distribution. These documents show that the pawnshops acted as collective organisms in the framework of a moral economy in which microcredit was one of various solutions meant to consolidate the community and compensate for social inequalities and ties of dependency. The pawnshops were in the hands of parish priests, who shared their management with the agrarian elite that monopolized the municipal administrations. Both controlled not only the credit but also the cereal market. \\n4207 Los montes de piedad frumentarios - pósitos o alhoríes - de la edad moderna son protobancos que prestaban cereales, simiente y pan a los campesinos castellanos a cambio de un interés moderado del 3 o 4 %. Se conservan las contabilidades de esos organismos para la región de la Sierra de Alcaraz en Castilla-La Nueva. Ese territorio se caracteriza por una fuerte polarización social y una gran cantidad de jornaleros y mozos sirvientes, lo que se explica por el reparto muy desigual de la tierra. Los documentos indican que esos pósitos funcionaban como órganos colectivos en el marco de una economía moral en la que el microcrédito era uno de los múltiples recursos que cohesionaban a la comunidad y compensaban las desigualdades sociales y la dependencia. Sus patronos eran los curas de las parroquias que gestionaban dichos pósitos junto a miembros de la burguesía agraria que también monopolizaba los cargos municipales. Unos y otros controlaban no sólo el mercado crediticio sino también el de cereales.",
-				"issue": "191",
+				"abstractNote": "Les monts-de-piété frumentaires sont des protobanques de l’époque moderne qui octroient des prêts en céréales, en semences et en pain aux paysans castillans contre un intérêt modéré de 3 à 4 %. Leurs comptabilités ont été conservées pour la région de la Sierra de Alcaraz en Nouvelle-Castille, espace qui se caractérise par une forte polarisation sociale et la présence massive de journaliers et de serviteurs agricoles en raison d’une répartition très inégalitaire de la terre. Les documents montrent que les monts fonctionnent comme des organismes collectifs dans le cadre d’une économie morale dans laquelle le microcrédit fait partie des multiples recours qui permettent de souder la communauté et de compenser les inégalités sociales et les liens de dépendance. Leurs patrons sont des curés de paroisse qui participent à leur gestion aux côtés de la bourgeoisie agraire qui monopolise les charges municipales. Les uns et les autres ne contrôlent pas seulement le crédit mais aussi le marché des céréales.\\n4207 In early modern Europe, food pawnshops were protobanks that lent cereals, seeds and bread to Castilian peasants for a moderate rate of interest of three or four per cent. The accounts of these institutions are available from the Sierra de Alcaraz, in New-Castile, a zone characterized by sharp social polarization and the massive presence of agricultural day-labourers and servants due to a very inegalitarian land distribution. These documents show that the pawnshops acted as collective organisms in the framework of a moral economy in which microcredit was one of various solutions meant to consolidate the community and compensate for social inequalities and ties of dependency. The pawnshops were in the hands of parish priests, who shared their management with the agrarian elite that monopolized the municipal administrations. Both controlled not only the credit but also the cereal market. \\n4207 Los montes de piedad frumentarios - pósitos o alhoríes - de la edad moderna son protobancos que prestaban cereales, simiente y pan a los campesinos castellanos a cambio de un interés moderado del 3 o 4 %. Se conservan las contabilidades de esos organismos para la región de la Sierra de Alcaraz en Castilla-La Nueva. Ese territorio se caracteriza por una fuerte polarización social y una gran cantidad de jornaleros y mozos sirvientes, lo que se explica por el reparto muy desigual de la tierra. Los documentos indican que esos pósitos funcionaban como órganos colectivos en el marco de una economía moral en la que el microcrédito era uno de los múltiples recursos que cohesionaban a la comunidad y compensaban las desigualdades sociales y la dependencia. Sus patronos eran los curas de las parroquias que gestionaban dichos pósitos junto a miembros de la burguesía agraria que también monopolizaba los cargos municipales. Unos y otros controlaban no sólo el mercado crediticio sino también el de cereales.",
 				"language": "fr",
 				"libraryCatalog": "journals.openedition.org",
 				"pages": "67-87",
 				"publicationTitle": "Archives de sciences sociales des religions",
 				"rights": "© Archives de sciences sociales des religions",
 				"url": "http://journals.openedition.org/assr/51741",
+				"volume": "191",
 				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
 					{
 						"title": "Snapshot",
 						"mimeType": "text/html"
@@ -247,7 +251,7 @@ var testCases = [
 				"language": "it",
 				"libraryCatalog": "journals.openedition.org",
 				"publicationTitle": "Mythos. Rivista di Storia delle Religioni",
-				"rights": "Mythos",
+				"rights": "https://creativecommons.org/licenses/by-nc-nd/4.0/",
 				"url": "http://journals.openedition.org/mythos/3818",
 				"volume": "15",
 				"attachments": [
@@ -288,7 +292,7 @@ var testCases = [
 				"libraryCatalog": "journals.openedition.org",
 				"pages": "290-293",
 				"publicationTitle": "Kernos. Revue internationale et pluridisciplinaire de religion grecque antique",
-				"rights": "Kernos",
+				"rights": "All rights reserved",
 				"url": "http://journals.openedition.org/kernos/3913",
 				"volume": "34",
 				"attachments": [
@@ -296,6 +300,44 @@ var testCases = [
 						"title": "Full Text PDF",
 						"mimeType": "application/pdf"
 					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://journals.openedition.org/assr/67516",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Mémoire et réflexivité : Danièle Hervieu-Léger et Pierre Bourdieu",
+				"creators": [
+					{
+						"firstName": "Pierre",
+						"lastName": "Lassave",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022/12/31",
+				"DOI": "10.4000/assr.67516",
+				"ISSN": "0335-5985",
+				"abstractNote": "Voici donc deux derniers volumes d’une élégante collection de petits livres des éditions de l’EHESS consacrés aux paroles inédites de grands auteurs contemporains de sciences sociales. Le fait que nos deux volumes figurent et se suivent dans la même collection ne justifie pas a priori que leurs auteurs soient ici réunis dans une même note de lecture. D’un côté, une sociologue reconnue dans une spécialité aussi singulière et problématique que celle de la religion et plus particulièrement du mo...",
+				"language": "fr",
+				"libraryCatalog": "journals.openedition.org",
+				"pages": "139-152",
+				"publicationTitle": "Archives de sciences sociales des religions",
+				"rights": "© Archives de sciences sociales des religions",
+				"shortTitle": "Mémoire et réflexivité",
+				"url": "http://journals.openedition.org/assr/67516",
+				"volume": "200",
+				"attachments": [
 					{
 						"title": "Snapshot",
 						"mimeType": "text/html"
