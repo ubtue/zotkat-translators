@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-19 12:30:13"
+	"lastUpdated": "2023-08-02 09:14:40"
 }
 
 /*
@@ -118,8 +118,7 @@ function invokeEMTranslator(doc) {
  			}
  		}
 		if (articleType && articleType.match(/^(Book Reviews?)/) != null) i.tags.push("RezensionstagPica");
-
- 		//orcid for pica-field 8910
+		 //orcid for pica-field 8910
    		let orcidAuthorEntryCaseA = doc.querySelectorAll('.authors, .div.authors > strong, author');//Z.debug(orcidAuthorEntryCaseA)
   		let orcidAuthorEntryCaseB = doc.querySelectorAll('.authors li');//Z.debug(orcidAuthorEntryCaseB)
   		let orcidAuthorEntryCaseC = doc.querySelectorAll('.authors-string');//Z.debug(orcidAuthorEntryCaseC)
@@ -385,11 +384,14 @@ function invokeEMTranslator(doc) {
 		}
 		if (["2521-6465", "2340-4256"].includes(i.ISSN)) {
 			i.abstractNote = "";
+			let resumenTag = ZU.xpathText(doc, '//*[(@id = "summary")] | //*[(@id = "summary")]//h2');
+			if (resumenTag && resumenTag.match(/Resumen/gi)) i.tags.push("RezensionstagPica");
 			for (let abstractTag of ZU.xpath(doc, '//meta[@name="DC.Description"]/@content')) {
 				if (i.ISSN == "2340-4256") abstractTags = abstractTag.textContent.split(/Resumen|Abstract/);
 				else abstractTags = [abstractTag.textContent];
 				for (let abstractText of abstractTags) {
 					i.abstractNote += abstractText.split(/Resumen|Abstract/)[0].replace(/\.?Orcid:.+$/, '').replace(/\.?Keywords:.+$/, '').replace(/\.?Palavas clave:.+$/, '') + "\\n4207 ";
+					if (i.abstractNote && i.abstractNote.match(/^Reseña de libro/gi)) delete i.abstractNote;
 					let keyWords = abstractText.split(/(?:\bKey\s*words:\s)|(?:\nКлючевые\s+слова:\s)|(?:\nТүйін\s+сөздер:\s)|(?:\bPalabras\s*clave:)/)[1];
 					if (keyWords != undefined) {
 						for (let keyWord of keyWords.split(/[,|;]\s+/)) {
@@ -404,6 +406,7 @@ function invokeEMTranslator(doc) {
 				i.title = ZU.xpathText(doc, '//meta[@name="DC.Title.Alternative"][1]/@content').trim();
 			}
 			for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"]/@content')) {
+				if (parallelTitle.value != i.title)
 				i.notes.push({'note': 'translatedTitle:' + parallelTitle.textContent.trim()});
 			}
 			/*for (let creator of ZU.xpath(doc, '//meta[@name="citation_author"]/@content')) {
@@ -1709,7 +1712,7 @@ var testCases = [
 				],
 				"date": "2021/12/08",
 				"ISSN": "2340-4256",
-				"abstractNote": "Reseña de libro\\n4207 Reseña de libro\\n4207",
+				"abstractNote": "undefinedReseña de libro\\n4207",
 				"journalAbbreviation": "RevCau",
 				"language": "en",
 				"libraryCatalog": "cauriensia.es",
@@ -1720,13 +1723,14 @@ var testCases = [
 				"url": "https://cauriensia.es/index.php/cauriensia/article/view/477",
 				"volume": "16",
 				"attachments": [],
-				"tags": [],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
 				"notes": [
 					{
 						"note": "orcid:0000-0002-2733-3476 | José Pereira Coutinho | taken from website"
-					},
-					{
-						"note": "translatedTitle:Melinda L. DENTON, Richard FLORY. Back pocket God: Religion and spirituality in the lives of emerging adults"
 					}
 				],
 				"seeAlso": []
@@ -1899,6 +1903,9 @@ var testCases = [
 				"tags": [
 					{
 						"tag": "Rawls"
+					},
+					{
+						"tag": "RezensionstagPica"
 					},
 					{
 						"tag": "bien"
@@ -2159,6 +2166,9 @@ var testCases = [
 						"tag": "Repentance"
 					},
 					{
+						"tag": "RezensionstagPica"
+					},
+					{
 						"tag": "Valor y Disvalor"
 					},
 					{
@@ -2216,6 +2226,9 @@ var testCases = [
 					},
 					{
 						"tag": "Estado"
+					},
+					{
+						"tag": "RezensionstagPica"
 					},
 					{
 						"tag": "State"
@@ -2336,6 +2349,9 @@ var testCases = [
 					},
 					{
 						"tag": "John of the Cross"
+					},
+					{
+						"tag": "RezensionstagPica"
 					},
 					{
 						"tag": "mysticism"
