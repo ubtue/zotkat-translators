@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-06-28 09:05:16"
+	"lastUpdated": "2023-08-02 15:28:50"
 }
 
 /*
@@ -118,9 +118,9 @@ function scrape(doc, url) {
  			item.issue = multiIssue.split('Fasc.')[1].split(',')[0].trim();
  		}
  		// replace issue number with volume number for certain journals e.g. 'Analecta calasanctiana: publicación semestral religioso cultural y de investigación histórica' 
- 		let volumeEntry = ZU.xpathText(doc, '//meta[@name="DC.source"]/@content');
-		if (['Vol'].includes(volumeEntry) && item.ISSN && ['0569-9789', '0392-2855', '1594-3445', '1124-1225'].includes(item.ISSN)) {
-			item.volume = volumeEntry.split('Vol.')[1].split(',')[0].trim();
+ 		let volumeEntry = ZU.xpathText(doc, '//meta[@name="DC.source"]/@content');Z.debug(volumeEntry)
+		if (item.ISSN && ['0569-9789', '0392-2855', '1594-3445', '1124-1225'].includes(item.ISSN)) {
+			item.volume = item.issue;
 		}
 		// replace issue by the volume number
 		if (['1124-1225', '1122-5661', '0039-3258', '0212-1964', '1888-346X', '0569-9789'].includes(item.ISSN)) {
@@ -131,10 +131,11 @@ function scrape(doc, url) {
 			item.volume = volumeEntry.split('Nº.')[1].split(',')[0].trim();
 			item.issue = volumeEntry.split('Nº.')[1].split(',')[1].split(',')[0].trim();
 		}
+		//if (['0392-2855'].includes(item.ISSN)) item.volume = item.issue;
 		if (item.issue) {
 			if (item.issue === item.volume) delete item.issue;
 		} 
-
+		
  		if (item.title.match(/ISBN/ig)) item.tags.push("RezensionstagPica");
 		if (item.tags) {
 			for (let t of item.tags) {
@@ -280,13 +281,13 @@ var testCases = [
 				],
 				"date": "2020",
 				"ISSN": "0569-9789",
-				"abstractNote": "El artículo es un estudio documentado sobre la fundación primera escolapia \nfuera de Italia, en Nikolsburg (ahora Mikulov, en la República Checa y en los años que \ncontempla este estudio en Moravia. Fue pedida a San José de Calasanz por el Cardenal Francisco Dietrichstein (1570-1636), gobernador de Moravia, que había nacido en \nEspaña por ser hijo del embajador moravo en Madrid. La fundación se llevó a cabo y \nfue mantenida por el Cardenal que siempre manifestó su agradecimiento a Calasanz. \nEl estudio se centra solamente en los años de la fundación y primera consolidación \n(1631 a 1648). La fuentes documentales son básicamente los epistolarios calasancios \nya publicados: Epistolario de Calasanz, dos Epistolarios de Cartas a él dirigidas y Epistolario de correspondencia entre escolapios durante la vida de Calasanz. Destacan los \nescolapios que fueron enviados y crearon la escuela, el internado y varias congregaciones asociativas para los escolares. La presencia escolapia acabó en 1884, al reclamar \nderechos propios sobre toda la obra los herederos del Cardenal",
-				"issue": "123",
+				"abstractNote": "El artículo es un estudio documentado sobre la fundación primera escolapia fuera de Italia, en Nikolsburg (ahora Mikulov, en la República Checa y en los años que contempla este estudio en Moravia. Fue pedida a San José de Calasanz por el Cardenal Francisco Dietrichstein (1570-1636), gobernador de Moravia, que había nacido en España por ser hijo del embajador moravo en Madrid. La fundación se llevó a cabo y fue mantenida por el Cardenal que siempre manifestó su agradecimiento a Calasanz. El estudio se centra solamente en los años de la fundación y primera consolidación (1631 a 1648). La fuentes documentales son básicamente los epistolarios calasancios ya publicados: Epistolario de Calasanz, dos Epistolarios de Cartas a él dirigidas y Epistolario de correspondencia entre escolapios durante la vida de Calasanz. Destacan los escolapios que fueron enviados y crearon la escuela, el internado y varias congregaciones asociativas para los escolares. La presencia escolapia acabó en 1884, al reclamar derechos propios sobre toda la obra los herederos del Cardenal",
 				"language": "spa",
 				"libraryCatalog": "dialnet.unirioja.es",
 				"pages": "11-231",
 				"publicationTitle": "Analecta calasanctiana: publicación semestral religioso cultural y de investigación histórica",
 				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7558938",
+				"volume": "123",
 				"attachments": [],
 				"notes": [],
 				"seeAlso": []
@@ -311,12 +312,12 @@ var testCases = [
 				"date": "2021",
 				"ISSN": "0569-9789",
 				"abstractNote": "There were three main tasks of classical rhetoric: to instruct, delight and move the soul to action. In the Confessions it is noted that these are overcome by an unconventional use of the instruments of the ars in which the rhetor Augustine was a master, in order to pursue a further philosophical purpose: to say the ineffable. It is the use of a rhetorical word that is intended to be circular, tautochronous, oblique, poetic, oracular and paradoxical in its silent eloquence. Through a philosophical reading of the rhetorical fi gures we intend to highlight the circularity and tautochrony of this word which claims to invoke, praise and know the unknowable, but which cannot ignore faith and the intelligence of what it believes in. There are two ways in which these rhetorical tools are highlighted: fi rstly, through their obliquity, typical of a language that ceaselessly tries to overcome its limits, fi nding a sort of new path to “say with art”, second Quintilian’s defi nition of a fi gure of speech. Subsequently, through his unusual silence, precisely of a saying that says nothing in its claim to express the inexpressible and that, in this not saying, says more than if he had said a lot. It is therefore a rhetoric of silence, which does not accept not to say the unspeakable, pretending to overcome the limits imposed by a reductive discourse, which denies any possibility of saying what is considered ineffable par excellence, the Supreme Being. . A rhetoric that is the desperate voice of Augustine’s soul, and that does not give up, even at the cost of being reduced to saying through a mirror, in a confused way (1 Cor 13:12).Therefore, in this work, a philosophical study of the rhetorical techniques used by the bishop of Hipona develops, with particular attention to the fi gures of locution, used as a tool to overcome the anguish of a strictly apophatic language, so that the Christian mission could be realized of proclamation of the Incarnate Word.",
-				"issue": "126",
 				"language": "ita",
 				"libraryCatalog": "dialnet.unirioja.es",
 				"pages": "475-497",
 				"publicationTitle": "Analecta calasanctiana: publicación semestral religioso cultural y de investigación histórica",
 				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8362911",
+				"volume": "126",
 				"attachments": [],
 				"notes": [
 					"abs:La retórica clásica habla de tres tareas principales: instruir, deleitar y mover el alma a la acción. En las Confesiones de San Agustín se advierte un uso poco convencional de los instrumentos del “ars” para perseguir un propósito filosófico ulterior: decir lo inefable. Uso de una palabra retórica que pretende ser circular, tautocrónica, oblicua, poética, oracular y paradójica en su elocuencia silenciosa. A través de una lectura filosófica de las fi guras retóricas pretendemos resaltar la circularidad y tautocronía de esta palabra que pretende invocar, alabar y conocer lo incognoscible, pero que no puede ignorar la fe y la inteligencia de aquello en lo que cree. Hay formas retóricas que destacan en la antigüedad: en primer lugar, la oblicuidad, propia de un lenguaje que intenta incesantemente superar sus límites, encontrando una suerte de camino nuevo para “decir con arte; segundo, una fi gura del discurso, según Quintiliano. A través de su insólito silencio, de un dicho que nada dice pero que pretende expresar lo inexpresable y que, en este no decir, dice más que si hubiera dicho mucho. Es La retórica del silencio, que no acepta el no decir lo indecible y, por ello, pretende superar los límites impuestos por un discurso reductivo, que niega la posibilidad de decir lo que se considera inefable por excelencia, el Ser Supremo. Una retórica que es la voz desesperada del alma de Agustín, y que no se rinde, aun viéndose obligado a decir a través de un espejo, de manera confusa (1 Cor 13,12). El artículo es un estudio filosófico de las técnicas retóricas empleadas por el obispo de Hipona, con especial atención a las fi guras de locución, utilizadas como herramienta para superar lo angosto de un lenguaje apofático, de modo que la misión cristiana de proclamación del Verbo Encarnado pueda ser realizada."
@@ -372,7 +373,7 @@ var testCases = [
 				],
 				"date": "2021",
 				"ISSN": "1122-5661",
-				"abstractNote": "Nuestro oikos es la Tierra. Pero este hogar, \nademás, es también la morada de la Divinidad. Por ello, el plan de este Dios que ha \nquerido habitar en su creación preveía que \ntodas las criaturas vivientes existan en armonía las unas con las otras. La realidad, \npor el contrario, muestra que dicho plan no \nse está cumpliendo. Para hacer frente a esta \nrealidad, el papa Francisco nos ofrece, en la \nLaudato Si’, pistas que propicien otra mirada a la creación, de forma que se construya \nuna comunidad creacional. Esta propuesta \nacarrea serias repercusiones antropológicas, \ncomo son la de presentar al ser humano en \ncomunión con el resto de las criaturas y la de \napuntalar una acción político-ética de la inclusión, y no de la exclusión, dada la correspondencia existente entre la devastación de \nla tierra y la inequidad de la familia humana.",
+				"abstractNote": "Nuestro oikos es la Tierra. Pero este hogar, además, es también la morada de la Divinidad. Por ello, el plan de este Dios que ha querido habitar en su creación preveía que todas las criaturas vivientes existan en armonía las unas con las otras. La realidad, por el contrario, muestra que dicho plan no se está cumpliendo. Para hacer frente a esta realidad, el papa Francisco nos ofrece, en la Laudato Si’, pistas que propicien otra mirada a la creación, de forma que se construya una comunidad creacional. Esta propuesta acarrea serias repercusiones antropológicas, como son la de presentar al ser humano en comunión con el resto de las criaturas y la de apuntalar una acción político-ética de la inclusión, y no de la exclusión, dada la correspondencia existente entre la devastación de la tierra y la inequidad de la familia humana.",
 				"language": "eng",
 				"libraryCatalog": "dialnet.unirioja.es",
 				"pages": "49-81",
@@ -381,7 +382,7 @@ var testCases = [
 				"volume": "44",
 				"attachments": [],
 				"notes": [
-					"abs:Our oikos is the earth. But this home is \nalso the abode of the Divinity. Thus, the \nplan of this God who wanted to dwell in \nhis creation foresaw that all living creatures exist in harmony with one another. \nThe reality, on the contrary, shows that \nsuch plan is not being fulfilled. In order \nto face this reality, Pope Francis offers \nus in the Laudato Si’, ways that promote \nanother way of looking at creation, that \nbuilds a creational community. This proposal has anthropological repercussions, \nlike presenting the human being in communion with the rest of the creatures \nand supporting a politico-ethical action \nof inclusion, and not of exclusion, given \nthe existing correspondence between the \ndevastation of the earth and the iniquity \nof human family"
+					"abs:Our oikos is the earth. But this home is also the abode of the Divinity. Thus, the plan of this God who wanted to dwell in his creation foresaw that all living creatures exist in harmony with one another. The reality, on the contrary, shows that such plan is not being fulfilled. In order to face this reality, Pope Francis offers us in the Laudato Si’, ways that promote another way of looking at creation, that builds a creational community. This proposal has anthropological repercussions, like presenting the human being in communion with the rest of the creatures and supporting a politico-ethical action of inclusion, and not of exclusion, given the existing correspondence between the devastation of the earth and the iniquity of human family"
 				],
 				"seeAlso": []
 			}
@@ -426,8 +427,8 @@ var testCases = [
 				"title": "Espacio público y simbología religiosa en el estado español",
 				"creators": [
 					{
-						"firstName": "Fernando",
-						"lastName": "Amérigo",
+						"firstName": "Fernando Amerigo",
+						"lastName": "Cuervo-Arango",
 						"creatorType": "author"
 					}
 				],
@@ -473,6 +474,35 @@ var testCases = [
 				"notes": [
 					"abs:Upon celebrating the 50th anniversary of the foundation of Santiago One SchoolHouse(1971), the author –before other four of its founders– reminds and comments three aspects: its Piarist dimension as a foundation of the Castille Province; the social environment after Vatican Council II, the recent May of 68, just 4 years after the death of Franco, and also the pedagogical novelty of the House, based upon the writings of Mr. Lorenzo Milani (1923-1967) and his school in Barbiana (Florence). Regarding the Piarist, he stresses the diffi culties –and going out– for a lasting work with the poor. In the social-cultural level, he stresses its creative orcushion vigor. In the pedagogical level, he stresses its connection with the Christian faith, from a Theology of education, so necessary today."
 				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=6760758",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Dal dialogo ecumenico al dialogo interreligioso. Orientare la riflessione sul dialogo interreligioso a partire da una lettura della Dichiarazione congiunta sulla Dottrina della giustificazione (DCDG)",
+				"creators": [
+					{
+						"firstName": "Philipp G.",
+						"lastName": "Renczes",
+						"creatorType": "author"
+					}
+				],
+				"date": "2018",
+				"ISSN": "0392-2855",
+				"language": "mul",
+				"libraryCatalog": "dialnet.unirioja.es",
+				"pages": "9-28",
+				"publicationTitle": "Analecta Augustiniana",
+				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=6760758",
+				"volume": "81",
+				"attachments": [],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
