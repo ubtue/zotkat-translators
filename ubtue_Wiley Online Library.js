@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-26 12:56:24"
+	"lastUpdated": "2023-08-02 08:23:55"
 }
 
 /*
@@ -279,7 +279,7 @@ function scrapeBibTeX(doc, url) {
 			}
 			let checkSupElementAtEndOfTitle = ZU.xpathText(doc, '//h1[@class="citation__title"]//sup');
 			//delete the number at the end of the title string if it is a footnote and not part of the title
-			if (checkSupElementAtEndOfTitle && checkDotFromEndOfTitle.match(/^\d/)) item.title = item.title.replace(/\d$/, '');
+			if (checkSupElementAtEndOfTitle && checkSupElementAtEndOfTitle.match(/^\d/)) item.title = item.title.replace(/\d$/, '');
 			//delete nonsense author Null, Null
 			if (item.creators.length && item.creators[item.creators.length-1].lastName == "Null"
 				&& item.creators[item.creators.length-1].firstName == "Null"
@@ -1183,6 +1183,7 @@ var testCases = [
 				"libraryCatalog": "ubtue_Wiley Online Library",
 				"pages": "25-99",
 				"publicationTitle": "New Directions for Evaluation",
+				"rights": "© Wiley Periodicals, Inc., and the American Evaluation Association",
 				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/ev.20077",
 				"volume": "2014",
 				"attachments": [],
@@ -1329,6 +1330,65 @@ var testCases = [
 					},
 					{
 						"tag": "planet"
+					}
+				],
+				"notes": [
+					"LF:"
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://onlinelibrary.wiley.com/doi/10.1111/nbfr.12821",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Pleading Nolo Contendere? Aquinas vs. Bonaventure on Poetry",
+				"creators": [
+					{
+						"firstName": "Jose Isidro",
+						"lastName": "Belleza",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023",
+				"DOI": "10.1111/nbfr.12821",
+				"ISSN": "1741-2005",
+				"abstractNote": "While the story of Thomas Aquinas and Bonaventure of Bagnoregio engaging in a friendly contest, at the behest of Pope Urban IV, to compose the Mass and Office of Corpus Christi is likely a pious fiction, one can still ponder the fascinating hypothetical scenario: had such a contest taken place, who might have won? To consider that question, this paper embarks on a close reading of Bonaventure's hymns in his Office of the Passion, comparing his poetic approaches to those of Aquinas in the hymns for Corpus Christi. After an introductory historical examination into the supposed involvement of both friars in the composition of the Corpus Christi liturgy, this article proceeds in three sections. First, a look into select excerpts from Bonaventure's Office of the Passion will establish his general poetic technique. In the transitional second section, a direct comparison between Bonaventure and Aquinas on the composition of the final doxological verses of their respective hymns will place their different poetic styles into greater relief. Third, a broader reading of Aquinas's Eucharistic hymns will highlight the unique qualities of his versified praises. Finally, in light of the foregoing analyses, a prospective winner of the hypothetical contest will be suggested.",
+				"issue": "1111",
+				"itemID": "https://doi.org/10.1111/nbfr.12821",
+				"language": "en",
+				"libraryCatalog": "ubtue_Wiley Online Library",
+				"pages": "352-372",
+				"publicationTitle": "New Blackfriars",
+				"shortTitle": "Pleading Nolo Contendere?",
+				"url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/nbfr.12821",
+				"volume": "104",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Bonaventure"
+					},
+					{
+						"tag": "Contest"
+					},
+					{
+						"tag": "Corpus Christi"
+					},
+					{
+						"tag": "Hymns"
+					},
+					{
+						"tag": "Office of the Passion"
+					},
+					{
+						"tag": "Poetry"
+					},
+					{
+						"tag": "Thomas Aquinas"
 					}
 				],
 				"notes": [
