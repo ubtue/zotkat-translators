@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-02 09:14:40"
+	"lastUpdated": "2023-08-02 16:02:43"
 }
 
 /*
@@ -170,7 +170,7 @@ function invokeEMTranslator(doc) {
 					let orcid = ZU.xpathText(c, '//*[contains(@href, "orcid.org")]/@href');
 					if (orcid) {
 					orcid = ZU.xpathText(c, '//*[contains(@href, "orcid.org")]/@href').match(/\d+-\d+-\d+-\d+x?/gi)[0];
-					i.notes.push({note: 'orcid:' + orcid + ' | ' + ZU.trimInternal(name) + ' | ' + 'taken from website'});
+					i.notes.push({note: 'orcid:' + ZU.trimInternal(orcid) + ' | ' + ZU.trimInternal(name) + ' | ' + 'taken from website'});
 				} else {
 					orcid = '';
 				}
@@ -216,8 +216,8 @@ function invokeEMTranslator(doc) {
   		if (orcidAuthorEntryCaseC) {
   		 	for (let c of orcidAuthorEntryCaseC) {
   				if (c && c.innerHTML.match(/\d+-\d+-\d+-\d+x?/gi)) {
-  					let author = c.innerText;
-					let orcid = c.innerHTML.match(/\d+-\d+-\d+-\d+x?/gi);
+  					let author = ZU.trimInternal(c.innerText).replace('+', '').replace('−', '');
+					let orcid = ZU.trimInternal(c.innerHTML).match(/\d+-\d+-\d+-\d+x?/gi);
 					i.notes.push({note: "orcid:" + orcid + ' | ' + author + ' | ' + 'taken from website'});
   				}
   			}
@@ -780,6 +780,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://verbumetecclesia.org.za/index.php/ve/issue/view/12",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
@@ -834,6 +835,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://jrfm.eu/index.php/ojs_jrfm/article/view/256",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -852,7 +854,7 @@ var testCases = [
 				"journalAbbreviation": "JRFM",
 				"language": "en",
 				"libraryCatalog": "jrfm.eu",
-				"pages": "197–199",
+				"pages": "197-199",
 				"publicationTitle": "Journal for Religion, Film and Media (JRFM)",
 				"rights": "Copyright (c) 2021 Daria Pezzoli-Olgiati",
 				"shortTitle": "Book Review. Christopher Ocker / Susanne Elm (eds.), Material Christianity",
@@ -884,16 +886,19 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://revistasfranciscanas.org/index.php/ArchivoIberoAmericano/issue/view/16",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://jeac.de/ojs/index.php/jeac/issue/view/16",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://aabner.org/ojs/index.php/beabs/article/view/781",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -975,6 +980,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ote-journal.otwsa-otssa.org.za/index.php/journal/article/view/433",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1045,11 +1051,13 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://jebs.eu/ojs/index.php/jebs/issue/view/75",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://limina-graz.eu/index.php/limina/article/view/103",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1257,6 +1265,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://open-journals.uni-tuebingen.de/ojs/index.php/eug/article/view/1-2021-rez-1",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2557,6 +2566,55 @@ var testCases = [
 				"notes": [
 					{
 						"note": "orcid:0000-0001-6838-6761 | Diego Andrés Cardoso Bueno | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://periodicos.sbu.unicamp.br/ojs/index.php/csr/article/view/8673029",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Presentación - Actores religiosos y procesos políticos en América Latina",
+				"creators": [
+					{
+						"firstName": "Mariela",
+						"lastName": "Mosqueira",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023/04/06",
+				"DOI": "10.20396/csr.v25i00.8673029",
+				"ISSN": "1982-2650",
+				"abstractNote": "El panel que tuve el honor de moderar se tituló “Actores religiosos y procesos políticos en América Latina” y estuvo integrado por Virginia Garrard de la Universidad de Texas en Austin (EEUU) y por Joanildo Burity de la Fundação Joaquim Nabuco y la Universidad Federal de Pernambuco (Brasil), que cumplieron el rol de oradores centrales mientras que María das Dores Campos Machado de la Universidad Federal de Río de Janeiro (Brasil) fungió como discutidora. En este número de Ciencias Sociales y Religión / Ciências Sociais e Religião se publica el diálogo entre Garrard y Burity al que se suma una reacción final de Nicolás Panotto de la Universidad Arturo Prat y actual consejero por Chile de la ACSRAL.",
+				"archiveLocation": "América Latina; Contemporáneo",
+				"journalAbbreviation": "Cienc. Soc. y Relig.",
+				"language": "es",
+				"libraryCatalog": "periodicos.sbu.unicamp.br",
+				"pages": "e023001",
+				"publicationTitle": "Ciencias Sociales y Religión",
+				"rights": "Derechos de autor 2023 Mariela Mosqueira",
+				"url": "https://periodicos.sbu.unicamp.br/ojs/index.php/csr/article/view/8673029",
+				"volume": "25",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "América Latina"
+					},
+					{
+						"tag": "Política"
+					},
+					{
+						"tag": "Religión"
+					}
+				],
+				"notes": [
+					{
+						"note": "orcid:0000-0003-4522-2216 | Mariela Mosqueira | taken from website"
 					}
 				],
 				"seeAlso": []
