@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-12-12 15:35:44"
+	"lastUpdated": "2023-08-07 12:40:33"
 }
 
 /*
@@ -154,7 +154,11 @@ function complementItem(doc, item) {
 		let oa_desc = ZU.xpathText(doc, '//span[@data-test="open-access"]');
 		if (oa_desc && oa_desc.match(/open access/i))
 			item.notes.push({note: 'LF:'});
+		if (ZU.xpathText(doc, '//li[@class="c-article-identifiers__item"]/a') && ZU.xpathText(doc, '//li[@class="c-article-identifiers__item"]/a').includes("Open Access")) {
+			item.notes.push({note: 'LF:'});
+		}
 	}
+
 	
 	if (itemType == 'bookSection' || itemType == "conferencePaper") {
 		// look for editors
@@ -201,6 +205,10 @@ function complementItem(doc, item) {
 	if (item.volume == item.seriesNumber) {
 		item.volume = "";
 	}
+	// add subtitle if not already present
+	if (!item.title.includes(":") && ZU.xpathText(doc, '//p[@class="c-article-title__sub"]')) {
+		item.title = item.title + ": " + ZU.xpathText(doc, '//p[@class="c-article-title__sub"]');
+	}
 	// add abstract
 	// in some cases we get the beginning of the article as abstract
 	if (undesirableAbstractPresent(doc, item))
@@ -242,7 +250,10 @@ function complementItem(doc, item) {
 	item.tags = [...new Set(item.tags.map(keyword => keyword.trim()))];
 
 	let docType = ZU.xpathText(doc, '//meta[@name="citation_article_type"]/@content');
-	if (docType.match(/(Book R|reviews?)|(Review P|paper)/)) item.tags.push("Book Reviews");
+	if (docType && docType.match(/(Book R|reviews?)|(Review P|paper)/)) item.tags.push("Book Reviews");
+	if (ZU.xpathText(doc, '//meta[@name="dc.type"]/@content') == "BookReview"){
+		item.tags.push("RezensionstagPica");
+	}
 	// ORCID
 	getORCID(doc, item);
 	return item;
@@ -341,12 +352,11 @@ var testCases = [
 				"ISBN": "9783540886822",
 				"abstractNote": "My first paper of a “Computer Vision” signature (on invariants related to optic flow) dates from 1975. I have published in Computer Vision (next to work in cybernetics, psychology, physics, mathematics and philosophy) till my retirement earlier this year (hence the slightly blue feeling), thus my career roughly covers the history of the field. “Vision” has diverse connotations. The fundamental dichotomy is between “optically guided action” and “visual experience”. The former applies to much of biology and computer vision and involves only concepts from science and engineering (e.g., “inverse optics”), the latter involves intention and meaning and thus additionally involves concepts from psychology and philosophy. David Marr’s notion of “vision” is an uneasy blend of the two: On the one hand the goal is to create a “representation of the scene in front of the eye” (involving intention and meaning), on the other hand the means by which this is attempted are essentially “inverse optics”. Although this has nominally become something of the “Standard Model” of CV, it is actually incoherent. It is the latter notion of “vision” that has always interested me most, mainly because one is still grappling with basic concepts. It has been my aspiration to turn it into science, although in this I failed. Yet much has happened (something old) and is happening now (something new). I will discuss some of the issues that seem crucial to me, mostly illustrated through my own work, though I shamelessly borrow from friends in the CV community where I see fit.",
 				"language": "en",
-				"libraryCatalog": "Springer Link",
+				"libraryCatalog": "ubtue_Springer Link",
 				"pages": "1-1",
 				"place": "Berlin, Heidelberg",
 				"proceedingsTitle": "Computer Vision – ECCV 2008",
 				"publisher": "Springer",
-				"series": "Lecture Notes in Computer Science",
 				"attachments": [
 					{
 						"title": "Springer Full Text PDF",
@@ -383,7 +393,7 @@ var testCases = [
 				"bookTitle": "Encyclopedia of Child Behavior and Development",
 				"extra": "DOI: 10.1007/978-0-387-79061-9_5173",
 				"language": "en",
-				"libraryCatalog": "Springer Link",
+				"libraryCatalog": "ubtue_Springer Link",
 				"pages": "329-329",
 				"place": "Boston, MA",
 				"publisher": "Springer US",
@@ -421,15 +431,13 @@ var testCases = [
 				],
 				"date": "2011",
 				"ISBN": "9781607618393",
-				"abstractNote": "An understanding of simple statistical techniques is invaluable in science and in life. Despite this, and despite the sophistication of many concerning the methods and algorithms of molecular modeling, statistical analysis is usually rare and often uncompelling. I present here some basic approaches that have proved useful in my own work, along with examples drawn from the field. In particular, the statistics of evaluations of virtual screening are carefully considered.",
 				"bookTitle": "Chemoinformatics and Computational Chemical Biology",
 				"extra": "DOI: 10.1007/978-1-60761-839-3_22",
 				"language": "en",
-				"libraryCatalog": "Springer Link",
+				"libraryCatalog": "ubtue_Springer Link",
 				"pages": "531-581",
 				"place": "Totowa, NJ",
 				"publisher": "Humana Press",
-				"series": "Methods in Molecular Biology",
 				"shortTitle": "What Do We Know?",
 				"url": "https://doi.org/10.1007/978-1-60761-839-3_22",
 				"attachments": [
@@ -440,52 +448,52 @@ var testCases = [
 				],
 				"tags": [
 					{
-						"tag": " ANOVA "
+						"tag": "ANOVA"
 					},
 					{
-						"tag": " AUC "
+						"tag": "AUC"
 					},
 					{
-						"tag": " Central Limit Theorem "
+						"tag": "Central Limit Theorem"
 					},
 					{
-						"tag": " Confidence limits "
+						"tag": "Confidence limits"
 					},
 					{
-						"tag": " Correlation "
+						"tag": "Correlation"
 					},
 					{
-						"tag": " Enrichment "
+						"tag": "Enrichment"
 					},
 					{
-						"tag": " Error bars "
+						"tag": "Error bars"
 					},
 					{
-						"tag": " Propagation of error "
+						"tag": "Propagation of error"
 					},
 					{
-						"tag": " ROC curves "
+						"tag": "ROC curves"
 					},
 					{
-						"tag": " Standard deviation "
+						"tag": "Standard deviation"
 					},
 					{
-						"tag": " Student’s t-test "
+						"tag": "Statistics"
 					},
 					{
-						"tag": " Variance "
+						"tag": "Student’s t-test"
 					},
 					{
-						"tag": " Virtual screening "
+						"tag": "Variance"
 					},
 					{
-						"tag": " logit transform "
+						"tag": "Virtual screening"
 					},
 					{
-						"tag": " p-Values "
+						"tag": "logit transform"
 					},
 					{
-						"tag": "Statistics "
+						"tag": "p-Values"
 					}
 				],
 				"notes": [],
@@ -500,7 +508,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://link.springer.com/journal/10922/2/1/page/1",
+		"url": "https://link.springer.com/journal/10922/volumes-and-issues/2-1?page=1",
 		"items": "multiple"
 	},
 	{
@@ -623,15 +631,14 @@ var testCases = [
 				],
 				"date": "2005",
 				"ISBN": "9780387242507",
-				"abstractNote": "The perspective of situated cognition provides a conceptual framework for studying social mediation in activities of text production. The investigation presented here concerns two forms of social mediation: (1) whole-class interactions that prepare the students for drafting and revising their texts; (2) peer interactions occurring when dyads engage in joint revision of their drafts. The data collected in three fifth-grade classrooms include observations of whole-class interactions, recordings of dyadic interactions and classifications of text transformations that students carried out during individual and joint phases of revision. The analyses examine the relationships between qualitative indicators of interaction dynamics and quantitative data on text transformations. The findings show that differences in the whole-class interactions are reflected in the students’ revisions particularly with respect to the degree of rewriting that they undertake, as compared to simple error correction. Although analysis of the dyadic interactions reveals important variations in the dynamics of the exchanges, two general findings emerge. In the large majority of cases, the activity of joint revision leads to a substantial increase in the number of text transformations, beyond those made by each author individually. Even in cases where no new transformations occur, the authors engage actively in interaction about revision (e.g., they propose revisions of the other student’s text, explain revisions made individually to their own text, argue against proposals of the other student, etc.). Implications of the results for future research on writing instruction are discussed.",
+				"abstractNote": "The perspective of situated cognition provides a conceptual framework for studying social mediation in activities of text production. The investigation presented here concerns two forms of social mediation: (1) whole-class interactions that prepare the students for drafting and revising their texts; (2) peer interactions occurring when dyads engage in joint revision of their drafts. The data collected in three fifth-grade classrooms include observations of whole-class interactions, recordings of dyadic interactions and classifications of text transformations that students carried out during individual and joint phases of revision. The analyses examine the relationships between qualitative indicators of interaction dynamics and quantitative data on text transformations. The findings show that differences in the whole-class interactions are reflected in the students’ revisions particularly with respect to the degree of rewriting that they undertake, as compared to simple error correction. Although analysis of the dyadic interactions reveals important variations in the dynamics of the exchanges, two general findings emerge. In the large majority of cases, the activity of joint revision leads to a substantial increase in the number of text transformations, beyond those made by each author individually. Even in cases where no new transformations occur, the authors engage actively in interaction about revision (e.g., they propose revisions of the other student’s text, explain revisions made individually to their own text, argue against proposals of the other student, etc.). Implications of the results for future research on writing instruction are discussed.KeywordsSocial mediationwhole-class interactionpeer interactionrevisionwriting",
 				"bookTitle": "Writing in Context(s): Textual Practices and Learning Processes in Sociocultural Settings",
 				"extra": "DOI: 10.1007/0-387-24250-3_4",
 				"language": "en",
-				"libraryCatalog": "Springer Link",
+				"libraryCatalog": "ubtue_Springer Link",
 				"pages": "69-91",
 				"place": "Boston, MA",
 				"publisher": "Springer US",
-				"series": "Studies in Writing",
 				"url": "https://doi.org/10.1007/0-387-24250-3_4",
 				"attachments": [
 					{
@@ -641,19 +648,19 @@ var testCases = [
 				],
 				"tags": [
 					{
-						"tag": " peer interaction "
+						"tag": "Social mediation"
 					},
 					{
-						"tag": " revision "
+						"tag": "peer interaction"
 					},
 					{
-						"tag": " whole-class interaction "
+						"tag": "revision"
 					},
 					{
-						"tag": " writing "
+						"tag": "whole-class interaction"
 					},
 					{
-						"tag": "Social mediation "
+						"tag": "writing"
 					}
 				],
 				"notes": [],
@@ -725,7 +732,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "orcid:0000-0001-8965-717X | Nicholas Grant Boeving | taken from website"
+						"note": "orcid:0000-0001-8965-717X | Nicholas Grant Boeving ORCID: orcid.org/0000-0001-8965-717X1 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -764,7 +771,11 @@ var testCases = [
 						"mimeType": "application/pdf"
 					}
 				],
-				"tags": [],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
@@ -802,7 +813,11 @@ var testCases = [
 						"mimeType": "application/pdf"
 					}
 				],
-				"tags": [],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
@@ -876,13 +891,13 @@ var testCases = [
 						"note": "LF:"
 					},
 					{
-						"note": "orcid:0000-0003-1473-2483 | Benita Spronk, | taken from website"
+						"note": "orcid:0000-0003-1473-2483 | Benita Spronk ORCID: orcid.org/0000-0003-1473-24831, | taken from website"
 					},
 					{
-						"note": "orcid:0000-0001-7620-6812 | Guy Widdershoven | taken from website"
+						"note": "orcid:0000-0001-7620-6812 | Guy Widdershoven ORCID: orcid.org/0000-0001-7620-68122 | taken from website"
 					},
 					{
-						"note": "orcid:0000-0001-6795-4202 | Hans Alma | taken from website"
+						"note": "orcid:0000-0001-6795-4202 | Hans Alma ORCID: orcid.org/0000-0001-6795-42023 | taken from website"
 					}
 				],
 				"seeAlso": []
@@ -893,6 +908,166 @@ var testCases = [
 		"type": "web",
 		"url": "https://link.springer.com/journal/10943/volumes-and-issues/60-5",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://link.springer.com/article/10.1007/s10677-023-10392-2",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Kant and Global Poverty: Guest Editors’ Introduction to Special Issue",
+				"creators": [
+					{
+						"lastName": "Mieth",
+						"firstName": "Corinna",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Sticker",
+						"firstName": "Martin",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Williams",
+						"firstName": "Garrath",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023-04-01",
+				"DOI": "10.1007/s10677-023-10392-2",
+				"ISSN": "1572-8447",
+				"issue": "2",
+				"journalAbbreviation": "Ethic Theory Moral Prac",
+				"language": "en",
+				"libraryCatalog": "ubtue_Springer Link",
+				"pages": "169-175",
+				"publicationTitle": "Ethical Theory and Moral Practice",
+				"shortTitle": "Kant and Global Poverty",
+				"url": "https://doi.org/10.1007/s10677-023-10392-2",
+				"volume": "26",
+				"attachments": [
+					{
+						"title": "Springer Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [],
+				"notes": [
+					{
+						"note": "LF:"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://link.springer.com/article/10.1007/s10677-023-10376-2",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Book Review: Rethinking Rights",
+				"creators": [
+					{
+						"lastName": "Eleftheriadis",
+						"firstName": "Pavlos",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023-04-01",
+				"DOI": "10.1007/s10677-023-10376-2",
+				"ISSN": "1572-8447",
+				"issue": "2",
+				"journalAbbreviation": "Ethic Theory Moral Prac",
+				"language": "en",
+				"libraryCatalog": "ubtue_Springer Link",
+				"pages": "329-331",
+				"publicationTitle": "Ethical Theory and Moral Practice",
+				"shortTitle": "Book Review",
+				"url": "https://doi.org/10.1007/s10677-023-10376-2",
+				"volume": "26",
+				"attachments": [
+					{
+						"title": "Springer Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [
+					{
+						"note": "orcid:0000-0003-1120-4650 | Pavlos Eleftheriadis ORCID: orcid.org/0000-0003-1120-46501 | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://link.springer.com/article/10.1007/s10677-022-10295-8",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Juridical Empowerment: Empowering the Impoverished as Rights-Asserters",
+				"creators": [
+					{
+						"lastName": "Mosayebi",
+						"firstName": "Reza",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023-04-01",
+				"DOI": "10.1007/s10677-022-10295-8",
+				"ISSN": "1572-8447",
+				"abstractNote": "The idea of empowerment has gained a significant role in the discourse of poverty. I outline a restricted conception of empowerment inspired by Kant’s idea of rightful honour. According to this conception, empowerment consists in enabling individuals to assert their own human rights (juridical empowerment). I apply this conception to impoverished persons and argue that it is crucial to their self-respect, their so-called ‘power-[from-]within,’ and their political agency, and has a teleological primacy regarding our efforts to reduce poverty. I also defend the idea that there is a moral right to this form of empowerment and a corresponding duty to empower the impoverished as rights-asserters. Juridical empowerment will be compatible with a pluralism of substantive accounts of the moral wrongs of poverty and with broader conceptions of empowerment.",
+				"issue": "2",
+				"journalAbbreviation": "Ethic Theory Moral Prac",
+				"language": "en",
+				"libraryCatalog": "ubtue_Springer Link",
+				"pages": "237-254",
+				"publicationTitle": "Ethical Theory and Moral Practice",
+				"shortTitle": "Juridical Empowerment",
+				"url": "https://doi.org/10.1007/s10677-022-10295-8",
+				"volume": "26",
+				"attachments": [
+					{
+						"title": "Springer Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Empowerment"
+					},
+					{
+						"tag": "Human rights"
+					},
+					{
+						"tag": "Political agency"
+					},
+					{
+						"tag": "Poverty"
+					},
+					{
+						"tag": "Rightful honour"
+					},
+					{
+						"tag": "Self-respect"
+					}
+				],
+				"notes": [
+					{
+						"note": "LF:"
+					}
+				],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
