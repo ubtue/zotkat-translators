@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-27 11:09:45"
+	"lastUpdated": "2023-08-07 12:03:14"
 }
 
 /*
@@ -253,7 +253,8 @@ function doWeb(doc, url) {
 
 function getISSN(doc) {
 	if (ZU.xpathText(doc, '//div[@class="serialPublicationDetails"]')) {
-		return ZU.xpathText(doc, '//div[@class="serialPublicationDetails"]').match(/ISSN[^\d]*(\d{4}-\d{3}(?:\d|x))/i)[2];
+		let issntext = ZU.xpathText(doc, '//div[@class="serialPublicationDetails"]').match(/ISSN[^\d]*\d{4}-\d{3}(?:\d|x)/ig)[1];
+		return issntext.match(/ISSN[^\d]*(\d{4}-\d{3}.)/)[1];
 	}
 	return
 }
@@ -300,7 +301,11 @@ function scrape(doc, url, extras) {
 	var tags = ZU.xpath(doc, '//a[contains(@href, "keyword") or contains(@href, "Keyword=")]');
 	let tags2 = [];
 	if (ZU.xpathText(doc, '//meta[@name="keywords"]/@content')) {
-		let tags2 = ZU.xpathText(doc, '//meta[@name="keywords"]/@content').split(",");
+		tags2 = ZU.xpathText(doc, '//meta[@name="keywords"]/@content').split(",");
+	}
+	let tags3 = [];
+	if (ZU.xpathText(doc, '//meta[@name="dc.Subject"]/@content')) {
+		tags3 = ZU.xpathText(doc, '//meta[@name="dc.Subject"]/@content').split("; ");
 	}
 	let isReview = false;
 	if (ZU.xpathText(doc, '//meta[@name="dc.Type"]/@content')) {
@@ -390,11 +395,16 @@ function scrape(doc, url, extras) {
 				item.url = url;
 				item.notes = [];
 				if (isReview) item.tags.push("RezensionstagPica");
-				for (var i in tags) {
-					item.tags.push(tags[i].textContent);
+				for (let i in tags) {
+					tags[i]=tags[i].textContent;
 				}
-				for (var i in tags2) {
-					item.tags.push(tags2[i].trim());
+				tags = tags.concat(tags2).concat(tags3);
+				for (let i in tags) {
+					let tagincluded = false;
+					for (let j in item.tags) {
+						if (item.tags[j].trim() == tags[i].trim()) tagincluded = true;
+					}
+					if (!tagincluded) item.tags.push(tags[i].trim());
 				}
 				
 				if (abstract) {
@@ -497,7 +507,38 @@ var testCases = [
 				"series": "Discrete Mathematics and Applications",
 				"url": "https://epubs.siam.org/doi/abs/10.1137/1.9780898718553.ch6",
 				"attachments": [],
-				"tags": [],
+				"tags": [
+					{
+						"tag": "01"
+					},
+					{
+						"tag": "05"
+					},
+					{
+						"tag": "07"
+					},
+					{
+						"tag": "10"
+					},
+					{
+						"tag": "25"
+					},
+					{
+						"tag": "519.7'03--dc21"
+					},
+					{
+						"tag": "combinatorial optimization"
+					},
+					{
+						"tag": "least-squares optimization"
+					},
+					{
+						"tag": "ultrametric and additive tree representations"
+					},
+					{
+						"tag": "unidimensional and multidimensional scaling"
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
@@ -587,22 +628,10 @@ var testCases = [
 						"tag": "Born's rule"
 					},
 					{
-						"tag": "Born's rule"
-					},
-					{
-						"tag": "envariance"
-					},
-					{
 						"tag": "envariance"
 					},
 					{
 						"tag": "interpretation of quantum mechanics"
-					},
-					{
-						"tag": "interpretation of quantum mechanics"
-					},
-					{
-						"tag": "probability"
 					},
 					{
 						"tag": "probability"
@@ -711,7 +740,23 @@ var testCases = [
 				"url": "https://journals.asm.org/doi/10.1128/mSystems.00122-21",
 				"volume": "6",
 				"attachments": [],
-				"tags": [],
+				"tags": [
+					{
+						"tag": "COVID-19"
+					},
+					{
+						"tag": "SARS-CoV-2"
+					},
+					{
+						"tag": "nutraceuticals"
+					},
+					{
+						"tag": "review"
+					},
+					{
+						"tag": "vitamin D"
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
@@ -754,7 +799,13 @@ var testCases = [
 				"attachments": [],
 				"tags": [
 					{
+						"tag": "Diagnosis"
+					},
+					{
 						"tag": "Diagnosis, Laboratory"
+					},
+					{
+						"tag": "Laboratory"
 					},
 					{
 						"tag": "Neutralization (Chemistry)"
@@ -922,7 +973,23 @@ var testCases = [
 				"url": "https://www.pnas.org/doi/10.1073/pnas.2117831119",
 				"volume": "119",
 				"attachments": [],
-				"tags": [],
+				"tags": [
+					{
+						"tag": "diversity"
+					},
+					{
+						"tag": "equity"
+					},
+					{
+						"tag": "inclusion"
+					},
+					{
+						"tag": "new agenda"
+					},
+					{
+						"tag": "structural racism"
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
@@ -1152,7 +1219,32 @@ var testCases = [
 				"url": "https://www.liverpooluniversitypress.co.uk/doi/10.3828/quaker.2022.27.2.3",
 				"volume": "27",
 				"attachments": [],
-				"tags": [],
+				"tags": [
+					{
+						"tag": "Irish Friends"
+					},
+					{
+						"tag": "child mortality"
+					},
+					{
+						"tag": "longevity of membership"
+					},
+					{
+						"tag": "membership"
+					},
+					{
+						"tag": "membership attrition"
+					},
+					{
+						"tag": "occupational status"
+					},
+					{
+						"tag": "social mobility"
+					},
+					{
+						"tag": "socio-economic status"
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
