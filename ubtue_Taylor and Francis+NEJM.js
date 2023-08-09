@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-26 11:49:52"
+	"lastUpdated": "2023-08-09 08:15:46"
 }
 
 /*
@@ -124,7 +124,7 @@ function scrape(doc, url) {
 				}
 				//ubtue: add tag "Book Review"
 				let dcType = ZU.xpathText(doc, '//meta[@name="dc.Type"]/@content');
-				if (dcType && dcType.match(/book\s?-?review/gi)) item.tags.push("Book Review");
+				if (dcType && dcType.match(/book\s?-?review/gi)) item.tags.push("RezensionstagPica");
 				
 				risTrans = Zotero.loadTranslator("import");
 				risTrans.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
@@ -178,7 +178,7 @@ function finalizeItem(item, doc, doi, baseUrl) {
 	if (sectionheading) {
 		sectionheading = sectionheading.trim();
 		if (sectionheading.match(/^Book\s+Reviews?$/i))
-			item.tags.push("Book Review");
+			item.tags.push("RezensionstagPica");
 	}
 	item.tags = [...new Set(item.tags.map(x => x))];
 	// numbering issues with slash, e.g. in case of  double issue "1-2" > "1/2"
@@ -572,7 +572,7 @@ var testCases = [
 				"attachments": [],
 				"tags": [
 					{
-						"tag": "Book Review"
+						"tag": "RezensionstagPica"
 					}
 				],
 				"notes": [],
@@ -777,6 +777,43 @@ var testCases = [
 				"volume": "1",
 				"attachments": [],
 				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.tandfonline.com/doi/full/10.1080/09596410.2022.2143228",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "The Essence of Reality: A Defense of Philosophical Sufism: by ʿAyn al-Quḍāt, edited and translated by Mohammed Rustom, New York: New York University Press, 2022, 350 pp., $35.00 (hardback), ISBN 9781479816613. https://nyupress.org/9781479816590/the-essence-of-reality/",
+				"creators": [
+					{
+						"lastName": "Mansouri",
+						"firstName": "Mohammad Amin",
+						"creatorType": "author"
+					}
+				],
+				"date": "October 2, 2022",
+				"DOI": "10.1080/09596410.2022.2143228",
+				"ISSN": "0959-6410",
+				"issue": "4",
+				"itemID": "doi:10.1080/09596410.2022.2143228",
+				"libraryCatalog": "ubtue_Taylor and Francis+NEJM",
+				"pages": "413-415",
+				"publicationTitle": "Islam and Christian–Muslim Relations",
+				"shortTitle": "The Essence of Reality",
+				"url": "https://doi.org/10.1080/09596410.2022.2143228",
+				"volume": "33",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
 				"notes": [],
 				"seeAlso": []
 			}
