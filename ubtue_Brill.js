@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-06-21 13:14:43"
+	"lastUpdated": "2023-08-09 07:52:09"
 }
 
 /*
@@ -111,17 +111,21 @@ function postProcess(doc, item) {
 	}
 	
 	//scrape ORCID from website
-    let authorSectionEntries = doc.querySelectorAll('.text-subheading span, .content-contributor-author.single-line .contributor-details');
-    for (let authorSectionEntry of authorSectionEntries) {
-        let authorInfo = authorSectionEntry.querySelector('.c-Button--link, .contributor-details-link');
-        let orcidHref = authorSectionEntry.querySelector('.orcid');
-        if (authorInfo && orcidHref) {
-            let author = authorInfo.childNodes[0].textContent;
-            let orcid = orcidHref.textContent.replace(/.*(\d{4}-\d+-\d+-\d+x?)$/i, '$1');
-            item.notes.push({note: "orcid:" + orcid + ' | ' + author + ' | ' + 'taken from website'});
-            foundOrcid = true;
-        }
-    }
+	let SubheadingSpanHasOrcid = doc.querySelectorAll('.text-subheading span orcid').length;
+	let authorSectionEntries = SubheadingSpanHasOrcid ? doc.querySelectorAll('.text-subheading span') :
+						   doc.querySelectorAll('.contributor-details');
+	let furtherSelector = SubheadingSpanHasOrcid ? '.c-Button--link' : '.contributor-details-link';
+	if (authorSectionEntries) {
+		for (let authorSectionEntry of authorSectionEntries) {
+			let authorInfo = authorSectionEntry.querySelector(furtherSelector);
+			let orcidHref = authorSectionEntry.querySelector('.orcid');
+			if (authorInfo && orcidHref) {
+				let author = authorInfo.childNodes[0].textContent;
+				let orcid = orcidHref.textContent.replace(/.*(\d{4}-\d+-\d+-\d+x?)$/i, '$1');
+				item.notes.push({note: "orcid:" + orcid + ' | ' + author});
+			}
+		}
+	}
 
 	//delete symbols in names
 	for (let i in item.creators) {
@@ -378,10 +382,10 @@ var testCases = [
 				"notes": [
 					"abs:摘要基於可視化研究的學術領域，我們提出對於社會學可視化研究已有的和持續的批評，指出可視化工具的新近發展，對於社會學學者在可視化選擇過程中應有的反思提出建議。作為一個案例研究，我們簡要概述在製作中國宗教場所地圖過程中關於可視化的種種選擇，坦承解釋所遇到的種種挑戰，如何盡力減少視覺偏見，檢討不同可視化方法的優點和侷限，以及如何根據研究問題而選定可視方式。最後，我們提供一個需要考慮因素的清單，或許可以作為社會學學者在地理空間點狀數據的可視化中的參考。",
 					{
-						"note": "orcid:0000-0002-1935-3215 | Jackie Henke | taken from website"
+						"note": "orcid:0000-0002-1935-3215 | Jackie Henke"
 					},
 					{
-						"note": "orcid:0000-0002-4723-9735 | Fenggang Yang (楊鳳崗) | taken from website"
+						"note": "orcid:0000-0002-4723-9735 | Fenggang Yang (楊鳳崗)"
 					}
 				],
 				"seeAlso": []
@@ -438,6 +442,76 @@ var testCases = [
 				],
 				"notes": [
 					"abs:摘要佛学者和佛教徒都同意喇荣五明佛学院是中国境内真正藏传佛教修行的最后堡垒。然而，每年都有数以万计的汉族朝圣者到访喇荣，其中包含了数百名在藏传佛教传承中出家发愿的汉族僧侣。作者利用各种口头和书面资料表明汉族在喇荣的存在并非偶然的现象，而是喇荣的佛教领袖—尤其是索达吉堪布—主动招募汉族的佛教徒的结果。通过对藏文和语文材料的比较分析，本文展示用于招募汉族佛教徒的“新科学”和“新治疗”的教法，虽然表面上类似于在西方和西藏的“佛教现代主义”的话语，但其内容在“现代主义”之上救世神学的色彩更浓。本文讨论了汉族佛教徒与藏传佛教之间的相遇是否最终可能代表了一种新兴的、跨民族“中国佛教现代主义”。"
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://brill.com/view/journals/rrcs/9/2/article-p222_4.xml",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Seekers and Seers: Lay Buddhists and Buddhist Revival in Rural China",
+				"creators": [
+					{
+						"firstName": "Shin-yi",
+						"lastName": "Chao (趙昕毅)",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022/10/24",
+				"DOI": "10.1163/22143955-12340007",
+				"ISSN": "2214-3947, 2214-3955",
+				"abstractNote": "This paper explores lay Buddhism in contemporary rural North China through investigating the practice and practitioners of “Buddha-chanting” (nianfo 念佛) in relation to local religion, monastic Buddhism, and spirit mediums. The nianfo groups are led by and consist of ordinary villagers, overwhelmingly female. They meet in private houses or village temples of local deities. The groups are not subject to the authority of clergy, but individual group members, especially the leaders, may maintain a close relationship with a Buddhist monastery. These individuals are a link from monastic Buddhism to the Buddhist masses in villages, and the nianfo groups are the nexus of the networks. Members of the nianfo groups have a clear sense of being Buddhist while they also participate in activities of local religion. In addition, village spirit mediums, with whom the villagers often consult during crises, command some influence. They have also played a consequential role in the process of restoring Buddhism in the area.",
+				"issue": "2",
+				"language": "eng",
+				"libraryCatalog": "brill.com",
+				"pages": "222-248",
+				"publicationTitle": "Review of Religion and Chinese Society",
+				"shortTitle": "Seekers and Seers",
+				"url": "https://brill.com/view/journals/rrcs/9/2/article-p222_4.xml",
+				"volume": "9",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "lay Buddhism"
+					},
+					{
+						"tag": "nianfo"
+					},
+					{
+						"tag": "rural China"
+					},
+					{
+						"tag": "spirit mediums"
+					},
+					{
+						"tag": "women in lay Buddhism"
+					},
+					{
+						"tag": "中國農村"
+					},
+					{
+						"tag": "女性居士"
+					},
+					{
+						"tag": "居士佛教"
+					},
+					{
+						"tag": "念佛"
+					},
+					{
+						"tag": "靈媒"
+					}
+				],
+				"notes": [
+					"abs:摘要本文通过调查“念佛会”与当地宗教、寺院佛教和灵媒的关系，探讨当代华北农村的居士佛教。念佛会由普通村民自发组织领导，绝大多数是女性。他们在私人住宅或民间宗教的村庄神庙中念佛。这些团体独立于神职人员权威，但个别团体成员，尤其是领导人，与佛教寺院保持密切关系。这些人是寺院佛教与乡村佛教群众的纽带，念佛团体是農村佛教网络的交汇点。念佛团体成員在参与当地宗教活动的同时，有着明确的佛教徒意识。此外，村民在危机期间经常咨询的村灵灵媒也具有一定的影响力。 他们还在该地区恢复佛教的过程中发挥了重要作用。",
+					{
+						"note": "orcid:0000-0001-8918-0826 | Shin-yi Chao (趙昕毅)"
+					}
 				],
 				"seeAlso": []
 			}
