@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-09 13:31:31"
+	"lastUpdated": "2023-08-09 14:15:16"
 }
 
 /*
@@ -388,20 +388,20 @@ function invokeEMTranslator(doc) {
 			};
 			i.abstractNote = i.abstractNote.replace(/[^\\](\n)/g, " ");
 		}
-		if (["2521-6465", "2340-4256"].includes(i.ISSN)) {
+		if (["2521-6465", "2340-4256", "2595-5977"].includes(i.ISSN)) {
 			i.abstractNote = "";
 			let resumenTag = ZU.xpathText(doc, '//*[(@id = "summary")] | //*[(@id = "summary")]//h2');
 			if (resumenTag && resumenTag.match(/Reseña/gi)) i.tags.push("RezensionstagPica");
 			for (let abstractTag of ZU.xpath(doc, '//meta[@name="DC.Description"]/@content')) {
-				if (i.ISSN == "2340-4256") abstractTags = abstractTag.textContent.split(/Resumen|Abstract/);
+				if (["2340-4256", "2595-5977"].includes(i.ISSN)) abstractTags = abstractTag.textContent.split(/Resumen|Abstract/);
 				else abstractTags = [abstractTag.textContent];
 				for (let abstractText of abstractTags) {
-					i.abstractNote += abstractText.split(/Resumen|Abstract/)[0].replace(/\.?Orcid:.+$/, '').replace(/\.?Keywords:.+$/, '').replace(/\.?Palavas clave:.+$/, '') + "\\n4207 ";
+					i.abstractNote += abstractText.split(/Resumen|Abstract/)[0].replace(/\.?Orcid:.+$/, '').replace(/\.?Keywords:.+$/, '').replace(/\.?Palavas clave:.+$/, '').replace(/\.?Palavras-chave:.+/, '') + "\\n4207 ";
 					if (i.abstractNote && i.abstractNote.match(/Reseña de libro/gi)) delete i.abstractNote;
-					let keyWords = abstractText.split(/(?:\bKey\s*words:\s)|(?:\nКлючевые\s+слова:\s)|(?:\nТүйін\s+сөздер:\s)|(?:\bPalabras\s*clave:)/)[1];
+					let keyWords = abstractText.split(/(?:\bKey\s*words:\s)|(?:\nКлючевые\s+слова:\s)|(?:\nТүйін\s+сөздер:\s)|(?:\bPalabras\s*clave:)|(?:\nPalavras-chave:)/)[1];
 					if (keyWords != undefined) {
 						for (let keyWord of keyWords.split(/[,|;]\s+/)) {
-							i.tags.push(keyWord.replace(/\.?Orcid:.+$/, '').replace(/\.Doi:.+/g, '').replace(/Doi:.+/g, '').replace(/\..+/g, ''));
+							i.tags.push(keyWord.replace(/\.?Orcid:.+$/, '').replace(/\.Doi:.+/g, '').replace(/Doi:.+/g, '').replace(/\..+/g, '').replace(/\n/g, ''));
 						}
 					}
 				}
@@ -2707,6 +2707,72 @@ var testCases = [
 				"notes": [
 					"artikelID:e206103"
 				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://revistaeclesiasticabrasileira.itf.edu.br/reb/article/view/4738",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "O olhar contemplativo de Maria Madalena em Jo 20,11-18: Contribuições ao discipulado feminino",
+				"creators": [
+					{
+						"firstName": "Nelson Maria Brechó da",
+						"lastName": "Silva",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Tiago Cosmo da Silva",
+						"lastName": "Dias",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023/04/25",
+				"DOI": "10.29386/reb.v83i324.4738",
+				"ISSN": "2595-5977",
+				"abstractNote": "O presente artigo aborda o encontro entre o Ressuscitado e Maria Madalena. O método utilizado consiste na análise exegética, que se desdobra em três partes: texto e Sitz-im-Leben (contexto vital) da perícope Jo 20,11-18; comentário exegético-teológico; pragmática e hermenêutica. Procura-se evidenciar muitas coincidências com a segunda narração da criação, do livro de Gênesis (2-3): ambos os episódios se dão num jardim (cf. Gn 2,8; Jo 19,41); Maria Madalena confunde Jesus com o jardineiro (cf. Jo 20,15b), função que, na primeira criação, é do próprio Deus, o Criador (Gn 2,8). De fato, no auge de sua tristeza, Maria não contempla outra postura para Jesus a não ser deitado e imóvel, sem vida. Por isso, Jesus precisa dizer: “Não me toques, pois ainda não subi ao meu pai” (Jo 20,17). O relato se encerra com o anúncio da proximidade: “Vi o Senhor” (Jo 20,18). Desse modo, constata-se que o olhar contemplativo alarga a visão do discipulado feminino na sociedade e na pastoral católica.\n\n\\n4207 : This article addresses the encounter between the Risen One and Mary Magdalene. The method used consists of exegetical analysis, which unfolds in three parts: text and Sitz-im-Leben (vital context) of the pericope Jn 20,11-18; exegetical-theological commentary; pragmatics and hermeneutics. We try to highlight many coincidences with the second account of creation, in the book of Genesis (2-3): both episodes take place in a garden (cf. Gn 2,8; Jn 19,41); Mary Magdalene confuses Jesus with the gardener (cf. Jn 20,15b), a role which, in the first creation, belongs to God himself, the Creator (Gn 2,8). In fact, at the height of her sadness, Mary contemplates no other posture for Jesus than lying down and motionless, lifeless. Therefore, Jesus needs to say: “Touch me not, for I have not yet ascended to my Father” (Jn 20,17). The account ends with the announcement of proximity: “I have seen the Lord” (Jn 20,18). Thus, it appears that the contemplative gaze broadens the vision of female discipleship in society and in Catholic pastoral care.\n\\n4207",
+				"issue": "324",
+				"journalAbbreviation": "REB",
+				"language": "pt",
+				"libraryCatalog": "revistaeclesiasticabrasileira.itf.edu.br",
+				"pages": "8-21",
+				"publicationTitle": "Revista Eclesiástica Brasileira",
+				"rights": "Copyright (c) 2023 Revista Eclesiástica Brasileira",
+				"shortTitle": "O olhar contemplativo de Maria Madalena em Jo 20,11-18",
+				"url": "https://revistaeclesiasticabrasileira.itf.edu.br/reb/article/view/4738",
+				"volume": "83",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": " Nova Criação"
+					},
+					{
+						"tag": "Discipulado feminino."
+					},
+					{
+						"tag": "Female discipleship."
+					},
+					{
+						"tag": "Maria Madalena"
+					},
+					{
+						"tag": "Mary Magdalene"
+					},
+					{
+						"tag": "New creation"
+					},
+					{
+						"tag": "Ressuscitado"
+					},
+					{
+						"tag": "Risen"
+					}
+				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
