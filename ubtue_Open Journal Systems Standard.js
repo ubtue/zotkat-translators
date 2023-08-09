@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-09 08:28:30"
+	"lastUpdated": "2023-08-09 13:21:57"
 }
 
 /*
@@ -89,8 +89,9 @@ function invokeEMTranslator(doc) {
 		//replace issue number with volume number for certain journals and delete year
 		if (i.ISSN == "2297-6469") {
 			i.volume = i.issue.split(/\/\d{4}/i)[0];
-			i.issue = "";
+			delete i.issue;
 		}
+
 		if (i.volume == undefined) i.volume = ZU.xpathText(doc, '//meta[@name="DC.Source.Volume"]/@content');
 		if (i.pages == undefined) i.pages = ZU.xpathText(doc, '//meta[@name="DC.Identifier.Pagenumber"]/@content');
 		if (i.DOI == undefined) i.DOI = ZU.xpathText(doc, '//meta[@name="DC.Identifier.DOI"]/@content');
@@ -525,7 +526,7 @@ function extractVolumeIssueFromZ3988(doc, i, z3988Entries) {
 		}
 		if (z3988Entries.match(/rft.issue=\d.*rft/gi)) {
 			i.issue = z3988Entries.split('rft.issue=')[1].split('&')[0].replace('%2B', '/');
-			if (i.issue == "0") delete i.issue;
+			if (i.issue == "0" || i.ISSN == "2297-6469") delete i.issue;
 		}
 	}
 }
@@ -2607,6 +2608,45 @@ var testCases = [
 						"note": "orcid:0000-0003-4522-2216 | Mariela Mosqueira | taken from website"
 					}
 				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.zfrk-rdsr.ch/article/view/3987",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Religiöse Objekte in Schule und Museum: Ein Tagungsbericht Compte rendu de la journée d’études",
+				"creators": [
+					{
+						"firstName": "Beatrice",
+						"lastName": "Kümin",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Caroline",
+						"lastName": "Widmer",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023/05/15",
+				"DOI": "10.26034/fr.zfrk.2023.3987",
+				"ISSN": "2297-6469",
+				"journalAbbreviation": "RDSR",
+				"language": "de",
+				"libraryCatalog": "www.zfrk-rdsr.ch",
+				"pages": "12-14",
+				"publicationTitle": "Revue de didactique des sciences des religions",
+				"rights": "(c) Beatrice Kümin, Caroline Widmer, 2023",
+				"shortTitle": "Religiöse Objekte in Schule und Museum",
+				"url": "https://www.zfrk-rdsr.ch/article/view/3987",
+				"volume": "11",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
