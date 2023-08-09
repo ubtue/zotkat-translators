@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-09 14:15:16"
+	"lastUpdated": "2023-08-09 14:41:44"
 }
 
 /*
@@ -388,6 +388,14 @@ function invokeEMTranslator(doc) {
 			};
 			i.abstractNote = i.abstractNote.replace(/[^\\](\n)/g, " ");
 		}
+		if (i.ISSN == "1853-9106" && i.tags) i.tags = [];
+		if (i.ISSN == "1853-9106" && ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content')) {
+			let tagsEntry = ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content');
+			tag = tagsEntry.split(/–|−/g);
+			for (let t in tag) {
+				i.tags.push(tag[t].capitalizeFirstLetter()); 
+			}
+		}
 		if (["2521-6465", "2340-4256", "2595-5977"].includes(i.ISSN)) {
 			i.abstractNote = "";
 			let resumenTag = ZU.xpathText(doc, '//*[(@id = "summary")] | //*[(@id = "summary")]//h2');
@@ -415,9 +423,6 @@ function invokeEMTranslator(doc) {
 				if (parallelTitle.value != i.title)
 				i.notes.push({'note': 'translatedTitle:' + parallelTitle.textContent.trim()});
 			}
-			/*for (let creator of ZU.xpath(doc, '//meta[@name="citation_author"]/@content')) {
-				i.creators.push(ZU.cleanAuthor(creator.textContent, "author", false));
-			}*/
 		}
 		if (["2709-8435", "1018-1539", "1988-4265"].includes(i.ISSN)) {
 			let abstracts = ZU.xpath(doc, '//meta[@name="DC.Description"]/@content');
