@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-09 08:28:30"
+	"lastUpdated": "2023-08-09 14:41:44"
 }
 
 /*
@@ -89,8 +89,9 @@ function invokeEMTranslator(doc) {
 		//replace issue number with volume number for certain journals and delete year
 		if (i.ISSN == "2297-6469") {
 			i.volume = i.issue.split(/\/\d{4}/i)[0];
-			i.issue = "";
+			delete i.issue;
 		}
+
 		if (i.volume == undefined) i.volume = ZU.xpathText(doc, '//meta[@name="DC.Source.Volume"]/@content');
 		if (i.pages == undefined) i.pages = ZU.xpathText(doc, '//meta[@name="DC.Identifier.Pagenumber"]/@content');
 		if (i.DOI == undefined) i.DOI = ZU.xpathText(doc, '//meta[@name="DC.Identifier.DOI"]/@content');
@@ -298,6 +299,11 @@ function invokeEMTranslator(doc) {
 				i.issue = issueTag.match(/ANO\s+\d+,\s+N.\s+(\d+) \(\d{4}\):/i)[1];
 			}
 		}
+		//artikelnummer anstatt seitenzahlen
+		if (i.ISSN == "2175-5841") {
+			i.notes.push("artikelID:" + i.pages);
+			i.pages = "";
+		}
 		if (i.ISSN === "2336-4483" && ZU.xpathText(doc, '//a[@title="Handle"]/@href')) i.notes.push('handle:' + ZU.xpathText(doc, '//a[@title="Handle"]/@href').replace(/https?:\/\/hdl.handle.net\//, ''));
 		//hier anpassen:
 		if (i.publicationTitle == "IJoReSH: Indonesian Journal of Religion, Spirituality, and Humanity") i.ISSN = "2962-665X";
@@ -382,20 +388,28 @@ function invokeEMTranslator(doc) {
 			};
 			i.abstractNote = i.abstractNote.replace(/[^\\](\n)/g, " ");
 		}
-		if (["2521-6465", "2340-4256"].includes(i.ISSN)) {
+		if (i.ISSN == "1853-9106" && i.tags) i.tags = [];
+		if (i.ISSN == "1853-9106" && ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content')) {
+			let tagsEntry = ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content');
+			tag = tagsEntry.split(/–|−/g);
+			for (let t in tag) {
+				i.tags.push(tag[t].capitalizeFirstLetter()); 
+			}
+		}
+		if (["2521-6465", "2340-4256", "2595-5977"].includes(i.ISSN)) {
 			i.abstractNote = "";
 			let resumenTag = ZU.xpathText(doc, '//*[(@id = "summary")] | //*[(@id = "summary")]//h2');
 			if (resumenTag && resumenTag.match(/Reseña/gi)) i.tags.push("RezensionstagPica");
 			for (let abstractTag of ZU.xpath(doc, '//meta[@name="DC.Description"]/@content')) {
-				if (i.ISSN == "2340-4256") abstractTags = abstractTag.textContent.split(/Resumen|Abstract/);
+				if (["2340-4256", "2595-5977"].includes(i.ISSN)) abstractTags = abstractTag.textContent.split(/Resumen|Abstract/);
 				else abstractTags = [abstractTag.textContent];
 				for (let abstractText of abstractTags) {
-					i.abstractNote += abstractText.split(/Resumen|Abstract/)[0].replace(/\.?Orcid:.+$/, '').replace(/\.?Keywords:.+$/, '').replace(/\.?Palavas clave:.+$/, '') + "\\n4207 ";
+					i.abstractNote += abstractText.split(/Resumen|Abstract/)[0].replace(/\.?Orcid:.+$/, '').replace(/\.?Keywords:.+$/, '').replace(/\.?Palavas clave:.+$/, '').replace(/\.?Palavras-chave:.+/, '') + "\\n4207 ";
 					if (i.abstractNote && i.abstractNote.match(/Reseña de libro/gi)) delete i.abstractNote;
-					let keyWords = abstractText.split(/(?:\bKey\s*words:\s)|(?:\nКлючевые\s+слова:\s)|(?:\nТүйін\s+сөздер:\s)|(?:\bPalabras\s*clave:)/)[1];
+					let keyWords = abstractText.split(/(?:\bKey\s*words:\s)|(?:\nКлючевые\s+слова:\s)|(?:\nТүйін\s+сөздер:\s)|(?:\bPalabras\s*clave:)|(?:\nPalavras-chave:)/)[1];
 					if (keyWords != undefined) {
 						for (let keyWord of keyWords.split(/[,|;]\s+/)) {
-							i.tags.push(keyWord.replace(/\.?Orcid:.+$/, '').replace(/\.Doi:.+/g, '').replace(/Doi:.+/g, '').replace(/\..+/g, ''));
+							i.tags.push(keyWord.replace(/\.?Orcid:.+$/, '').replace(/\.Doi:.+/g, '').replace(/Doi:.+/g, '').replace(/\..+/g, '').replace(/\n/g, ''));
 						}
 					}
 				}
@@ -409,9 +423,6 @@ function invokeEMTranslator(doc) {
 				if (parallelTitle.value != i.title)
 				i.notes.push({'note': 'translatedTitle:' + parallelTitle.textContent.trim()});
 			}
-			/*for (let creator of ZU.xpath(doc, '//meta[@name="citation_author"]/@content')) {
-				i.creators.push(ZU.cleanAuthor(creator.textContent, "author", false));
-			}*/
 		}
 		if (["2709-8435", "1018-1539", "1988-4265"].includes(i.ISSN)) {
 			let abstracts = ZU.xpath(doc, '//meta[@name="DC.Description"]/@content');
@@ -525,7 +536,7 @@ function extractVolumeIssueFromZ3988(doc, i, z3988Entries) {
 		}
 		if (z3988Entries.match(/rft.issue=\d.*rft/gi)) {
 			i.issue = z3988Entries.split('rft.issue=')[1].split('&')[0].replace('%2B', '/');
-			if (i.issue == "0") delete i.issue;
+			if (i.issue == "0" || i.ISSN == "2297-6469") delete i.issue;
 		}
 	}
 }
@@ -2607,6 +2618,166 @@ var testCases = [
 						"note": "orcid:0000-0003-4522-2216 | Mariela Mosqueira | taken from website"
 					}
 				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.zfrk-rdsr.ch/article/view/3987",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Religiöse Objekte in Schule und Museum: Ein Tagungsbericht Compte rendu de la journée d’études",
+				"creators": [
+					{
+						"firstName": "Beatrice",
+						"lastName": "Kümin",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Caroline",
+						"lastName": "Widmer",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023/05/15",
+				"DOI": "10.26034/fr.zfrk.2023.3987",
+				"ISSN": "2297-6469",
+				"journalAbbreviation": "RDSR",
+				"language": "de",
+				"libraryCatalog": "www.zfrk-rdsr.ch",
+				"pages": "12-14",
+				"publicationTitle": "Revue de didactique des sciences des religions",
+				"rights": "(c) Beatrice Kümin, Caroline Widmer, 2023",
+				"shortTitle": "Religiöse Objekte in Schule und Museum",
+				"url": "https://www.zfrk-rdsr.ch/article/view/3987",
+				"volume": "11",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/27839",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Hildegarde Von Bingen, a exemplaridade do feminino no filme de Margarethe Von Trotta",
+				"creators": [
+					{
+						"firstName": "Luiz",
+						"lastName": "Vadico",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Maurício",
+						"lastName": "Monteiro",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022",
+				"DOI": "10.5752/P.2175-5841.2022v20n61e206103",
+				"ISSN": "2175-5841",
+				"abstractNote": "In this article we will analyze the film Vision: The Life of Hildegarde Von Bingen, 2009, by Margarethe Von Trotta, verifying the effort of the German filmmaker to establish an exemplary model of feminine, using the life of the visionary Hildegarde Von Bingen. As background, the filmmaker's own career linked to the issue of Feminism. The exemplarity appears as one of the important points of the films of saint life, or film hagiography. For this reason we will check its aesthetics, structure and purpose. As well as we will draw the necessary relations between the historical personage, its music, its thought, with the image that it excels in the cinematographic work. By method, we start from the media work only, decapping it, studying its narrative, aesthetic form and structure, only then to raise the most important questions placed there relating them to social facts.",
+				"journalAbbreviation": "1",
+				"language": "pt",
+				"libraryCatalog": "periodicos.pucminas.br",
+				"publicationTitle": "HORIZONTE - Revista de Estudos de Teologia e Ciências da Religião",
+				"rights": "Copyright (c) 2023 HORIZONTE - Revista de Estudos de Teologia e Ciências da Religião",
+				"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/27839",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Análise fílmica"
+					},
+					{
+						"tag": "Cinema"
+					},
+					{
+						"tag": "Feminismo"
+					},
+					{
+						"tag": "Hagiografia"
+					},
+					{
+						"tag": "Hildegarde Von Bingen"
+					}
+				],
+				"notes": [
+					"artikelID:e206103"
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://revistaeclesiasticabrasileira.itf.edu.br/reb/article/view/4738",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "O olhar contemplativo de Maria Madalena em Jo 20,11-18: Contribuições ao discipulado feminino",
+				"creators": [
+					{
+						"firstName": "Nelson Maria Brechó da",
+						"lastName": "Silva",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Tiago Cosmo da Silva",
+						"lastName": "Dias",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023/04/25",
+				"DOI": "10.29386/reb.v83i324.4738",
+				"ISSN": "2595-5977",
+				"abstractNote": "O presente artigo aborda o encontro entre o Ressuscitado e Maria Madalena. O método utilizado consiste na análise exegética, que se desdobra em três partes: texto e Sitz-im-Leben (contexto vital) da perícope Jo 20,11-18; comentário exegético-teológico; pragmática e hermenêutica. Procura-se evidenciar muitas coincidências com a segunda narração da criação, do livro de Gênesis (2-3): ambos os episódios se dão num jardim (cf. Gn 2,8; Jo 19,41); Maria Madalena confunde Jesus com o jardineiro (cf. Jo 20,15b), função que, na primeira criação, é do próprio Deus, o Criador (Gn 2,8). De fato, no auge de sua tristeza, Maria não contempla outra postura para Jesus a não ser deitado e imóvel, sem vida. Por isso, Jesus precisa dizer: “Não me toques, pois ainda não subi ao meu pai” (Jo 20,17). O relato se encerra com o anúncio da proximidade: “Vi o Senhor” (Jo 20,18). Desse modo, constata-se que o olhar contemplativo alarga a visão do discipulado feminino na sociedade e na pastoral católica.\n\n\\n4207 : This article addresses the encounter between the Risen One and Mary Magdalene. The method used consists of exegetical analysis, which unfolds in three parts: text and Sitz-im-Leben (vital context) of the pericope Jn 20,11-18; exegetical-theological commentary; pragmatics and hermeneutics. We try to highlight many coincidences with the second account of creation, in the book of Genesis (2-3): both episodes take place in a garden (cf. Gn 2,8; Jn 19,41); Mary Magdalene confuses Jesus with the gardener (cf. Jn 20,15b), a role which, in the first creation, belongs to God himself, the Creator (Gn 2,8). In fact, at the height of her sadness, Mary contemplates no other posture for Jesus than lying down and motionless, lifeless. Therefore, Jesus needs to say: “Touch me not, for I have not yet ascended to my Father” (Jn 20,17). The account ends with the announcement of proximity: “I have seen the Lord” (Jn 20,18). Thus, it appears that the contemplative gaze broadens the vision of female discipleship in society and in Catholic pastoral care.\n\\n4207",
+				"issue": "324",
+				"journalAbbreviation": "REB",
+				"language": "pt",
+				"libraryCatalog": "revistaeclesiasticabrasileira.itf.edu.br",
+				"pages": "8-21",
+				"publicationTitle": "Revista Eclesiástica Brasileira",
+				"rights": "Copyright (c) 2023 Revista Eclesiástica Brasileira",
+				"shortTitle": "O olhar contemplativo de Maria Madalena em Jo 20,11-18",
+				"url": "https://revistaeclesiasticabrasileira.itf.edu.br/reb/article/view/4738",
+				"volume": "83",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": " Nova Criação"
+					},
+					{
+						"tag": "Discipulado feminino."
+					},
+					{
+						"tag": "Female discipleship."
+					},
+					{
+						"tag": "Maria Madalena"
+					},
+					{
+						"tag": "Mary Magdalene"
+					},
+					{
+						"tag": "New creation"
+					},
+					{
+						"tag": "Ressuscitado"
+					},
+					{
+						"tag": "Risen"
+					}
+				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
