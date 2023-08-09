@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-09 13:21:57"
+	"lastUpdated": "2023-08-09 13:31:31"
 }
 
 /*
@@ -298,6 +298,11 @@ function invokeEMTranslator(doc) {
 				i.volume = issueTag.match(/ANO\s+(\d+),\s+N.\s+\d+ \(\d{4}\):/i)[1];
 				i.issue = issueTag.match(/ANO\s+\d+,\s+N.\s+(\d+) \(\d{4}\):/i)[1];
 			}
+		}
+		//artikelnummer anstatt seitenzahlen
+		if (i.ISSN == "2175-5841") {
+			i.notes.push("artikelID:" + i.pages);
+			i.pages = "";
 		}
 		if (i.ISSN === "2336-4483" && ZU.xpathText(doc, '//a[@title="Handle"]/@href')) i.notes.push('handle:' + ZU.xpathText(doc, '//a[@title="Handle"]/@href').replace(/https?:\/\/hdl.handle.net\//, ''));
 		//hier anpassen:
@@ -2647,6 +2652,61 @@ var testCases = [
 				"attachments": [],
 				"tags": [],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/27839",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Hildegarde Von Bingen, a exemplaridade do feminino no filme de Margarethe Von Trotta",
+				"creators": [
+					{
+						"firstName": "Luiz",
+						"lastName": "Vadico",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Maurício",
+						"lastName": "Monteiro",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022",
+				"DOI": "10.5752/P.2175-5841.2022v20n61e206103",
+				"ISSN": "2175-5841",
+				"abstractNote": "In this article we will analyze the film Vision: The Life of Hildegarde Von Bingen, 2009, by Margarethe Von Trotta, verifying the effort of the German filmmaker to establish an exemplary model of feminine, using the life of the visionary Hildegarde Von Bingen. As background, the filmmaker's own career linked to the issue of Feminism. The exemplarity appears as one of the important points of the films of saint life, or film hagiography. For this reason we will check its aesthetics, structure and purpose. As well as we will draw the necessary relations between the historical personage, its music, its thought, with the image that it excels in the cinematographic work. By method, we start from the media work only, decapping it, studying its narrative, aesthetic form and structure, only then to raise the most important questions placed there relating them to social facts.",
+				"journalAbbreviation": "1",
+				"language": "pt",
+				"libraryCatalog": "periodicos.pucminas.br",
+				"publicationTitle": "HORIZONTE - Revista de Estudos de Teologia e Ciências da Religião",
+				"rights": "Copyright (c) 2023 HORIZONTE - Revista de Estudos de Teologia e Ciências da Religião",
+				"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/27839",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Análise fílmica"
+					},
+					{
+						"tag": "Cinema"
+					},
+					{
+						"tag": "Feminismo"
+					},
+					{
+						"tag": "Hagiografia"
+					},
+					{
+						"tag": "Hildegarde Von Bingen"
+					}
+				],
+				"notes": [
+					"artikelID:e206103"
+				],
 				"seeAlso": []
 			}
 		]
