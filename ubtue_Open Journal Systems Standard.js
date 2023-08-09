@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-02 16:02:43"
+	"lastUpdated": "2023-08-09 08:28:30"
 }
 
 /*
@@ -385,13 +385,13 @@ function invokeEMTranslator(doc) {
 		if (["2521-6465", "2340-4256"].includes(i.ISSN)) {
 			i.abstractNote = "";
 			let resumenTag = ZU.xpathText(doc, '//*[(@id = "summary")] | //*[(@id = "summary")]//h2');
-			if (resumenTag && resumenTag.match(/Resumen/gi)) i.tags.push("RezensionstagPica");
+			if (resumenTag && resumenTag.match(/Reseña/gi)) i.tags.push("RezensionstagPica");
 			for (let abstractTag of ZU.xpath(doc, '//meta[@name="DC.Description"]/@content')) {
 				if (i.ISSN == "2340-4256") abstractTags = abstractTag.textContent.split(/Resumen|Abstract/);
 				else abstractTags = [abstractTag.textContent];
 				for (let abstractText of abstractTags) {
 					i.abstractNote += abstractText.split(/Resumen|Abstract/)[0].replace(/\.?Orcid:.+$/, '').replace(/\.?Keywords:.+$/, '').replace(/\.?Palavas clave:.+$/, '') + "\\n4207 ";
-					if (i.abstractNote && i.abstractNote.match(/^Reseña de libro/gi)) delete i.abstractNote;
+					if (i.abstractNote && i.abstractNote.match(/Reseña de libro/gi)) delete i.abstractNote;
 					let keyWords = abstractText.split(/(?:\bKey\s*words:\s)|(?:\nКлючевые\s+слова:\s)|(?:\nТүйін\s+сөздер:\s)|(?:\bPalabras\s*clave:)/)[1];
 					if (keyWords != undefined) {
 						for (let keyWord of keyWords.split(/[,|;]\s+/)) {
@@ -1721,7 +1721,6 @@ var testCases = [
 				],
 				"date": "2021/12/08",
 				"ISSN": "2340-4256",
-				"abstractNote": "undefinedReseña de libro\\n4207",
 				"journalAbbreviation": "RevCau",
 				"language": "en",
 				"libraryCatalog": "cauriensia.es",
@@ -2175,9 +2174,6 @@ var testCases = [
 						"tag": "Repentance"
 					},
 					{
-						"tag": "RezensionstagPica"
-					},
-					{
 						"tag": "Valor y Disvalor"
 					},
 					{
@@ -2235,9 +2231,6 @@ var testCases = [
 					},
 					{
 						"tag": "Estado"
-					},
-					{
-						"tag": "RezensionstagPica"
 					},
 					{
 						"tag": "State"
@@ -2358,9 +2351,6 @@ var testCases = [
 					},
 					{
 						"tag": "John of the Cross"
-					},
-					{
-						"tag": "RezensionstagPica"
 					},
 					{
 						"tag": "mysticism"
