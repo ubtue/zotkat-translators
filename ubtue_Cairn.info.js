@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-18 11:19:54"
+	"lastUpdated": "2023-08-10 14:41:45"
 }
 
 /*
@@ -206,12 +206,13 @@ function scrape(doc, url) {
 			keywords = keywords.split(/\s*[,;]\s*/);
 			for (var i=0; i<keywords.length; i++) {
 				if (keywords[i].trim()) {
-					item.tags.push(keywords[i].replace(/^[a-zA-ZÀ-ÿ-. ]/, function($0) { return $0.toUpperCase(); }));
+					item.tags.push(keywords[i].replace(/\n/g, ' ').replace(/^[a-zA-ZÀ-ÿ-. ]/, function($0) { return $0.toUpperCase(); }));
 					}
 				}
 			}
 		for (let tag of ZU.xpath(doc, '//li[@class="motcle"]')) {
-		if (!item.tags.includes(tag.textContent)) item.tags.push(tag.textContent.replace(/\n/g, ' '));
+			tag = tag.textContent.replace(/\n/g, ' ').replace(/^[a-zA-ZÀ-ÿ-. ]/, function($0) { return $0.toUpperCase(); });
+			if (!item.tags.includes(tag)) item.tags.push(tag);
 		}
 		if (item.volume) item.volume = romanToInt(item.volume).toString();
 
@@ -270,22 +271,7 @@ var testCases = [
 						"tag": "Théorie du genre"
 					},
 					{
-						"tag": "catholicisme"
-					},
-					{
-						"tag": "genre"
-					},
-					{
-						"tag": "sexualité"
-					},
-					{
-						"tag": "théorie du genre"
-					},
-					{
 						"tag": "Éthique sexuelle"
-					},
-					{
-						"tag": "éthique sexuelle"
 					}
 				],
 				"notes": [
@@ -342,15 +328,6 @@ var testCases = [
 					},
 					{
 						"tag": "Zoonose"
-					},
-					{
-						"tag": "espèces animales"
-					},
-					{
-						"tag": "respect des distinctions"
-					},
-					{
-						"tag": "zoonose"
 					}
 				],
 				"notes": [
@@ -403,22 +380,7 @@ var testCases = [
 						"tag": "Théorie du genre"
 					},
 					{
-						"tag": "catholicisme"
-					},
-					{
-						"tag": "genre"
-					},
-					{
-						"tag": "sexualité"
-					},
-					{
-						"tag": "théorie du genre"
-					},
-					{
 						"tag": "Éthique sexuelle"
-					},
-					{
-						"tag": "éthique sexuelle"
 					}
 				],
 				"notes": [
@@ -474,19 +436,7 @@ var testCases = [
 						"tag": "Vertus"
 					},
 					{
-						"tag": "historicisme"
-					},
-					{
-						"tag": "relativisme"
-					},
-					{
-						"tag": "vertus"
-					},
-					{
 						"tag": "Émotivisme"
-					},
-					{
-						"tag": "émotivisme"
 					}
 				],
 				"notes": [
@@ -571,12 +521,6 @@ var testCases = [
 						"tag": "Sauvage"
 					},
 					{
-						"tag": "domestication"
-					},
-					{
-						"tag": "sauvage"
-					},
-					{
 						"tag": "Écologie"
 					},
 					{
@@ -584,15 +528,6 @@ var testCases = [
 					},
 					{
 						"tag": "Éthique environnementale"
-					},
-					{
-						"tag": "écologie"
-					},
-					{
-						"tag": "éthique animale"
-					},
-					{
-						"tag": "éthique environnementale"
 					}
 				],
 				"notes": [
@@ -649,15 +584,6 @@ var testCases = [
 					},
 					{
 						"tag": "Zoonose"
-					},
-					{
-						"tag": "espèces animales"
-					},
-					{
-						"tag": "respect des distinctions"
-					},
-					{
-						"tag": "zoonose"
 					}
 				],
 				"notes": [
@@ -768,42 +694,6 @@ var testCases = [
 						"tag": "Témoignage"
 					},
 					{
-						"tag": "eucharist"
-					},
-					{
-						"tag": "eucharistie"
-					},
-					{
-						"tag": "histoire"
-					},
-					{
-						"tag": "history"
-					},
-					{
-						"tag": "liturgie"
-					},
-					{
-						"tag": "liturgy"
-					},
-					{
-						"tag": "people"
-					},
-					{
-						"tag": "peuple"
-					},
-					{
-						"tag": "politics"
-					},
-					{
-						"tag": "politique"
-					},
-					{
-						"tag": "testimony"
-					},
-					{
-						"tag": "témoignage"
-					},
-					{
 						"tag": "Église"
 					}
 				],
@@ -866,27 +756,6 @@ var testCases = [
 						"tag": "Tiers parti catholique"
 					},
 					{
-						"tag": "coopération internationale"
-					},
-					{
-						"tag": "fédéralisme"
-					},
-					{
-						"tag": "liberté politique"
-					},
-					{
-						"tag": "mondialisation"
-					},
-					{
-						"tag": "puissance"
-					},
-					{
-						"tag": "souveraineté"
-					},
-					{
-						"tag": "tiers parti catholique"
-					},
-					{
 						"tag": "État-nation"
 					}
 				],
@@ -947,27 +816,6 @@ var testCases = [
 					},
 					{
 						"tag": "Tiers parti catholique"
-					},
-					{
-						"tag": "coopération internationale"
-					},
-					{
-						"tag": "fédéralisme"
-					},
-					{
-						"tag": "liberté politique"
-					},
-					{
-						"tag": "mondialisation"
-					},
-					{
-						"tag": "puissance"
-					},
-					{
-						"tag": "souveraineté"
-					},
-					{
-						"tag": "tiers parti catholique"
 					},
 					{
 						"tag": "État-nation"
@@ -1058,13 +906,13 @@ var testCases = [
 						"tag": "Handicap"
 					},
 					{
-						"tag": "Orden\npúblico"
+						"tag": "Orden público"
 					},
 					{
-						"tag": "Ordre\npublic"
+						"tag": "Ordre public"
 					},
 					{
-						"tag": "Public\norder"
+						"tag": "Public order"
 					},
 					{
 						"tag": "Public policy"
