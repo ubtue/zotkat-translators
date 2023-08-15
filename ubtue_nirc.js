@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-14 08:18:44"
+	"lastUpdated": "2023-08-15 14:47:29"
 }
 
 /*
@@ -57,7 +57,18 @@ function getSearchResults(doc) {
 	return found ? items : false;
 }
 
-function getPages(doc, item) {
+function getYear(doc, item) {
+	let rows = ZU.xpath(doc, '//div[h2]');
+	for (let r in rows) {
+		let row = rows[r].textContent;
+		if (row.includes("Volume "+item.volume) && row.includes("Issue "+item.issue)) {
+			item.date = row.match(/\s(\d{4})\s/)[1];
+		}
+	}
+	item.complete();
+}
+
+function getPages(doc, url, item) {
 	let rows = ZU.xpath(doc, '//ul//a[@class="sub"]');
 	for (let i in rows) {
 		let row = rows[i].textContent;
@@ -66,7 +77,10 @@ function getPages(doc, item) {
 		} 
 	}
 	if (item.pages) item.pages = item.pages.trim().replace(/^([^-]+)-\1$/, '$1');
-	item.complete();
+	let urlo = url.substring(0,url.lastIndexOf("issue")-1);
+	ZU.processDocuments(urlo, function (doc) {
+			getYear(doc, item)
+		});
 }
 
 function invokeEmbeddedMetadataTranslator(doc, url) {
@@ -104,7 +118,7 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		//item.complete();
 		let urlo = url.substring(0,url.lastIndexOf("article")-1);
 		ZU.processDocuments(urlo, function (doc) {
-			getPages(doc, item)
+			getPages(doc, urlo, item)
 		});
 	});
 	translator.translate();
@@ -146,6 +160,7 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
+				"date": "2022",
 				"ISSN": "0304-1042",
 				"abstractNote": "Early modern Japan witnessed new and unprecedented debates surrounding ancient history, including a school of thought that suggested a significant Korean influence upon ancient Japan. This line of thought contrasted sharply with the contemporary school of kokugaku, which emphasized the traditional understanding of Japan as entirely indigenous. Scholars of kokugaku often positioned their work as a polemic against what they perceived as the widespread influence of traditions imported from China, especially Confucianism, for their alleged corruption of an autochthonic Japanese culture. Modern interpreters of kokugaku thereby focused on the issue of their revulsion of Chinese influence. Focusing on Motoori Norinaga, often considered the consummator of kokugaku, this article analyzes Norinaga’s responses to interpretations of a possible Korean origin of Japanese culture and customs. By contriving commentaries that eliminated such possibilities, this article argues that Norinaga attempted to defend the traditional understanding of ancient Japan as entirely indigenous and unified ab initio.",
 				"issue": "1",
