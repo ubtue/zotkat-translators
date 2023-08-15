@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-09 07:52:09"
+	"lastUpdated": "2023-08-15 08:15:52"
 }
 
 /*
@@ -96,7 +96,7 @@ function postProcess(doc, item) {
 		item.tags = Array.from(new Set(allTags.map(JSON.stringify))).map(JSON.parse);
 	}
 	let reviewEntry = text(doc, '.articlecategory');
-	if (reviewEntry && reviewEntry.match(/book\sreview/i)) item.tags.push('Book Review');
+	if (reviewEntry && reviewEntry.match(/book\sreview/i)) item.tags.push('RezensionstagPica');
 	// numbering issues with slash due to cataloguing rule
 	if (item.issue) item.issue = item.issue.replace('-', '/');
 	let date = item.date;
@@ -201,7 +201,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://brill.com/view/journals/ormo/100/2/article-p147_2.xml",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -255,7 +254,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://brill.com/view/journals/ormo/100/2/article-p172_3.xml",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -314,13 +312,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://brill.com/view/journals/ormo/100/2/ormo.100.issue-2.xml",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://brill.com/view/journals/rrcs/9/2/article-p249_5.xml",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -395,7 +391,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://brill.com/view/journals/rrcs/9/2/article-p170_2.xml",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -450,7 +445,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://brill.com/view/journals/rrcs/9/2/article-p222_4.xml",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
