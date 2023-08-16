@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-09 15:52:56"
+	"lastUpdated": "2023-08-16 06:49:21"
 }
 
 /*
@@ -79,8 +79,9 @@ function scrape(doc, url) {
 			i.abstract = ZU.xpathText(doc, '//div[@id="abstract_de"]//p');
 		}
 		if (ZU.xpathText(doc, '//section[@class="section"]//a') && ZU.xpathText(doc, '//section[@class="section"]//a').includes("Review")) {
-			i.notes.push({"note": "RezensionstagPica"})
+			i.tags.push("RezensionstagPica");
 		}
+		delete i.issue;
 		i.attachments = [];
 		//i.url = url;
 		i.complete();
@@ -104,7 +105,6 @@ var testCases = [
 				],
 				"date": "2022",
 				"ISSN": "2747-4461",
-				"issue": "1",
 				"language": "de",
 				"libraryCatalog": "zar.harrassowitz-library.com",
 				"pages": "239-250",
@@ -112,12 +112,12 @@ var testCases = [
 				"url": "https://zar.harrassowitz-library.com/article/ZAR/2022/1/15",
 				"volume": "28",
 				"attachments": [],
-				"tags": [],
-				"notes": [
+				"tags": [
 					{
-						"note": "RezensionstagPica"
+						"tag": "RezensionstagPica"
 					}
 				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
