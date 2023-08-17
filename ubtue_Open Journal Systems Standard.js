@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-17 14:08:23"
+	"lastUpdated": "2023-08-17 14:17:22"
 }
 
 /*
@@ -426,7 +426,7 @@ function invokeEMTranslator(doc) {
 					}
 				}
 			}
-		}2175-5841
+		}
 		if (["2521-6465", "2340-4256", "2595-5977"].includes(i.ISSN)) {
 			i.abstractNote = "";
 			let resumenTag = ZU.xpathText(doc, '//*[(@id = "summary")] | //*[(@id = "summary")]//h2');
