@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-17 09:55:30"
+	"lastUpdated": "2023-08-17 13:20:48"
 }
 
 /*
@@ -402,17 +402,17 @@ function invokeEMTranslator(doc) {
 					i.tags.push(tag[t].capitalizeFirstLetter()); 
 				}
 			}
-			if (ZU.xpathText(doc, '//meta[@name="DC.Title.Alternative"][@*=("es")]/@content')) {
-				for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"][@*=("es")]/@content')) {
+			if (ZU.xpathText(doc, '//meta[@name="DC.Title"]/@content')) {
+				for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"][@*=("es") or @*=("en")]/@content')) {
 					if (parallelTitle.value != i.title) {
-						i.notes.push({'note': 'translatedTitle:' + parallelTitle.textContent.trim()});	
+						i.notes.push({'note': 'Paralleltitel:' + ZU.unescapeHTML(parallelTitle.textContent.trim())});	
 					}
 				}
 			}
 			if (ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es")]/@content')) {
 				i.notes.push({'note': 'abs:' + ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es")]/@content')});
 			}
-		} 
+		}
 		if (["2521-6465", "2340-4256", "2595-5977"].includes(i.ISSN)) {
 			i.abstractNote = "";
 			let resumenTag = ZU.xpathText(doc, '//*[(@id = "summary")] | //*[(@id = "summary")]//h2');
