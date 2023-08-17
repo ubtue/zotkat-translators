@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-09 14:41:44"
+	"lastUpdated": "2023-08-17 07:59:32"
 }
 
 /*
@@ -303,6 +303,11 @@ function invokeEMTranslator(doc) {
 		if (i.ISSN == "2175-5841") {
 			i.notes.push("artikelID:" + i.pages);
 			i.pages = "";
+			let volumeIssueEntry = ZU.xpathText(doc, '//*[@class="breadcrumb"]');
+ 			if (volumeIssueEntry) {
+ 				i.volume = volumeIssueEntry.trim().match(/v\.\s+(\d{2}),\s+n\.\s+(\d{2})/i)[1];
+				i.issue = volumeIssueEntry.trim().match(/v\.\s+(\d{2}),\s+n\.\s+(\d{2})/i)[2];
+			}
 		}
 		if (i.ISSN === "2336-4483" && ZU.xpathText(doc, '//a[@title="Handle"]/@href')) i.notes.push('handle:' + ZU.xpathText(doc, '//a[@title="Handle"]/@href').replace(/https?:\/\/hdl.handle.net\//, ''));
 		//hier anpassen:
@@ -2685,12 +2690,14 @@ var testCases = [
 				"DOI": "10.5752/P.2175-5841.2022v20n61e206103",
 				"ISSN": "2175-5841",
 				"abstractNote": "In this article we will analyze the film Vision: The Life of Hildegarde Von Bingen, 2009, by Margarethe Von Trotta, verifying the effort of the German filmmaker to establish an exemplary model of feminine, using the life of the visionary Hildegarde Von Bingen. As background, the filmmaker's own career linked to the issue of Feminism. The exemplarity appears as one of the important points of the films of saint life, or film hagiography. For this reason we will check its aesthetics, structure and purpose. As well as we will draw the necessary relations between the historical personage, its music, its thought, with the image that it excels in the cinematographic work. By method, we start from the media work only, decapping it, studying its narrative, aesthetic form and structure, only then to raise the most important questions placed there relating them to social facts.",
+				"issue": "61",
 				"journalAbbreviation": "1",
 				"language": "pt",
 				"libraryCatalog": "periodicos.pucminas.br",
 				"publicationTitle": "HORIZONTE - Revista de Estudos de Teologia e Ciências da Religião",
 				"rights": "Copyright (c) 2023 HORIZONTE - Revista de Estudos de Teologia e Ciências da Religião",
 				"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/27839",
+				"volume": "20",
 				"attachments": [],
 				"tags": [
 					{
@@ -2778,6 +2785,52 @@ var testCases = [
 					}
 				],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/30378",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Religião e Cinema",
+				"creators": [
+					{
+						"firstName": "Frederico",
+						"lastName": "Pieper",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022",
+				"DOI": "10.5752/P.2175-5841.2022v20n61e206102",
+				"ISSN": "2175-5841",
+				"abstractNote": "Não se aplica",
+				"issue": "61",
+				"journalAbbreviation": "1",
+				"language": "pt",
+				"libraryCatalog": "periodicos.pucminas.br",
+				"publicationTitle": "HORIZONTE - Revista de Estudos de Teologia e Ciências da Religião",
+				"rights": "Copyright (c) 2023 HORIZONTE - Revista de Estudos de Teologia e Ciências da Religião",
+				"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/30378",
+				"volume": "20",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Cinema"
+					},
+					{
+						"tag": "Editorial"
+					},
+					{
+						"tag": "Religião"
+					}
+				],
+				"notes": [
+					"artikelID:e206102"
+				],
 				"seeAlso": []
 			}
 		]
