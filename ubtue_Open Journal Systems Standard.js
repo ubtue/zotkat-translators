@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-17 09:29:27"
+	"lastUpdated": "2023-08-17 09:40:02"
 }
 
 /*
@@ -417,7 +417,7 @@ function invokeEMTranslator(doc) {
 			i.abstractNote = "";
 			let resumenTag = ZU.xpathText(doc, '//*[(@id = "summary")] | //*[(@id = "summary")]//h2');
 			if (resumenTag && resumenTag.match(/Reseña/gi)) i.tags.push("RezensionstagPica");
-			for (let abstractTag of ZU.xpath(doc, '//meta[@name="DC.Description"]/@lang("pt")')) {
+			for (let abstractTag of ZU.xpath(doc, '//meta[@name="DC.Description"]/@content')) {
 				if (["2340-4256", "2595-5977"].includes(i.ISSN)) abstractTags = abstractTag.textContent.split(/Resumen|Abstract/);
 				else abstractTags = [abstractTag.textContent];
 				for (let abstractText of abstractTags) {
