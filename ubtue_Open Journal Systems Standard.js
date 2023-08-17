@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-17 13:20:48"
+	"lastUpdated": "2023-08-17 14:08:23"
 }
 
 /*
@@ -292,13 +292,16 @@ function invokeEMTranslator(doc) {
 				i.tags.push('RezensionstagPica');
 			}
 		}
-		if (i.ISSN === "1982-8136" && !i.volume) {
-			let issueTag = ZU.xpathText(doc, '//div[@class="item issue"]');
-			if (issueTag.match(/ANO\s+\d+,\s+N.\s+\d+ \(\d{4}\):/i)) {
-				i.volume = issueTag.match(/ANO\s+(\d+),\s+N.\s+\d+ \(\d{4}\):/i)[1];
-				i.issue = issueTag.match(/ANO\s+\d+,\s+N.\s+(\d+) \(\d{4}\):/i)[1];
+		if (i.ISSN === "1982-8136") {
+			if (!i.volume) {
+				let issueTag = ZU.xpathText(doc, '//div[@class="item issue"]');
+				if (issueTag.match(/ANO\s+\d+,\s+N.\s+\d+ \(\d{4}\):/i)) {
+					i.volume = issueTag.match(/ANO\s+(\d+),\s+N.\s+\d+ \(\d{4}\):/i)[1];
+					i.issue = issueTag.match(/ANO\s+\d+,\s+N.\s+(\d+) \(\d{4}\):/i)[1];
+				}
 			}
-		}
+
+		} 
 		//artikelnummer anstatt seitenzahlen
 		if (i.ISSN == "2175-5841") {
 			i.notes.push("artikelID:" + i.pages);
@@ -307,6 +310,13 @@ function invokeEMTranslator(doc) {
  			if (volumeIssueEntry) {
  				i.volume = volumeIssueEntry.trim().match(/v\.\s+(\d{2}),\s+n\.\s+(\d{2})/i)[1];
 				i.issue = volumeIssueEntry.trim().match(/v\.\s+(\d{2}),\s+n\.\s+(\d{2})/i)[2];
+			}
+			if (ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
+				for (let alternativeAbstract of ZU.xpath(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
+					if (alternativeAbstract.value && alternativeAbstract.value != i.abstractNote) {
+						i.notes.push({'note': 'abs:' + ZU.unescapeHTML(alternativeAbstract.textContent.trim())});
+					}
+				}
 			}
 		}
 		if (i.ISSN === "2336-4483" && ZU.xpathText(doc, '//a[@title="Handle"]/@href')) i.notes.push('handle:' + ZU.xpathText(doc, '//a[@title="Handle"]/@href').replace(/https?:\/\/hdl.handle.net\//, ''));
@@ -403,16 +413,20 @@ function invokeEMTranslator(doc) {
 				}
 			}
 			if (ZU.xpathText(doc, '//meta[@name="DC.Title"]/@content')) {
-				for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"][@*=("es") or @*=("en")]/@content')) {
-					if (parallelTitle.value != i.title) {
+				for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
+					if (parallelTitle.value && parallelTitle.value != i.title) {
 						i.notes.push({'note': 'Paralleltitel:' + ZU.unescapeHTML(parallelTitle.textContent.trim())});	
 					}
 				}
 			}
-			if (ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es")]/@content')) {
-				i.notes.push({'note': 'abs:' + ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es")]/@content')});
+			if (ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
+				for (let alternativeAbstract of ZU.xpath(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
+					if (alternativeAbstract.value && alternativeAbstract.value != i.abstractNote) {
+						i.notes.push({'note': 'abs:' + ZU.unescapeHTML(alternativeAbstract.textContent.trim())});
+					}
+				}
 			}
-		}
+		}2175-5841
 		if (["2521-6465", "2340-4256", "2595-5977"].includes(i.ISSN)) {
 			i.abstractNote = "";
 			let resumenTag = ZU.xpathText(doc, '//*[(@id = "summary")] | //*[(@id = "summary")]//h2');
@@ -2842,6 +2856,67 @@ var testCases = [
 				],
 				"notes": [
 					"artikelID:e206102"
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/27922",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Opening a hermeneutic space for spiritual care practices :",
+				"creators": [
+					{
+						"firstName": "Mary Rute Gomes",
+						"lastName": "Esperandio",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Carlo",
+						"lastName": "Leget",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022",
+				"DOI": "10.5752/P.2175-5841.2022v20n62e206204",
+				"ISSN": "2175-5841",
+				"abstractNote": "Spiritual care is considered an intrinsic aspect of good palliative care practices. However, this is a challenge for health professionals. There is a lack of scientifically based non-religious approaches to identify and meet patients’ and families’ existential/spiritual needs. This article aims to present a tool for spiritual care named Diamond Model, or Ars Moriendi, developed by a Dutch researcher who designed it from elements drawn from his empirical research. The model is theoretically based on non-moral and non-religious anthropological frameworks, and it is open to people from a variety of cultural and religious backgrounds. Both chaplains and the multidisciplinary teams can use this hermeneutic tool. It helps to better understand and meet the spiritual needs of patients and families in the dimensions that involve autonomy, suffering, relations, unfinished business, and hope. The presentation of the Diamond Model to the Brazilian audience is also an invitation to test and evaluate it in future studies investigating spirituality in palliative care in Brazil.",
+				"issue": "62",
+				"journalAbbreviation": "1",
+				"language": "en",
+				"libraryCatalog": "periodicos.pucminas.br",
+				"publicationTitle": "HORIZONTE - Revista de Estudos de Teologia e Ciências da Religião",
+				"rights": "Copyright (c) 2023 HORIZONTE - Journal of Studies in Theology and Religious Sciences",
+				"shortTitle": "Opening a hermeneutic space for spiritual care practices",
+				"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/27922",
+				"volume": "20",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Cuidado espiritual"
+					},
+					{
+						"tag": "Cuidados paliativos"
+					},
+					{
+						"tag": "Equipe multidisciplinar"
+					},
+					{
+						"tag": "Espaço interior"
+					},
+					{
+						"tag": "Espiritualidade e saúde"
+					}
+				],
+				"notes": [
+					"artikelID:e206204",
+					{
+						"note": "abs:O cuidado espiritual é considerado um aspecto intrínseco às boas práticas de cuidados paliativos. Contudo, este é um desafio a profissionais de saúde. Há carência de propostas cientificamente embasadas e não religiosas para identificar e atender as necessidades existenciais/espirituais de pacientes e familiares. Este artigo tem como objetivo apresentar uma ferramenta de cuidado espiritual denominada Modelo Diamante ou Ars Moriendi, desenvolvida por um pesquisador holandês que a concebeu a partir de elementos extraídos de sua pesquisa empírica. O modelo é teoricamente baseado em estruturas antropológicas não morais e não religiosas e está aberto a pessoas de uma variedade de origens culturais e religiosas. Tanto capelães quanto equipes multidisciplinares podem usar essa ferramenta hermenêutica. Ela ajuda a melhor compreender e atender as necessidades espirituais de pacientes e familiares nas dimensões que envolvem autonomia, sofrimento, relacionamentos, questões pendentes e esperança. A apresentação do Modelo Diamante ao público brasileiro também é um convite para testá-lo e avaliá-lo em estudos futuros que investiguem a espiritualidade em cuidados paliativos no Brasil."
+					}
 				],
 				"seeAlso": []
 			}
