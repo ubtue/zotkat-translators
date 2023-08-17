@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-17 07:59:32"
+	"lastUpdated": "2023-08-17 09:29:27"
 }
 
 /*
@@ -394,18 +394,30 @@ function invokeEMTranslator(doc) {
 			i.abstractNote = i.abstractNote.replace(/[^\\](\n)/g, " ");
 		}
 		if (i.ISSN == "1853-9106" && i.tags) i.tags = [];
-		if (i.ISSN == "1853-9106" && ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content')) {
-			let tagsEntry = ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content');
-			tag = tagsEntry.split(/–|−/g);
-			for (let t in tag) {
-				i.tags.push(tag[t].capitalizeFirstLetter()); 
+		if (i.ISSN == "1853-9106") {
+			if (ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content')) {
+				let tagsEntry = ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content');
+				tag = tagsEntry.split(/–|−/g);
+				for (let t in tag) {
+					i.tags.push(tag[t].capitalizeFirstLetter()); 
+				}
 			}
-		}
+			if (ZU.xpathText(doc, '//meta[@name="citation_title"]/@content')) {
+				for (let parallelTitle of ZU.xpath(doc, '//meta[@name="citation_title"]/@content')) {
+					if (parallelTitle.value != i.title) {
+						i.notes.push({'note': 'translatedTitle:' + parallelTitle.textContent.trim()});	
+					}
+				}
+			}
+			if (ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es")]/@content')) {
+				i.notes.push({'note': 'abs:' + ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es")]/@content')});
+			}
+		} 
 		if (["2521-6465", "2340-4256", "2595-5977"].includes(i.ISSN)) {
 			i.abstractNote = "";
 			let resumenTag = ZU.xpathText(doc, '//*[(@id = "summary")] | //*[(@id = "summary")]//h2');
 			if (resumenTag && resumenTag.match(/Reseña/gi)) i.tags.push("RezensionstagPica");
-			for (let abstractTag of ZU.xpath(doc, '//meta[@name="DC.Description"]/@content')) {
+			for (let abstractTag of ZU.xpath(doc, '//meta[@name="DC.Description"]/@lang("pt")')) {
 				if (["2340-4256", "2595-5977"].includes(i.ISSN)) abstractTags = abstractTag.textContent.split(/Resumen|Abstract/);
 				else abstractTags = [abstractTag.textContent];
 				for (let abstractText of abstractTags) {
