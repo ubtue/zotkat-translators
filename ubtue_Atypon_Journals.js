@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-07 12:03:14"
+	"lastUpdated": "2023-08-23 12:58:47"
 }
 
 /*
@@ -152,6 +152,12 @@ function getSearchResults(doc, checkOnly, extras) {
 			let url = attr(row, 'a', 'href');
 			if (!url) continue;
 			
+			if (attr(row, 'a', 'class') == "meta__serial") {
+				rowtext = row.innerHTML.substring(row.innerHTML.indexOf("issue-item__title"));
+				title = rowtext.match(/<h5>([^<]+)</)[1];
+				url = rowtext.match(/<a\s*href\s?="([^"]+)"/)[1];
+			};
+
 			if (checkOnly) return true;
 			found = true;
 			
@@ -412,7 +418,7 @@ function scrape(doc, url, extras) {
 					// This is not excellent, since some abstracts could
 					// conceivably begin with the word "abstract"
 					item.abstractNote = abstract.innerText
-						.replace(/^[^\w\d]*abstract\s*/i, '');
+						.replace(/^[^\w\d]*abstract\s*/i, '').replace(/\s+/g," ");
 				}
 				
 				item.attachments = [];
@@ -497,7 +503,7 @@ var testCases = [
 				],
 				"date": "2001-01",
 				"ISBN": "9780898714784",
-				"abstractNote": "6.1 Introduction\nThere are a variety of extensions of the topics introduced in the previous chapters that could be pursued, several of which have been mentioned earlier along with a comment that they would not be developed in any detail within this monograph. Among some of these possibilities are: (a) the development of a mechanism for generating all the optimal solutions for a specific optimization task when multiple optima may be present, not just one representative exemplar; (b) the incorporation of other loss or merit measures within the various sequencing and partitioning contexts discussed; (c) extensions to the analysis of arbitrary t-mode data, with possible (order) restrictions on some modes but not others, or to a framework in which proximity is given on more than just a pair of objects, e.g., proximity could be defined for all distinct object triples (see Daws (1996)); (d) the generalization of the task of constructing optimal ordered partitions to a two- or higher-mode context that may be hierarchical and/or have various types of order or precedence constraints imposed; and (e) the extension of object ordering constraints when they are to be imposed (e.g., in various partitioning and two-mode sequencing tasks) to the use of circular object orders, where optimal subsets or ordered sequences must now be consistent with respect to a circular contiguity structure.",
+				"abstractNote": "6.1 Introduction There are a variety of extensions of the topics introduced in the previous chapters that could be pursued, several of which have been mentioned earlier along with a comment that they would not be developed in any detail within this monograph. Among some of these possibilities are: (a) the development of a mechanism for generating all the optimal solutions for a specific optimization task when multiple optima may be present, not just one representative exemplar; (b) the incorporation of other loss or merit measures within the various sequencing and partitioning contexts discussed; (c) extensions to the analysis of arbitrary t-mode data, with possible (order) restrictions on some modes but not others, or to a framework in which proximity is given on more than just a pair of objects, e.g., proximity could be defined for all distinct object triples (see Daws (1996)); (d) the generalization of the task of constructing optimal ordered partitions to a two- or higher-mode context that may be hierarchical and/or have various types of order or precedence constraints imposed; and (e) the extension of object ordering constraints when they are to be imposed (e.g., in various partitioning and two-mode sequencing tasks) to the use of circular object orders, where optimal subsets or ordered sequences must now be consistent with respect to a circular contiguity structure.",
 				"bookTitle": "Combinatorial Data Analysis",
 				"extra": "DOI: 10.1137/1.9780898718553.ch6",
 				"language": "eng",
@@ -702,7 +708,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://journals.asm.org/doi/10.1128/mSystems.00122-21",
+		"url": "https://journals.asm.org/doi/10.1128/msystems.00122-21",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -731,13 +737,13 @@ var testCases = [
 				],
 				"date": "2021-05-04",
 				"DOI": "10.1128/msystems.00122-21",
-				"abstractNote": "Coronavirus disease 2019 (COVID-19) has caused global disruption and a significant loss of life. Existing treatments that can be repurposed as prophylactic and therapeutic agents may reduce the pandemic’s devastation. Emerging evidence of potential applications in other therapeutic contexts has led to the investigation of dietary supplements and nutraceuticals for COVID-19. Such products include vitamin C, vitamin D, omega 3 polyunsaturated fatty acids, probiotics, and zinc, all of which are currently under clinical investigation. In this review, we critically appraise the evidence surrounding dietary supplements and nutraceuticals for the prophylaxis and treatment of COVID-19. Overall, further study is required before evidence-based recommendations can be formulated, but nutritional status plays a significant role in patient outcomes, and these products may help alleviate deficiencies. For example, evidence indicates that vitamin D deficiency may be associated with a greater incidence of infection and severity of COVID-19, suggesting that vitamin D supplementation may hold prophylactic or therapeutic value. A growing number of scientific organizations are now considering recommending vitamin D supplementation to those at high risk of COVID-19. Because research in vitamin D and other nutraceuticals and supplements is preliminary, here we evaluate the extent to which these nutraceutical and dietary supplements hold potential in the COVID-19 crisis.\nIMPORTANCE Sales of dietary supplements and nutraceuticals have increased during the pandemic due to their perceived “immune-boosting” effects. However, little is known about the efficacy of these dietary supplements and nutraceuticals against the novel coronavirus (severe acute respiratory syndrome coronavirus 2 [SARS-CoV-2]) or the disease that it causes, CoV disease 2019 (COVID-19). This review provides a critical overview of the potential prophylactic and therapeutic value of various dietary supplements and nutraceuticals from the evidence available to date. These include vitamin C, vitamin D, and zinc, which are often perceived by the public as treating respiratory infections or supporting immune health. Consumers need to be aware of misinformation and false promises surrounding some supplements, which may be subject to limited regulation by authorities. However, considerably more research is required to determine whether dietary supplements and nutraceuticals exhibit prophylactic and therapeutic value against SARS-CoV-2 infection and COVID-19. This review provides perspective on which nutraceuticals and supplements are involved in biological processes that are relevant to recovery from or prevention of COVID-19.",
+				"abstractNote": "Coronavirus disease 2019 (COVID-19) has caused global disruption and a significant loss of life. Existing treatments that can be repurposed as prophylactic and therapeutic agents may reduce the pandemic’s devastation. Emerging evidence of potential applications in other therapeutic contexts has led to the investigation of dietary supplements and nutraceuticals for COVID-19. Such products include vitamin C, vitamin D, omega 3 polyunsaturated fatty acids, probiotics, and zinc, all of which are currently under clinical investigation. In this review, we critically appraise the evidence surrounding dietary supplements and nutraceuticals for the prophylaxis and treatment of COVID-19. Overall, further study is required before evidence-based recommendations can be formulated, but nutritional status plays a significant role in patient outcomes, and these products may help alleviate deficiencies. For example, evidence indicates that vitamin D deficiency may be associated with a greater incidence of infection and severity of COVID-19, suggesting that vitamin D supplementation may hold prophylactic or therapeutic value. A growing number of scientific organizations are now considering recommending vitamin D supplementation to those at high risk of COVID-19. Because research in vitamin D and other nutraceuticals and supplements is preliminary, here we evaluate the extent to which these nutraceutical and dietary supplements hold potential in the COVID-19 crisis. IMPORTANCE Sales of dietary supplements and nutraceuticals have increased during the pandemic due to their perceived “immune-boosting” effects. However, little is known about the efficacy of these dietary supplements and nutraceuticals against the novel coronavirus (severe acute respiratory syndrome coronavirus 2 [SARS-CoV-2]) or the disease that it causes, CoV disease 2019 (COVID-19). This review provides a critical overview of the potential prophylactic and therapeutic value of various dietary supplements and nutraceuticals from the evidence available to date. These include vitamin C, vitamin D, and zinc, which are often perceived by the public as treating respiratory infections or supporting immune health. Consumers need to be aware of misinformation and false promises surrounding some supplements, which may be subject to limited regulation by authorities. However, considerably more research is required to determine whether dietary supplements and nutraceuticals exhibit prophylactic and therapeutic value against SARS-CoV-2 infection and COVID-19. This review provides perspective on which nutraceuticals and supplements are involved in biological processes that are relevant to recovery from or prevention of COVID-19.",
 				"issue": "3",
 				"language": "eng",
 				"libraryCatalog": "journals.asm.org (Atypon)",
 				"pages": "10.1128/msystems.00122-21",
 				"publicationTitle": "mSystems",
-				"url": "https://journals.asm.org/doi/10.1128/mSystems.00122-21",
+				"url": "https://journals.asm.org/doi/10.1128/msystems.00122-21",
 				"volume": "6",
 				"attachments": [],
 				"tags": [
@@ -1209,7 +1215,7 @@ var testCases = [
 				],
 				"date": "2022-12",
 				"DOI": "10.3828/quaker.2022.27.2.3",
-				"abstractNote": "This article follows the association and membership of four families of similar socio-economic status, through seven generations, with Irish Friends over a period of slightly more than 200 years, to around 1900. Using historical data, a model has been presented to explain the key elements of their respective journeys through recruitment, engagement, and eventual abandonment of the Religious Society of Friends. The model had been supplemented with the results of a quantitative analysis of data related to membership and with generation as the principal cohort. Aspects considered included male and female longevity of membership, rates of membership attrition, child mortality and children’s contribution to membership, and an attempt to determine whether social mobility and occupational status contributed, in some measure, to declining rates of membership.\nThe results of the quantitative analysis were much in accord with the model; each family, while journeying towards the same destination, progressed slightly differently but with some common characteristics. Child mortality was high in all four families as were rates of membership attrition, and females tended, on average, to have longer longevity of membership than men. And while social mobility was limited, all the families managed to consolidate their positions in middle-class society, many members comfortable with respectable titles in what became known as the Irish ‘Squirearchy’. By that time Friends had become a distant memory. It remains to be seen whether the model proposed here is applicable to Quaker families that belonged to other socio-economic denominations.\nThis article was published open access under a CC BY licence: https://creativecommons.org/licences/by/4.0.",
+				"abstractNote": "This article follows the association and membership of four families of similar socio-economic status, through seven generations, with Irish Friends over a period of slightly more than 200 years, to around 1900. Using historical data, a model has been presented to explain the key elements of their respective journeys through recruitment, engagement, and eventual abandonment of the Religious Society of Friends. The model had been supplemented with the results of a quantitative analysis of data related to membership and with generation as the principal cohort. Aspects considered included male and female longevity of membership, rates of membership attrition, child mortality and children’s contribution to membership, and an attempt to determine whether social mobility and occupational status contributed, in some measure, to declining rates of membership. The results of the quantitative analysis were much in accord with the model; each family, while journeying towards the same destination, progressed slightly differently but with some common characteristics. Child mortality was high in all four families as were rates of membership attrition, and females tended, on average, to have longer longevity of membership than men. And while social mobility was limited, all the families managed to consolidate their positions in middle-class society, many members comfortable with respectable titles in what became known as the Irish ‘Squirearchy’. By that time Friends had become a distant memory. It remains to be seen whether the model proposed here is applicable to Quaker families that belonged to other socio-economic denominations. This article was published open access under a CC BY licence: https://creativecommons.org/licences/by/4.0.",
 				"issue": "2",
 				"language": "eng",
 				"libraryCatalog": "liverpooluniversitypress.co.uk (Atypon)",
@@ -1243,6 +1249,54 @@ var testCases = [
 					},
 					{
 						"tag": "socio-economic status"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://search.informit.org/doi/10.3316/informit.815447686114521",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Then and now: Australian catholic experiences",
+				"creators": [
+					{
+						"lastName": "Rymarz",
+						"creatorType": "author",
+						"firstName": "Richard"
+					}
+				],
+				"date": "2022-10",
+				"DOI": "10.3316/informit.815447686114521",
+				"abstractNote": "Review(s) of: Then and now: Australian catholic experiences, by Edmund Campion, (Adelaide: ATF Theology, 2021), pp. 178, paperback, $29.95.",
+				"issue": "4",
+				"language": "eng",
+				"libraryCatalog": "search.informit.org (Atypon)",
+				"pages": "499-500",
+				"publicationTitle": "The Australasian Catholic Record",
+				"shortTitle": "Then and now",
+				"url": "https://search.informit.org/doi/10.3316/informit.815447686114521",
+				"volume": "99",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Australia"
+					},
+					{
+						"tag": "Catholic Church"
+					},
+					{
+						"tag": "Christian life"
+					},
+					{
+						"tag": "Manners and customs"
+					},
+					{
+						"tag": "RezensionstagPica"
 					}
 				],
 				"notes": [],
