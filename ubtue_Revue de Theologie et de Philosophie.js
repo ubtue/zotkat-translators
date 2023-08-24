@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-09 13:00:08"
+	"lastUpdated": "2023-08-24 13:32:49"
 }
 
 /*
@@ -73,17 +73,37 @@ async function doWeb(doc, url) {
 }
 
 async function invokeDOI(doc, url = doc.location.href) {
-	let translator = Zotero.loadTranslator('web');
-	translator.setTranslator('c159dcfe-8a53-4301-a499-30f6549c340d');
-	translator.setDocument(doc);
-	translator.setHandler('itemDone', (_obj, item) => {
-	//check subtitle
-	if (doc.querySelector('h1.page-header p.small')) item.title += ': ' + doc.querySelector('h1.page-header p.small').innerText;
+	//check if DOI class exists
+	if (ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "doi", " " ))]//a') != null) {
+		let translator = Zotero.loadTranslator('web');
+		translator.setTranslator('c159dcfe-8a53-4301-a499-30f6549c340d');
+		translator.setDocument(doc);
+		translator.setHandler('itemDone', (_obj, item) => {
+			//check subtitle
+			if (doc.querySelector('h1.page-header p.small')) item.title += ': ' + doc.querySelector('h1.page-header p.small').innerText;
+			item.complete();
+		});
+		await translator.translate();
+	} //invoke DOI translator as subtranslator
+	else {
+		var item = new Zotero.Item('journalArticle');
+		if (ZU.xpathText(doc, '//*[@class="authors"]/strong')) {
+			for (author of ZU.xpathText(doc, '//*[@class="authors"]/strong').split(",")) {
+				item.creators.push(ZU.cleanAuthor(author, "author"));	
+			}
+		}
+		item.title = ZU.trimInternal(ZU.xpathText(doc, '//h1[@class="page-header"]'));
+		let volumeIssueEntry = ZU.xpathText(doc, '//*[@class="breadcrumb"]').trim();
+		if (volumeIssueEntry) {
+			item.volume = volumeIssueEntry.match(/(?:vol\.)\s+(\d+)(?:.*(?:n°)\s+(\d+))(?:.*(?:\()(\d{4}))?/i)[1];
+			item.issue = volumeIssueEntry.match(/(?:vol\.)\s+(\d+)(?:.*(?:n°)\s+(\d+))(?:.*(?:\()(\d{4}))?/i)[2];
+			item.date = volumeIssueEntry.match(/(?:vol\.)\s+(\d+)(?:.*(?:n°)\s+(\d+))(?:.*(?:\()(\d{4}))?/i)[3];
+		}
+		item.ISSN = "2297-1254, 0035-1784"
+		item.url = url;
 		item.complete();
-	});
-	await translator.translate();
+	}
 }
-
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -152,6 +172,12 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://revues.droz.org/RThPh/issue/current",
+		"detectedItemType": "multiple",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
