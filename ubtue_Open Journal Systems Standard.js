@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-25 14:02:19"
+	"lastUpdated": "2023-08-25 14:37:48"
 }
 
 /*
@@ -315,6 +315,17 @@ function invokeEMTranslator(doc) {
 				for (let alternativeAbstract of ZU.xpath(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
 					if (alternativeAbstract.value && alternativeAbstract.value != i.abstractNote) {
 						i.notes.push({'note': 'abs:' + ZU.unescapeHTML(alternativeAbstract.textContent.trim())});
+					}
+				}
+			}
+			let subtitle = ZU.xpathText(doc, '//h1/small');
+			if (subtitle) {
+				if (i.title.match(/:$/)) {
+					if (!i.title.match(subtitle)) {
+					i.title = i.title + ' ' + ZU.trimInternal(subtitle);
+					} 
+					else {
+					i.title = i.title + ': ' + ZU.trimInternal(subtitle);
 					}
 				}
 			}
@@ -3001,6 +3012,67 @@ var testCases = [
 				"notes": [
 					{
 						"note": "abs:¿Es posible que la indiferencia en los Ejercicios Espirituales de san Ignacio presente alguna huella de los estoicos como Epicteto o Marco Aurelio? Este artículo analiza algunas observaciones que relacionan el ser estoico y el hacerse indiferente en dos escuelas espirituales totalmente diversas. Tras un estado de la cuestión, analizamos el Principio y Fundamento de los Ejercicios en relación a la indiferencia. Mediante algunos textos de los estoicos, comparamos el modo de comprender la vida, el fin del ser humano y su relación divino-humana. A modo de conclusión, finalizamos con una serie de líneas sobre la indiferencia para el estoicismo y la teología ignaciana."
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/27922",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Opening a hermeneutic space for spiritual care practices : introducing the Diamond Model to the Brazilian context",
+				"creators": [
+					{
+						"firstName": "Mary Rute Gomes",
+						"lastName": "Esperandio",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Carlo",
+						"lastName": "Leget",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022",
+				"DOI": "10.5752/P.2175-5841.2022v20n62e206204",
+				"ISSN": "2175-5841",
+				"abstractNote": "Spiritual care is considered an intrinsic aspect of good palliative care practices. However, this is a challenge for health professionals. There is a lack of scientifically based non-religious approaches to identify and meet patients’ and families’ existential/spiritual needs. This article aims to present a tool for spiritual care named Diamond Model, or Ars Moriendi, developed by a Dutch researcher who designed it from elements drawn from his empirical research. The model is theoretically based on non-moral and non-religious anthropological frameworks, and it is open to people from a variety of cultural and religious backgrounds. Both chaplains and the multidisciplinary teams can use this hermeneutic tool. It helps to better understand and meet the spiritual needs of patients and families in the dimensions that involve autonomy, suffering, relations, unfinished business, and hope. The presentation of the Diamond Model to the Brazilian audience is also an invitation to test and evaluate it in future studies investigating spirituality in palliative care in Brazil.",
+				"issue": "62",
+				"journalAbbreviation": "1",
+				"language": "en",
+				"libraryCatalog": "periodicos.pucminas.br",
+				"publicationTitle": "HORIZONTE - Revista de Estudos de Teologia e Ciências da Religião",
+				"rights": "Copyright (c) 2023 HORIZONTE - Journal of Studies in Theology and Religious Sciences",
+				"shortTitle": "Opening a hermeneutic space for spiritual care practices",
+				"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/27922",
+				"volume": "20",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Cuidado espiritual"
+					},
+					{
+						"tag": "Cuidados paliativos"
+					},
+					{
+						"tag": "Equipe multidisciplinar"
+					},
+					{
+						"tag": "Espaço interior"
+					},
+					{
+						"tag": "Espiritualidade e saúde"
+					}
+				],
+				"notes": [
+					"artikelID:e206204",
+					{
+						"note": "abs:O cuidado espiritual é considerado um aspecto intrínseco às boas práticas de cuidados paliativos. Contudo, este é um desafio a profissionais de saúde. Há carência de propostas cientificamente embasadas e não religiosas para identificar e atender as necessidades existenciais/espirituais de pacientes e familiares. Este artigo tem como objetivo apresentar uma ferramenta de cuidado espiritual denominada Modelo Diamante ou Ars Moriendi, desenvolvida por um pesquisador holandês que a concebeu a partir de elementos extraídos de sua pesquisa empírica. O modelo é teoricamente baseado em estruturas antropológicas não morais e não religiosas e está aberto a pessoas de uma variedade de origens culturais e religiosas. Tanto capelães quanto equipes multidisciplinares podem usar essa ferramenta hermenêutica. Ela ajuda a melhor compreender e atender as necessidades espirituais de pacientes e familiares nas dimensões que envolvem autonomia, sofrimento, relacionamentos, questões pendentes e esperança. A apresentação do Modelo Diamante ao público brasileiro também é um convite para testá-lo e avaliá-lo em estudos futuros que investiguem a espiritualidade em cuidados paliativos no Brasil."
 					}
 				],
 				"seeAlso": []
