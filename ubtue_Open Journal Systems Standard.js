@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-17 14:17:22"
+	"lastUpdated": "2023-08-25 14:02:19"
 }
 
 /*
@@ -427,6 +427,23 @@ function invokeEMTranslator(doc) {
 				}
 			}
 		}
+		
+		if (i.ISSN == "0717-6295") {
+			if (ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
+				for (let alternativeAbstract of ZU.xpath(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
+					if (alternativeAbstract.value && alternativeAbstract.value != i.abstractNote) {
+						i.notes.push({'note': 'abs:' + ZU.unescapeHTML(alternativeAbstract.textContent.trim())});
+					}
+				}
+			}
+			if (ZU.xpathText(doc, '//*[@class="list-group-item keywords"]/./*[@class=""]/*[@class="value"]')) {
+				let tagsEntry = ZU.xpathText(doc, '//*[@class="list-group-item keywords"]/./*[@class=""]/*[@class="value"]');
+				tag = tagsEntry.split(/,\s/g);
+				for (let t in tag) {
+					i.tags.push(ZU.trimInternal(tag[t].capitalizeFirstLetter()));
+				}
+			}
+		}
 		if (["2521-6465", "2340-4256", "2595-5977"].includes(i.ISSN)) {
 			i.abstractNote = "";
 			let resumenTag = ZU.xpathText(doc, '//*[(@id = "summary")] | //*[(@id = "summary")]//h2');
@@ -550,6 +567,7 @@ function invokeEMTranslator(doc) {
 				i.tags.push(tags[t].substring(0,tags[t].length-1));
 			} 
 		}
+		i.tags = [...new Set(i.tags.map(x => x))]
 		i.complete();
 	});
 	translator.translate();
@@ -602,6 +620,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.zwingliana.ch/index.php/zwa/article/view/2516",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -632,6 +651,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "http://jsri.ro/ojs/index.php/jsri/article/view/1194",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -693,6 +713,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ojs.reformedjournals.co.za/stj/article/view/1743",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -713,15 +734,12 @@ var testCases = [
 				"language": "en",
 				"libraryCatalog": "ojs.reformedjournals.co.za",
 				"pages": "299-317",
-				"publicationTitle": "STJ – Stellenbosch Theological Journal",
+				"publicationTitle": "Stellenbosch Theological Journal",
 				"rights": "Copyright (c) 2017 Pieter de Waal Neethling Trust, Stellenbosch",
 				"url": "https://ojs.reformedjournals.co.za/stj/article/view/1743",
 				"volume": "3",
 				"attachments": [],
 				"tags": [
-					{
-						"tag": "Christology"
-					},
 					{
 						"tag": "Christology"
 					},
@@ -764,11 +782,13 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.sanisidoro.net/publicaciones/index.php/isidorianum/issue/view/11",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://journal.equinoxpub.com/JSRNC/article/view/19598",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -828,11 +848,13 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://periodicos.uem.br/ojs/index.php/RbhrAnpuh/issue/view/1635",
+		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://journal.equinoxpub.com/JSRNC/article/view/19606",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1616,7 +1638,7 @@ var testCases = [
 				"pages": "495-497",
 				"publicationTitle": "Zeitschrift für Theologie und Philosophie",
 				"rights": "Copyright (c) 2021 Zeitschrift für Theologie und Philosophie",
-				"url": "https://ztp.jesuiten.org/index.php/ZTP/article/view/3820",
+				"url": "https://ztp.jesuiten.org/ZTP/article/view/3820",
 				"volume": "143",
 				"attachments": [],
 				"tags": [
@@ -1667,7 +1689,6 @@ var testCases = [
 				],
 				"date": "2021/12/08",
 				"ISSN": "2340-4256",
-				"abstractNote": "Reseña de libro\\n4207 Reseña de libro\\n4207",
 				"journalAbbreviation": "RevCau",
 				"language": "en",
 				"libraryCatalog": "cauriensia.es",
@@ -1678,13 +1699,14 @@ var testCases = [
 				"url": "https://cauriensia.es/index.php/cauriensia/article/view/477",
 				"volume": "16",
 				"attachments": [],
-				"tags": [],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
 				"notes": [
 					{
 						"note": "orcid:0000-0002-2733-3476 | José Pereira Coutinho | taken from website"
-					},
-					{
-						"note": "translatedTitle:Melinda L. DENTON, Richard FLORY. Back pocket God: Religion and spirituality in the lives of emerging adults"
 					}
 				],
 				"seeAlso": []
@@ -1955,9 +1977,6 @@ var testCases = [
 						"tag": "Rawls"
 					},
 					{
-						"tag": "RezensionstagPica"
-					},
-					{
 						"tag": "bien"
 					},
 					{
@@ -2059,7 +2078,6 @@ var testCases = [
 				"date": "2023/05/15",
 				"DOI": "10.26034/fr.zfrk.2023.3989",
 				"ISSN": "2297-6469",
-				"issue": "11%2F2023",
 				"journalAbbreviation": "RDSR",
 				"language": "de",
 				"libraryCatalog": "www.zfrk-rdsr.ch",
@@ -2329,16 +2347,10 @@ var testCases = [
 						"tag": "religion"
 					},
 					{
-						"tag": "religion"
-					},
-					{
 						"tag": "religión"
 					},
 					{
 						"tag": "secularisation"
-					},
-					{
-						"tag": "secularism"
 					},
 					{
 						"tag": "secularism"
@@ -2448,7 +2460,7 @@ var testCases = [
 				"ISSN": "2293-7374",
 				"abstractNote": "The Italian Benedetto Tagliacarne, known as Theocrenus, was tutor to the sons of Francis I from 1527 to 1533. In this capacity, he was closely involved with the royal family, as witnessed by his poetic works, published in Poitiers by Marnef in 1536, and in particular his epigrams, which shaped court events and portray an artistically refined and poetic king. Theocrenus thus celebrates the wedding of the king and Eleanor of Austria and pays tribute to Louise of Savoy; he praises the poetic compositions of Francis I, choosing the epitaph of Petrarch’s muse, Laura de Noves, but also the translation of an epigram attributed to Germanicus; finally, he composes numerous ekphraseis of the king’s works of art. The study of these epigrams allows us to evaluate the contribution of the Italian poet to the cultural policy of Francis I and to the mythology of the reign.",
 				"issue": "3",
-				"journalAbbreviation": "RR",
+				"journalAbbreviation": "Renaiss. Reform.",
 				"language": "fr",
 				"libraryCatalog": "jps.library.utoronto.ca",
 				"pages": "189-214",
@@ -2743,7 +2755,10 @@ var testCases = [
 					}
 				],
 				"notes": [
-					"artikelID:e206103"
+					"artikelID:e206103",
+					{
+						"note": "abs:No presente artigo analisaremos o filme Visão: A vida de Hildegarde Von Bingen, 2009, verificando o esforço da cineasta alemã Margarethe Von Trotta para estabelecer um modelo exemplar de feminino a partir da vida da visionária Hildegarde Von Bingen, tendo como pano de fundo a sua carreira ligada à questão do Feminismo. A exemplaridade surge como um dos pontos altos dos filmes de Vida de Santo, ou hagiografia fílmica, por essa razão verificaremos sua estética, estrutura e finalidade. Bem como traçaremos as relações necessárias entre a personagem histórica, sua música, seu pensamento, com o que dela sobressai na obra cinematográfica. Por método, partimos incialmente apenas da obra midiática, decupando-a, estudando sua narrativa, forma estética e estrutura, para só então levantar as questões mais importantes ali colocadas relacionando-as com os fatos sociais."
+					}
 				],
 				"seeAlso": []
 			}
@@ -2916,6 +2931,76 @@ var testCases = [
 					"artikelID:e206204",
 					{
 						"note": "abs:O cuidado espiritual é considerado um aspecto intrínseco às boas práticas de cuidados paliativos. Contudo, este é um desafio a profissionais de saúde. Há carência de propostas cientificamente embasadas e não religiosas para identificar e atender as necessidades existenciais/espirituais de pacientes e familiares. Este artigo tem como objetivo apresentar uma ferramenta de cuidado espiritual denominada Modelo Diamante ou Ars Moriendi, desenvolvida por um pesquisador holandês que a concebeu a partir de elementos extraídos de sua pesquisa empírica. O modelo é teoricamente baseado em estruturas antropológicas não morais e não religiosas e está aberto a pessoas de uma variedade de origens culturais e religiosas. Tanto capelães quanto equipes multidisciplinares podem usar essa ferramenta hermenêutica. Ela ajuda a melhor compreender e atender as necessidades espirituais de pacientes e familiares nas dimensões que envolvem autonomia, sofrimento, relacionamentos, questões pendentes e esperança. A apresentação do Modelo Diamante ao público brasileiro também é um convite para testá-lo e avaliá-lo em estudos futuros que investiguem a espiritualidade em cuidados paliativos no Brasil."
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://ojs.uc.cl/index.php/tyv/article/view/60443",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Ser estoico y hacerse indiferente. El Principio y Fundamento de los Ejercicios Espirituales de san Ignacio de Loyola Observaciones vinculantes y disgregantes",
+				"creators": [
+					{
+						"firstName": "Eduard",
+						"lastName": "López",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023/07/28",
+				"DOI": "10.7764/TyV642.E2",
+				"ISSN": "0717-6295",
+				"abstractNote": "Is it possible that the indifference in the Spiritual Exercises of Saint Ignatius presents some trace of the Stoics like Epictetus or Marcus Aurelius? This article analyzes some observations that relate the Stoic being and the indifferent making in two totally different spiritual schools and that the Jesuit historiography until today has understood them. After a state of the matter, we analyze the Principle and Foundation of the Exercises in relation to the indifference. Through some texts of the Stoics, we compare the way of understanding life, the end of the human being and his divine-human relationship. By way of conclusion, we end with a series of lines about the indifference to Stoicism and the Ignatian Theology.",
+				"issue": "2",
+				"journalAbbreviation": "TyV",
+				"language": "es",
+				"libraryCatalog": "ojs.uc.cl",
+				"pages": "171-193",
+				"publicationTitle": "Teología y Vida",
+				"rights": "Derechos de autor 2023 Eduard López",
+				"url": "https://ojs.uc.cl/index.php/tyv/article/view/60443",
+				"volume": "64",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Ejercicios Espirituales"
+					},
+					{
+						"tag": "Principio y Fundamento "
+					},
+					{
+						"tag": "Principio y Fundamento means"
+					},
+					{
+						"tag": "Principle and Foundation"
+					},
+					{
+						"tag": "Spiritual Exercises"
+					},
+					{
+						"tag": "fin"
+					},
+					{
+						"tag": "indiferencia"
+					},
+					{
+						"tag": "indifference"
+					},
+					{
+						"tag": "medios"
+					},
+					{
+						"tag": "purpose"
+					}
+				],
+				"notes": [
+					{
+						"note": "abs:¿Es posible que la indiferencia en los Ejercicios Espirituales de san Ignacio presente alguna huella de los estoicos como Epicteto o Marco Aurelio? Este artículo analiza algunas observaciones que relacionan el ser estoico y el hacerse indiferente en dos escuelas espirituales totalmente diversas. Tras un estado de la cuestión, analizamos el Principio y Fundamento de los Ejercicios en relación a la indiferencia. Mediante algunos textos de los estoicos, comparamos el modo de comprender la vida, el fin del ser humano y su relación divino-humana. A modo de conclusión, finalizamos con una serie de líneas sobre la indiferencia para el estoicismo y la teología ignaciana."
 					}
 				],
 				"seeAlso": []
