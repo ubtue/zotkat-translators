@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-25 14:37:48"
+	"lastUpdated": "2023-08-25 14:42:41"
 }
 
 /*
@@ -324,9 +324,9 @@ function invokeEMTranslator(doc) {
 					if (!i.title.match(subtitle)) {
 					i.title = i.title + ' ' + ZU.trimInternal(subtitle);
 					} 
-					else {
+				} 
+				else {
 					i.title = i.title + ': ' + ZU.trimInternal(subtitle);
-					}
 				}
 			}
 		}
