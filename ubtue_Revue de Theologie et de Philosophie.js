@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-24 13:32:49"
+	"lastUpdated": "2023-08-25 13:10:44"
 }
 
 /*
@@ -72,7 +72,7 @@ async function doWeb(doc, url) {
 	}
 }
 
-async function invokeDOI(doc, url = doc.location.href) {
+async function invokeDOI(doc, url) {
 	//check if DOI class exists
 	if (ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "doi", " " ))]//a') != null) {
 		let translator = Zotero.loadTranslator('web');
@@ -81,7 +81,7 @@ async function invokeDOI(doc, url = doc.location.href) {
 		translator.setHandler('itemDone', (_obj, item) => {
 			//check subtitle
 			if (doc.querySelector('h1.page-header p.small')) item.title += ': ' + doc.querySelector('h1.page-header p.small').innerText;
-			item.complete();
+			  item.complete();
 		});
 		await translator.translate();
 	} //invoke DOI translator as subtranslator
@@ -101,6 +101,9 @@ async function invokeDOI(doc, url = doc.location.href) {
 		}
 		item.ISSN = "2297-1254, 0035-1784"
 		item.url = url;
+		if (ZU.xpathText(doc, '//*[@class="breadcrumb"]//a[contains(@href, "#BIB")]')) {
+			item.tags.push('RezensionstagPica');
+		}
 		item.complete();
 	}
 }
@@ -178,6 +181,83 @@ var testCases = [
 		"url": "https://revues.droz.org/RThPh/issue/current",
 		"detectedItemType": "multiple",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://revues.droz.org/RThPh/issue/view/RThPh_155.2",
+		"detectedItemType": "multiple",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://revues.droz.org/RThPh/article/view/RThPh_155.1_7-15",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Introduction au volume",
+				"creators": [
+					{
+						"firstName": "K. Luc",
+						"lastName": "Bulundwe",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Simon",
+						"lastName": "Butticaz",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Andreas",
+						"lastName": "Dettwiler",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023",
+				"ISSN": "2297-1254, 0035-1784",
+				"issue": "1",
+				"libraryCatalog": "ubtue_Revue de Theologie et de Philosophie",
+				"url": "https://revues.droz.org/RThPh/article/view/RThPh_155.1_7-15",
+				"volume": "155",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://revues.droz.org/RThPh/article/view/RThPh_155.2_165-167",
+		"detectedItemType": "journalArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Christian Jacob, Faut-il prendre les Deipnosophistes au sérieux ? Paris, Les Belles Lettres, 2020, 300 p.",
+				"creators": [
+					{
+						"firstName": "Stefan",
+						"lastName": "Imhoof",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023",
+				"ISSN": "2297-1254, 0035-1784",
+				"issue": "2",
+				"libraryCatalog": "ubtue_Revue de Theologie et de Philosophie",
+				"shortTitle": "Christian Jacob, Faut-il prendre les Deipnosophistes au sérieux ?",
+				"url": "https://revues.droz.org/RThPh/article/view/RThPh_155.2_165-167",
+				"volume": "155",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
