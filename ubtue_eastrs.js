@@ -2,14 +2,14 @@
 	"translatorID": "b4005714-d7da-4590-b7df-60af1e7af34c",
 	"label": "ubtue_eastrs",
 	"creator": "Paula Hähndel",
-	"target": "https://www.eastrs.org/|https://hcommons.org/deposits/item",
+	"target": "https?://www.eastrs.org/|https?://hcommons.org/deposits/item",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-16 07:40:24"
+	"lastUpdated": "2023-08-28 07:08:35"
 }
 
 /*
