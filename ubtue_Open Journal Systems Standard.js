@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-25 14:42:41"
+	"lastUpdated": "2023-08-30 15:33:29"
 }
 
 /*
@@ -301,7 +301,30 @@ function invokeEMTranslator(doc) {
 				}
 			}
 
-		} 
+		}
+		if (i.ISSN === "2792-260X") {
+			let abstractes = ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es")]/@content');
+			let abstracten = ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("en")]/@content');
+			if (abstractes && abstracten) {
+				i.notes.push({'note': 'abs:' + abstractes.trim()});
+				if(abstractes.trim() == i.abstractNote.trim()) {
+					i.abstractNote = abstracten.trim();
+				}
+				else if(abstracten.trim() != i.abstractNote.trim()) {
+					i.notes.push({'note': 'abs:' + abstracten.trim()});
+				}
+			}
+ 			if (abstractes && !abstracten) {
+				if(abstractes.trim() != i.abstractNote.trim()) {
+					i.notes.push({'note': 'abs:' + abstractes.trim()});
+				}
+			}
+			if (!abstractes && abstracten) {
+				if(abstracten.trim() != i.abstractNote.trim()) {
+					i.notes.push({'note': 'abs:' + abstracten.trim()});
+				}
+			}
+		}
 		//artikelnummer anstatt seitenzahlen
 		if (i.ISSN == "2175-5841") {
 			i.notes.push("artikelID:" + i.pages);
@@ -631,7 +654,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.zwingliana.ch/index.php/zwa/article/view/2516",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -662,7 +684,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "http://jsri.ro/ojs/index.php/jsri/article/view/1194",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -724,7 +745,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ojs.reformedjournals.co.za/stj/article/view/1743",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -793,13 +813,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.sanisidoro.net/publicaciones/index.php/isidorianum/issue/view/11",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://journal.equinoxpub.com/JSRNC/article/view/19598",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -853,19 +871,16 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://verbumetecclesia.org.za/index.php/ve/issue/view/12",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://periodicos.uem.br/ojs/index.php/RbhrAnpuh/issue/view/1635",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://journal.equinoxpub.com/JSRNC/article/view/19606",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -910,7 +925,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://jrfm.eu/index.php/ojs_jrfm/article/view/256",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -929,7 +943,7 @@ var testCases = [
 				"journalAbbreviation": "JRFM",
 				"language": "en",
 				"libraryCatalog": "jrfm.eu",
-				"pages": "197-199",
+				"pages": "197–199",
 				"publicationTitle": "Journal for Religion, Film and Media (JRFM)",
 				"rights": "Copyright (c) 2021 Daria Pezzoli-Olgiati",
 				"shortTitle": "Book Review. Christopher Ocker / Susanne Elm (eds.), Material Christianity",
@@ -961,19 +975,16 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://revistasfranciscanas.org/index.php/ArchivoIberoAmericano/issue/view/16",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://jeac.de/ojs/index.php/jeac/issue/view/16",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://aabner.org/ojs/index.php/beabs/article/view/781",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1055,7 +1066,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ote-journal.otwsa-otssa.org.za/index.php/journal/article/view/433",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1126,13 +1136,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://jebs.eu/ojs/index.php/jebs/issue/view/75",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://limina-graz.eu/index.php/limina/article/view/103",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1340,7 +1348,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://open-journals.uni-tuebingen.de/ojs/index.php/eug/article/view/1-2021-rez-1",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1377,7 +1384,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://revistaseletronicas.pucrs.br/index.php/teo/article/view/36941",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1439,13 +1445,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://revistas.ucm.es/index.php/ILUR/issue/view/3773",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://www.journals.us.edu.pl/index.php/EL/article/view/13012",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1480,13 +1484,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://bulletin-religious.kaznu.kz/index.php/relig/issue/view/40",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://zfbeg.org/ojs/index.php/cjbk/article/view/631",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1521,13 +1523,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ztp.jesuiten.org/index.php/ZTP/issue/view/319",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://missionalia.journals.ac.za/pub/article/view/358",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1583,13 +1583,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://bildungsforschung.org/ojs/index.php/beabs/issue/view/v01i02",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/42868",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1627,7 +1625,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ztp.jesuiten.org/index.php/ZTP/article/view/3820",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1686,7 +1683,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://cauriensia.es/index.php/cauriensia/article/view/477",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1727,7 +1723,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://limina-graz.eu/index.php/limina/article/view/141",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1782,7 +1777,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://cauriensia.es/index.php/cauriensia/article/view/477",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1823,7 +1817,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://archivodominicano.dominicos.org/ojs/article/view/conventualidad-dominica-archivos-merida-badajoz",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1885,7 +1878,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/44463",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1958,7 +1950,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://cauriensia.es/index.php/cauriensia/article/view/mis4",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2015,7 +2006,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://hispaniasacra.revistas.csic.es/index.php/hispaniasacra/article/view/946",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2074,7 +2064,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.zfrk-rdsr.ch/article/view/3989",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2108,13 +2097,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.hermeneutische-blaetter.uzh.ch/issue/view/254",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://missionalia.journals.ac.za/pub/article/view/505",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2176,7 +2163,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://cauriensia.es/index.php/cauriensia/article/view/498",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2263,7 +2249,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://cauriensia.es/index.php/cauriensia/article/view/497",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2385,7 +2370,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://cauriensia.es/index.php/cauriensia/article/view/456",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2454,7 +2438,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://jps.library.utoronto.ca/index.php/renref/article/view/40431",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2509,7 +2492,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://archivodominicano.dominicos.org/ojs/article/view/conventualidad-dominica-archivos-merida-badajoz",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2571,7 +2553,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://hispaniasacra.revistas.csic.es/index.php/hispaniasacra/article/view/946",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2630,7 +2611,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://periodicos.sbu.unicamp.br/ojs/index.php/csr/article/view/8673029",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2679,7 +2659,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.zfrk-rdsr.ch/article/view/3987",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2718,7 +2697,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/27839",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2778,7 +2756,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://revistaeclesiasticabrasileira.itf.edu.br/reb/article/view/4738",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2844,7 +2821,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/30378",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2890,11 +2866,10 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/27922",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Opening a hermeneutic space for spiritual care practices :",
+				"title": "Opening a hermeneutic space for spiritual care practices : introducing the Diamond Model to the Brazilian context",
 				"creators": [
 					{
 						"firstName": "Mary Rute Gomes",
@@ -2951,7 +2926,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://ojs.uc.cl/index.php/tyv/article/view/60443",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -3021,7 +2995,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/27922",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -3073,6 +3046,81 @@ var testCases = [
 					"artikelID:e206204",
 					{
 						"note": "abs:O cuidado espiritual é considerado um aspecto intrínseco às boas práticas de cuidados paliativos. Contudo, este é um desafio a profissionais de saúde. Há carência de propostas cientificamente embasadas e não religiosas para identificar e atender as necessidades existenciais/espirituais de pacientes e familiares. Este artigo tem como objetivo apresentar uma ferramenta de cuidado espiritual denominada Modelo Diamante ou Ars Moriendi, desenvolvida por um pesquisador holandês que a concebeu a partir de elementos extraídos de sua pesquisa empírica. O modelo é teoricamente baseado em estruturas antropológicas não morais e não religiosas e está aberto a pessoas de uma variedade de origens culturais e religiosas. Tanto capelães quanto equipes multidisciplinares podem usar essa ferramenta hermenêutica. Ela ajuda a melhor compreender e atender as necessidades espirituais de pacientes e familiares nas dimensões que envolvem autonomia, sofrimento, relacionamentos, questões pendentes e esperança. A apresentação do Modelo Diamante ao público brasileiro também é um convite para testá-lo e avaliá-lo em estudos futuros que investiguem a espiritualidade em cuidados paliativos no Brasil."
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://revistas.agustinosvalladolid.es/index.php/estudio/article/view/1059",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "El asentimiento como vínculo entre la razón y la fe",
+				"creators": [
+					{
+						"firstName": "José M. Romero",
+						"lastName": "Baró",
+						"creatorType": "author"
+					}
+				],
+				"date": "2022/09/22",
+				"DOI": "10.53111/estagus.v57i2.1059",
+				"ISSN": "2792-260X",
+				"abstractNote": "This communication tries to describe some activities of human thought that shows a link keeping joined reason and faith, concluding that faith is something necessary for reason. Indeed, some teachings of Aristotle, Agustin and Thomas Aquinas shows how reason leads us to understand, how understanding always occurs accompanied by will and, finally, how will assents freely in the act of faith.",
+				"issue": "2",
+				"journalAbbreviation": "EstAgus",
+				"language": "es",
+				"libraryCatalog": "revistas.agustinosvalladolid.es",
+				"pages": "431-439",
+				"publicationTitle": "Estudio Agustiniano",
+				"rights": "Derechos de autor 2022 José M.  Romero Baró",
+				"url": "https://revistas.agustinosvalladolid.es/index.php/estudio/article/view/1059",
+				"volume": "57",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Asentimiento"
+					},
+					{
+						"tag": "Assent"
+					},
+					{
+						"tag": "Demonstration"
+					},
+					{
+						"tag": "Demostración"
+					},
+					{
+						"tag": "Faith"
+					},
+					{
+						"tag": "Fe"
+					},
+					{
+						"tag": "Intelección"
+					},
+					{
+						"tag": "Intellection"
+					},
+					{
+						"tag": "Razón"
+					},
+					{
+						"tag": "Reason"
+					},
+					{
+						"tag": "Voluntad"
+					},
+					{
+						"tag": "Will"
+					}
+				],
+				"notes": [
+					{
+						"note": "abs:Esta comunicación intenta exponer algunas de las actividades del pensamiento humano que muestran el vínculo que mantiene unida la razón con la fe, concluyendo que la fe es algo necesario para la razón. En efecto, siguiendo algunas de las enseñanzas de Aristóteles, san Agustín y santo Tomás de Aquino, se muestra cómo la razón lleva necesariamente hasta el entendimiento, cómo el entendimiento se da necesariamente con la voluntad y, finalmente, cómo la voluntad asiente libremente en el acto de fe."
 					}
 				],
 				"seeAlso": []
