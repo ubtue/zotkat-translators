@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-29 13:47:19"
+	"lastUpdated": "2023-09-01 10:53:45"
 }
 
 /*
@@ -125,13 +125,15 @@ function getMetaData(doc, items) {
 			item.pages = info["pages"];
 			item.volume = info["volume"];
 			item.issue = info["issue"];
-			item.year = info["year"];
-			if (info["review"]) item.tag.push("RezenstionstagPica");
-			let authors = info["authors"].split(/, | and /);
-			for (let j in authors) {
-				let author = authors[j].trim();
-				item.creators.push({"firstName" : author.substring(0,author.lastIndexOf(" ")+1),
-				  "lastName" : author.substring(author.lastIndexOf(" ")), "creatorType" : "author"});
+			item.date = info["year"];
+			if (info["review"]) item.tags.push("RezenstionstagPica");
+			if (info["authors"]) {
+				let authors = info["authors"].split(/, | and /);
+				for (let j in authors) {
+					let author = authors[j].trim();
+					item.creators.push({"firstName" : author.substring(0,author.lastIndexOf(" ")+1),
+					  "lastName" : author.substring(author.lastIndexOf(" ")), "creatorType" : "author"});
+				}
 			}
 			item.ISSN = "2053-7158";
 			//item.notes.push({"note": "LF:"});
@@ -159,7 +161,7 @@ function scrape(doc, url, externalInfo) {
 			i.creators.push({"firstName" : author.substring(0,author.lastIndexOf(" ")+1),
 			  "lastName" : author.substring(author.lastIndexOf(" ")), "creatorType" : "author"});
 		}
-		i.abstract = info.innerText.match(/Abstract\s*([^\n]+)\n/)[1].trim();
+		i.abstractNote = info.innerText.match(/Abstract\s*([^\n]+)\n/)[1].trim();
 		let tags = info.innerText.match(/Keywords?\s*([^\n]+)\n/)[1].split("; ");
 		for (let j in tags) {
 			i.tags.push(tags[j]);
@@ -170,7 +172,7 @@ function scrape(doc, url, externalInfo) {
 			i.pages = externalInfo["pages"];
 			i.volume = externalInfo["volume"];
 			i.issue = externalInfo["issue"];
-			i.year = externalInfo["year"];
+			i.date = externalInfo["year"];
 			if (externalInfo["review"]) i.tag.push("RezenstionstagPica");
 			if (!i.creators) {
 				let authors = info["authors"].split(/, | and /);
@@ -208,6 +210,7 @@ var testCases = [
 					}
 				],
 				"ISSN": "2053-7158",
+				"abstractNote": "The medium of almanacs and prognostication literature has, since at least the fourteenth century, occupied a relevant position within the Portuguese letters, reaching its apex during the extremely troubled nineteenth century, with women at this time stepping out of the literary shadows and taking to this medium as almanac correspondents, directors, and owners. Associated with this moment is also the emergence of occult- and magic-themed almanacs, arising from the overlap of Portuguese prognostication literature and the Books of Saint Cyprian, nineteenth-century grimoires with long-reaching early modern roots.",
 				"language": "en-GB",
 				"libraryCatalog": "correspondencesjournal.com",
 				"url": "https://correspondencesjournal.com/21601-2/",
@@ -252,6 +255,7 @@ var testCases = [
 					}
 				],
 				"ISSN": "2053-7158",
+				"abstractNote": "Occultism in late-Victorian Britain was a manly endeavour, the feminisation of its discourse and structures not occurring until after 1900. Organisations were modelled on gentlemen’s clubs and promoted a masculine ideal based on erudition, honour, willpower and rationality. Yet this ideal was contradictory and unstable. A strong association existed in the public mind between psychic receptiveness and feminine passivity; this, combined with perceptions of the (male) scholar as effete and reclusive, the era’s turbulent gender politics, and esotericism’s heterodox beliefs, all served to undermine occult manhood. This paper argues that its hegemony was buttressed by the Hermetic Brotherhood of Luxor (H. B. of L.), a short-lived yet influential organisation of sex magic, co-founded in 1884 in Northeast Scotland by Peter Davidson. Utilising the approaches of microhistory and biography and drawing on the concepts of “cultural circuits,” “hegemonic masculinity” and “hybridisation,” it asserts that the Brotherhood reconfigured occult masculinity as practical and progressive by co-opting aspects from scientific manhood and feminist campaigns. Ultimately, however, it failed to fundamentally challenge hierarchies of gender, class, race, and sexuality and instead constitutes an example of “hybrid masculinity,” whereby superficial accommodations ensure the hegemonic ideal’s continued dominance. While this new model of manhood endured, the H. B. of L. collapsed in 1886, a result not of its transgressive teachings but the exposure of its secretary’s prior conviction for fraud. While sexual deviance was tacitly permitted in the occult networks of the fin-de-siècle, criminality and its working-class associations were not.",
 				"language": "en-GB",
 				"libraryCatalog": "correspondencesjournal.com",
 				"shortTitle": "Hybrid Masculinity and the H. B. of L.",
