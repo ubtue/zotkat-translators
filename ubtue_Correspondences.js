@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-09-01 10:53:45"
+	"lastUpdated": "2023-09-01 12:41:06"
 }
 
 /*
@@ -126,7 +126,7 @@ function getMetaData(doc, items) {
 			item.volume = info["volume"];
 			item.issue = info["issue"];
 			item.date = info["year"];
-			if (info["review"]) item.tags.push("RezenstionstagPica");
+			if (info["review"]) item.tags.push("RezensionstagPica");
 			if (info["authors"]) {
 				let authors = info["authors"].split(/, | and /);
 				for (let j in authors) {
@@ -173,7 +173,7 @@ function scrape(doc, url, externalInfo) {
 			i.volume = externalInfo["volume"];
 			i.issue = externalInfo["issue"];
 			i.date = externalInfo["year"];
-			if (externalInfo["review"]) i.tag.push("RezenstionstagPica");
+			if (externalInfo["review"]) i.tag.push("RezensionstagPica");
 			if (!i.creators) {
 				let authors = info["authors"].split(/, | and /);
 				for (let j in authors) {
