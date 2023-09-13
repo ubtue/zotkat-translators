@@ -2,14 +2,14 @@
 	"translatorID": "09d633df-db68-4791-b557-6c9042d7f140",
 	"label": "ubtue_cesnur.info",
 	"creator": "Helena Nebel",
-	"target": "cesnur\\.net\\/(archives|supplements)\\/",
+	"target": "cesnur\\.net\\/(archives|supplements|current-issue)\\/",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-11-30 15:35:43"
+	"lastUpdated": "2023-09-13 12:19:51"
 }
 
 /*
@@ -514,6 +514,12 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://cesnur.net/current-issue/",
+		"detectedItemType": "multiple",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
