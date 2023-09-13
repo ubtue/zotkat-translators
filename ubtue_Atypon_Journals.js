@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-23 12:58:47"
+	"lastUpdated": "2023-09-13 08:43:34"
 }
 
 /*
@@ -444,6 +444,7 @@ function scrape(doc, url, extras) {
 				if (item.pages && item.pages.includes("-")) item.pages = item.pages.trim().replace(/^([^-]+)-\1$/, '$1');
 				if (!item.language) item.language = "eng"; //set a default language
 				if (extras.ISSN) item.ISSN = extras.ISSN;
+				if (item.publicationTitle == "The Australasian Catholic Record") item.ISSN = "0727-3215"; 
 				item.attachments=[];
 
 				item.complete();
@@ -1259,6 +1260,7 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://search.informit.org/doi/10.3316/informit.815447686114521",
+		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -1272,6 +1274,7 @@ var testCases = [
 				],
 				"date": "2022-10",
 				"DOI": "10.3316/informit.815447686114521",
+				"ISSN": "0727-3215",
 				"abstractNote": "Review(s) of: Then and now: Australian catholic experiences, by Edmund Campion, (Adelaide: ATF Theology, 2021), pp. 178, paperback, $29.95.",
 				"issue": "4",
 				"language": "eng",

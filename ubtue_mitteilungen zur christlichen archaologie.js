@@ -1,7 +1,7 @@
 {
 	"translatorID": "fdaaaf73-eed1-4aa8-bb44-c8b89d5d413e",
 	"label": "ubtue_mitteilungen zur christlichen archäologie",
-	"creator": "",
+	"creator": "Timotheus Kim",
 	"target": "https?://www.austriaca.at",
 	"minVersion": "5.0",
 	"maxVersion": "",
@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-09-01 14:16:59"
+	"lastUpdated": "2023-09-01 14:18:36"
 }
 
 /*
