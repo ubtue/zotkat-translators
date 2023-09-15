@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-09-15 07:52:37"
+	"lastUpdated": "2023-09-15 08:46:42"
 }
 
 /*
@@ -151,12 +151,9 @@ function complementItem(doc, item) {
 		if (!item.journalAbbreviation || item.publicationTitle == item.journalAbbreviation) {
 			item.journalAbbreviation = ZU.xpathText(doc, '//meta[@name="citation_journal_abbrev"]/@content');
 		}
-		let oa_desc = ZU.xpathText(doc, '//span[@data-test="open-access"]');
+		let oa_desc = ZU.xpathText(doc, '//span[@data-test="open-access"]') ? ZU.xpathText(doc, '//span[@data-test="open-access"]') : ZU.xpathText(doc, '//a[@class="u-color-open-access"]');
 		if (oa_desc && oa_desc.match(/open access/i))
 			item.notes.push({note: 'LF:'});
-		if (ZU.xpathText(doc, '//li[@class="c-article-identifiers__item"]/a') && ZU.xpathText(doc, '//li[@class="c-article-identifiers__item"]/a').includes("Open Access")) {
-			item.notes.push({note: 'LF:'});
-		}
 	}
 
 	
