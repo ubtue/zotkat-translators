@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-27 14:00:25"
+	"lastUpdated": "2023-11-08 09:57:49"
 }
 
 /*
@@ -73,8 +73,8 @@ function extractIssueAndYearFromURL(item, url) {
 		item.date = url.match(/\/[^\/]+-(\d{4})\/[^\/]+-\d{4}\//)[1];
 	}
 	else if (url.match(/\/(\d+)-\d{4}\//)) {
-	item.issue = url.match(/\/(\d+)-\d{4}\//)[1];
-	item.date = url.match(/\/\d+-(\d{4})\//)[1];
+		item.issue = url.match(/\/(\d+)-\d{4}\//)[1];
+		item.date = url.match(/\/\d+-(\d{4})\//)[1];
 	}
 	else if (url.match(/(\d{4})\//)) {
 		item.date = url.match(/(\d{4})\//)[0];
@@ -112,14 +112,13 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			for (let author of extractAuthors(doc))
 				item.creators.push(ZU.cleanAuthor(author.replace(/prof\b|dr\b/gi, ''), "authors"));
 		}
-		extractIssueAndYearFromURL(item, url);
 		let itemAbstract = doc.querySelector('#base_0_area1main_0_aZusammenfassung');
 		if(itemAbstract) item.abstractNote = itemAbstract.textContent;
 		if (item.abstractNote != null) {
 			item.abstractNote = item.abstractNote.replace(/(?:Zusammenfassung\s*\/\s*(?:Summary|Abstract)(?:\n\s*)*)|\n/g, "");
 		}
 		item.pages = extractPages(doc);
-		let publicationTitle = ZU.xpathText(doc, '//*[(@id = "ctl02_imgLogo")]/@alt');
+		let publicationTitle = JSON.parse(text(doc, '#main script[type="application/ld+json"]')).itemListElement[0].name;
 		if (publicationTitle) item.publicationTitle = publicationTitle;
 		let pageTitle = ZU.xpathText(doc, '//title').trim().replace(/\s+/g, ' ');
 		if (pageTitle.match(/^Buchrezension/))
@@ -136,6 +135,7 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 				}
 			}
 		}
+		extractIssueAndYearFromURL(item, url);
 		if (item.publicationTitle == "Biblische Notizen") {
 			item.ISSN = "2628-5762";
 			item.volume = item.issue;
@@ -160,6 +160,7 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 				}
 			}
 		}
+		
 		item.attachments = [];
 		item.complete();
 	});
@@ -410,6 +411,36 @@ var testCases = [
 				"shortTitle": "Verpasste Chance oder erkennbarer Fortschritt?",
 				"url": "https://www.herder.de/hk/hefte/archiv/2023/6-2023/verpasste-chance-oder-erkennbarer-fortschritt-das-neue-kirchliche-vermoegensverwaltungsgesetz-in-nordrhein-westfalen/",
 				"volume": "77",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.herder.de/bn-nf/hefte/archiv/2022/192-2022/hau-ab-glatzkopf-bemerkungen-zu-drei-literarischen-analysen-von-2koenige-223-25/",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "„Hau ab, Glatzkopf!“ Bemerkungen zu drei literarischen Analysen von 2Könige 2,23-25",
+				"creators": [
+					{
+						"firstName": "Uwe F. W.",
+						"lastName": "Bauer",
+						"creatorType": "authors"
+					}
+				],
+				"date": "2022",
+				"ISSN": "2628-5762",
+				"abstractNote": "2Kön 2,23-25 ist eine fiktionale Wundergeschichte. Das Wunder besteht darin, dass Elischa als Mann Gottes durch einen Fluch bewirkt, dass zwei Bärinnen auftauchen und 42 Kinder reißen. Die kleinen Jungen, die aus Jericho kommen, verspotten Elischa, der überreagiert und anschließend bestürzt ist. So wird dessen Charakter als zwiespältig dargestellt und vielleicht auch zur Vorsicht im Umgang mit Männern Gottes gemahnt.",
+				"language": "de",
+				"libraryCatalog": "www.herder.de",
+				"pages": "56-67",
+				"publicationTitle": "Biblische Notizen",
+				"url": "https://www.herder.de/bn-nf/hefte/archiv/2022/192-2022/hau-ab-glatzkopf-bemerkungen-zu-drei-literarischen-analysen-von-2koenige-223-25/",
+				"volume": "192",
 				"attachments": [],
 				"tags": [],
 				"notes": [],
