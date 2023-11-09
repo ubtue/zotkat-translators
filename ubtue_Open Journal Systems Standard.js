@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-30 15:33:29"
+	"lastUpdated": "2023-11-09 15:27:17"
 }
 
 /*
@@ -126,6 +126,7 @@ function invokeEMTranslator(doc) {
 		let orcidAuthorEntryCaseD = doc.querySelectorAll('.authorBio');//Z.debug(orcidAuthorEntryCaseC)
 		let orcidAuthorEntryCaseE = ZU.xpath(doc, '//div[@class="list-group-item date-published"]');
 		let orcidAuthorEntryCaseF = doc.querySelectorAll('.article-main');
+		let orcidAuthorEntryCaseG = doc.querySelectorAll('.authors_info');//Z.debug(orcidAuthorEntryCaseG)
   		//AuthorEntryCaseA && childNodes[0]
   		if (orcidAuthorEntryCaseA && ['2653-1372', '2627-6062', '0718-4727', '1983-2850'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
@@ -180,16 +181,15 @@ function invokeEMTranslator(doc) {
 		
 
 		//e.g. https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/42867
-		   if (orcidAuthorEntryCaseA && ['2174-0887'].includes(i.ISSN)) {
-			   let allORCIDs = [];
+		if (orcidAuthorEntryCaseA && ['2174-0887'].includes(i.ISSN)) {
+			let allORCIDs = [];
   			for (let a of orcidAuthorEntryCaseA) {
-
 				let name = ZU.xpathText(a, './/strong');
 				let orcid = ZU.xpathText(a, './/a[contains(@href, "orcid.org")]/@href');
 				if (!allORCIDs.includes(orcid) && orcid != null) i.notes.push({note: "orcid:" + orcid.replace(/https?:\/\/orcid\.org\//g, '') + ' | ' + ZU.trimInternal(name) + ' | ' + 'taken from website'});
 				allORCIDs.push(orcid);
   			}
-  		 }
+  		}
 
   		
   		 //e.g. https://journal.equinoxpub.com/JSRNC/article/view/19606
@@ -245,7 +245,14 @@ function invokeEMTranslator(doc) {
 					if (orcid) i.notes.push({note: orcid.replace(/https?:\/\/orcid\.org\//g, 'orcid:') + ' | ' + ZU.trimInternal(name) + ' | ' + 'taken from website'});
 			}
 		}
-
+		//e.g. https://ztp.jesuiten.org/index.php/ZTP/article/view/4074
+		if (orcidAuthorEntryCaseG) {
+			for (let g of orcidAuthorEntryCaseG) {
+				let author = ZU.trimInternal(g.innerText);
+				let orcid = ZU.trimInternal(g.innerHTML).match(/\d+-\d+-\d+-\d+x?/gi);
+				i.notes.push({note: "orcid:" + orcid + ' | ' + author + ' | ' + 'taken from website'});
+			}
+		}
 
  		//clean pages e.g. pages": "6.-6." > 10.25786/cjbk.v0i01-02.631; or "pages": "01-07" > 10.25786/zfbeg.v0i01-02.793
  		if (i.pages != null) i.pages = i.pages.replace('S.', '').replace(/\./g, '').replace(/^([^-]+)-\1$/, '$1').replace(/^0/g, '').replace(/-0/g, '-').replace('â€“', '-');
@@ -3121,6 +3128,59 @@ var testCases = [
 				"notes": [
 					{
 						"note": "abs:Esta comunicación intenta exponer algunas de las actividades del pensamiento humano que muestran el vínculo que mantiene unida la razón con la fe, concluyendo que la fe es algo necesario para la razón. En efecto, siguiendo algunas de las enseñanzas de Aristóteles, san Agustín y santo Tomás de Aquino, se muestra cómo la razón lleva necesariamente hasta el entendimiento, cómo el entendimiento se da necesariamente con la voluntad y, finalmente, cómo la voluntad asiente libremente en el acto de fe."
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://ztp.jesuiten.org/index.php/ZTP/article/view/4074",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Von der Moral zur Ethik. Eine Neuperspektivierung der Debatte um Jürgen Habermas’ Kritik der kantischen Religionsphilosophie",
+				"creators": [
+					{
+						"firstName": "Benedikt",
+						"lastName": "Rediker",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023/09/01",
+				"DOI": "10.35070/ztp.v145i3.4074",
+				"ISSN": "2709-8435",
+				"abstractNote": "Jürgen Habermas’ critique of Kant’s philosophy of religion has been controversially discussed, especially from a theological perspective. Above all, Habermas’ critique poses a great challenge for approaches to practical metaphysics after Kant. By re-examining the debate around Habermas’ critique of Kant, this article attempts to develop a moderate defense of such projects, which at the same time remains committed to the methodological approach of discourse theory. The aim is to show that Habermasʼ direct criticism of Kant’s doctrine of postulates can be refuted, but that his fundamental skepticism about locating practical faith within the moral sphere is justified from a discourse-theoretical perspective. This is so, because considering a discourse-theoretical moral theory, it can no longer be located within morality, but only within the sphere of ethics. This relocation of Kant’s doctrine of postulates within the sphere of ethics comes along with a relativisation of its rather strong rational justification claim, a fact that has important consequences for the theological project of a practical metaphysics after Kant.\\n4207 Jürgen Habermas’ Kritik der kantischen Religionsphilosophie ist besonders von theologischer Seite kontrovers diskutiert worden. Vor allem für Ansätze einer praktischen Metaphysik nach Kant stellt sie eine große Herausforderung dar. Die Abhandlung versucht, durch eine Neuperspektivierung der Debatte um Habermas’ Kant-Kritik eine moderate Verteidigung derartiger Vorhaben zu entwickeln, die zugleich diskurstheoretischen Denkbedingungen verpflichtet bleibt. Dabei soll gezeigt werden, dass Habermas’ direkte Kritik an Kants Postulatenlehre entkräftet werden kann, seine grundsätzliche Skepsis gegenüber einer Verortung derselben innerhalb der Moral aus einer diskurstheoretischen Perspektive jedoch gerechtfertigt ist. Denn vor dem Hintergrund einer diskurstheoretischen Moraltheorie kann diese nicht mehr länger in der Moral, sondern nur noch innerhalb der Sphäre der Ethik verortet werden. Diese Neuverortung geht jedoch einher mit einer Relativierung des von Kant vertretenen starken Begründungsanspruchs des praktischen Vernunftglaubens, was auch für das theologische Projekt einer praktischen Metaphysik nach Kant wichtige Konsequenzen hat.",
+				"issue": "3",
+				"journalAbbreviation": "ZTP",
+				"language": "de",
+				"libraryCatalog": "ztp.jesuiten.org",
+				"publicationTitle": "Zeitschrift für Theologie und Philosophie",
+				"rights": "Copyright (c) 2023 Zeitschrift für Theologie und Philosophie",
+				"url": "https://ztp.jesuiten.org/ZTP/article/view/4074",
+				"volume": "145",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Immanuel Kant"
+					},
+					{
+						"tag": "Jürgen Habermas"
+					},
+					{
+						"tag": "Moral/Ethik-Unterscheidung"
+					},
+					{
+						"tag": "Religionsphilosophie"
+					},
+					{
+						"tag": "praktische Metaphysik"
+					}
+				],
+				"notes": [
+					{
+						"note": "orcid:0000-0001-7664-4337 | Benedikt Rediker | taken from website"
 					}
 				],
 				"seeAlso": []
