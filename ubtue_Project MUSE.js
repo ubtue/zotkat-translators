@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-05 13:30:15"
+	"lastUpdated": "2023-11-09 16:17:52"
 }
 
 /*
@@ -94,12 +94,18 @@ function scrape(doc) {
 		if (doiEntry.includes('doi:')) {
 			var doi = doiEntry.split('doi:')[1].replace(/.$/, '');
 		}
+		let citationDOI = ZU.xpathText(doc, '//meta[@name="citation_doi"]/@content');
 		// RIS translator
 		var translator = Zotero.loadTranslator("import");
 		translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
 		translator.setString(risEntry);
 		translator.setHandler("itemDone", function (obj, item) {
-			if (doi) item.DOI = doi;
+			if (doi) {
+				item.DOI = doi;
+			} else {
+				item.DOI = citationDOI;
+			}
+
 			let abstract = ZU.xpathText(doc, '//div[@class="abstract"][1]/p');
 			if (!abstract) abstract = ZU.xpathText(doc, '//div[@class="description"][1]');
 			if (!abstract) abstract = ZU.xpathText(doc, '//div[contains(@class, "card_summary") and contains(@class, "no_border")]');
@@ -131,7 +137,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://muse.jhu.edu/article/200965",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -161,7 +166,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://muse.jhu.edu/issue/597",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
@@ -197,7 +201,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://muse.jhu.edu/article/530509",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -230,7 +233,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://muse.jhu.edu/article/551992",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -262,7 +264,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://muse.jhu.edu/article/762340",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -295,13 +296,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://muse.jhu.edu/issue/44583",
-		"detectedItemType": "multiple",
 		"items": "multiple"
 	},
 	{
 		"type": "web",
 		"url": "https://muse.jhu.edu/article/795002",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -337,7 +336,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://muse.jhu.edu/article/835551",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -350,6 +348,7 @@ var testCases = [
 					}
 				],
 				"date": "2021",
+				"DOI": "10.1353/chy.2021.0043",
 				"ISSN": "2056-5666",
 				"issue": "3",
 				"libraryCatalog": "ubtue_Project MUSE",
@@ -372,7 +371,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://muse.jhu.edu/article/837425",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -407,7 +405,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://muse.jhu.edu/article/837448",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -432,7 +429,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://muse.jhu.edu/pub/156/article/879119",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -458,6 +454,11 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://muse.jhu.edu/issue/49390",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
