@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-11-09 15:27:17"
+	"lastUpdated": "2023-11-09 15:33:48"
 }
 
 /*
@@ -140,7 +140,7 @@ function invokeEMTranslator(doc) {
   			}
   		 }
 		//AuthorEntryCaseA && childNodes[1]
-		if (orcidAuthorEntryCaseA && ['2617-1953'].includes(i.ISSN)) {
+		if (orcidAuthorEntryCaseA && ['2617-1953', '2182-8822'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
 				let orcidTag = a.querySelector('.orcid');//Z.debug(orcidTag)
 				let authorTag = a.querySelector('.author');//Z.debug(authorTag)
@@ -3181,6 +3181,43 @@ var testCases = [
 				"notes": [
 					{
 						"note": "orcid:0000-0001-7664-4337 | Benedikt Rediker | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://revistas.ucp.pt/index.php/lusitaniasacra/article/view/12990",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "CHAVES, Duarte Nuno, coord. – Conventos franciscanos nos Açores do século XXI. Memórias da Província de S. João Evangelista",
+				"creators": [
+					{
+						"firstName": "António Montes",
+						"lastName": "Moreira",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023/06/02",
+				"DOI": "10.34632/lusitaniasacra.2023.12990",
+				"ISSN": "2182-8822",
+				"abstractNote": "Este portal disponibiliza revistas científicas publicadas pelos Centros de Investigação e Unidades de Ensino da Universidade Católica Portuguesa. Tem como objetivo aumentar a visibilidade e alcance das publicações e promover a qualidade editorial.",
+				"issue": "47",
+				"journalAbbreviation": "1",
+				"language": "pt",
+				"libraryCatalog": "revistas.ucp.pt",
+				"pages": "271-272",
+				"publicationTitle": "Lusitania Sacra",
+				"rights": "Direitos de Autor (c) 2023 António Montes Moreira",
+				"url": "https://revistas.ucp.pt/index.php/lusitaniasacra/article/view/12990",
+				"attachments": [],
+				"tags": [],
+				"notes": [
+					{
+						"note": "orcid:0000-0003-1197-7354 | António Montes Moreira | taken from website"
 					}
 				],
 				"seeAlso": []
