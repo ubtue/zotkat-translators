@@ -2,14 +2,14 @@
 	"translatorID": "236d2234-37e0-41ca-bc1f-5c515ccad0be",
 	"label": "ubtue_rivista_di_storia_e_letteratura_religiosa",
 	"creator": "Timotheus Kim",
-	"target": "https://access.torrossa.com",
+	"target": "https://www.torrossa.com",
 	"minVersion": "5.0",
 	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-11-09 08:20:46"
+	"lastUpdated": "2023-11-09 14:56:52"
 }
 
 /*
@@ -78,16 +78,18 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48');
 	translator.setDocument(doc);
 	translator.setHandler('itemDone', (_obj, item) => {
-		let authorString = ZU.xpathText(doc, '//*[(@class = "uk-article-author")]//small');
-		if (authorString) {
-			let splitName = authorString.split(',');
-			let creator = {"firstName": "", "lastName": "", "creatorType": "author"}
-			creator.firstName = splitName[1]
-			creator.lastName = splitName[0]
-			item.creators.push(creator)
+		let issn = ZU.xpathText(doc, '//meta[@name="issn"]/@content');
+		if (issn) item.ISSN = issn;
+		let volumeIssueEntry = ZU.xpathText(doc, '//meta[@name="citation_journal_title"]/@content');
+		if(volumeIssueEntry) {
+			let volumeIssueSplit = volumeIssueEntry.split(':');
+			if (volumeIssueSplit[1].includes(',')) {
+				item.volume = volumeIssueSplit[1].split(',')[0];
+				item.issue = volumeIssueSplit[1].split(',')[1];
+			}
 		}
-		item.url = item.url.replace('/de', '');
 		item.language = "it";
+		item.abstractNote = "";
 		item.complete();
 	});
 	await translator.translate();
@@ -103,6 +105,21 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://access.torrossa.com/de/resources/an/5500172",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://www.torrossa.com/de/resources/an/5563004",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://www.torrossa.com/en/resources/an/5451157",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://www.torrossa.com/en/resources/an/5474695",
 		"items": "multiple"
 	}
 ]
