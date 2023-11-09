@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-11-09 15:33:48"
+	"lastUpdated": "2023-11-09 15:47:52"
 }
 
 /*
@@ -91,7 +91,11 @@ function invokeEMTranslator(doc) {
 			i.volume = i.issue.split(/\/\d{4}/i)[0];
 			delete i.issue;
 		}
-
+		//replace issue number with volume number
+		if (['2182-8822'].includes(i.ISSN)) {
+			i.volume = i.issue;
+			delete i.issue;
+		}
 		if (i.volume == undefined) i.volume = ZU.xpathText(doc, '//meta[@name="DC.Source.Volume"]/@content');
 		if (i.pages == undefined) i.pages = ZU.xpathText(doc, '//meta[@name="DC.Identifier.Pagenumber"]/@content');
 		if (i.DOI == undefined) i.DOI = ZU.xpathText(doc, '//meta[@name="DC.Identifier.DOI"]/@content');
@@ -142,11 +146,11 @@ function invokeEMTranslator(doc) {
 		//AuthorEntryCaseA && childNodes[1]
 		if (orcidAuthorEntryCaseA && ['2617-1953', '2182-8822'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
-				let orcidTag = a.querySelector('.orcid');//Z.debug(orcidTag)
+				let orcidTag = a.querySelector('.orcid');//Z.debug(orcidTag.innerText)
 				let authorTag = a.querySelector('.author');//Z.debug(authorTag)
 				if (orcidTag && authorTag) {
 					let author = ZU.trimInternal(authorTag.childNodes[1].textContent);//Z.debug(author)
-					let orcid = ZU.trimInternal(orcidTag.innerText.replace(/.*(\d{4}-\d{4}-\d{4}-\d+x?)/i, '$1'));//Z.debug(orcid)
+					let orcid = ZU.trimInternal(orcidTag.innerText.match(/\d+-\d+-\d+-\d+x?/gi)[0]);//Z.debug(orcid)
 					i.notes.push({note: "orcid:" + orcid + ' | ' + author + ' | ' + 'taken from website'});
 				}
   			}
