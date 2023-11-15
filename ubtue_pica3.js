@@ -9,7 +9,7 @@
         "inRepository": true,
         "translatorType": 2,
         "browserSupport": "gcs",
-        "lastUpdated": "2023-11-15 13:10:00"
+        "lastUpdated": "2023-11-15 16:10:00"
 }
 
 // Zotero Export Translator in Pica3 Format für das Einzeln- und Mulitiupload in WinIBW
@@ -619,7 +619,7 @@ function performExport() {
                             }
 							else if (institution_retrieve_sign == "ubzo") {
                                 if (threadParams["authorName"].match(/^\d+/)) {
-                                addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', "!" + threadParams["authorName"] + "!" + "$BVerfasserIn$4aut" + "\\n8910 $aixzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet\\n");
+                                addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', "!" + threadParams["authorName"] + "!" + "$BVerfasserIn$4aut" + "\\n8910 $aubzom$bAutor in der Zoterovorlage ["  + threadParams["authorName"] + "] maschinell zugeordnet\\n");
                                 }
                                 else if(threadParams["authorName"].match(/^\w+/)) {
                                 addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', threadParams["authorName"]  + "$BVerfasserIn$4aut"); 
@@ -867,7 +867,7 @@ function performExport() {
             if (SsgField === "1" || SsgField === "0" || SsgField === "0$a1" || SsgField === "2,1") { 
                 addLine(currentItemId, "\\n5056", SsgField);
             } 
-            else if (SsgField == "NABZ") {
+            else if (SsgField == "NABZ" || SsgField === "ubzo") {
                 addLine(currentItemId, "\\n5056", '');
             }
             else {
