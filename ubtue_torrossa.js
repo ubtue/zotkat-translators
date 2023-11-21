@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-11-21 14:39:30"
+	"lastUpdated": "2023-11-21 14:47:09"
 }
 
 /*
@@ -84,7 +84,12 @@ async function scrape(doc, url = doc.location.href) {
 		if (volumeIssueEntry) {
 			let volumeIssueSplit = volumeIssueEntry.split(':');
 			if (volumeIssueSplit[1].includes(',')) {
-				item.volume = convert2arabic(volumeIssueSplit[1].split(',')[0]);
+				let volume = volumeIssueSplit[1].split(',')[0];
+				if (volume.match(/\d/g)) {
+					item.volume = volume;
+				} else {
+					item.volume = convert2arabic(volumeIssueSplit[1].split(',')[0]);
+				}
 				item.issue = volumeIssueSplit[1].split(',')[1];
 			}
 		}
@@ -186,6 +191,11 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.torrossa.com/en/resources/an/5474695",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://www.torrossa.com/de/resources/an/4757977",
 		"items": "multiple"
 	}
 ]
