@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-11-09 15:47:52"
+	"lastUpdated": "2023-11-21 10:42:27"
 }
 
 /*
@@ -185,7 +185,7 @@ function invokeEMTranslator(doc) {
 		
 
 		//e.g. https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/42867
-		if (orcidAuthorEntryCaseA && ['2174-0887'].includes(i.ISSN)) {
+		if (orcidAuthorEntryCaseA && ['2174-0887', '2254-6227'].includes(i.ISSN)) {
 			let allORCIDs = [];
   			for (let a of orcidAuthorEntryCaseA) {
 				let name = ZU.xpathText(a, './/strong');
@@ -601,6 +601,11 @@ function invokeEMTranslator(doc) {
 			//extract item.volume and item.issue if ojs provides z3988 metadata e.g.1660-5578
 			let z3988Entries = ZU.xpathText(doc, '//span[@class="Z3988"]/@title');
 			extractVolumeIssueFromZ3988(doc, i, z3988Entries);
+			//replace issue number with volume number and delete issue number from function extractVolumeIssueFromZ3988
+			if (['2699-3406'].includes(i.ISSN)) {
+				i.volume = i.issue;
+				delete i.issue;
+			}
 		}
 		if (i.tags[1] == undefined && ZU.xpath(doc, '//section[@class="item keywords"]')[0]
 		&& ZU.xpath(doc, '//section[@class="item keywords"]')[0]["textContent"]) {
