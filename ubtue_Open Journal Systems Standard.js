@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-11-21 10:42:27"
+	"lastUpdated": "2023-11-22 15:37:42"
 }
 
 /*
@@ -82,7 +82,7 @@ function invokeEMTranslator(doc) {
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
-
+		
 		if (i.ISSN == undefined) i.ISSN = ZU.xpathText(doc, '//meta[@name="DC.Source.ISSN"]/@content');
 		if (i.ISSN == undefined && i.url.match(/\/godsandmonsters\//) != null) i.ISSN = "IXTH-0001";
 		if (i.ISSN == undefined) i.issue = ZU.xpathText(doc, '//meta[@name="DC.Source.Issue"]/@content');
@@ -618,6 +618,9 @@ function invokeEMTranslator(doc) {
 			} 
 		}
 		i.tags = [...new Set(i.tags.map(x => x))]
+		// only for https://jps.library.utoronto.ca/index.php/renref/article/view/41731"
+		let authors = ZU.xpath(doc, '//meta[@name="DC.Creator.PersonalName"]/@content');
+		if (authors) i.creators = authors.map(function(x) { return ZU.cleanAuthor(x.textContent, 'author'); })
 		i.complete();
 	});
 	translator.translate();
@@ -2712,7 +2715,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/27839",
+		"url": "https://periodicos.pucminas.br/index.php/horizonte/article/view/27839",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2721,11 +2724,6 @@ var testCases = [
 					{
 						"firstName": "Luiz",
 						"lastName": "Vadico",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Maurício",
-						"lastName": "Monteiro",
 						"creatorType": "author"
 					}
 				],
@@ -2739,7 +2737,7 @@ var testCases = [
 				"libraryCatalog": "periodicos.pucminas.br",
 				"publicationTitle": "HORIZONTE - Revista de Estudos de Teologia e Ciências da Religião",
 				"rights": "Copyright (c) 2023 HORIZONTE - Revista de Estudos de Teologia e Ciências da Religião",
-				"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/27839",
+				"url": "https://periodicos.pucminas.br/index.php/horizonte/article/view/27839",
 				"volume": "20",
 				"attachments": [],
 				"tags": [
@@ -2836,7 +2834,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/30378",
+		"url": "https://periodicos.pucminas.br/index.php/horizonte/article/view/30378",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2858,7 +2856,7 @@ var testCases = [
 				"libraryCatalog": "periodicos.pucminas.br",
 				"publicationTitle": "HORIZONTE - Revista de Estudos de Teologia e Ciências da Religião",
 				"rights": "Copyright (c) 2023 HORIZONTE - Revista de Estudos de Teologia e Ciências da Religião",
-				"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/30378",
+				"url": "https://periodicos.pucminas.br/index.php/horizonte/article/view/30378",
 				"volume": "20",
 				"attachments": [],
 				"tags": [
@@ -2881,7 +2879,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/27922",
+		"url": "https://periodicos.pucminas.br/index.php/horizonte/article/view/27922",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2909,7 +2907,7 @@ var testCases = [
 				"publicationTitle": "HORIZONTE - Revista de Estudos de Teologia e Ciências da Religião",
 				"rights": "Copyright (c) 2023 HORIZONTE - Journal of Studies in Theology and Religious Sciences",
 				"shortTitle": "Opening a hermeneutic space for spiritual care practices",
-				"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/27922",
+				"url": "https://periodicos.pucminas.br/index.php/horizonte/article/view/27922",
 				"volume": "20",
 				"attachments": [],
 				"tags": [
@@ -2972,13 +2970,13 @@ var testCases = [
 						"tag": "Ejercicios Espirituales"
 					},
 					{
+						"tag": "Principio y Fundamento"
+					},
+					{
 						"tag": "Principio y Fundamento "
 					},
 					{
-						"tag": "Principio y Fundamento means"
-					},
-					{
-						"tag": "Principle and Foundation"
+						"tag": "Principle and Foundation medios"
 					},
 					{
 						"tag": "Spiritual Exercises"
@@ -2991,6 +2989,9 @@ var testCases = [
 					},
 					{
 						"tag": "indifference"
+					},
+					{
+						"tag": "means"
 					},
 					{
 						"tag": "medios"
@@ -3010,7 +3011,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/27922",
+		"url": "https://periodicos.pucminas.br/index.php/horizonte/article/view/27922",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -3038,7 +3039,7 @@ var testCases = [
 				"publicationTitle": "HORIZONTE - Revista de Estudos de Teologia e Ciências da Religião",
 				"rights": "Copyright (c) 2023 HORIZONTE - Journal of Studies in Theology and Religious Sciences",
 				"shortTitle": "Opening a hermeneutic space for spiritual care practices",
-				"url": "http://periodicos.pucminas.br/index.php/horizonte/article/view/27922",
+				"url": "https://periodicos.pucminas.br/index.php/horizonte/article/view/27922",
 				"volume": "20",
 				"attachments": [],
 				"tags": [
@@ -3214,7 +3215,6 @@ var testCases = [
 				"DOI": "10.34632/lusitaniasacra.2023.12990",
 				"ISSN": "2182-8822",
 				"abstractNote": "Este portal disponibiliza revistas científicas publicadas pelos Centros de Investigação e Unidades de Ensino da Universidade Católica Portuguesa. Tem como objetivo aumentar a visibilidade e alcance das publicações e promover a qualidade editorial.",
-				"issue": "47",
 				"journalAbbreviation": "1",
 				"language": "pt",
 				"libraryCatalog": "revistas.ucp.pt",
@@ -3222,6 +3222,7 @@ var testCases = [
 				"publicationTitle": "Lusitania Sacra",
 				"rights": "Direitos de Autor (c) 2023 António Montes Moreira",
 				"url": "https://revistas.ucp.pt/index.php/lusitaniasacra/article/view/12990",
+				"volume": "47",
 				"attachments": [],
 				"tags": [],
 				"notes": [
@@ -3229,6 +3230,59 @@ var testCases = [
 						"note": "orcid:0000-0003-1197-7354 | António Montes Moreira | taken from website"
 					}
 				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://jps.library.utoronto.ca/index.php/renref/article/view/41731",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Les communautés protestantes en France : représentations, symboles et mimésis | Renaissance and Reformation",
+				"creators": [
+					{
+						"firstName": "Lorenzo Comensoli",
+						"lastName": "Antonini",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Paul-Alexis",
+						"lastName": "Mellet",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023",
+				"DOI": "10.33137/rr.v46i1.41731",
+				"ISSN": "2293-7374",
+				"abstractNote": "The identity of French Protestant communities during the sixteenth and seventeenth centuries may be defined above all as a communion of faith. On its own, however, this is not a sufficient criterion : an anthropological point of view interrogating the reflexive aspect of these communities, that is, the way they represented themselves, can further help us to trace the symbolic relations that allowed them to maintain their cohesion (unity in diversity). Moreover, during the Wars of Religion and later the “intolerant tolerance” inaugurated by the Edict of Nantes, representations of French Protestants evolved in response to the monarchy and changes in its attitude towards them, up until the revocation of the Edict in 1685.\n \n , L’identité des communautés protestantes françaises, entre XVIe et XVIIe siècles, se définit d’abord par une communion de foi. Ce critère, cependant, ne suffit pas : une approche anthropologique interrogeant la dimension réfléchie des communautés, c’est-à-dire les représentations qu’elles ont d’elles-mêmes, permet de retracer les liens symboliques qui produisent leur cohésion (unité du multiple). Or, pendant les guerres de Religion puis face à la « tolérance dans l’intolérance » inaugurée par l’édit de Nantes, les représentations des protestants français évoluent par rapport au pouvoir monarchique et à ses changements d’attitude à leur égard, arrivant jusqu’à la Révocation de 1685.",
+				"issue": "1",
+				"language": "en-US",
+				"libraryCatalog": "jps.library.utoronto.ca",
+				"pages": "9-26",
+				"shortTitle": "Les communautés protestantes en France",
+				"url": "https://jps.library.utoronto.ca/index.php/renref/article/view/41731",
+				"volume": "46",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Communauté"
+					},
+					{
+						"tag": "Huguenots"
+					},
+					{
+						"tag": "Identité"
+					},
+					{
+						"tag": "Mimésis"
+					},
+					{
+						"tag": "Représentation politique"
+					}
+				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
