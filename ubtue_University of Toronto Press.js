@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-03-31 14:53:46"
+	"lastUpdated": "2023-11-22 08:53:24"
 }
 
 /*
@@ -102,6 +102,7 @@ function mapTitleIssn(OutputFromPubicationTitle) {
 	let publicationTitleToIssn = {
 	'The Journal of Religion and Popular Culture' : '1703-289X',
 	'Toronto Journal of Theology' : '1918-6371',
+	'Canadian Journal of Criminology and Criminal Justice' : '1707-7753',
 	}
 	issn = publicationTitleToIssn[OutputFromPubicationTitle];
 	return issn;
@@ -161,7 +162,7 @@ var testCases = [
 				"publicationTitle": "Toronto Journal of Theology",
 				"rights": "Toronto Institute of Theology 2019",
 				"shortTitle": "Quantum Mechanics and Salvation",
-				"url": "https://utpjournals.press/doi/full/10.3138/tjt-2020-0003",
+				"url": "https://utpjournals.press/doi/10.3138/tjt-2020-0003",
 				"volume": "36",
 				"attachments": [
 					{
@@ -222,7 +223,7 @@ var testCases = [
 				"publicationTitle": "The Journal of Religion and Popular Culture",
 				"rights": "© University of Toronto Press",
 				"shortTitle": "A Shift in Mithya",
-				"url": "https://www.utpjournals.press/doi/full/10.3138/jrpc.2017-0034",
+				"url": "https://www.utpjournals.press/doi/10.3138/jrpc.2017-0034",
 				"volume": "31",
 				"attachments": [
 					{
@@ -279,7 +280,7 @@ var testCases = [
 				"publicationTitle": "The Journal of Religion and Popular Culture",
 				"rights": "© University of Toronto Press",
 				"shortTitle": "A Charlie Brown Religion",
-				"url": "https://www.utpjournals.press/doi/full/10.3138/jrpc.2017-0068",
+				"url": "https://www.utpjournals.press/doi/10.3138/jrpc.2017-0068",
 				"volume": "31",
 				"attachments": [
 					{
@@ -322,7 +323,7 @@ var testCases = [
 				"pages": "125-137",
 				"publicationTitle": "Toronto Journal of Theology",
 				"rights": "Toronto Institute of Theology 2020",
-				"url": "https://utpjournals.press/doi/full/10.3138/tjt-2020-0085",
+				"url": "https://utpjournals.press/doi/10.3138/tjt-2020-0085",
 				"volume": "36",
 				"attachments": [
 					{
@@ -356,6 +357,93 @@ var testCases = [
 		"type": "web",
 		"url": "https://www.utpjournals.press/toc/tjt/37/2",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://www.utpjournals.press/doi/full/10.3138/cjccj.2022-0015",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Canadian Correctional Officers’ Experiences of Workplace Safety and Stress During the COVID-19 Pandemic",
+				"creators": [
+					{
+						"firstName": "Kristina",
+						"lastName": "Kocsis",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Jennifer",
+						"lastName": "Lavoie",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023-06-12",
+				"DOI": "10.3138/cjccj.2022-0015",
+				"ISSN": "1707-7753",
+				"abstractNote": "This research examined the experiences of Canadian correctional officers (COs) in providing essential services during the COVID-19 pandemic. The study applied theoretical models of stress to explore correlates of COVID-related stress in the correctional setting. Provincial COs (N = 596) took part in an online survey at the end of 2020. Only a quarter of participants reported they felt safe at their workplace during the pandemic. Participants also reported high levels of work stress typified by significant changes to their job responsibilities and role confusion stemming from pandemic-related policies. While most participants agreed that their workplace successfully implemented safeguards, they indicated key downstream considerations were lacking and perceived low levels of certain types of support. Several individuallevel, situational workplace stressors, and coping resources were revealed to be significant correlates of COVID-19 stress. In estimating a hierarchical linear regression model, COVID-19 stress was found to be primarily driven by perceived safety precaution implementation when controlling for individual-level vulnerabilities. Findings examine the impact of COVID-19 among frontline workers in forgotten sectors such as corrections to contribute knowledge that can be used to support COs’ well-being in the face of future infectious disease planning, as well as implications for policy planning.",
+				"archiveLocation": "world",
+				"issue": "1",
+				"language": "en",
+				"libraryCatalog": "www.utpjournals.press",
+				"pages": "9-36",
+				"publicationTitle": "Canadian Journal of Criminology and Criminal Justice",
+				"rights": "© Canadian Journal of Criminology and Criminal Justice",
+				"url": "https://www.utpjournals.press/doi/10.3138/cjccj.2022-0015",
+				"volume": "65",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "COVID-19"
+					},
+					{
+						"tag": "COVID-19"
+					},
+					{
+						"tag": "agent correctionnel"
+					},
+					{
+						"tag": "correctional officer"
+					},
+					{
+						"tag": "corrections"
+					},
+					{
+						"tag": "méthode quantitative"
+					},
+					{
+						"tag": "pandemic"
+					},
+					{
+						"tag": "pandémie"
+					},
+					{
+						"tag": "quantitative"
+					},
+					{
+						"tag": "safety"
+					},
+					{
+						"tag": "stress"
+					},
+					{
+						"tag": "stress"
+					},
+					{
+						"tag": "système pénal"
+					},
+					{
+						"tag": "sécurité"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
