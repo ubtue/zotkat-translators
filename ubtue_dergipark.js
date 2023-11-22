@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-11-22 14:23:08"
+	"lastUpdated": "2023-11-22 14:36:15"
 }
 
 /*
@@ -105,6 +105,8 @@ async function scrape(doc, url = doc.location.href) {
 		}
 		//duplicate keywords e.g. same proper noun in both languages e.g. Altay
 		item.tags = Array.from(new Set(item.tags.map(JSON.stringify))).map(JSON.parse);
+		//If DC.Type.articleType is "Kitap Tanıtımı" tag as review
+		if (ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content') == "Kitap Tanıtımı") item.tags.push('RezensionstagPica');
 		item.complete();
 	});
 	await translator.translate();
@@ -345,6 +347,64 @@ var testCases = [
 					},
 					{
 						"note": "orcid:0000-0003-2544-062X | Mualla YILDIZ | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://dergipark.org.tr/tr/pub/da/issue/78000/1312424",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "A Sociology of Religious Emotion",
+				"creators": [
+					{
+						"firstName": "Halil",
+						"lastName": "Yildiz",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023-06-15",
+				"ISSN": "1301-966X, 2602-2435",
+				"abstractNote": "Dini duygular akademik çalışmalarda uzunca yıllar belirgin bir şekilde yer bulmamıştır. Bu durum dikkate alındığında literatürde duygulara yer açmak oldukça önemlidir. Özellikle yeni gelişmekte olan duygu sosyoloji çalışmaları ve özelde dini duygunun sosyolojik bağlamını keşfetmek için farklı çalışmalara ihtiyaç duyulmaktadır. Bu çerçevede Ole Riis ve Linda Woodhead tarafından kaleme alınan ve Oford Üniversitesi tarafından yayımlanan \"A Sociology of Religious Emotion\" (Dini Duygunun Sosyolojisi) isimli kitap duygu ve din sosyolojisi ekseninde dini duygulara yaklaşmanın önemli bir adımı olarak dikkat çekmektedir. Bu yönüyle özellikle dini duygulara dair yapılacak sosyolojik lisansüstü çalışmalar için oldukça faydalı bir çerçeve çizmektedir.",
+				"issue": "64",
+				"journalAbbreviation": "THE JOURNAL OF RELIGIOUS STUDIES",
+				"language": "tr",
+				"libraryCatalog": "dergipark.org.tr",
+				"pages": "405-408",
+				"publicationTitle": "Dini Araştırmalar",
+				"url": "https://dergipark.org.tr/tr/pub/da/issue/78000/1312424",
+				"volume": "26",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Dini Duygu"
+					},
+					{
+						"tag": "Duygu"
+					},
+					{
+						"tag": "Duygu Sosyolojisi"
+					},
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [
+					{
+						"note": "orcid:0000-0003-1321-2419 | Halil YILDIZ | taken from website"
 					}
 				],
 				"seeAlso": []
