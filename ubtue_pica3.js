@@ -9,7 +9,7 @@
         "inRepository": true,
         "translatorType": 2,
         "browserSupport": "gcs",
-        "lastUpdated": "2023-11-29 12:11:00"
+        "lastUpdated": "2023-11-29 13:05:00"
 }
 
 // Zotero Export Translator in Pica3 Format für das Einzeln- und Mulitiupload in WinIBW
@@ -483,11 +483,6 @@ function performExport() {
 
         //1505 Katalogisierungsquelle
         addLine(currentItemId, "\\n1505", "$erda");
-
-        //item.ISBN --> 2000 ISBN
-        if (item.ISBN) {
-            addLine(currentItemId, "\\n2000", item.ISBN);
-        }
 
         //Autoren --> 3000, 3010
         //Titel, erster Autor --> 4000
