@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-11-29 14:13:45"
+	"lastUpdated": "2023-11-29 14:22:47"
 }
 
 /*
@@ -106,7 +106,7 @@ function invokeEMTranslator(doc) {
  			i.title = i.title + ' ' + doc.querySelector(".subtitle").textContent.trim();
 			}
  		}
- 		if (['1804-6444', '1018-1539'].includes(i.ISSN)) {
+ 		if (['1804-6444', '1018-1539', '1860-8213'].includes(i.ISSN)) {
  			let subTitle = ZU.xpathText(doc, '//article[@class="article-details"]//h1[@class="page-header"]/small');
  			if (subTitle) {
  				i.title += ': ' + subTitle.trim();
@@ -156,7 +156,7 @@ function invokeEMTranslator(doc) {
   			}
   		 }
 		//e.g.  https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/785 or https://aabner.org/ojs/index.php/beabs/article/view/781
-		if (orcidAuthorEntryCaseA && ['2748-6419', '2340-4256'].includes(i.ISSN)) {
+		if (orcidAuthorEntryCaseA && ['2748-6419', '2340-4256', '1860-8213'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
   				if (a && a.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
   					let orcidTag = ZU.trimInternal(a.innerHTML);
@@ -449,7 +449,7 @@ function invokeEMTranslator(doc) {
 			i.abstractNote = i.abstractNote.replace(/[^\\](\n)/g, " ");
 		}
 		if (i.ISSN == "1853-9106" && i.tags) i.tags = [];
-		if (['1853-9106', '2254-6227'].includes(i.ISSN)) {
+		if (['1853-9106', '2254-6227', '1860-8213'].includes(i.ISSN)) {
 			if (ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content')) {
 				let tagsEntry = ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content');
 				tag = tagsEntry.split(/–|−/g);
@@ -3284,6 +3284,230 @@ var testCases = [
 					}
 				],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://bildungsforschung.org/ojs/index.php/bildungsforschung/article/view/927",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Ethnographische und gesprächsanalytische Zugänge zu schulischen Differenzierungen: Exploration methodischer Unterschiede und Gemeinsamkeiten",
+				"creators": [
+					{
+						"firstName": "Ina",
+						"lastName": "Kordts",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Falko",
+						"lastName": "Röhrs",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Hanna",
+						"lastName": "Siegismund",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Florian",
+						"lastName": "Weitkämper",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023/08/24",
+				"DOI": "10.25539/bildungsforschung.v29i1.927",
+				"ISSN": "1860-8213",
+				"abstractNote": "Der vorliegende Artikel plädiert für eine Verbindung von ethnographischen und gesprächsanalytischen Ansätzen in kooperativ und interdisziplinär arbeitenden Forschendenteams zur Untersuchung von Differenzierungen im schulischen Feld. Am Beispiel der Analyse eines ethnographischen Interviews werden dafür Gemeinsamkeiten und Unterschiede ebenso wie damit einhergehenden Möglichkeiten und Begrenzungen der Methoden im Erkenntnisprozess in den Blick genommen.",
+				"issue": "1",
+				"journalAbbreviation": "1",
+				"language": "de",
+				"libraryCatalog": "bildungsforschung.org",
+				"publicationTitle": "bildungsforschung",
+				"rights": "Copyright (c) 2023 bildungsforschung",
+				"shortTitle": "Ethnographische und gesprächsanalytische Zugänge zu schulischen Differenzierungen",
+				"url": "https://bildungsforschung.org/ojs/index.php/bildungsforschung/article/view/927",
+				"volume": "29",
+				"attachments": [],
+				"tags": [],
+				"notes": [
+					{
+						"note": "Paralleltitel:Approche ethnographique et analyse conversationnelle de la  différenciation scolaire : Exploration des différences et des  similitudes méthodologiques"
+					},
+					{
+						"note": "abs:Le présent article plaide en faveur d'une combinaison d'approches ethnographiques et d'ana-lyse conversationnelle dans des équipes de chercheurs travaillant de manière coopérative et interdisciplinaire pour étudier les différenciations dans le domaine scolaire. A l'aide de l'exemple de l'analyse d'un entretien ethnographique, les points communs et les différences ainsi que les possibilités et les limites des méthodes dans le processus de compréhension sont examinés."
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://bildungsforschung.org/ojs/index.php/bildungsforschung/article/view/927",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Ethnographische und gesprächsanalytische Zugänge zu schulischen Differenzierungen: Exploration methodischer Unterschiede und Gemeinsamkeiten",
+				"creators": [
+					{
+						"firstName": "Ina",
+						"lastName": "Kordts",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Falko",
+						"lastName": "Röhrs",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Hanna",
+						"lastName": "Siegismund",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Florian",
+						"lastName": "Weitkämper",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023/08/24",
+				"DOI": "10.25539/bildungsforschung.v29i1.927",
+				"ISSN": "1860-8213",
+				"abstractNote": "Der vorliegende Artikel plädiert für eine Verbindung von ethnographischen und gesprächsanalytischen Ansätzen in kooperativ und interdisziplinär arbeitenden Forschendenteams zur Untersuchung von Differenzierungen im schulischen Feld. Am Beispiel der Analyse eines ethnographischen Interviews werden dafür Gemeinsamkeiten und Unterschiede ebenso wie damit einhergehenden Möglichkeiten und Begrenzungen der Methoden im Erkenntnisprozess in den Blick genommen.",
+				"issue": "1",
+				"journalAbbreviation": "1",
+				"language": "de",
+				"libraryCatalog": "bildungsforschung.org",
+				"publicationTitle": "bildungsforschung",
+				"rights": "Copyright (c) 2023 bildungsforschung",
+				"shortTitle": "Ethnographische und gesprächsanalytische Zugänge zu schulischen Differenzierungen",
+				"url": "https://bildungsforschung.org/ojs/index.php/bildungsforschung/article/view/927",
+				"volume": "29",
+				"attachments": [],
+				"tags": [],
+				"notes": [
+					{
+						"note": "Paralleltitel:Approche ethnographique et analyse conversationnelle de la  différenciation scolaire : Exploration des différences et des  similitudes méthodologiques"
+					},
+					{
+						"note": "abs:Le présent article plaide en faveur d'une combinaison d'approches ethnographiques et d'ana-lyse conversationnelle dans des équipes de chercheurs travaillant de manière coopérative et interdisciplinaire pour étudier les différenciations dans le domaine scolaire. A l'aide de l'exemple de l'analyse d'un entretien ethnographique, les points communs et les différences ainsi que les possibilités et les limites des méthodes dans le processus de compréhension sont examinés."
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://bildungsforschung.org/ojs/index.php/bildungsforschung/article/view/927",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Ethnographische und gesprächsanalytische Zugänge zu schulischen Differenzierungen: Exploration methodischer Unterschiede und Gemeinsamkeiten",
+				"creators": [
+					{
+						"firstName": "Ina",
+						"lastName": "Kordts",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Falko",
+						"lastName": "Röhrs",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Hanna",
+						"lastName": "Siegismund",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Florian",
+						"lastName": "Weitkämper",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023/08/24",
+				"DOI": "10.25539/bildungsforschung.v29i1.927",
+				"ISSN": "1860-8213",
+				"abstractNote": "Der vorliegende Artikel plädiert für eine Verbindung von ethnographischen und gesprächsanalytischen Ansätzen in kooperativ und interdisziplinär arbeitenden Forschendenteams zur Untersuchung von Differenzierungen im schulischen Feld. Am Beispiel der Analyse eines ethnographischen Interviews werden dafür Gemeinsamkeiten und Unterschiede ebenso wie damit einhergehenden Möglichkeiten und Begrenzungen der Methoden im Erkenntnisprozess in den Blick genommen.",
+				"issue": "1",
+				"journalAbbreviation": "1",
+				"language": "de",
+				"libraryCatalog": "bildungsforschung.org",
+				"publicationTitle": "bildungsforschung",
+				"rights": "Copyright (c) 2023 bildungsforschung",
+				"shortTitle": "Ethnographische und gesprächsanalytische Zugänge zu schulischen Differenzierungen",
+				"url": "https://bildungsforschung.org/ojs/index.php/bildungsforschung/article/view/927",
+				"volume": "29",
+				"attachments": [],
+				"tags": [],
+				"notes": [
+					{
+						"note": "Paralleltitel:Approche ethnographique et analyse conversationnelle de la  différenciation scolaire : Exploration des différences et des  similitudes méthodologiques"
+					},
+					{
+						"note": "abs:Le présent article plaide en faveur d'une combinaison d'approches ethnographiques et d'ana-lyse conversationnelle dans des équipes de chercheurs travaillant de manière coopérative et interdisciplinaire pour étudier les différenciations dans le domaine scolaire. A l'aide de l'exemple de l'analyse d'un entretien ethnographique, les points communs et les différences ainsi que les possibilités et les limites des méthodes dans le processus de compréhension sont examinés."
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://bildungsforschung.org/ojs/index.php/bildungsforschung/article/view/927",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Ethnographische und gesprächsanalytische Zugänge zu schulischen Differenzierungen: Exploration methodischer Unterschiede und Gemeinsamkeiten",
+				"creators": [
+					{
+						"firstName": "Ina",
+						"lastName": "Kordts",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Falko",
+						"lastName": "Röhrs",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Hanna",
+						"lastName": "Siegismund",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Florian",
+						"lastName": "Weitkämper",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023/08/24",
+				"DOI": "10.25539/bildungsforschung.v29i1.927",
+				"ISSN": "1860-8213",
+				"abstractNote": "Der vorliegende Artikel plädiert für eine Verbindung von ethnographischen und gesprächsanalytischen Ansätzen in kooperativ und interdisziplinär arbeitenden Forschendenteams zur Untersuchung von Differenzierungen im schulischen Feld. Am Beispiel der Analyse eines ethnographischen Interviews werden dafür Gemeinsamkeiten und Unterschiede ebenso wie damit einhergehenden Möglichkeiten und Begrenzungen der Methoden im Erkenntnisprozess in den Blick genommen.",
+				"issue": "1",
+				"journalAbbreviation": "1",
+				"language": "de",
+				"libraryCatalog": "bildungsforschung.org",
+				"publicationTitle": "bildungsforschung",
+				"rights": "Copyright (c) 2023 bildungsforschung",
+				"shortTitle": "Ethnographische und gesprächsanalytische Zugänge zu schulischen Differenzierungen",
+				"url": "https://bildungsforschung.org/ojs/index.php/bildungsforschung/article/view/927",
+				"volume": "29",
+				"attachments": [],
+				"tags": [],
+				"notes": [
+					{
+						"note": "Paralleltitel:Approche ethnographique et analyse conversationnelle de la  différenciation scolaire : Exploration des différences et des  similitudes méthodologiques"
+					},
+					{
+						"note": "abs:Le présent article plaide en faveur d'une combinaison d'approches ethnographiques et d'ana-lyse conversationnelle dans des équipes de chercheurs travaillant de manière coopérative et interdisciplinaire pour étudier les différenciations dans le domaine scolaire. A l'aide de l'exemple de l'analyse d'un entretien ethnographique, les points communs et les différences ainsi que les possibilités et les limites des méthodes dans le processus de compréhension sont examinés."
+					}
+				],
 				"seeAlso": []
 			}
 		]
