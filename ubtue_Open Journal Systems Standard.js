@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-11-29 14:34:33"
+	"lastUpdated": "2023-11-29 14:35:58"
 }
 
 /*
@@ -114,7 +114,7 @@ function invokeEMTranslator(doc) {
  		}
  		
  		//title in other language for pica-field 4002
- 		var articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');Z.debug(articleType)
+ 		var articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
  		if (articleType === "Artículos") {
  			let dcAlternativeTitle = ZU.xpathText(doc, '//meta[@name="DC.Title.Alternative"]/@content');
  			i.archiveLocation = dcAlternativeTitle;
