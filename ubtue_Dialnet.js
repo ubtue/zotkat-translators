@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-02 15:28:50"
+	"lastUpdated": "2023-11-29 13:21:40"
 }
 
 /*
@@ -118,7 +118,7 @@ function scrape(doc, url) {
  			item.issue = multiIssue.split('Fasc.')[1].split(',')[0].trim();
  		}
  		// replace issue number with volume number for certain journals e.g. 'Analecta calasanctiana: publicación semestral religioso cultural y de investigación histórica' 
- 		let volumeEntry = ZU.xpathText(doc, '//meta[@name="DC.source"]/@content');Z.debug(volumeEntry)
+ 		let volumeEntry = ZU.xpathText(doc, '//meta[@name="DC.source"]/@content');
 		if (item.ISSN && ['0569-9789', '0392-2855', '1594-3445', '1124-1225'].includes(item.ISSN)) {
 			item.volume = item.issue;
 		}
@@ -137,6 +137,15 @@ function scrape(doc, url) {
 		} 
 		
  		if (item.title.match(/ISBN/ig)) item.tags.push("RezensionstagPica");
+		let translatedTitle = 0;
+		let allTitle =doc.querySelectorAll('meta[name="DC.title"]');
+		if (allTitle) {
+			for (let translatedTitle of allTitle) {
+			if (translatedTitle == 0) item.title = ZU.trimInternal(translatedTitle.content);
+			else if (ZU.trimInternal(translatedTitle.content) !== item.title) item.notes.push('translatedTitle:' + ZU.trimInternal(translatedTitle.content));
+			translatedTitle += 1;
+			}
+		}
 		if (item.tags) {
 			for (let t of item.tags) {
 			if (t.includes('RezensionstagPica')) {
@@ -237,7 +246,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7567487",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -267,7 +275,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=7558938",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -297,7 +304,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8362911",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -329,7 +335,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8715726",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -359,7 +364,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8398920",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -391,7 +395,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8749356",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -420,7 +423,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8855888",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -441,7 +443,9 @@ var testCases = [
 				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8855888",
 				"volume": "14",
 				"attachments": [],
-				"notes": [],
+				"notes": [
+					"translatedTitle:Public Space and religious symbols in the Secular State of Spain"
+				],
 				"seeAlso": []
 			}
 		]
@@ -449,7 +453,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=8963458",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -481,7 +484,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=6760758",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -503,6 +505,39 @@ var testCases = [
 				"volume": "81",
 				"attachments": [],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=9077514",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Valoración teológica de los cristianos separados según la teología anterior al Concilio Vaticano II",
+				"creators": [
+					{
+						"firstName": "Juan Carlos Fernández",
+						"lastName": "Menes",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023",
+				"ISSN": "0036-3537",
+				"abstractNote": "The article aims to trace the broad lines of Catholic theological thought emerging from the so-called Ecumenical Movement, how the reflection on belonging to the Church and the evaluation of separated Christians and of Churches and Communities not in com-munion with the Catholic Church is maturing, and how the concept vestigia Ecclesiae is first used by the World Council of Churches and later by Catholic theologians to designate those nuclear elements of the Church of Christ common to all Christian confessions. One could consider the whole reality, invisible and visible, which constitutes the true Church, and call “Church element” all that is essential or proper to the Church. There would be, in this case, “elements of the Church” of an invisible nature, such as the presence of the Holy Spirit, and “elements of the Church” of a visible nature, such as the apostolic suc-cession. The thought of some of these theologians is also presented in summary form, or the most significant works of others are quoted. A thought which, in a more mature form, enters and crystallises in the Conciliar Aula.",
+				"issue": "2",
+				"language": "spa",
+				"libraryCatalog": "dialnet.unirioja.es",
+				"pages": "251-297",
+				"publicationTitle": "Salmanticensis",
+				"url": "https://dialnet.unirioja.es/servlet/articulo?codigo=9077514",
+				"volume": "70",
+				"attachments": [],
+				"notes": [
+					"abs:El artículo pretende trazar las grandes líneas del pensamiento teológico católico que surgen del llamado Movimiento Ecuménico, cómo se va madurando la reflexión acerca de la pertenencia a la Iglesia y la valoración de los cristianos separados y de las Iglesias y Comunidades que no están en comunión con la Iglesia católica y cómo el concepto “ves-tigia Ecclesiae” es utilizado en primer lugar por el Consejo Mundial de las Iglesias y pos-teriormente por los teólogos católicos para designar esos elementos nucleares de la Iglesia de Cristo comunes a todas las confesiones cristianas. Se podría considerar la realidad en-tera, invisible y visible, que constituye la Iglesia verdadera, y llamar “elemento de Iglesia” a todo lo que es esencial o propio de la Iglesia. Habría, en este caso, “elementos de Iglesia” de naturaleza invisible, como la presencia del Espíritu Santo, y “elementos de Iglesia” de naturaleza visible, como la sucesión apostólica. También se presenta de forma sumaria el pensamiento de algunos de estos teólogos o se citan las obras más significativas de otros. Un pensamiento que, de forma más madura, entra y cristaliza en el Aula conciliar.",
+					"translatedTitle:Theological Assessment of Separated Christians According to the Pre-Vatican II Council Theology"
+				],
 				"seeAlso": []
 			}
 		]
