@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-28 13:25:31"
+	"lastUpdated": "2023-11-29 14:41:10"
 }
 
 /*
@@ -87,16 +87,6 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			delete item.issue;
 		}
 		
-		if (['0335-5985'].includes(item.ISSN)) {
-				item.abstractNote == '';
-			let abstractTags = ZU.xpath(doc, '//meta[@name="description"]');
-			for (let i in abstractTags) {
-				if (!item.abstractNote.match(abstractTags[i].content.trim())) {
-					if (item.abstractNote) item.abstractNote += "\\n4207 ";
-					item.abstractNote += abstractTags[i].content;
-				}
-			}
-			}
 		let section = ZU.xpathText(doc, '//div[contains(@class, "souspartie")]//span[@class="title"]');
 		if (section && section.match(/Recensions/))
 			item.tags.push("RezensionstagPica");
@@ -143,7 +133,7 @@ var testCases = [
 				"date": "2020/10/22",
 				"DOI": "10.4000/assr.51741",
 				"ISSN": "0335-5985",
-				"abstractNote": "Les monts-de-piété frumentaires sont des protobanques de l’époque moderne qui octroient des prêts en céréales, en semences et en pain aux paysans castillans contre un intérêt modéré de 3 à 4 %. Leurs comptabilités ont été conservées pour la région de la Sierra de Alcaraz en Nouvelle-Castille, espace qui se caractérise par une forte polarisation sociale et la présence massive de journaliers et de serviteurs agricoles en raison d’une répartition très inégalitaire de la terre. Les documents montrent que les monts fonctionnent comme des organismes collectifs dans le cadre d’une économie morale dans laquelle le microcrédit fait partie des multiples recours qui permettent de souder la communauté et de compenser les inégalités sociales et les liens de dépendance. Leurs patrons sont des curés de paroisse qui participent à leur gestion aux côtés de la bourgeoisie agraire qui monopolise les charges municipales. Les uns et les autres ne contrôlent pas seulement le crédit mais aussi le marché des céréales.\\n4207 In early modern Europe, food pawnshops were protobanks that lent cereals, seeds and bread to Castilian peasants for a moderate rate of interest of three or four per cent. The accounts of these institutions are available from the Sierra de Alcaraz, in New-Castile, a zone characterized by sharp social polarization and the massive presence of agricultural day-labourers and servants due to a very inegalitarian land distribution. These documents show that the pawnshops acted as collective organisms in the framework of a moral economy in which microcredit was one of various solutions meant to consolidate the community and compensate for social inequalities and ties of dependency. The pawnshops were in the hands of parish priests, who shared their management with the agrarian elite that monopolized the municipal administrations. Both controlled not only the credit but also the cereal market. \\n4207 Los montes de piedad frumentarios - pósitos o alhoríes - de la edad moderna son protobancos que prestaban cereales, simiente y pan a los campesinos castellanos a cambio de un interés moderado del 3 o 4 %. Se conservan las contabilidades de esos organismos para la región de la Sierra de Alcaraz en Castilla-La Nueva. Ese territorio se caracteriza por una fuerte polarización social y una gran cantidad de jornaleros y mozos sirvientes, lo que se explica por el reparto muy desigual de la tierra. Los documentos indican que esos pósitos funcionaban como órganos colectivos en el marco de una economía moral en la que el microcrédito era uno de los múltiples recursos que cohesionaban a la comunidad y compensaban las desigualdades sociales y la dependencia. Sus patronos eran los curas de las parroquias que gestionaban dichos pósitos junto a miembros de la burguesía agraria que también monopolizaba los cargos municipales. Unos y otros controlaban no sólo el mercado crediticio sino también el de cereales.",
+				"abstractNote": "Les monts-de-piété frumentaires sont des protobanques de l’époque moderne qui octroient des prêts en céréales, en semences et en pain aux paysans castillans contre un intérêt modéré de 3 à 4 %. Leurs comptabilités ont été conservées pour la région de la Sierra de Alcaraz en Nouvelle-Castille, espace qui se caractérise par une forte polarisation sociale et la présence massive de journaliers et de serviteurs agricoles en raison d’une répartition très inégalitaire de la terre. Les documents montrent que les monts fonctionnent comme des organismes collectifs dans le cadre d’une économie morale dans laquelle le microcrédit fait partie des multiples recours qui permettent de souder la communauté et de compenser les inégalités sociales et les liens de dépendance. Leurs patrons sont des curés de paroisse qui participent à leur gestion aux côtés de la bourgeoisie agraire qui monopolise les charges municipales. Les uns et les autres ne contrôlent pas seulement le crédit mais aussi le marché des céréales.",
 				"language": "fr",
 				"libraryCatalog": "journals.openedition.org",
 				"pages": "67-87",
@@ -345,6 +335,97 @@ var testCases = [
 				],
 				"tags": [],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://journals.openedition.org/assr/71135",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "De la main gravée par les diables aux papiers de saint Joseph : la geste miraculeuse des ursulines de Loudun",
+				"creators": [
+					{
+						"firstName": "Sophie",
+						"lastName": "Houdard",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023/09/01",
+				"DOI": "10.4000/assr.71135",
+				"ISSN": "0335-5985",
+				"abstractNote": "Le tableau des maladies des religieuses à l’époque moderne est saisissant. Elles sont l’occasion de promouvoir saint Joseph, le protecteur et intercesseur des visitandines et ursulines qui revendiquent, après le carmel de Thérèse d’Avila, d’appartenir à sa sainte famille. On verra quel a été le rôle de saint Joseph thaumaturge chez les ursulines, en passant par le cas fondateur de la possession de Loudun où son rôle entre 1635 et 1637 n’a jamais été étudié de près, alors qu’il est l’acteur décisif de la geste glorieuse de Jeanne des Anges, la prieure miraculée et guérie. On verra comment le partage de l’onction sacrée de saint Joseph permet d’organiser à distance un réseau mystique qu’entretient le jésuite Surin et comment le saint thaumaturge est au carrefour de l’histoire sociale et spirituelle des « miracles » de Loudun.",
+				"language": "fr",
+				"libraryCatalog": "journals.openedition.org",
+				"pages": "73-89",
+				"publicationTitle": "Archives de sciences sociales des religions",
+				"rights": "All rights reserved",
+				"shortTitle": "De la main gravée par les diables aux papiers de saint Joseph",
+				"url": "http://journals.openedition.org/assr/71135",
+				"volume": "203",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Loudun"
+					},
+					{
+						"tag": "Loudun"
+					},
+					{
+						"tag": "Loudun"
+					},
+					{
+						"tag": "Saint Joseph"
+					},
+					{
+						"tag": "San José"
+					},
+					{
+						"tag": "Surin (Jean-Joseph)"
+					},
+					{
+						"tag": "Surin (Jean-Joseph)"
+					},
+					{
+						"tag": "Surin (Jean-Joseph)"
+					},
+					{
+						"tag": "Ursulinas"
+					},
+					{
+						"tag": "Ursulines"
+					},
+					{
+						"tag": "enfermedades"
+					},
+					{
+						"tag": "illness"
+					},
+					{
+						"tag": "maladies"
+					},
+					{
+						"tag": "saint Joseph"
+					},
+					{
+						"tag": "ursulines"
+					}
+				],
+				"notes": [
+					{
+						"note": "abs:The representation of nuns’ illnesses in modern times is striking. They provide an opportunity to promote Saint Joseph, the protector and intercessor of the Visitandines and Ursulines who claim, following Teresa of Avila’s Carmelite convent, to belong to his holy family. We will examine Saint Joseph’s role as miracle-worker among the Ursulines, taking in the founding case of the Possessed of Loudun, where his role between 1635 and 1637 has never been closely studied, though he is the determining actor in the glorious gesture of Jeanne des Anges, the miraculously healed prioress. We will see how sharing out sacred anointment by Saint Joseph made it possible to organize a mystical network of outreach maintained by the Jesuit Surin, and how the healing saint is central to the social and spiritual history of the \"miracles\" of Loudun."
+					},
+					{
+						"note": "abs:El cuadro de las enfermedades de las monjas en los tiempos modernos es sorprendente. Son una oportunidad para promover a San José, protector e intercesor de las Visitandinas y Ursulinas que pretenden, después del Carmelo de Teresa de Ávila, pertenecer a su sagrada familia. Veremos cuál fue el papel de San José obrador de milagros entre las Ursulinas, pasando por el caso fundacional de la posesión de Loudun donde su papel entre 1635 y 1637 nunca ha sido estudiado con detenimiento, siendo él el actor decisivo de la gloriosa gesta de Jeanne des Anges, la priora curada milagrosamente. Veremos cómo el compartir la sagrada unción de San José permite organizar a distancia una red mística mantenida por el jesuita Surin y cómo el santo taumaturgo se encuentra en la encrucijada de la historia social y espiritual de los “milagros” de Loudun."
+					}
+				],
 				"seeAlso": []
 			}
 		]
