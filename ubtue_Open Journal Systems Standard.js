@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-11-29 14:35:58"
+	"lastUpdated": "2023-11-29 14:47:01"
 }
 
 /*
@@ -185,7 +185,7 @@ function invokeEMTranslator(doc) {
 		
 
 		//e.g. https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/42867
-		if (orcidAuthorEntryCaseA && ['2174-0887'].includes(i.ISSN)) {
+		if (orcidAuthorEntryCaseA && ['2174-0887', '2254-6227'].includes(i.ISSN)) {
 			let allORCIDs = [];
   			for (let a of orcidAuthorEntryCaseA) {
 				let name = ZU.xpathText(a, './/strong');
@@ -3545,6 +3545,75 @@ var testCases = [
 					}
 				],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://revistas.unav.edu/index.php/scripta-theologica/article/view/42692",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "La antropología del trabajo desde la teología bíblica. Una nueva consideración de Gn 2,4b-25",
+				"creators": [
+					{
+						"firstName": "Diego",
+						"lastName": "Pérez-Gondar",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023/02/28",
+				"DOI": "10.15581/006.55.1.9-37",
+				"ISSN": "2254-6227",
+				"abstractNote": "In any humanist vision of reality, rereading the founding texts of “cultural memory” is helpful. Thus, we can lead to an identity update that opens up new perspectives. Advances in the sciences that accompany biblical theology facilitate this task. In the present work, we approach the task of revisiting Gen 2:4b-25 with a philological approach that respects the text in its originality and sheds light on the present. The original design for the human being is an action that develops the world with care. At the same time, the human being himself progresses in and through the “spousal covenant”. This covenant is a significant category for understanding human existence, both for structuring society and for understanding its relationship to the Creator.",
+				"issue": "1",
+				"journalAbbreviation": "1",
+				"language": "es",
+				"libraryCatalog": "revistas.unav.edu",
+				"pages": "9-37",
+				"publicationTitle": "Scripta Theologica",
+				"rights": "Derechos de autor 2023 Scripta Theologica",
+				"url": "https://revistas.unav.edu/index.php/scripta-theologica/article/view/42692",
+				"volume": "55",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "4b-25"
+					},
+					{
+						"tag": "Acción humana"
+					},
+					{
+						"tag": "Alianza"
+					},
+					{
+						"tag": "Gn 2"
+					},
+					{
+						"tag": "Génesis"
+					},
+					{
+						"tag": "Trabajo"
+					},
+					{
+						"tag": "Trabajo, Génesis, Gn 2,4b-25, Acción humana, Vocación, Alianza"
+					},
+					{
+						"tag": "Vocación"
+					}
+				],
+				"notes": [
+					{
+						"note": "orcid:0000-0002-7761-1411 | Diego Pérez-Gondar | taken from website"
+					},
+					{
+						"note": "Paralleltitel:The Anthropology of Work from Biblical Theology. A New Consideration of Gn 2:4b-25"
+					},
+					{
+						"note": "abs:En toda visión humanista de la realidad, conviene releer los textos fundantes de la “memoria cultural”. Así se puede realizar una actualización de la identidad que abra nuevas perspectivas. El avance en las ciencias que acompañan a la teología bíblica facilita esa tarea. En el presente trabajo se aborda la tarea de reconsiderar Gn 2,4b-25 con una aproximación filológica que respeta el texto en su originalidad y da luces para el presente. El designio original para el ser humano es una acción que desarrolle el mundo con una actitud de cuidado. Al mismo tiempo, el propio ser humano se desarrolla y personifica en y a través de la “alianza esponsal”. Esa alianza es una categoría principal para entender la existencia humana, tanto para vertebrar la sociedad, como para comprender su relación con el Creador."
+					}
+				],
 				"seeAlso": []
 			}
 		]
