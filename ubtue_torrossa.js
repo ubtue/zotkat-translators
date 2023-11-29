@@ -2,14 +2,14 @@
 	"translatorID": "236d2234-37e0-41ca-bc1f-5c515ccad0be",
 	"label": "ubtue_torrossa",
 	"creator": "Timotheus Kim",
-	"target": "https://www.torrossa.com",
+	"target": "https://(access.)?(www.)?torrossa.com",
 	"minVersion": "5.0",
 	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-11-21 14:47:09"
+	"lastUpdated": "2023-11-29 10:03:59"
 }
 
 /*
@@ -80,7 +80,7 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setHandler('itemDone', (_obj, item) => {
 		let issn = ZU.xpathText(doc, '//meta[@name="issn"]/@content');
 		if (issn) item.ISSN = issn;
-		let volumeIssueEntry = ZU.xpathText(doc, '//meta[@name="citation_journal_title"]/@content');
+		let volumeIssueEntry = ZU.xpathText(doc, '//*[@class="uk-article-is-part-of"]//a');
 		if (volumeIssueEntry) {
 			let volumeIssueSplit = volumeIssueEntry.split(':');
 			if (volumeIssueSplit[1].includes(',')) {
@@ -93,12 +93,27 @@ async function scrape(doc, url = doc.location.href) {
 				item.issue = volumeIssueSplit[1].split(',')[1];
 			}
 		}
-		let permalinkEntry = ZU.xpathText(doc, '//*[@class="uk-article-permalink"]//a'); Z.debug(permalinkEntry)
+		let permalinkEntry = ZU.xpathText(doc, '//*[@class="uk-article-permalink"]//a');
 		if (permalinkEntry != null) item.url = permalinkEntry.replace(/permalink:/gi, '').replace(/https?/gi, 'https');
 		item.language = "it";
 		item.abstractNote = "";
 		if (item.title == "Recensioni") {
 			item.tags.push('RezensionstagPica');
+		}
+
+		let checkCitationAuthors = ZU.xpathText(doc, '//meta[@name="citation_author"]/@content');
+		if (checkCitationAuthors === "") {
+		let authorString = ZU.xpathText(doc, '//div[@class="uk-article-author"]');
+			if (authorString.indexOf("|")>-1) {
+				item.creators = [];
+				var authors = authorString.split("|");
+				for (var i=0; i<authors.length; i++) {
+					item.creators.push(ZU.cleanAuthor(authors[i], "author", true));
+				}
+			}
+			else {
+				item.creators.push(ZU.cleanAuthor(authorString, "author", true));
+			}
 		}
 		item.complete();
 	});
@@ -106,64 +121,64 @@ async function scrape(doc, url = doc.location.href) {
 }
 
 function convert2arabic(num) {
-    let ch;
-    let sum = 0;
-    for (let i = 0; i < num.length; i++) {
-        ch = num[i];
-        switch (ch) {
-            case 'I':
-                if (num[i + 1] === 'V' || num[i + 1] === 'X') {
-                    continue;
-                }
-                sum = sum + 1;
-                break;
-            case 'V':
-                if (num[i - 1] === 'I') {
-                    sum = sum + 4;
-                    break;
-                }
-                sum = sum + 5;
-                break;
-            case 'X':
-                if (num[i - 1] === 'I') {
-                    sum = sum + 9;
-                    break;
-                }
-                if (num[i + 1] === 'C') {
-                    continue;
-                }
-                sum = sum + 10;
-                break;
-            case 'L':
-                sum = sum + 50;
-                break;
-            case 'C':
-                if (num[i + 1] === 'D' || num[i + 1] === 'M') {
-                    continue;
-                }
-                if (num[i - 1] === 'X') {
-                    sum = sum + 90;
-                    break;
-                }
-                sum = sum + 100;
-                break;
-            case 'D':
-                if (num[i - 1] === 'C') {
-                    sum = sum + 400;
-                    break;
-                }
-                sum = sum + 500;
-                break;
-            case 'M':
-                if (num[i - 1] === 'C') {
-                    sum = sum + 900;
-                    break;
-                }
-                sum = sum + 1000;
-                break;
-        }
-    }
-    return sum;
+	let ch;
+	let sum = 0;
+	for (let i = 0; i < num.length; i++) {
+		ch = num[i];
+		switch (ch) {
+			case 'I':
+				if (num[i + 1] === 'V' || num[i + 1] === 'X') {
+					continue;
+				}
+				sum = sum + 1;
+				break;
+			case 'V':
+				if (num[i - 1] === 'I') {
+					sum = sum + 4;
+					break;
+				}
+				sum = sum + 5;
+				break;
+			case 'X':
+				if (num[i - 1] === 'I') {
+					sum = sum + 9;
+					break;
+				}
+				if (num[i + 1] === 'C') {
+					continue;
+				}
+				sum = sum + 10;
+				break;
+			case 'L':
+				sum = sum + 50;
+				break;
+			case 'C':
+				if (num[i + 1] === 'D' || num[i + 1] === 'M') {
+					continue;
+				}
+				if (num[i - 1] === 'X') {
+					sum = sum + 90;
+					break;
+				}
+				sum = sum + 100;
+				break;
+			case 'D':
+				if (num[i - 1] === 'C') {
+					sum = sum + 400;
+					break;
+				}
+				sum = sum + 500;
+				break;
+			case 'M':
+				if (num[i - 1] === 'C') {
+					sum = sum + 900;
+					break;
+				}
+				sum = sum + 1000;
+				break;
+		}
+	}
+	return sum;
 }
 
 /** BEGIN TEST CASES **/
@@ -196,6 +211,16 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.torrossa.com/de/resources/an/4757977",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://access.torrossa.com/de/resources/an/5521608",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://access.torrossa.com/de/resources/an/5299565",
 		"items": "multiple"
 	}
 ]
