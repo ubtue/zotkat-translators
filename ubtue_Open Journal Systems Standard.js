@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-11-29 14:22:47"
+	"lastUpdated": "2023-11-29 14:34:33"
 }
 
 /*
@@ -114,7 +114,7 @@ function invokeEMTranslator(doc) {
  		}
  		
  		//title in other language for pica-field 4002
- 		var articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
+ 		var articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');Z.debug(articleType)
  		if (articleType === "Artículos") {
  			let dcAlternativeTitle = ZU.xpathText(doc, '//meta[@name="DC.Title.Alternative"]/@content');
  			i.archiveLocation = dcAlternativeTitle;
@@ -122,7 +122,7 @@ function invokeEMTranslator(doc) {
  				delete i.archiveLocation;
  			}
  		}
-		if (articleType && articleType.match(/^(Book Reviews?)/) != null) i.tags.push("RezensionstagPica");
+		if (articleType && articleType.match(/^(Book Reviews?)/gi) != null) i.tags.push("RezensionstagPica");
 		 //orcid for pica-field 8910
    		let orcidAuthorEntryCaseA = doc.querySelectorAll('.authors, .div.authors > strong, author');//Z.debug(orcidAuthorEntryCaseA)
   		let orcidAuthorEntryCaseB = doc.querySelectorAll('.authors li');//Z.debug(orcidAuthorEntryCaseB)
@@ -3508,6 +3508,43 @@ var testCases = [
 						"note": "abs:Le présent article plaide en faveur d'une combinaison d'approches ethnographiques et d'ana-lyse conversationnelle dans des équipes de chercheurs travaillant de manière coopérative et interdisciplinaire pour étudier les différenciations dans le domaine scolaire. A l'aide de l'exemple de l'analyse d'un entretien ethnographique, les points communs et les différences ainsi que les possibilités et les limites des méthodes dans le processus de compréhension sont examinés."
 					}
 				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://ojs.reformedjournals.co.za/stj/article/view/2315",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Clown of the City",
+				"creators": [
+					{
+						"firstName": "Wessel",
+						"lastName": "Wessels",
+						"creatorType": "author"
+					}
+				],
+				"date": "2021",
+				"DOI": "10.17570/stj.2021.v7n1.br4",
+				"ISSN": "2413-9467",
+				"abstractNote": "The review copy of Clown of the City in my possession was initially incorrectly sent to a journal on the sciences of city construction. I quite like to imagine how the book was received: with uncertainty, caution, and disorientation. I can imagine when the title, Clown of the City, was read, the uncertainty gave way to confusion. What has a clown to do with the city? And, even more, what has a clown to do with the serious work of constructing cities? Moreover, who is this clown and what is this city?",
+				"issue": "1",
+				"journalAbbreviation": "STJ",
+				"language": "en",
+				"libraryCatalog": "ojs.reformedjournals.co.za",
+				"publicationTitle": "Stellenbosch Theological Journal",
+				"rights": "Copyright (c) 2022 Wessel Wessels",
+				"url": "https://ojs.reformedjournals.co.za/stj/article/view/2315",
+				"volume": "7",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
