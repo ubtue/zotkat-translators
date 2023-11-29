@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-11-22 15:37:42"
+	"lastUpdated": "2023-11-29 14:13:45"
 }
 
 /*
@@ -185,7 +185,7 @@ function invokeEMTranslator(doc) {
 		
 
 		//e.g. https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/42867
-		if (orcidAuthorEntryCaseA && ['2174-0887', '2254-6227'].includes(i.ISSN)) {
+		if (orcidAuthorEntryCaseA && ['2174-0887'].includes(i.ISSN)) {
 			let allORCIDs = [];
   			for (let a of orcidAuthorEntryCaseA) {
 				let name = ZU.xpathText(a, './/strong');
@@ -313,7 +313,7 @@ function invokeEMTranslator(doc) {
 			}
 
 		}
-		if (i.ISSN === "2792-260X") {
+		if (['2792-260X'].includes(i.ISSN)) {
 			let abstractes = ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es")]/@content');
 			let abstracten = ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("en")]/@content');
 			if (abstractes && abstracten) {
@@ -449,7 +449,7 @@ function invokeEMTranslator(doc) {
 			i.abstractNote = i.abstractNote.replace(/[^\\](\n)/g, " ");
 		}
 		if (i.ISSN == "1853-9106" && i.tags) i.tags = [];
-		if (i.ISSN == "1853-9106") {
+		if (['1853-9106', '2254-6227'].includes(i.ISSN)) {
 			if (ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content')) {
 				let tagsEntry = ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content');
 				tag = tagsEntry.split(/–|−/g);
@@ -1694,7 +1694,11 @@ var testCases = [
 						"tag": "Theologie"
 					}
 				],
-				"notes": [],
+				"notes": [
+					{
+						"note": "orcid:null | Franca Spies | taken from website"
+					}
+				],
 				"seeAlso": []
 			}
 		]
@@ -1843,7 +1847,7 @@ var testCases = [
 				"creators": [
 					{
 						"firstName": "María Guadalupe PÉREZ",
-						"lastName": "Ortiz",
+						"lastName": "ORTIZ",
 						"creatorType": "author"
 					}
 				],
@@ -2460,7 +2464,7 @@ var testCases = [
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Le poète et le roi : les Poemata de Benedetto Tagliacarne (ca. 1480–1536), dit Théocrène",
+				"title": "Le poète et le roi : les Poemata de Benedetto Tagliacarne (ca. 1480–1536), dit Théocrène | Renaissance and Reformation",
 				"creators": [
 					{
 						"firstName": "Virginie",
@@ -2468,17 +2472,14 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "2022",
+				"date": "2023",
 				"DOI": "10.33137/rr.v45i3.40431",
 				"ISSN": "2293-7374",
-				"abstractNote": "The Italian Benedetto Tagliacarne, known as Theocrenus, was tutor to the sons of Francis I from 1527 to 1533. In this capacity, he was closely involved with the royal family, as witnessed by his poetic works, published in Poitiers by Marnef in 1536, and in particular his epigrams, which shaped court events and portray an artistically refined and poetic king. Theocrenus thus celebrates the wedding of the king and Eleanor of Austria and pays tribute to Louise of Savoy; he praises the poetic compositions of Francis I, choosing the epitaph of Petrarch’s muse, Laura de Noves, but also the translation of an epigram attributed to Germanicus; finally, he composes numerous ekphraseis of the king’s works of art. The study of these epigrams allows us to evaluate the contribution of the Italian poet to the cultural policy of Francis I and to the mythology of the reign.",
+				"abstractNote": "The Italian Benedetto Tagliacarne, known as Theocrenus, was tutor to the sons of Francis I from 1527 to 1533. In this capacity, he was closely involved with the royal family, as witnessed by his poetic works, published in Poitiers by Marnef in 1536, and in particular his epigrams, which shaped court events and portray an artistically refined and poetic king. Theocrenus thus celebrates the wedding of the king and Eleanor of Austria and pays tribute to Louise of Savoy; he praises the poetic compositions of Francis I, choosing the epitaph of Petrarch’s muse, Laura de Noves, but also the translation of an epigram attributed to Germanicus; finally, he composes numerous ekphraseis of the king’s works of art. The study of these epigrams allows us to evaluate the contribution of the Italian poet to the cultural policy of Francis I and to the mythology of the reign., L’Italien Benedetto Tagliacarne, dit Théocrène, occupa la charge de précepteur des fils de François Ier, de 1527 à 1533. À ce titre, il évolua dans l’intimité de la famille royale, ce dont témoignent ses oeuvres poétiques, publiées à Poitiers, chez Marnef, en 1536, et notamment ses épigrammes qui orchestrent des événements de cour et mettent en scène un roi esthète et poète. Théocrène célèbre ainsi les noces du roi et d’Éléonore d’Autriche et rend hommage à Louise de Savoie ; il fait l’éloge des productions poétiques de François Ier, choisissant l’épitaphe de la muse de Pétrarque, Laure de Noves, mais aussi la traduction d’une épigramme attribuée à Germanicus ; enfin, il compose de nombreuses ekphraseis des oeuvres d’art du roi. L’étude de ces épigrammes permettra d’évaluer la contribution du poète italien à la politique culturelle de François Ier et à la mythologie du règne.",
 				"issue": "3",
-				"journalAbbreviation": "Renaiss. Reform.",
-				"language": "fr",
+				"language": "en-US",
 				"libraryCatalog": "jps.library.utoronto.ca",
 				"pages": "189-214",
-				"publicationTitle": "Renaissance and Reformation",
-				"rights": "Copyright (c) 2023",
 				"shortTitle": "Le poète et le roi",
 				"url": "https://jps.library.utoronto.ca/index.php/renref/article/view/40431",
 				"volume": "45",
@@ -2518,7 +2519,7 @@ var testCases = [
 				"creators": [
 					{
 						"firstName": "María Guadalupe PÉREZ",
-						"lastName": "Ortiz",
+						"lastName": "ORTIZ",
 						"creatorType": "author"
 					}
 				],
@@ -2645,7 +2646,7 @@ var testCases = [
 				"DOI": "10.20396/csr.v25i00.8673029",
 				"ISSN": "1982-2650",
 				"abstractNote": "El panel que tuve el honor de moderar se tituló “Actores religiosos y procesos políticos en América Latina” y estuvo integrado por Virginia Garrard de la Universidad de Texas en Austin (EEUU) y por Joanildo Burity de la Fundação Joaquim Nabuco y la Universidad Federal de Pernambuco (Brasil), que cumplieron el rol de oradores centrales mientras que María das Dores Campos Machado de la Universidad Federal de Río de Janeiro (Brasil) fungió como discutidora. En este número de Ciencias Sociales y Religión / Ciências Sociais e Religião se publica el diálogo entre Garrard y Burity al que se suma una reacción final de Nicolás Panotto de la Universidad Arturo Prat y actual consejero por Chile de la ACSRAL.",
-				"archiveLocation": "América Latina; Contemporáneo",
+				"archiveLocation": "Latin America; Contemporary",
 				"journalAbbreviation": "Cienc. Soc. y Relig.",
 				"language": "es",
 				"libraryCatalog": "periodicos.sbu.unicamp.br",
