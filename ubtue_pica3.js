@@ -9,7 +9,7 @@
         "inRepository": true,
         "translatorType": 2,
         "browserSupport": "gcs",
-        "lastUpdated": "2023-11-15 16:11:00"
+        "lastUpdated": "2023-11-29 12:11:00"
 }
 
 // Zotero Export Translator in Pica3 Format für das Einzeln- und Mulitiupload in WinIBW
@@ -324,6 +324,9 @@ function performExport() {
         if (issn_to_ssg_zotkat.get(item.ISSN) !== undefined) {
             SsgField = issn_to_ssg_zotkat.get(item.ISSN);
         }
+		if (issn_to_ssg_zotkat.get(item.ISBN) !== undefined) {
+            SsgField = issn_to_ssg_zotkat.get(item.ISBN);
+        }
         if (!item.volume && issn_to_volume.get(item.ISSN) !== undefined) {
             item.volume = issn_to_volume.get(item.ISSN) + item.volume;
             Z.debug("Found volume:" + item.volume);
@@ -332,12 +335,20 @@ function performExport() {
             physicalForm = issn_to_physical_form.get(item.ISSN); // position 1 http://swbtools.bsz-bw.de/winibwhelp/Liste_0500.htm
             Z.debug("Found physicalForm:" + physicalForm);
         }
+		if (issn_to_physical_form.get(item.ISBN) !== undefined) {
+            physicalForm = issn_to_physical_form.get(item.ISBN); // position 1 http://swbtools.bsz-bw.de/winibwhelp/Liste_0500.htm
+            Z.debug("Found physicalForm:" + physicalForm);
+        }
         if (issn_to_license.get(item.ISSN) !== undefined) {
             licenceField = issn_to_license.get(item.ISSN); // position 4 http://swbtools.bsz-bw.de/winibwhelp/Liste_0500.htm
             Z.debug("Found license:" + licenceField);
         }
         if (issn_to_superior_ppn.get(item.ISSN) !== undefined) {
             superiorPPN = issn_to_superior_ppn.get(item.ISSN);
+            Z.debug("Found superiorPPN:" + superiorPPN);
+        }
+		if (issn_to_superior_ppn.get(item.ISBN) !== undefined) {
+            superiorPPN = issn_to_superior_ppn.get(item.ISBN);
             Z.debug("Found superiorPPN:" + superiorPPN);
         }
         if (journal_title_to_ppn.get(item.publicationTitle) !== undefined) {
@@ -456,12 +467,15 @@ function performExport() {
     }*/
 
         //item.language --> 1500 Sprachcodes
-        if (item.itemType = "journalArticle") {
+        if (item.itemType == "journalArticle") {
             if (language_to_language_code.get(item.language)) {
                 item.language = language_to_language_code.get(item.language);
             }
             addLine(currentItemId, "\\n1500", item.language);
-        } else {
+        } else if (item.itemType == "bookSection"){
+			item.language = issn_to_language_code.get(item.ISBN);
+            addLine(currentItemId, "\\n1500", item.language);
+		} else {
             item.language = issn_to_language_code.get(item.language);
             addLine(currentItemId, "\\n1500", item.language);
         }
@@ -848,7 +862,7 @@ function performExport() {
             }
         }
         //item.publicationTitle --> 4241 Beziehungen zur größeren Einheit
-        if (item.itemType == "journalArticle" || item.itemType == "magazineArticle") {
+        if (item.itemType == "journalArticle" || item.itemType == "magazineArticle" || item.itemType == "bookSection") {
             if (superiorPPN.length != 0) {
                 addLine(currentItemId, "\\n4241", "Enthalten in" + superiorPPN);
             } else if (journalTitlePPN.length != 0) {
@@ -973,4 +987,5 @@ function doExport() {
         performExport();
     });
 }
+
 
