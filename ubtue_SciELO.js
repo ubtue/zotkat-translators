@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-11-30 14:34:28"
+	"lastUpdated": "2023-12-05 14:55:05"
 }
 
 /*
@@ -218,7 +218,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://scielo.conicyt.cl/scielo.php?script=sci_arttext&pid=S0049-34492019000400457&lng=en&nrm=iso&tlng=en",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -294,7 +293,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.scielo.cl/scielo.php?script=sci_arttext&pid=S0718-92732020000300151&lng=en&nrm=iso&tlng=en",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -356,7 +354,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.scielo.cl/scielo.php?script=sci_arttext&pid=S0718-92732016000100002&lng=en&nrm=iso&tlng=en",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -436,7 +433,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0718-92732016000100001&lng=en&nrm=iso&tlng=es",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -490,7 +486,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://www.scielo.cl/scielo.php?script=sci_arttext&pid=S0718-92732016000100006&lng=en&nrm=iso&tlng=es",
-		"detectedItemType": "journalArticle",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -540,8 +535,63 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "http://www.scielo.org.za/scielo.php?script=sci_issuetoc&pid=1011-760120210002&lng=en&nrm=iso",
-		"detectedItemType": "multiple",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0718-92732023000200009&lng=en&nrm=iso&tlng=en",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Ausencia y presencia de Dios después de Auschwitz a través de la visión de Emmanuel Levinas",
+				"creators": [
+					{
+						"firstName": "Fredy",
+						"lastName": "Parra",
+						"creatorType": "author"
+					}
+				],
+				"date": "08/2023",
+				"DOI": "10.4067/S0718-92732023000200009",
+				"ISSN": "0718-9273",
+				"abstractNote": "This article investigates the presence and absence of God in and after Auschwitz in the thought of the Jewish philosopher Emmanuel Levinas (1906-1995). Analyzing especially the author's Jewish writings published in the post-Auschwitz period, after the horror of the Holocaust, it shows how God responds to the cry of the innocent and suffering by establishing an adult relationship that respects human freedom and founds an infinite responsibility. The article emphasizes the bond between God and the human being, which is mediated by the experience of fidelity to the Torah, and that God's revelation, essentially a commandment, implies unavoidable obedience. Finally, it stresses that the critical content of divine revelation is \"thou shalt not kill,\" to promote and defend the integral life of others in all circumstances, exercising responsibility and striving for authentic social justice.",
+				"language": "es",
+				"libraryCatalog": "SciELO",
+				"pages": "9-29",
+				"publicationTitle": "Veritas",
+				"url": "http://www.scielo.cl/scielo.php?script=sci_abstract&pid=S0718-92732023000200009&lng=en&nrm=iso&tlng=es",
+				"volume": "55",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Ethics"
+					},
+					{
+						"tag": "Law"
+					},
+					{
+						"tag": "Memory"
+					},
+					{
+						"tag": "Obedience"
+					},
+					{
+						"tag": "Other"
+					},
+					{
+						"tag": "Responsibility"
+					},
+					{
+						"tag": "Revelation"
+					},
+					{
+						"tag": "Suffering"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/

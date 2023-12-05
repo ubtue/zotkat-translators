@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-11-29 14:47:02"
+	"lastUpdated": "2023-12-05 14:28:30"
 }
 
 /*
@@ -668,6 +668,7 @@ function doWeb(doc, url) {
 
 
 
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -863,6 +864,9 @@ var testCases = [
 				"volume": "14",
 				"attachments": [],
 				"tags": [
+					{
+						"tag": "CB 482"
+					},
 					{
 						"tag": "Zoroastrianism"
 					},
