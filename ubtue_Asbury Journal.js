@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-12-06 10:31:59"
+	"lastUpdated": "2023-12-06 14:01:32"
 }
 
 /*
@@ -59,7 +59,9 @@ function getSearchResults(doc) {
 function postProcess(item, doc) {
 	// sanitize page number ranges
 	item.DOI = text(doc, '#identifier p').replace('DOI:', '');
-	item.pages = text(doc, '.citation').match(/p\.\s+\d+-\d+/)[0].replace('p.', '');
+	if (!item.pages && text(doc, '.citation').match(/p\.\s+\d+-?–?\d+/) != null) {
+		item.pages = text(doc, '.citation').match(/p\.\s+\d+-?–?\d+/)[0].replace('p.', '');
+	}
 	item.abstractNote = text(doc, '#abstract p');
 	
 	let excludeBookReview = text(doc, '#title a');
@@ -125,17 +127,17 @@ var testCases = [
 				"ISSN": "2375-6330",
 				"abstractNote": "The church does not need more vital congregations, but rather a few vital Christians, whose vitality is not measured in terms of institutional effectiveness, but by missionary zeal. This zeal is a hungering and thirsting for just one thing: the glory of God and the salvation of souls. It cannot be manufactured, but can only be caught from those who have been gifted by the Spirit to continue the charism of their founder, and fanned into flame. Without this type of Christian, there is no movement, and there is no Methodism. John Welsey's most important legacy was not his doctrine or his discipline but a movement of zealous preachers and people who put flesh on the way of scriptural holiness. This paper explores the nature of that legacy and the spiritual zeal it fostered. This paper concludes that this same \"spirit\" is available to all who would commit to the doctrine and discipline of the Methodist movement. A version of this paper was delivered before the faculty of Asbury Theological Seminary to conclude the formal installation of the author in the Sundo Kim Chair of Evangelism on December 4, 2018.",
 				"issue": "1",
-				"libraryCatalog": "Asbury Journal",
+				"libraryCatalog": "ubtue_Asbury Journal",
 				"pages": "8-38",
 				"publicationTitle": "The Asbury Journal",
 				"shortTitle": "The Spirit of Methodism",
 				"url": "https://place.asburyseminary.edu/asburyjournal/vol74/iss1/3",
 				"volume": "74",
-				"attachments": [
-					{}
-				],
+				"attachments": [],
 				"tags": [],
-				"notes": [],
+				"notes": [
+					"LF:"
+				],
 				"seeAlso": []
 			}
 		]
@@ -159,17 +161,17 @@ var testCases = [
 				"ISSN": "2375-6330",
 				"abstractNote": "In this personal essay, originally given as an address delivered at the Sakharov Center, a human rights NGO in Moscow, Russia, on June 2, 2017, the author contemplates a lifetime of experience in the Southern United States and the prejudices and racism that he saw during that time. He relates these experiences to similar issues in Russia today, adding a Christian plea for equality and fair treatment for all people by the Christian community, and also calling on the Church to stand in opposition to racism and anti-Semitism wherever it appears.",
 				"issue": "1",
-				"libraryCatalog": "Asbury Journal",
+				"libraryCatalog": "ubtue_Asbury Journal",
 				"pages": "157-170",
 				"publicationTitle": "The Asbury Journal",
 				"shortTitle": "Growing Up in America's Segregated South",
 				"url": "https://place.asburyseminary.edu/asburyjournal/vol74/iss1/9",
 				"volume": "74",
-				"attachments": [
-					{}
-				],
+				"attachments": [],
 				"tags": [],
-				"notes": [],
+				"notes": [
+					"LF:"
+				],
 				"seeAlso": []
 			}
 		]
@@ -242,20 +244,20 @@ var testCases = [
 				"DOI": "10.7252/Journal.01.2019S.11",
 				"ISSN": "2375-6330",
 				"issue": "1",
-				"libraryCatalog": "Asbury Journal",
+				"libraryCatalog": "ubtue_Asbury Journal",
 				"pages": "221-229",
 				"publicationTitle": "The Asbury Journal",
 				"url": "https://place.asburyseminary.edu/asburyjournal/vol74/iss1/12",
 				"volume": "74",
-				"attachments": [
-					{}
-				],
+				"attachments": [],
 				"tags": [
 					{
-						"tag": "Book Review"
+						"tag": "RezensionstagPica"
 					}
 				],
-				"notes": [],
+				"notes": [
+					"LF:"
+				],
 				"seeAlso": []
 			}
 		]
@@ -279,17 +281,17 @@ var testCases = [
 				"ISSN": "2375-6330",
 				"abstractNote": "Byang Henry Kato, a promising African Christian leader, passed away in 1975 at only 39 years of age. In spite of his brief career, he has left his imprint on the pages of African Christian history. He is not without his supporters and critics alike. It appears that while his critics have misunderstood him in some aspects, his supporters have not paid enough attention to his theological conviction and articulation. While this article aims at clarifying some of Kato's conviction, it also informs readers how, regardless of context and time, others can appreciate, learn, and even adopt some aspects of his contextual model. The writer, an Asian living more than forty years apart from Kato, argues that Kato was indeed an evangelical leader whose theological conviction and model cannot be confined merely to a past era.",
 				"issue": "1",
-				"libraryCatalog": "Asbury Journal",
+				"libraryCatalog": "ubtue_Asbury Journal",
 				"pages": "131-156",
 				"publicationTitle": "The Asbury Journal",
 				"shortTitle": "African Christians or Christian Africans",
 				"url": "https://place.asburyseminary.edu/asburyjournal/vol74/iss1/8",
 				"volume": "74",
-				"attachments": [
-					{}
-				],
+				"attachments": [],
 				"tags": [],
-				"notes": [],
+				"notes": [
+					"LF:"
+				],
 				"seeAlso": []
 			}
 		]
@@ -312,16 +314,16 @@ var testCases = [
 				"DOI": "10.7252/Journal.02.2019F.02",
 				"ISSN": "2375-6330",
 				"issue": "2",
-				"libraryCatalog": "Asbury Journal",
+				"libraryCatalog": "ubtue_Asbury Journal",
 				"pages": "240-276",
 				"publicationTitle": "The Asbury Journal",
 				"url": "https://place.asburyseminary.edu/asburyjournal/vol74/iss2/3",
 				"volume": "74",
-				"attachments": [
-					{}
-				],
+				"attachments": [],
 				"tags": [],
-				"notes": [],
+				"notes": [
+					"LF:"
+				],
 				"seeAlso": []
 			}
 		]
@@ -344,17 +346,17 @@ var testCases = [
 				"DOI": "10.7252/Journal.02.2019F.11",
 				"ISSN": "2375-6330",
 				"issue": "2",
-				"libraryCatalog": "Asbury Journal",
+				"libraryCatalog": "ubtue_Asbury Journal",
 				"pages": "445-456",
 				"publicationTitle": "The Asbury Journal",
 				"shortTitle": "From the Archives",
 				"url": "https://place.asburyseminary.edu/asburyjournal/vol74/iss2/12",
 				"volume": "74",
-				"attachments": [
-					{}
-				],
+				"attachments": [],
 				"tags": [],
-				"notes": [],
+				"notes": [
+					"LF:"
+				],
 				"seeAlso": []
 			}
 		]
@@ -383,11 +385,11 @@ var testCases = [
 				"shortTitle": "The Capital of Methodism",
 				"url": "https://place.asburyseminary.edu/asburyjournal/vol74/iss2/7",
 				"volume": "74",
-				"attachments": [
-					{}
-				],
+				"attachments": [],
 				"tags": [],
-				"notes": [],
+				"notes": [
+					"LF:"
+				],
 				"seeAlso": []
 			}
 		]
@@ -417,14 +419,52 @@ var testCases = [
 				"shortTitle": "The Spirit of Methodism",
 				"url": "https://place.asburyseminary.edu/asburyjournal/vol74/iss1/3",
 				"volume": "74",
-				"attachments": [
-					{}
-				],
+				"attachments": [],
 				"tags": [],
-				"notes": [],
+				"notes": [
+					"LF:"
+				],
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://place.asburyseminary.edu/asburyjournal/vol78/iss2/3/",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Dispositions for Christian Witness Among Theravada Buddhists",
+				"creators": [
+					{
+						"firstName": "Stephen",
+						"creatorType": "author",
+						"lastName": "Bailey"
+					}
+				],
+				"date": "2023-01-01",
+				"DOI": "10.7252/Journal.02.2023F.02",
+				"ISSN": "2375-6330",
+				"abstractNote": "This article reflects on communicating the Christian gospel appropriately and effectively among Southeast Asian Theravada Buddhists (SEATB). It is concerned with contextualizing the means of communication rather than theological concepts. Contextualization is often discussed with little reference to the level of contextualization, including: the content of the gospel, liturgical forms, social rules for relating, and dispositions shaped by Buddhist virtues used in communication. Examples are given of contextualization among SEATB, and then descriptions of how communicators of the gospel can use dispositions shaped by key Buddhist virtues. An argument is made that among SEATB, the means of communicating the gospel is often far more important than the content of the gospel. This suggests that communicators of the gospel would do well to become competent in communicating in ways that reflect the local rules for relationships and by appropriating nonverbals that communicate dispositions of Buddhist virtue.",
+				"issue": "2",
+				"libraryCatalog": "ubtue_Asbury Journal",
+				"pages": "259–278",
+				"publicationTitle": "The Asbury Journal",
+				"url": "https://place.asburyseminary.edu/asburyjournal/vol78/iss2/3",
+				"volume": "78",
+				"attachments": [],
+				"tags": [],
+				"notes": [
+					"LF:"
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://place.asburyseminary.edu/asburyjournal/vol78/iss2/",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
