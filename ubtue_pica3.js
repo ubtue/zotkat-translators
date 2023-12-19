@@ -9,7 +9,7 @@
         "inRepository": true,
         "translatorType": 2,
         "browserSupport": "gcs",
-        "lastUpdated": "2023-11-29 13:05:00"
+        "lastUpdated": "2023-12-19 17:05:00"
 }
 
 // Zotero Export Translator in Pica3 Format für das Einzeln- und Mulitiupload in WinIBW
@@ -455,6 +455,10 @@ function performExport() {
             localURL = "\\n7133 " + item.url + "$xH$3Volltext$4ZZ$534";
             item.url = null;		
         }
+		if (item.url && institution_retrieve_sign == "ubzo") {
+			localURL = "\\n7133 " + item.url;
+			item.url = null;
+		}
 
         // 1140 Veröffentlichungsart und Inhalt http://swbtools.bsz-bw.de/winibwhelp/Liste_1140.htm K10plus:1140 "uwre" entfällt. Das Feld wird folglich auch nicht mehr benötigt. Es sei denn es handelt sich um eines der folgenden Dokumente: http://swbtools.bsz-bw.de/cgi-bin/k10plushelp.pl?cmd=kat&val=1140&kattype=Standard
         /*if (item.itemType == "magazineArticle") {
@@ -483,6 +487,7 @@ function performExport() {
 
         //1505 Katalogisierungsquelle
         addLine(currentItemId, "\\n1505", "$erda");
+
 
         //Autoren --> 3000, 3010
         //Titel, erster Autor --> 4000
@@ -564,7 +569,7 @@ function performExport() {
                         var lookupUrl = "https://swb.bsz-bw.de/DB=2.104/SET=4/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=1&TRM0=" + authorName + "&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=*&ACT3=-&IKT3=8991&TRM3=1%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%5D%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9%5D%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9%5D&SRT=RLV"
                     }
 					else if (institution_retrieve_sign == "ubzo") {
-						var lookupUrl = "https://swb.bsz-bw.de/DB=2.104/SET=4/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=1&TRM0=" + authorName + "&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=*&ACT3=-&IKT3=8991&TRM3=1%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%5D%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9%5D%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9%5D&SRT=RLV"
+						var lookupUrl = "https://swb.bsz-bw.de/DB=2.104/SET=4/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=1&TRM0=" + "&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=*&ACT3=-&IKT3=8991&TRM3=1%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%5D%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9%5D%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9%5D&SRT=RLV"
                     }
                     else var lookupUrl = "https://swb.bsz-bw.de/DB=2.104/SET=70/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=3040&TRM0=" + authorName + "&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=(theolog*|neutestament*|alttestament*|kirchenhist*)&ACT3=-&IKT3=8991&TRM3=1[0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9]"
                     /*
@@ -914,7 +919,7 @@ function performExport() {
              else if (institution_retrieve_sign == "itbk") {
                     addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 itbk$aixrk$aixzs$aixzo' + localURL, ""); 
             } else if (institution_retrieve_sign == "ubzo") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ubzo' + localURL, "");
+					addLine(currentItemId, '\\nE* l01\\n4801 Der Zugriff ist kostenfrei möglich\\n7100$B21\\n8012 fauf$auwzs$azojs' + localURL, "");
 		   }
 
             //K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
