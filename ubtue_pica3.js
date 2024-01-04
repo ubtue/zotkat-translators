@@ -9,7 +9,7 @@
         "inRepository": true,
         "translatorType": 2,
         "browserSupport": "gcs",
-        "lastUpdated": "2023-12-19 17:05:00"
+        "lastUpdated": "2024-01-04 11:45:00"
 }
 
 // Zotero Export Translator in Pica3 Format für das Einzeln- und Mulitiupload in WinIBW
@@ -327,6 +327,9 @@ function performExport() {
 		if (issn_to_ssg_zotkat.get(item.ISBN) !== undefined) {
             SsgField = issn_to_ssg_zotkat.get(item.ISBN);
         }
+		if (issn_to_ssg_zotkat.get(item.ISSN) !== undefined) {
+            SsgField = issn_to_ssg_zotkat.get(item.ISSN);
+        }
         if (!item.volume && issn_to_volume.get(item.ISSN) !== undefined) {
             item.volume = issn_to_volume.get(item.ISSN) + item.volume;
             Z.debug("Found volume:" + item.volume);
@@ -455,8 +458,8 @@ function performExport() {
             localURL = "\\n7133 " + item.url + "$xH$3Volltext$4ZZ$534";
             item.url = null;		
         }
-		if (item.url && institution_retrieve_sign == "zojs") {
-			localURL = "\\n7133 " + item.url;
+		if (item.DOI && institution_retrieve_sign == "zojs") {
+			localURL = "\\n7133 " + "https://doi.org/" + item.DOI;
 			item.url = null;
 		}
 
@@ -881,7 +884,7 @@ function performExport() {
             if (SsgField === "1" || SsgField === "0" || SsgField === "0$a1" || SsgField === "2,1") { 
                 addLine(currentItemId, "\\n5056", SsgField);
             } 
-            else if (SsgField == "NABZ" || SsgField === "zojs") {
+            else if (SsgField == "NABZ" || institution_retrieve_sign == "zojs") {
                 addLine(currentItemId, "\\n5056", '');
             }
             else {
@@ -987,5 +990,6 @@ function doExport() {
         performExport();
     });
 }
+
 
 
