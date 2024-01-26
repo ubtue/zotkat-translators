@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-12-05 14:28:30"
+	"lastUpdated": "2024-01-26 14:58:42"
 }
 
 /*
@@ -86,6 +86,10 @@ function invokeEMTranslator(doc) {
 		if (i.ISSN == undefined) i.ISSN = ZU.xpathText(doc, '//meta[@name="DC.Source.ISSN"]/@content');
 		if (i.ISSN == undefined && i.url.match(/\/godsandmonsters\//) != null) i.ISSN = "IXTH-0001";
 		if (i.ISSN == undefined) i.issue = ZU.xpathText(doc, '//meta[@name="DC.Source.Issue"]/@content');
+		//article URL for Journal of the AOS
+		if (i.ISSN == "2169-2289") {
+			i.url = ZU.xpathText(doc, '//meta[@name="DC.Identifier.URI"]/@content');
+		}
 		//replace issue number with volume number for certain journals and delete year
 		if (i.ISSN == "2297-6469") {
 			i.volume = i.issue.split(/\/\d{4}/i)[0];
