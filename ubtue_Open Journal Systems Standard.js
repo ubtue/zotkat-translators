@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-12-05 14:28:30"
+	"lastUpdated": "2024-01-29 15:48:31"
 }
 
 /*
@@ -86,6 +86,10 @@ function invokeEMTranslator(doc) {
 		if (i.ISSN == undefined) i.ISSN = ZU.xpathText(doc, '//meta[@name="DC.Source.ISSN"]/@content');
 		if (i.ISSN == undefined && i.url.match(/\/godsandmonsters\//) != null) i.ISSN = "IXTH-0001";
 		if (i.ISSN == undefined) i.issue = ZU.xpathText(doc, '//meta[@name="DC.Source.Issue"]/@content');
+		//article URL for Journal of the AOS
+		if (i.ISSN == "2169-2289") {
+			i.url = ZU.xpathText(doc, '//meta[@name="DC.Identifier.URI"]/@content');
+		}
 		//replace issue number with volume number for certain journals and delete year
 		if (i.ISSN == "2297-6469") {
 			i.volume = i.issue.split(/\/\d{4}/i)[0];
@@ -658,6 +662,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEMTranslator(doc, url);
 }
+
 
 
 
@@ -3618,6 +3623,41 @@ var testCases = [
 						"note": "abs:En toda visión humanista de la realidad, conviene releer los textos fundantes de la “memoria cultural”. Así se puede realizar una actualización de la identidad que abra nuevas perspectivas. El avance en las ciencias que acompañan a la teología bíblica facilita esa tarea. En el presente trabajo se aborda la tarea de reconsiderar Gn 2,4b-25 con una aproximación filológica que respeta el texto en su originalidad y da luces para el presente. El designio original para el ser humano es una acción que desarrolle el mundo con una actitud de cuidado. Al mismo tiempo, el propio ser humano se desarrolla y personifica en y a través de la “alianza esponsal”. Esa alianza es una categoría principal para entender la existencia humana, tanto para vertebrar la sociedad, como para comprender su relación con el Creador."
 					}
 				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://lockwoodonlinejournals.com/index.php/jaos/article/view/2406",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "The Martyrs on the Mountain: The Early Traditionist Compromise over the First fitna",
+				"creators": [
+					{
+						"firstName": "I.-Wen",
+						"lastName": "Su",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023/12/12",
+				"DOI": "10.7817/jaos.143.4.2023.ar030",
+				"ISSN": "2169-2289",
+				"abstractNote": "This study investigates the origin, transmission, and reception of two hadith with doctrinal significance on the formation of early Sunni identity and memory of the past—the Mountain hadith, in which the Prophet designates each of the first three caliphs as either a saint or a martyr; and the Ten Promised Paradise hadith, which names the first four caliphs and another five or six Companions as the future residents of paradise. The study identifies Qatāda b. Diʿāma and Hilāl b. Yasāf as the earliest transmitters of both hadith. Analysis of their transmission of the Ten Promised Paradise hadith reveals the emergence of a seminal trend among Kufan traditionists, who, by advocating for an all-embracing approach to ʿUthmān, ʿAlī, and the latter’s opponents, allowed various Kufan groups to find common ground, which was also accompanied by the formation of a comprehensive historical narrative on the first fitna.",
+				"issue": "4",
+				"journalAbbreviation": "JAOS",
+				"language": "en",
+				"libraryCatalog": "lockwoodonlinejournals.com",
+				"pages": "815–837",
+				"publicationTitle": "Journal of the AOS",
+				"rights": "Copyright (c) 2023 Journal of the American Oriental Society",
+				"shortTitle": "The Martyrs on the Mountain",
+				"url": "https://lockwoodonlinejournals.com/index.php/jaos/article/view/2406",
+				"volume": "143",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
