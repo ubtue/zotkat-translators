@@ -8,8 +8,8 @@
 	"priority": 80,
 	"inRepository": true,
 	"translatorType": 4,
-	"browserSupport": "gcsbv",
-	"lastUpdated": "2020-10-22 14:25:40"
+	"browserSupport": "gcsibv",
+	"lastUpdated": "2024-02-02 15:31:24"
 }
 
 /*
@@ -29,8 +29,10 @@
 */
 
 function detectWeb(doc, url) {
-	if (url.match(/revue-d-histoire-et-de-philosophie-religieuses/)) return "journalArticle"
-	else if (url.match(/revue/) && getSearchResults(doc)) return "multiple";
+	//if (url.match(/revue-d-histoire-et-de-philosophie-religieuses/)) return "journalArticle"
+	//else if (url.match(/revue/) && getSearchResults(doc)) return "multiple";
+	if (url.match(/revue-d-histoire-et-de-philosophie-religieuses-\d{4}-\d+-\d+\w?-\w+?-n-\d-varia-\w+-/)) return "journalArticle"
+	else if (url.match(/revue-d-histoire-et-de-philosophie-religieuses-\d{4}-\d+-\d+\w?-\w+?-n-\d-varia.html/) && getSearchResults(doc)) return "multiple";
 }
 
 function getSearchResults(doc) {
@@ -54,23 +56,29 @@ function invokeEMTranslator(doc) {
 	translator.setHandler("itemDone", function (t, i) {
 		
 		//scrape pages from the website
-		let pagesEntry = ZU.xpathText(doc, '//*[(@id = "product-details")]');
+		let pagesEntry = ZU.xpathText(doc, '//*[(@id = "product-details")]//li[contains(b, "Pages")]');
 		if (pagesEntry) {
-			i.pages = pagesEntry.split('Pages:')[1].split('Revue:')[0].replace(' à ', '-');
-			if (i.pages) {
-				var firstandlastpages = i.pages.trim().split('-');
-				if (firstandlastpages[0] === firstandlastpages[1]) { 
-					i.pages = firstandlastpages[0]; 
+			const result = pagesEntry.match(/Pages\s*:\s*(\d+)\s*à\s*(\d+)/)
+      		if (result) {
+				const firstPage = result[1];
+  				const lastPage = result[2];
+
+			  	if (firstPage === lastPage) {
+					i.pages = firstPage;
+				} else {
+					i.pages = firstPage + '-' + lastPage;
 				}
 			}
 		}
-		var issue = i.issue.split('n°');
+  
+		const issue = i.issue.split('n°');
 		i.volume = issue[0].match(/\d+/);
 		i.issue = issue[1];
 		i.complete();
 	});
 	translator.translate();
 }
+
 
 function doWeb(doc, url) {
 	if (detectWeb(doc, url) === "multiple") {
@@ -86,7 +94,8 @@ function doWeb(doc, url) {
 		});
 	} else
 		invokeEMTranslator(doc, url);
-}/** BEGIN TEST CASES **/
+}
+/** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "web",
