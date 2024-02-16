@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-09-15 08:46:42"
+	"lastUpdated": "2024-02-16 14:08:22"
 }
 
 /*
@@ -78,8 +78,13 @@ function getResultList(doc) {
 	if (!results.length) {
 		results = ZU.xpath(doc, '//li[@class="c-list-group__item"]//h3/a');
 	}
+	// New classes for Issues, enables 'multiple' 
+	if (!results.length) {
+		results = ZU.xpath(doc, '//h3[@class="c-card-open__heading"]/a');
+	}
 	return results;
 }
+
 
 function doWeb(doc, url) {
 	var type = detectWeb(doc, url);
@@ -312,6 +317,7 @@ function scrape(doc, url) {
 		translator.translate();
 	});
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
@@ -1144,6 +1150,11 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://link.springer.com/journal/10551/volumes-and-issues/189-4",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
