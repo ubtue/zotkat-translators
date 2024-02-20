@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-02-16 14:08:22"
+	"lastUpdated": "2024-02-20 15:58:34"
 }
 
 /*
@@ -78,7 +78,6 @@ function getResultList(doc) {
 	if (!results.length) {
 		results = ZU.xpath(doc, '//li[@class="c-list-group__item"]//h3/a');
 	}
-	// New classes for Issues, enables 'multiple' 
 	if (!results.length) {
 		results = ZU.xpath(doc, '//h3[@class="c-card-open__heading"]/a');
 	}
@@ -252,7 +251,6 @@ function complementItem(doc, item) {
 	item.tags = [...new Set(item.tags.map(keyword => keyword.trim()))];
 
 	let docType = ZU.xpathText(doc, '//meta[@name="citation_article_type"]/@content');
-	if (docType && docType.match(/(Book R|reviews?)|(Review P|paper)/)) item.tags.push("Book Reviews");
 	if (ZU.xpathText(doc, '//meta[@name="dc.type"]/@content') == "BookReview"){
 		item.tags.push("RezensionstagPica");
 	}
@@ -1155,6 +1153,75 @@ var testCases = [
 		"type": "web",
 		"url": "https://link.springer.com/journal/10551/volumes-and-issues/189-4",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://link.springer.com/article/10.1007/s10551-022-05281-0",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "When Are We More Ethical? A Review and Categorization of the Factors Influencing Dual-Process Ethical Decision-Making",
+				"creators": [
+					{
+						"lastName": "Warner",
+						"firstName": "Clark H.",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Fortin",
+						"firstName": "Marion",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Melkonian",
+						"firstName": "Tessa",
+						"creatorType": "author"
+					}
+				],
+				"date": "2024-02-01",
+				"DOI": "10.1007/s10551-022-05281-0",
+				"ISSN": "1573-0697",
+				"abstractNote": "The study of ethical decision-making has made significant advances, particularly with regard to the ways in which different types of processing are implicated. In recent decades, much of this advancement has been driven by the influence of dual-process theories of cognition. Unfortunately, the wealth of findings in this context can be confusing for management scholars and practitioners who desire to know how best to encourage ethical behavior. While some studies suggest that deliberate reflection leads to more ethical behavior, other studies find, in contrast, that intuitive decision-making leads to more ethical results. The goal of this integrative conceptual review is to help make sense of such apparently contradictory findings by identifying the moderating influences that lead to more versus less ethical decisions, whether they are made via intuitive or deliberative processes. Based on our integrative review of moderators from different disciplines and eras, we develop a taxonomy that can aid researchers in the task of identifying when similar constructs have been studied under different names. We organize our findings concerning these influences in accordance with four emergent moderator categories—psychological, situational, social, and physiological. This work helps us identify patterns of moderating factors across both intuitive and deliberative ethical decision-making, gaps that suggest future research directions and practical implications.",
+				"issue": "4",
+				"journalAbbreviation": "J Bus Ethics",
+				"language": "en",
+				"libraryCatalog": "ubtue_Springer Link",
+				"pages": "843-882",
+				"publicationTitle": "Journal of Business Ethics",
+				"shortTitle": "When Are We More Ethical?",
+				"url": "https://doi.org/10.1007/s10551-022-05281-0",
+				"volume": "189",
+				"attachments": [
+					{
+						"title": "Springer Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Deliberation"
+					},
+					{
+						"tag": "Ethical decision-making"
+					},
+					{
+						"tag": "Ethics"
+					},
+					{
+						"tag": "Intuition"
+					},
+					{
+						"tag": "Morality"
+					}
+				],
+				"notes": [
+					{
+						"note": "orcid:0000-0002-4378-8809 | Clark H. Warner | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
