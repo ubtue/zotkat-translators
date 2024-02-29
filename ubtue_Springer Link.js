@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-02-20 15:58:34"
+	"lastUpdated": "2024-02-29 15:26:39"
 }
 
 /*
@@ -251,7 +251,8 @@ function complementItem(doc, item) {
 	item.tags = [...new Set(item.tags.map(keyword => keyword.trim()))];
 
 	let docType = ZU.xpathText(doc, '//meta[@name="citation_article_type"]/@content');
-	if (ZU.xpathText(doc, '//meta[@name="dc.type"]/@content') == "BookReview"){
+	if (ZU.xpathText(doc, '//meta[@name="dc.type"]/@content') == "BookReview" || 
+       (docType && docType.match(/(Book R|reviews?)/))) {
 		item.tags.push("RezensionstagPica");
 	}
 	// ORCID
