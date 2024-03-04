@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-08-16 15:43:33"
+	"lastUpdated": "2024-03-04 15:55:54"
 }
 
 /*
@@ -93,6 +93,9 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 				i.date = ZU.xpathText(doc, '//div[contains(@class, "pub-date")]').match(/\d{4}/)[0];
 			}
 		}
+		if (ZU.xpathText(doc, '//div[@class="ww-citation-primary"]/a')) {
+			i.url = ZU.xpathText(doc, '//div[@class="ww-citation-primary"]/a')
+		}
 		i.complete();
 	});
 	translator.translate();
@@ -113,6 +116,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEmbeddedMetadataTranslator(doc, url);
 }
+
 
 
 /** BEGIN TEST CASES **/
@@ -159,6 +163,83 @@ var testCases = [
 					}
 				],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://academic.oup.com/ijtj/issue/17/2",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://academic.oup.com/bjc/article/64/2/257/7222129",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Confronting intergenerational harm: Care experience, motherhood and criminal justice involvement",
+				"creators": [
+					{
+						"firstName": "Claire",
+						"lastName": "Fitzpatrick",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Katie",
+						"lastName": "Hunter",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Julie",
+						"lastName": "Shaw",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Jo",
+						"lastName": "Staines",
+						"creatorType": "author"
+					}
+				],
+				"date": "2024",
+				"DOI": "10.1093/bjc/azad028",
+				"ISSN": "0007-0955",
+				"abstractNote": "Prior research highlights how criminalized mothers may be particularly at risk of negative judgements, but little work to date explores how criminalisation, care experience and motherhood may intersect to produce multi-faceted structural disadvantage within both systems of care and punishment. This paper attends to this knowledge gap, drawing on interviews with imprisoned women who have been in care (e.g. foster care or children’s homes), care-experienced girls and young women in the community, and professionals who work with them. Key findings include: a desire to break cycles of intergenerational stigma and social care involvement; lack of support and a fear of asking for help, and the care-less approach to pregnancy and motherhood that may be faced in prison and beyond.",
+				"issue": "2",
+				"journalAbbreviation": "Br J Criminol",
+				"language": "en",
+				"libraryCatalog": "academic.oup.com",
+				"pages": "257-274",
+				"publicationTitle": "The British Journal of Criminology",
+				"shortTitle": "Confronting intergenerational harm",
+				"url": "https://doi.org/10.1093/bjc/azad028",
+				"volume": "64",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [
+					"LF:",
+					{
+						"note": "orcid:0000-0003-4662-2342 | Claire Fitzpatrick"
+					},
+					{
+						"note": "orcid:0000-0001-7811-5666 | Katie Hunter"
+					},
+					{
+						"note": "orcid:0000-0002-0192-178X | Julie Shaw"
+					},
+					{
+						"note": "orcid:0000-0001-7285-496X | Jo Staines"
+					}
+				],
 				"seeAlso": []
 			}
 		]
