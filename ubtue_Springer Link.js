@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-09-15 08:46:42"
+	"lastUpdated": "2024-03-04 14:17:22"
 }
 
 /*
@@ -78,8 +78,12 @@ function getResultList(doc) {
 	if (!results.length) {
 		results = ZU.xpath(doc, '//li[@class="c-list-group__item"]//h3/a');
 	}
+	if (!results.length) {
+		results = ZU.xpath(doc, '//h3[@class="c-card-open__heading"]/a');
+	}
 	return results;
 }
+
 
 function doWeb(doc, url) {
 	var type = detectWeb(doc, url);
@@ -246,11 +250,14 @@ function complementItem(doc, item) {
 	// Trim and deduplicate
 	item.tags = [...new Set(item.tags.map(keyword => keyword.trim()))];
 
-	let docType = ZU.xpathText(doc, '//meta[@name="citation_article_type"]/@content');
-	if (docType && docType.match(/(Book R|reviews?)|(Review P|paper)/)) item.tags.push("Book Reviews");
-	if (ZU.xpathText(doc, '//meta[@name="dc.type"]/@content') == "BookReview"){
-		item.tags.push("RezensionstagPica");
+	let docType1 = ZU.xpathText(doc, '//meta[@name="dc.type"]/@content');
+	let docType2 = ZU.xpathText(doc, '//meta[@name="citation_article_type"]/@content');
+	let bookReviewRegex = /book ?reviews?/i;
+	if ((docType1 && docType1.match(bookReviewRegex)) ||
+		(docType2 && docType2.match(bookReviewRegex))) {
+			item.tags.push("RezensionstagPica");
 	}
+
 	// ORCID
 	getORCID(doc, item);
 	return item;
@@ -312,6 +319,7 @@ function scrape(doc, url) {
 		translator.translate();
 	});
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
@@ -1139,6 +1147,80 @@ var testCases = [
 					},
 					{
 						"note": "orcid:0000-0001-6642-1631 | Noah D. McKay | taken from website"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://link.springer.com/journal/10551/volumes-and-issues/189-4",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://link.springer.com/article/10.1007/s10551-022-05281-0",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "When Are We More Ethical? A Review and Categorization of the Factors Influencing Dual-Process Ethical Decision-Making",
+				"creators": [
+					{
+						"lastName": "Warner",
+						"firstName": "Clark H.",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Fortin",
+						"firstName": "Marion",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Melkonian",
+						"firstName": "Tessa",
+						"creatorType": "author"
+					}
+				],
+				"date": "2024-02-01",
+				"DOI": "10.1007/s10551-022-05281-0",
+				"ISSN": "1573-0697",
+				"abstractNote": "The study of ethical decision-making has made significant advances, particularly with regard to the ways in which different types of processing are implicated. In recent decades, much of this advancement has been driven by the influence of dual-process theories of cognition. Unfortunately, the wealth of findings in this context can be confusing for management scholars and practitioners who desire to know how best to encourage ethical behavior. While some studies suggest that deliberate reflection leads to more ethical behavior, other studies find, in contrast, that intuitive decision-making leads to more ethical results. The goal of this integrative conceptual review is to help make sense of such apparently contradictory findings by identifying the moderating influences that lead to more versus less ethical decisions, whether they are made via intuitive or deliberative processes. Based on our integrative review of moderators from different disciplines and eras, we develop a taxonomy that can aid researchers in the task of identifying when similar constructs have been studied under different names. We organize our findings concerning these influences in accordance with four emergent moderator categories—psychological, situational, social, and physiological. This work helps us identify patterns of moderating factors across both intuitive and deliberative ethical decision-making, gaps that suggest future research directions and practical implications.",
+				"issue": "4",
+				"journalAbbreviation": "J Bus Ethics",
+				"language": "en",
+				"libraryCatalog": "ubtue_Springer Link",
+				"pages": "843-882",
+				"publicationTitle": "Journal of Business Ethics",
+				"shortTitle": "When Are We More Ethical?",
+				"url": "https://doi.org/10.1007/s10551-022-05281-0",
+				"volume": "189",
+				"attachments": [
+					{
+						"title": "Springer Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Deliberation"
+					},
+					{
+						"tag": "Ethical decision-making"
+					},
+					{
+						"tag": "Ethics"
+					},
+					{
+						"tag": "Intuition"
+					},
+					{
+						"tag": "Morality"
+					}
+				],
+				"notes": [
+					{
+						"note": "orcid:0000-0002-4378-8809 | Clark H. Warner | taken from website"
 					}
 				],
 				"seeAlso": []
