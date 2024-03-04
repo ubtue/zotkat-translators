@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-03-01 14:08:10"
+	"lastUpdated": "2024-03-04 14:17:22"
 }
 
 /*
@@ -250,11 +250,14 @@ function complementItem(doc, item) {
 	// Trim and deduplicate
 	item.tags = [...new Set(item.tags.map(keyword => keyword.trim()))];
 
-	let docType = ZU.xpathText(doc, '//meta[@name="citation_article_type"]/@content');
-	if (ZU.xpathText(doc, '//meta[@name="dc.type"]/@content') == "BookReview" || 
-		(docType && docType.match(/(Book R|reviews?)/))) {
-		item.tags.push("RezensionstagPica");
+	let docType1 = ZU.xpathText(doc, '//meta[@name="dc.type"]/@content');
+	let docType2 = ZU.xpathText(doc, '//meta[@name="citation_article_type"]/@content');
+	let bookReviewRegex = /book ?reviews?/i;
+	if ((docType1 && docType1.match(bookReviewRegex)) ||
+		(docType2 && docType2.match(bookReviewRegex))) {
+			item.tags.push("RezensionstagPica");
 	}
+
 	// ORCID
 	getORCID(doc, item);
 	return item;
