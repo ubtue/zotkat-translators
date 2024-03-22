@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-08-16 15:43:33"
+	"lastUpdated": "2024-03-22 14:15:51"
 }
 
 /*
@@ -93,6 +93,7 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 				i.date = ZU.xpathText(doc, '//div[contains(@class, "pub-date")]').match(/\d{4}/)[0];
 			}
 		}
+		i.url = i.url.match(/dx.doi.org/) && i.DOI ? "" : i.url;
 		i.complete();
 	});
 	translator.translate();
@@ -113,6 +114,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEmbeddedMetadataTranslator(doc, url);
 }
+
 
 
 /** BEGIN TEST CASES **/
