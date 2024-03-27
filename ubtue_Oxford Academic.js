@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-08-16 15:43:33"
+	"lastUpdated": "2024-03-22 14:46:16"
 }
 
 /*
@@ -93,6 +93,7 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 				i.date = ZU.xpathText(doc, '//div[contains(@class, "pub-date")]').match(/\d{4}/)[0];
 			}
 		}
+		i.url = i.url.match(/dx.doi.org/) && i.DOI ? "" : i.url;
 		i.complete();
 	});
 	translator.translate();
@@ -113,6 +114,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEmbeddedMetadataTranslator(doc, url);
 }
+
 
 
 /** BEGIN TEST CASES **/
@@ -159,6 +161,105 @@ var testCases = [
 					}
 				],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://academic.oup.com/bjc/article/64/2/275/7226326",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Rescuing women from the brinks of whiteness: Carceral restoration in a human trafficking court",
+				"creators": [
+					{
+						"firstName": "Rashmee",
+						"lastName": "Singh",
+						"creatorType": "author"
+					}
+				],
+				"date": "2024",
+				"DOI": "10.1093/bjc/azad030",
+				"ISSN": "0007-0955",
+				"abstractNote": "Research on gender-specific penal reform programs critique their failure to prioritize the socio-economic recovery of criminalized women. This paper draws on these insights to examine the Women’s Refuge Court (WRC), a human trafficking court for adult women criminalized for prostitution and drug offences in Ohio. Using ethnographic research, I illustrate the WRC’s rejection of bootstrapping and emphasis on material resourcing as a penal reform strategy. I argue that the WRC’s prioritization of socio-economic recovery derives from fears over the status decline of the impoverished white women who predominate as defendants. Court officials rely on evangelical Christian imaginings of prostitution as ‘modern day slavery’ to frame participants as ‘trafficking victims’. I identify the WRC’s response as a racially specific form of gender responsive programming called carceral restoration.",
+				"issue": "2",
+				"journalAbbreviation": "Br J Criminol",
+				"language": "en",
+				"libraryCatalog": "academic.oup.com",
+				"pages": "275-291",
+				"publicationTitle": "The British Journal of Criminology",
+				"shortTitle": "Rescuing women from the brinks of whiteness",
+				"volume": "64",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://academic.oup.com/ijtj/article/17/2/192/7174226",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Between Impunity and Justice? Exploring Stakeholders’ Perceptions of Colombia’s Special Sanctions (Sanciones Propias) for International Crimes",
+				"creators": [
+					{
+						"firstName": "Beatriz E.",
+						"lastName": "Mayans-Hermida",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Barbora",
+						"lastName": "Holá",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Catrien",
+						"lastName": "Bijleveld",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023",
+				"DOI": "10.1093/ijtj/ijad009",
+				"ISSN": "1752-7716",
+				"abstractNote": "The peace agreement signed by the Colombian government and the FARC has an innovative sanctioning regime which, based on a restorative approach, offers non-custodial sanctions as a less punitive form of punishment for international crimes. However, given their leniency, these ‘special sanctions’ have caused controversy. Based on qualitative interviews, this study explores the perceptions of different stakeholders concerning various issues related to the special sanctions’ nature, goals, processes, (envisioned) outcomes and challenges. Our findings reveal that most participants perceive these sanctions as a tool that can modestly help repair the damage done, reintegrate (certain) offenders into society, and promote coexistence. Only a limited number of respondents saw these sanctions as punishment. For several participants, the special sanctions may be an alternative accountability measure to prison. However, this seems to depend on meeting certain preconditions, victims’ participation, the type of crime and the offender’s rank and affiliation.",
+				"issue": "2",
+				"journalAbbreviation": "Int J Transit Justice",
+				"language": "en",
+				"libraryCatalog": "academic.oup.com",
+				"pages": "192-211",
+				"publicationTitle": "International Journal of Transitional Justice",
+				"shortTitle": "Between Impunity and Justice?",
+				"volume": "17",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [
+					"LF:",
+					{
+						"note": "orcid:0000-0002-4241-0038 | Beatriz E Mayans-Hermida"
+					}
+				],
 				"seeAlso": []
 			}
 		]
