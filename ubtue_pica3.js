@@ -9,7 +9,7 @@
         "inRepository": true,
         "translatorType": 2,
         "browserSupport": "gcs",
-        "lastUpdated": "2024-01-04 11:45:00"
+        "lastUpdated": "2024-03-27 17:07:00"
 }
 
 // Zotero Export Translator in Pica3 Format für das Einzeln- und Mulitiupload in WinIBW
@@ -929,7 +929,7 @@ function performExport() {
             //Schlagwörter aus einem Thesaurus (Fremddaten) --> 5520 (oder alternativ siehe Mapping)
 
             for (i=0; i<item.tags.length; i++) {
-                addLine(currentItemId, "\\n5520", "|s|" + ZU.unescapeHTML(item.tags[i].tag.replace(/\s?--\s?/g, '; ')));
+                addLine(currentItemId, "\\n5520", " " + ZU.unescapeHTML(item.tags[i].tag.replace(/\s?--\s?/g, '; ')));
             }
             //notes > IxTheo-Notation K10plus: 6700 wird hochgezählt und nicht wiederholt, inkrementell ab z.B. 6800, 6801, 6802 etc.
             if (item.notes) {
