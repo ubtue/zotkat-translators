@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-04-30 15:08:20"
+	"lastUpdated": "2024-05-02 10:36:39"
 }
 
 /*
@@ -85,9 +85,11 @@ async function scrape(doc, url = doc.location.href) {
 		if (item.abstractNote.length <= 20)
 			item.abstractNote = "";
 		item.url = "";
-		item.ISSN = 'KRIM-0001';
+		let titles = ['Addiction & Criminology', 'Addiction and Criminology', 'Addiction And Criminology'];
+		if (titles.includes(item.publicationTitle))
+		    item.ISSN = 'KRIM-0001';
 		if (item.title === item.title.toUpperCase())
-		    item.title = item.title.toLowerCase().replace(/\b(\w)/g, s => s.toUpperCase());
+			item.title = item.title.toLowerCase().replace(/\b(\w)/g, s => s.toUpperCase());
 		item.complete();
 	});
 
