@@ -9,30 +9,29 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-03-28 16:05:28"
+	"lastUpdated": "2024-05-03 07:51:50"
 }
 
 /*
-    ***** BEGIN LICENSE BLOCK *****
+	***** BEGIN LICENSE BLOCK *****
 
-    Copyright © 2022 YOUR_NAME <- TODO
 
-    This file is part of Zotero.
+	This file is part of Zotero.
 
-    Zotero is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	Zotero is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    Zotero is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU Affero General Public License for more details.
+	Zotero is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with Zotero. If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU Affero General Public License
+	along with Zotero. If not, see <http://www.gnu.org/licenses/>.
 
-    ***** END LICENSE BLOCK *****
+	***** END LICENSE BLOCK *****
 */
 
 
@@ -83,12 +82,14 @@ async function scrape(doc, url = doc.location.href) {
 	
 	translator.setHandler('itemDone', (_obj, item) => {
 		if (item.abstractNote.length <= 20)
-		    item.abstractNote = "";
+			item.abstractNote = "";
 		item.url = "";
-		if (item.ISSN = "Open Access") {
-			item.tags.push('LF:');
-			item.ISSN = "";
-		}
+		let titles = ['addiction & criminology', 'addiction and criminology'];
+		if (titles.includes(item.publicationTitle.toLowerCase()))
+			item.ISSN = 'KRIM-0001';
+		if (item.title === item.title.toUpperCase())
+			item.title = ZU.capitalizeTitle(item.title.toLowerCase(), true);
+	
 		item.complete();
 	});
 
@@ -149,6 +150,48 @@ var testCases = [
 					},
 					{
 						"tag": "Therapeutic targets."
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.alliedacademies.org/articles/assessing-strategies-and-impacts-on-criminal-justice-27804.html",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Assessing Strategies and Impacts on Criminal Justice.",
+				"creators": [
+					{
+						"firstName": "Serry",
+						"lastName": "Stolzenberg",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023",
+				"DOI": "10.35841/aara-6.6.177",
+				"ISSN": "KRIM-0001",
+				"issue": "6",
+				"language": "en",
+				"libraryCatalog": "www.alliedacademies.org",
+				"publicationTitle": "Addiction & Criminology",
+				"volume": "6",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "criminal justice"
 					}
 				],
 				"notes": [],
