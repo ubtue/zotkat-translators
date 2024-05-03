@@ -9,13 +9,12 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-05-02 15:58:34"
+	"lastUpdated": "2024-05-03 07:51:50"
 }
 
 /*
 	***** BEGIN LICENSE BLOCK *****
 
-	Copyright © 2022 YOUR_NAME <- TODO
 
 	This file is part of Zotero.
 

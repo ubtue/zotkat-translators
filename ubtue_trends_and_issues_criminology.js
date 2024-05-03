@@ -9,13 +9,12 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-05-02 15:49:54"
+	"lastUpdated": "2024-05-03 07:51:10"
 }
 
 /*
 	***** BEGIN LICENSE BLOCK *****
 
-	Copyright © 2022 YOUR_NAME <- TODO
 
 	This file is part of Zotero.
 
@@ -86,7 +85,6 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setDocument(doc);
 	
 	translator.setHandler('itemDone', (_obj, item) => {
-		// TODO adjust if needed:
 		item.itemType = "journalArticle";
 		item.tags.push('artikelID:' + url.replace(/\D/g,''));
 
