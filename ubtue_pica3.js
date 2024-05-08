@@ -9,7 +9,7 @@
         "inRepository": true,
         "translatorType": 2,
         "browserSupport": "gcs",
-        "lastUpdated": "2024-04-26 13:31:00"
+        "lastUpdated": "2024-05-08 12:01:00"
 }
 
 // Zotero Export Translator in Pica3 Format für das Einzeln- und Mulitiupload in WinIBW
@@ -311,7 +311,7 @@ function performExport() {
         var retrieve_sign = "";
         if (!item.ISSN)
             item.ISSN = "";
-        if (item.ISSN.substring(0,4) != "IXTH") item.ISSN = ZU.cleanISSN(item.ISSN);
+        if (item.ISSN.match(/^\d+/)) item.ISSN = ZU.cleanISSN(item.ISSN);
         //enrich items based on their ISSN
         if (issn_to_language_code.get(item.ISSN) !== undefined) {
             item.language = issn_to_language_code.get(item.ISSN);
