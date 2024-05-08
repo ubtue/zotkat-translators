@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-05-03 07:51:10"
+	"lastUpdated": "2024-05-08 08:24:06"
 }
 
 /*
@@ -86,7 +86,7 @@ async function scrape(doc, url = doc.location.href) {
 	
 	translator.setHandler('itemDone', (_obj, item) => {
 		item.itemType = "journalArticle";
-		item.tags.push('artikelID:' + url.replace(/\D/g,''));
+		item.notes.push('artikelID:' + url.replace(/\D/g,''));
 
 		item.creators = [];
 		let authorCandidates = ZU.xpath(doc, '//div[contains(@class,"field--name-field-author")]/*');
@@ -110,5 +110,63 @@ async function scrape(doc, url = doc.location.href) {
 
 /** BEGIN TEST CASES **/
 var testCases = [
+	{
+		"type": "web",
+		"url": "https://www.aic.gov.au/publications/tandi/tandi688",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "User experiences of reporting dating app facilitated sexual violence to dating platforms Reporting dating app facilitated sexual violence",
+				"creators": [
+					{
+						"firstName": "Lawler",
+						"lastName": "Siobhan",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Boxall",
+						"lastName": "Hayley",
+						"creatorType": "author"
+					}
+				],
+				"date": "Tue, 2024-03-12 12:00",
+				"ISSN": "1836-2206",
+				"abstractNote": "A significant proportion of users subjected to dating app facilitated sexual violence (DAFSV) make a report to the platform. However, the experiences of victim-survivors reporting to dating platforms has been underexamined in research. Based on the analysis of a survey completed by 1,555 dating platform users in Australia who had reported DAFSV to the platform, this study found overall positive experiences reporting to platforms. However, victim-survivors’ experiences differed depending on their gender and sexual identity; LGB+ women reported the lowest levels of satisfaction with platforms’ responses, and heterosexual men the highest. Further, respondents who were satisfied with how platforms responded to their reports of DAFSV were more likely to say that they would report again in the future. Respondents who said that the dating platform had provided them with information about other services were also more likely to report the incident to the police.",
+				"language": "en",
+				"libraryCatalog": "www.aic.gov.au",
+				"url": "https://doi.org/10.52922/ti77314",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Cybercrime"
+					},
+					{
+						"tag": "Peer-reviewed"
+					},
+					{
+						"tag": "Reporting"
+					},
+					{
+						"tag": "Sexual violence"
+					},
+					{
+						"tag": "Surveys"
+					},
+					{
+						"tag": "Victims"
+					}
+				],
+				"notes": [
+					"artikelID:688"
+				],
+				"seeAlso": []
+			}
+		]
+	}
 ]
 /** END TEST CASES **/
