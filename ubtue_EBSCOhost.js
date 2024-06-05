@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-09-13 13:45:01"
+	"lastUpdated": "2024-06-05 10:24:41"
 }
 
 /*
@@ -56,7 +56,7 @@ function detectWeb(doc, url) {
 /*
  * given the text of the delivery page, downloads an item
  */
-function downloadFunction(text, url, prefs) {
+function downloadFunction(doc, text, url, prefs) {
 	if (text.search(/^TY\s\s?-/m) == -1) {
 		text = "\nTY  - JOUR\n" + text;	// this is probably not going to work if there is garbage text in the begining
 	}
@@ -177,6 +177,26 @@ function downloadFunction(text, url, prefs) {
 				.replace(/\s*\[[^\].]+\]$/, ''); // to be safe, don't strip sentences
 		}
 
+		// A lot of extra info is jammed into notes
+		item.notes = [];
+
+		let  abstractCandidates= ZU.xpath(doc, '//dt[contains(text(),"Abstract")]');
+			if (abstractCandidates) {
+				item.abstractNote = "";
+				let citation_field_values = ZU.xpath(abstractCandidates[0], './following-sibling::dd[@data-auto="citation_field_value"]');
+				for (citation_field_value of citation_field_values) {
+					let abstractCandidate = citation_field_value.innerText;
+					const ABSTRACT_INDICATOR = new RegExp('\\[ABSTRACT FROM AUTHOR\\]');
+					if (!ABSTRACT_INDICATOR.test(abstractCandidate))
+						continue;
+					let abstract = ZU.trimInternal(abstractCandidate.replace(ABSTRACT_INDICATOR, ""));
+					if (!item.abstractNote)
+						item.abstractNote = abstract;
+					else
+						item.notes.push({'note' : 'abs: ' + abstract});
+				}
+			}
+
 		// Get the accession number from URL if not in RIS
 		var an = url.match(/_(\d+)_AN/);
 		if (!item.callNumber) {
@@ -188,9 +208,6 @@ function downloadFunction(text, url, prefs) {
 		else if (!an) {	// we'll need this later
 			an = item.callNumber;
 		}
-		
-		// A lot of extra info is jammed into notes
-		item.notes = [];
 		
 		// the archive field is pretty useless:
 		item.archive = "";
@@ -480,6 +497,7 @@ function doDelivery(doc, itemInfo) {
 			return;
 		}
 
+		
 		/* We now have the script containing ep.clientData */
 		clientData = clientData[1].match(/"currentRecord"\s*:\s*({[^}]*})/);
 		if (!clientData) {
@@ -560,9 +578,10 @@ function doDelivery(doc, itemInfo) {
 		+ "&bdata=" + args.bdata
 		+ "&theExportFormat=1";	// RIS file
 	ZU.doGet(postURL, function (text) {
-		downloadFunction(text, postURL, prefs);
+		downloadFunction(doc, text, postURL, prefs);
 	});
 }
+
 
 
 
@@ -826,6 +845,84 @@ var testCases = [
 					}
 				],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://web.p.ebscohost.com/ehost/detail/detail?vid=0&sid=b284a5cd-ad25-41a8-bd8e-d92fa348f215%40redis&bdata=JnNpdGU9ZWhvc3QtbGl2ZQ%3d%3d#db=aph&AN=174805065",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "ET VERBUM CARO FACTUM EST: Análisis y traducción de Ordinatio III d. 2 q. 3, de Juan Duns Escoto: Miscellanea Francescana",
+				"creators": [
+					{
+						"lastName": "Rodríguez Morales",
+						"firstName": "Jesús Manuel",
+						"creatorType": "author"
+					}
+				],
+				"date": "Juli 2023",
+				"ISSN": "0026587X",
+				"abstractNote": "This article examines the theme of Christ’s incarnation, focusing in particular on the question of the organization and animation of his corporeality, as evinced in question three of the second distinction of Duns Scotus’ commentary on the third book of Peter Lombard’s Sentences. The discussion will allow us to analyze the various positions that oscillate between a temporal primacy and a natural primacy of the body’s constitution concerning the fact of incarnation. In this regard, the theory of the plurality of forms presents itself as a key to understanding the particular perspective of the Doctor subtilis, in which the instant of incarnation is proposed as the union of the human and the divine.",
+				"issue": "3/4",
+				"language": "ita",
+				"libraryCatalog": "EBSCOhost",
+				"pages": "443-474",
+				"shortTitle": "ET VERBUM CARO FACTUM EST",
+				"url": "https://www.redi-bw.de/db/ebsco.php/search.ebscohost.com/login.aspx%3fdirect%3dtrue%26db%3daph%26AN%3d174805065%26site%3dehost-live",
+				"volume": "123",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Christocentrism"
+					},
+					{
+						"tag": "DUNS Scotus, John, ca. 1266-1308"
+					},
+					{
+						"tag": "Duns Scoto"
+					},
+					{
+						"tag": "Duns Scotus"
+					},
+					{
+						"tag": "INCARNATION"
+					},
+					{
+						"tag": "Incarnation"
+					},
+					{
+						"tag": "Incarnazione"
+					},
+					{
+						"tag": "Scotist anthropology"
+					},
+					{
+						"tag": "antropologia scotista"
+					},
+					{
+						"tag": "corporeality"
+					},
+					{
+						"tag": "corporeità"
+					},
+					{
+						"tag": "cristo centrismo"
+					},
+					{
+						"tag": "plurality of form"
+					},
+					{
+						"tag": "pluralità delle forme"
+					}
+				],
+				"notes": [
+					{
+						"note": "abs: Questo articolo e samina il tema dell’incarnazione di Cristo, concentrandosi in particolare sulla questione dell’organizzazione e animazione della sua corporeità, così come si evince nella questione terza della distinzione seconda del commento di Duns Scoto al terzo libro delle Sentenze di Pietro Lombardo. La discussione ci permette analizzare le varie posizioni che oscillano tra un primato temporale e un primato naturale della costituzione del corpo rispetto al fatto dell’incarnazione. A questo proposito, la teoria della pluralità delle forme si presenta come chiave di lettura della particolare prospettiva del Doctor subtilis, in cui l’istante dell’incarnazione si propone come l’unione tra l’umano e il divino."
+					}
+				],
 				"seeAlso": []
 			}
 		]
