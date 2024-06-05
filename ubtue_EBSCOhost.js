@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-06-05 10:24:41"
+	"lastUpdated": "2024-06-05 14:49:24"
 }
 
 /*
@@ -53,6 +53,24 @@ function detectWeb(doc, url) {
 	return false;
 }
 
+function extractAbstracts(doc, item) {
+	let  abstractCandidates= ZU.xpath(doc, '//dt[contains(text(),"Abstract")]');
+	if (abstractCandidates) {
+		item.abstractNote = "";
+		let citation_field_values = ZU.xpath(abstractCandidates[0], './following-sibling::dd[@data-auto="citation_field_value"]');
+		for (citation_field_value of citation_field_values) {
+			let abstractCandidate = citation_field_value.innerText;
+			const ABSTRACT_INDICATOR = new RegExp('\\[ABSTRACT FROM AUTHOR\\]');
+			if (!ABSTRACT_INDICATOR.test(abstractCandidate))
+				continue;
+			let abstract = ZU.trimInternal(abstractCandidate.replace(ABSTRACT_INDICATOR, ""));
+			if (!item.abstractNote)
+				item.abstractNote = abstract;
+			else
+				item.notes.push({'note' : 'abs: ' + abstract});
+		}
+	}
+}
 /*
  * given the text of the delivery page, downloads an item
  */
@@ -180,22 +198,7 @@ function downloadFunction(doc, text, url, prefs) {
 		// A lot of extra info is jammed into notes
 		item.notes = [];
 
-		let  abstractCandidates= ZU.xpath(doc, '//dt[contains(text(),"Abstract")]');
-			if (abstractCandidates) {
-				item.abstractNote = "";
-				let citation_field_values = ZU.xpath(abstractCandidates[0], './following-sibling::dd[@data-auto="citation_field_value"]');
-				for (citation_field_value of citation_field_values) {
-					let abstractCandidate = citation_field_value.innerText;
-					const ABSTRACT_INDICATOR = new RegExp('\\[ABSTRACT FROM AUTHOR\\]');
-					if (!ABSTRACT_INDICATOR.test(abstractCandidate))
-						continue;
-					let abstract = ZU.trimInternal(abstractCandidate.replace(ABSTRACT_INDICATOR, ""));
-					if (!item.abstractNote)
-						item.abstractNote = abstract;
-					else
-						item.notes.push({'note' : 'abs: ' + abstract});
-				}
-			}
+		extractAbstracts(doc, item);
 
 		// Get the accession number from URL if not in RIS
 		var an = url.match(/_(\d+)_AN/);
@@ -581,6 +584,7 @@ function doDelivery(doc, itemInfo) {
 		downloadFunction(doc, text, postURL, prefs);
 	});
 }
+
 
 
 
