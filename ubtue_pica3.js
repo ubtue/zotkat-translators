@@ -612,6 +612,35 @@ function performExport() {
                         "code" : code,
                         "authorName" : authorName,
                     };
+							//works only for first value? how can I iterate through the threadParams["authorName"]; is this an array or 
+					if (item.notes) {
+						for (let i of item.notes) {
+							if (i.note.includes('orcid')) {
+								// Get the first part of the author's name
+								let authorNameLast = threadParams["authorName"].split(",")[0].trim(); 
+								
+								// Extract the author's name from the note
+								let noteAuthorName = i.note.split('|')[1].trim().split(' '); 
+								let noteLastName = noteAuthorName[noteAuthorName.length - 1].trim();
+								//Zotero.write(noteLastName + "\n"); 
+								
+								// Check if the author's name matches the name in the note
+								if (authorNameLast === noteLastName) { 
+									// Extract the ORCID from the note
+									let orcidNotes = i.note.split('|')[0].trim(); 
+									
+									// Match all ORCID patterns
+									let orcidMatch = orcidNotes.match(/orcid:\s*?\d{4}-\d{4}-\d{4}-\d+x?/ig); 
+									
+									// If ORCID is found
+									if (orcidMatch) { 
+										let lineContent = `${threadParams["authorName"]}$p${orcidMatch}`;
+										threadParams["authorName"] = lineContent;							
+									}
+								}
+							}
+						}
+					}
 
                     runningThreadCount++;
                     processDocumentsCustom(lookupUrl,
@@ -693,7 +722,10 @@ function performExport() {
                     break;
             }
         }
+		
 
+
+		
         //Paralleltitel OJS --> 4002 
         //Übersetzung des Haupttitels --> 4212
         if (item.notes) {
@@ -990,6 +1022,7 @@ function doExport() {
         performExport();
     });
 }
+
 
 
 
