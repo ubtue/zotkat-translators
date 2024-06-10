@@ -9,64 +9,13 @@
         "inRepository": true,
         "translatorType": 2,
         "browserSupport": "gcs",
-        "lastUpdated": "2024-05-08 12:01:00"
+        "lastUpdated": "2024-06-10 09:28:00"
 }
 
 // Zotero Export Translator in Pica3 Format für das Einzeln- und Mulitiupload in WinIBW
 // (wie es im K10+ Verbund benutzt wird)
 // https://verbundwiki.gbv.de/display/VZG/PICA-Format
-
-
-/*
- ***** BEGIN LICENSE BLOCK *****
-  Copyright © 2020 Universitätsbibliothek Tübingen.  All rights reserved.
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU Affero General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU Affero General Public License for more details.
-  You should have received a copy of the GNU Affero General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ***** END LICENSE BLOCK *****
- */
-
-/* =============================================================================================================== */
-// Mapping tables that get populated with the entries from their corresponding map files in the Github repo
-var issn_to_language_code = {};
-var issn_to_license = {};
-var issn_to_physical_form = {};
-var issn_to_ssg_zotkat = {};
-var issn_to_superior_ppn = {};
-var issn_to_volume = {};
-var language_to_language_code = {};
-var notes_to_ixtheo_notations = {};
-var journal_title_to_ppn = {};
-var publication_title_to_physical_form = {};
-var issn_to_institution = {};
-var issn_to_collection_code = {};
-// Repository base URL
-var zts_enhancement_repo_url = 'https://raw.githubusercontent.com/ubtue/zotero-enhancement-maps/master/';
-var downloaded_map_files = 0;
-var max_map_files = 12;
-
-
-/*
-    The following maps DO NOT have a corresponding file in the zts_enhancement_maps repository.
-    Until they are added somewhere online for downloading, we'll use the hardcoded maps that follow:
-    */
-// Mapping für JournalTitle missing ISSN >PPN
-
-// Mapping JournalTitle>Language
-var journal_title_to_language_code = {
-    "Oriens Christianus" :"ger",
-    "Ephemerides Theologicae Lovanienses" : "fre",
-    "Science et Esprit" : "fre",
-}
-
-/* =============================================================================================================== */
+* =============================================================================================================== */
 // ab hier Programmcode
 var defaultSsgNummer = undefined;
 var defaultLanguage = "eng";
@@ -612,6 +561,35 @@ function performExport() {
                         "code" : code,
                         "authorName" : authorName,
                     };
+							//works only for first value? how can I iterate through the threadParams["authorName"]; is this an array or 
+					if (item.notes) {
+						for (let i of item.notes) {
+							if (i.note.includes('orcid')) {
+								// Get the first part of the author's name
+								let authorNameLast = threadParams["authorName"].split(",")[0].trim(); 
+								
+								// Extract the author's name from the note
+								let noteAuthorName = i.note.split('|')[1].trim().split(' '); 
+								let noteLastName = noteAuthorName[noteAuthorName.length - 1].trim();
+								//Zotero.write(noteLastName + "\n"); 
+								
+								// Check if the author's name matches the name in the note
+								if (authorNameLast === noteLastName) { 
+									// Extract the ORCID from the note
+									let orcidNotes = i.note.split('|')[0].trim(); 
+									
+									// Match all ORCID patterns
+									let orcidMatch = orcidNotes.match(/orcid:\s*?\d{4}-\d{4}-\d{4}-\d+x?/ig); 
+									
+									// If ORCID is found
+									if (orcidMatch) { 
+										let lineContent = `${threadParams["authorName"]}$p${orcidMatch}`;
+										threadParams["authorName"] = lineContent;							
+									}
+								}
+							}
+						}
+					}
 
                     runningThreadCount++;
                     processDocumentsCustom(lookupUrl,
@@ -693,7 +671,10 @@ function performExport() {
                     break;
             }
         }
+		
 
+
+		
         //Paralleltitel OJS --> 4002 
         //Übersetzung des Haupttitels --> 4212
         if (item.notes) {
@@ -990,6 +971,7 @@ function doExport() {
         performExport();
     });
 }
+
 
 
 
