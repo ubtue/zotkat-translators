@@ -9,7 +9,7 @@
         "inRepository": true,
         "translatorType": 2,
         "browserSupport": "gcs",
-        "lastUpdated": "2024-05-08 12:01:00"
+        "lastUpdated": "2024-06-10 11:29:00"
 }
 
 // Zotero Export Translator in Pica3 Format für das Einzeln- und Mulitiupload in WinIBW
@@ -612,7 +612,7 @@ function performExport() {
                         "code" : code,
                         "authorName" : authorName,
                     };
-							//works only for first value? how can I iterate through the threadParams["authorName"]; is this an array or 
+					// Autoren ORCID hinzufügen --> 3000, 3010 https://format.k10plus.de/k10plushelp.pl?cmd=kat&val=3000&katalog=Standard
 					if (item.notes) {
 						for (let i of item.notes) {
 							if (i.note.includes('orcid')) {
@@ -621,8 +621,7 @@ function performExport() {
 								
 								// Extract the author's name from the note
 								let noteAuthorName = i.note.split('|')[1].trim().split(' '); 
-								let noteLastName = noteAuthorName[noteAuthorName.length - 1].trim();
-								//Zotero.write(noteLastName + "\n"); 
+								let noteLastName = noteAuthorName[noteAuthorName.length - 1].trim(); 
 								
 								// Check if the author's name matches the name in the note
 								if (authorNameLast === noteLastName) { 
@@ -630,17 +629,18 @@ function performExport() {
 									let orcidNotes = i.note.split('|')[0].trim(); 
 									
 									// Match all ORCID patterns
-									let orcidMatch = orcidNotes.match(/orcid:\s*?\d{4}-\d{4}-\d{4}-\d+x?/ig); 
+									let orcidMatch = orcidNotes.match(/\d{4}-\d{4}-\d{4}-\d+x?/ig); 
 									
 									// If ORCID is found
 									if (orcidMatch) { 
-										let lineContent = `${threadParams["authorName"]}$p${orcidMatch}`;
+										let lineContent = `${threadParams["authorName"]}$porcid: ${orcidMatch}`;
 										threadParams["authorName"] = lineContent;							
 									}
 								}
 							}
 						}
 					}
+
 
                     runningThreadCount++;
                     processDocumentsCustom(lookupUrl,
@@ -1022,7 +1022,4 @@ function doExport() {
         performExport();
     });
 }
-
-
-
 
