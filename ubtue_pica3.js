@@ -621,8 +621,7 @@ function performExport() {
 								
 								// Extract the author's name from the note
 								let noteAuthorName = i.note.split('|')[1].trim().split(' '); 
-								let noteLastName = noteAuthorName[noteAuthorName.length - 1].trim();
-								Zotero.write(noteLastName + "\n"); 
+								let noteLastName = noteAuthorName[noteAuthorName.length - 1].trim(); 
 								
 								// Check if the author's name matches the name in the note
 								if (authorNameLast === noteLastName) { 
