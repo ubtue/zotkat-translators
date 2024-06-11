@@ -1,6 +1,6 @@
 {
     "translatorID": "3422226d-9829-45ac-98a2-9a04aefc7f05",
-        "label": "ubtue_Pica3",
+        "label": "ubtue_pica3",
         "creator": "Philipp Zumstein, Timotheus Kim, Mario Trojan, Madeeswaran Kannan, Johannes Ruscheinski, Helena Nebel",
         "target": "txt",
         "minVersion": "3.0",
