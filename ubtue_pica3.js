@@ -9,7 +9,7 @@
         "inRepository": true,
         "translatorType": 2,
         "browserSupport": "gcs",
-        "lastUpdated": "2024-06-11 14:22:01"
+        "lastUpdated": "2024-06-13 14:28:01"
 }
 
 // Zotero Export Translator in Pica3 Format für das Einzeln- und Mulitiupload in WinIBW
@@ -655,11 +655,11 @@ function performExport() {
 						function(doc, url, threadParams){
 							var ppn = Zotero.Utilities.xpathText(doc, '//div[a[img]]');
 							if (ppn && SsgField != "0" && institution_retrieve_sign != "krzo") {
-								var authorValue = "!" + ppn.match(/^\d+X?/) + "!" + "$BVerfasserIn$4aut" + "\\n8910 $aixzom$bVerfasserIn in der Zoterovorlage ["  + threadParams["authorName"] + "]" + " einer PPN " + ppn.trim() + " maschinell zugeordnet\\n";
+								var authorValue = "!" + ppn.match(/^\d+X?/) + "!" + "$BVerfasserIn$4aut" + "\\n8910 $aixzom$bVerfasserIn in der Zoterovorlage ["  + threadParams["authorName"] + "]" + " einer PPN " + ppn.match(/^\d+X?/) + " maschinell zugeordnet\\n";
 								addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', authorValue);
 							}
 							else if (ppn && SsgField != "0") {
-								var authorValue = "!" + ppn.match(/^\d+X?/) + "!" + "$BVerfasserIn$4aut" + "\\n8910 $akrzom$bVerfasserIn in der Zoterovorlage ["  + threadParams["authorName"] + "]" + " einer PPN " + ppn.trim() + " maschinell zugeordnet\\n";
+								var authorValue = "!" + ppn.match(/^\d+X?/) + "!" + "$BVerfasserIn$4aut" + "\\n8910 $akrzom$bVerfasserIn in der Zoterovorlage ["  + threadParams["authorName"] + "]" + " einer PPN " + ppn.match(/^\d+X?/) + " maschinell zugeordnet\\n";
 								addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', authorValue);
 							}
 							else if (threadParams["authorOrcid"]) {
