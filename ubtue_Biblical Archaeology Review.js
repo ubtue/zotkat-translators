@@ -9,30 +9,30 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-12-19 16:13:57"
+	"lastUpdated": "2024-06-26 13:05:50"
 }
 
 /*
-    ***** BEGIN LICENSE BLOCK *****
+	***** BEGIN LICENSE BLOCK *****
 
-    Copyright © 2022 YOUR_NAME <- TODO
+	Copyright © 2024 Universitätsbibliothek Tübingen
 
-    This file is part of Zotero.
+	This file is part of Zotero.
 
-    Zotero is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	Zotero is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    Zotero is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU Affero General Public License for more details.
+	Zotero is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with Zotero. If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU Affero General Public License
+	along with Zotero. If not, see <http://www.gnu.org/licenses/>.
 
-    ***** END LICENSE BLOCK *****
+	***** END LICENSE BLOCK *****
 */
 
 
@@ -103,9 +103,13 @@ async function scrape(doc, url = doc.location.href) {
 		let lookupVolumeIssue = ZU.xpathText(doc, '//a[contains(@href, "issue")]/@href');
 				ZU.processDocuments(lookupVolumeIssue, function (scrapeVolumeIssue) {
 					let volumeIssueEntry = ZU.xpathText(scrapeVolumeIssue, '//*[(@class="meta")]');
+					let yearUrl = ZU.xpathText(scrapeVolumeIssue, '//link[@rel="canonical"]/@href');
 					if (volumeIssueEntry) {
 						item.volume = volumeIssueEntry.match(/(?:volume)\s+(\d+)/i)[1];
 						item.issue = volumeIssueEntry.match(/(?:number)\s+(\d+)/i)[1];
+					}
+					if (yearUrl) {
+						item.date = yearUrl.match(/\b\d{4}\b/);
 					}
 				});
 
@@ -128,6 +132,49 @@ var testCases = [
 		"type": "web",
 		"url": "https://library.biblicalarchaeology.org/issue/fall-2023/",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://library.biblicalarchaeology.org/issue/summer-2024/",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://library.biblicalarchaeology.org/article/finding-jesus-byzantine-paintings-at-shivta/",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Finding Jesus: Byzantine Paintings at Shivta",
+				"creators": [
+					{
+						"firstName": "Emma",
+						"lastName": "Maayan-Fanar",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Yotam",
+						"lastName": "Tepper",
+						"creatorType": "author"
+					}
+				],
+				"ISSN": "0098-9444",
+				"abstractNote": "Traces of wall paintings in the Byzantine-period village of Shivta in the Negev have been recently identified as images of Jesus. They portray Jesus’s baptism, painted in the North Church’s baptistery, and the Transfiguration, in the South Church. These rare compositions elucidate the development of early Christian iconography and cultural life in this remote region.",
+				"language": "en-US",
+				"libraryCatalog": "library.biblicalarchaeology.org",
+				"publicationTitle": "Biblical Archaeology Review",
+				"shortTitle": "Finding Jesus",
+				"url": "https://library.biblicalarchaeology.org/article/finding-jesus-byzantine-paintings-at-shivta/",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
