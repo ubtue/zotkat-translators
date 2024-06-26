@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-06-26 14:05:08"
+	"lastUpdated": "2024-06-26 15:13:22"
 }
 
 /*
@@ -78,6 +78,8 @@ async function scrape(doc, url = doc.location.href) {
     
     translator.setHandler('itemDone', (_obj, item) => {
         item.title = titleCase(item.title); // Apply title case
+		// ORCID
+		getAuthorsAndOrcids(doc, item);		
 		let reviewTag = ZU.xpathText(doc, "//div[@id='article_opener']//small[contains(text(), 'Reviews')]");//Z.debug(reviewTag)
         if (reviewTag && reviewTag.includes("Reviews")) item.tags.push('RezensionstagPica');
 		for (let i in item.tags) { // Capitalize tags
@@ -104,7 +106,38 @@ function titleCase(title) {
         }
         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
     }).join(' ');
-}/** BEGIN TEST CASES **/
+}
+
+function getAuthorsAndOrcids(doc, item) {
+    // XPath to find the section containing authors
+    let authorSection = ZU.xpath(doc, '//*[contains(text(), "Authors")]/following-sibling::node()[not(self::h4)]');
+
+    // Regular expression to find ORCID in href attribute
+    let orcidRegex = /https:\/\/orcid.org\/(\d{4}-\d{4}-\d{4}-\d{3}[0-9X])/i;
+
+    // Iterate through the nodes following the "Authors" header
+    for (let node of authorSection) {
+        if (node.nodeType === Node.TEXT_NODE) {
+            let authorName = node.textContent.trim();
+            
+            // Check if there is a next sibling element and if it is an ORCID link
+            let orcidLink = node.nextSibling;
+            let orcid = null;
+            
+            if (orcidLink && orcidLink.nodeType === Node.ELEMENT_NODE && orcidLink.tagName === 'A' && orcidLink.href.match(orcidRegex)) {
+                orcid = orcidLink.href.match(orcidRegex)[1];
+            }
+
+            // Add author and ORCID to the item notes only if ORCID is present
+            if (authorName && orcid) {
+                let note = `${authorName} | orcid:${orcid} | taken from website`;
+                item.notes.push({ note });
+            }
+        }
+    }
+}
+
+/** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "web",
@@ -221,6 +254,81 @@ var testCases = [
 					}
 				],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.zygonjournal.org/article/id/14964/",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "A Broader Perspective on “humans”: Analysis of Insān in Twelver Shīʿī Philosophy and Implications for Astrotheology",
+				"creators": [
+					{
+						"firstName": "Abdullah",
+						"lastName": "Ansar",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Shahbaz",
+						"lastName": "Haider",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023-12-02",
+				"DOI": "10.1111/zygo.12926",
+				"ISSN": "1467-9744",
+				"abstractNote": "This article explores the essence of the human (insān) as it is understood in Twelver Shīʿī philosophy and mysticism. It presents a Shīʿī philosophical elucidation regarding the possible existence of extraterrestrial intelligent lifeforms and what their relationship with “humanhood” might be. This line of reasoning is presented with a general sketch of how, in Shīʿī Islamic thought, a “human being” is characterized by specific traits and the relationship of human beings with the archetype of the Perfect Human (al‐Insān al‐Kāmil). Following this is a review of Shīʿī Imāmī traditions regarding extraterrestrial intelligent life and the plurality of worlds. This sequence ultimately allows for a unique analysis of humanhood according to the Shīʿī philosophical viewpoint and helps determine if the term “human” can be used for other intelligent beings with similar ontological features and intelligence levels.",
+				"issue": "4",
+				"language": "None",
+				"libraryCatalog": "www.zygonjournal.org",
+				"publicationTitle": "Zygon: Journal of Religion and Science",
+				"shortTitle": "A Broader Perspective on “humans”",
+				"url": "https://www.zygonjournal.org/article/id/14964/",
+				"volume": "58",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Al‐Insān al‐Kāmil"
+					},
+					{
+						"tag": "Astrotheology"
+					},
+					{
+						"tag": "Extraterrestrial intelligent life"
+					},
+					{
+						"tag": "Human–extraterrestrial interaction (HEI)"
+					},
+					{
+						"tag": "Noncarbon‐based lifeforms"
+					},
+					{
+						"tag": "Perfect Human"
+					},
+					{
+						"tag": "Plurality of worlds"
+					},
+					{
+						"tag": "Shīʿī Ḥadīth"
+					}
+				],
+				"notes": [
+					{
+						"note": "Abdullah Ansar | orcid:0000-0001-8195-7530 | taken from website"
+					}
+				],
 				"seeAlso": []
 			}
 		]
