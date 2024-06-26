@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-01-29 15:48:31"
+	"lastUpdated": "2024-06-26 11:12:43"
 }
 
 /*
@@ -128,139 +128,154 @@ function invokeEMTranslator(doc) {
  		}
 		if (articleType && articleType.match(/^(Book Reviews?)/gi) != null) i.tags.push("RezensionstagPica");
 		 //orcid for pica-field 8910
-   		let orcidAuthorEntryCaseA = doc.querySelectorAll('.authors, .div.authors > strong, author');//Z.debug(orcidAuthorEntryCaseA)
-  		let orcidAuthorEntryCaseB = doc.querySelectorAll('.authors li');//Z.debug(orcidAuthorEntryCaseB)
-  		let orcidAuthorEntryCaseC = doc.querySelectorAll('.authors-string');//Z.debug(orcidAuthorEntryCaseC)
-		let orcidAuthorEntryCaseD = doc.querySelectorAll('.authorBio');//Z.debug(orcidAuthorEntryCaseC)
+   		// Collect all ORCID author entries from various cases
+		let orcidAuthorEntryCaseA = doc.querySelectorAll('.authors, .div.authors > strong, author');
+		let orcidAuthorEntryCaseB = doc.querySelectorAll('.authors li');
+		let orcidAuthorEntryCaseC = doc.querySelectorAll('.authors-string li');
+		let orcidAuthorEntryCaseD = doc.querySelectorAll('.authorBio');
 		let orcidAuthorEntryCaseE = ZU.xpath(doc, '//div[@class="list-group-item date-published"]');
 		let orcidAuthorEntryCaseF = doc.querySelectorAll('.article-main');
-		let orcidAuthorEntryCaseG = doc.querySelectorAll('.authors_info');//Z.debug(orcidAuthorEntryCaseG)
-  		//AuthorEntryCaseA && childNodes[0]
-  		if (orcidAuthorEntryCaseA && ['2653-1372', '2627-6062', '0718-4727', '1983-2850'].includes(i.ISSN)) {
-  			for (let a of orcidAuthorEntryCaseA) {
-				let orcidTag = a.querySelector('.orcid');//Z.debug(orcidTag)
-				let authorTag = a.querySelector('.author');//Z.debug(authorTag)
-				if (orcidTag && authorTag) {
-					let author = ZU.trimInternal(authorTag.childNodes[0].textContent);//Z.debug(author)
-					let orcid = ZU.trimInternal(orcidTag.innerText.replace(/.*(\d{4}-\d{4}-\d{4}-\d+x?)/i, '$1'));//Z.debug(orcid)
-					i.notes.push({note: "orcid:" + orcid + ' | ' + author + ' | ' + 'taken from website'});
-				}
-  			}
-  		 }
-		//AuthorEntryCaseA && childNodes[1]
-		if (orcidAuthorEntryCaseA && ['2617-1953', '2182-8822'].includes(i.ISSN)) {
-  			for (let a of orcidAuthorEntryCaseA) {
-				let orcidTag = a.querySelector('.orcid');//Z.debug(orcidTag.innerText)
-				let authorTag = a.querySelector('.author');//Z.debug(authorTag)
-				if (orcidTag && authorTag) {
-					let author = ZU.trimInternal(authorTag.childNodes[1].textContent);//Z.debug(author)
-					let orcid = ZU.trimInternal(orcidTag.innerText.match(/\d+-\d+-\d+-\d+x?/gi)[0]);//Z.debug(orcid)
-					i.notes.push({note: "orcid:" + orcid + ' | ' + author + ' | ' + 'taken from website'});
-				}
-  			}
-  		 }
-		//e.g.  https://ojs3.uni-tuebingen.de/ojs/index.php/beabs/article/view/785 or https://aabner.org/ojs/index.php/beabs/article/view/781
-		if (orcidAuthorEntryCaseA && ['2748-6419', '2340-4256', '1860-8213'].includes(i.ISSN)) {
-  			for (let a of orcidAuthorEntryCaseA) {
-  				if (a && a.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
-  					let orcidTag = ZU.trimInternal(a.innerHTML);
-						if (orcidTag.match(/<strong>(.+?)<\/strong>.+?<a href="https?:\/\/orcid.org\/(.+?)" target="_blank">/g) != null) {
-						  	for (o of orcidTag.match(/<strong>(.+?)<\/strong>.+?<a href="https?:\/\/orcid.org\/(.+?)" target="_blank">/g)) {
-							  	i.notes.push({note: 'orcid:' + o.match(/<a href="https?:\/\/orcid.org\/(.+?)" target="_blank">/)[1] + ' | ' + o.match(/<strong>(.+?)<\/strong>/)[1] + ' | taken from website'});
-							} 
-						} 
+		let orcidAuthorEntryCaseG = doc.querySelectorAll('.authors_info');
 
+		const positionTitlesToRemove = ["Prof", "Dr"];
+
+		let cleanAuthorName = (name) => {
+			let parts = name.split(' ');
+			if (positionTitlesToRemove.includes(parts[0])) {
+				parts.shift();
+			}
+			return parts.join(' ');
+		};
+
+		let addNote = (orcid, author) => {
+			author = cleanAuthorName(author);
+			i.notes.push({note: `orcid:${orcid} | ${author} | taken from website`});
+		};
+
+		if (orcidAuthorEntryCaseA.length && ['2653-1372', '2627-6062', '0718-4727', '1983-2850'].includes(i.ISSN)) {
+			for (let a of orcidAuthorEntryCaseA) {
+				let orcidTag = a.querySelector('.orcid');
+				let authorTag = a.querySelector('.author');
+				if (orcidTag && authorTag) {
+					let author = ZU.trimInternal(authorTag.childNodes[0].textContent);
+					let orcid = ZU.trimInternal(orcidTag.innerText.replace(/.*(\d{4}-\d{4}-\d{4}-\d+x?)/i, '$1'));
+					addNote(orcid, author);
 				}
 			}
 		}
-		//https://cauriensia.es/index.php/cauriensia/article/view/456
-		if (orcidAuthorEntryCaseA[0] && orcidAuthorEntryCaseA[0].innerHTML.match(/\d+-\d+-\d+-\d+x?/gi) == null && i.ISSN == "2340-4256") {
-			for (let c of orcidAuthorEntryCaseF) {
-					let name = ZU.xpathText(c, './/strong').split(',')[0];
-					let orcid = ZU.xpathText(c, '//*[contains(@href, "orcid.org")]/@href');
-					if (orcid) {
-					orcid = ZU.xpathText(c, '//*[contains(@href, "orcid.org")]/@href').match(/\d+-\d+-\d+-\d+x?/gi)[0];
-					i.notes.push({note: 'orcid:' + ZU.trimInternal(orcid) + ' | ' + ZU.trimInternal(name) + ' | ' + 'taken from website'});
-				} else {
-					orcid = '';
+
+		if (orcidAuthorEntryCaseA.length && ['2617-1953', '2182-8822'].includes(i.ISSN)) {
+			for (let a of orcidAuthorEntryCaseA) {
+				let orcidTag = a.querySelector('.orcid');
+				let authorTag = a.querySelector('.author');
+				if (orcidTag && authorTag) {
+					let author = ZU.trimInternal(authorTag.childNodes[1].textContent);
+					let orcid = ZU.trimInternal(orcidTag.innerText.match(/\d+-\d+-\d+-\d+x?/gi)[0]);
+					addNote(orcid, author);
 				}
 			}
 		}
-		
 
-		//e.g. https://revistas.unav.edu/index.php/anuario-de-historia-iglesia/article/view/42867
-		if (orcidAuthorEntryCaseA && ['2174-0887', '2254-6227'].includes(i.ISSN)) {
-			let allORCIDs = [];
-  			for (let a of orcidAuthorEntryCaseA) {
-				let name = ZU.xpathText(a, './/strong');
-				let orcid = ZU.xpathText(a, './/a[contains(@href, "orcid.org")]/@href');
-				if (!allORCIDs.includes(orcid) && orcid != null) i.notes.push({note: "orcid:" + orcid.replace(/https?:\/\/orcid\.org\//g, '') + ' | ' + ZU.trimInternal(name) + ' | ' + 'taken from website'});
-				allORCIDs.push(orcid);
-  			}
-  		}
-
-  		
-  		 //e.g. https://journal.equinoxpub.com/JSRNC/article/view/19606
-  		 if (orcidAuthorEntryCaseA && !orcidAuthorEntryCaseB && i.ISSN !== "2660-7743") {
-  		 	for (let a of orcidAuthorEntryCaseA) {
-  				if (a && a.innerHTML.match(/(<span>.*<\/span>.*https?:\/\/orcid\.org\/\d+-\d+-\d+-\d+x?)/gi)) {
-  					let author = a.innerHTML.match(/(<span>.*<\/span>.*https?:\/\/orcid\.org\/\d+-\d+-\d+-\d+x?)/gi).toString().replace('<a class="orcidImage" href="', '');//Z.debug(author + '   AAA2')
- 					i.notes.push({note: ZU.unescapeHTML(ZU.trimInternal(author)).replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | ' + 'taken from website'});
-  				}
-  			}
-  		}
-  		//e.g. https://periodicos.uem.br/ojs/index.php/RbhrAnpuh/article/view/52641
-  		if (orcidAuthorEntryCaseB) {
-			for (let b of orcidAuthorEntryCaseB) {
-  				if (b && b.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
-  					let orcid = b.innerHTML.match(/<a href="https?:\/\/orcid\.org\/([^"]+)/);
-  					if (orcid != null){
-  					let name = b.innerHTML.match(/<span class="name">([^<]+)<\/span>/)[1];
-  					i.notes.push({note: 'orcid:' + orcid[1] + ' | ' + ZU.trimInternal(name) + ' | ' + 'taken from website'});
-  				}
-  				}
-  			}
-  		}
-  		//e.g. https://ote-journal.otwsa-otssa.org.za/index.php/journal/article/view/433
-  		if (orcidAuthorEntryCaseC) {
-  		 	for (let c of orcidAuthorEntryCaseC) {
-  				if (c && c.innerHTML.match(/\d+-\d+-\d+-\d+x?/gi)) {
-  					let author = ZU.trimInternal(c.innerText).replace('+', '').replace('−', '');
-					let orcid = ZU.trimInternal(c.innerHTML).match(/\d+-\d+-\d+-\d+x?/gi);
-					i.notes.push({note: "orcid:" + orcid + ' | ' + author + ' | ' + 'taken from website'});
-  				}
-  			}
-  		}	
-		//e.g. https://missionalia.journals.ac.za/pub/article/view/422
-		if (orcidAuthorEntryCaseD) {
-			for (let c of orcidAuthorEntryCaseD) {
-				if (c && c.innerHTML.match(/\d+-\d+-\d+-\d+x?/gi)) {
-					let orcid = ZU.xpathText(c, './/a[@class="orcid"]/@href', '');//Z.debug(orcid)
-					let author = ZU.xpathText(c, './/em', '');
-					if (orcid != null && author != null) {
-						author = ZU.unescapeHTML(ZU.trimInternal(author)).trim();
-						orcid = ZU.unescapeHTML(ZU.trimInternal(orcid)).trim();
-						i.notes.push({note: 'orcid:' + orcid.replace(/https?:\/\/orcid.org\//g, '') + ' | ' + author + ' | ' + 'taken from website'});
+		if (orcidAuthorEntryCaseA.length && ['2748-6419', '2340-4256', '1860-8213'].includes(i.ISSN)) {
+			for (let a of orcidAuthorEntryCaseA) {
+				if (a.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
+					let orcidTag = ZU.trimInternal(a.innerHTML);
+					let matches = orcidTag.match(/<strong>(.+?)<\/strong>.+?<a href="https?:\/\/orcid.org\/(.+?)" target="_blank">/g);
+					if (matches) {
+						for (let match of matches) {
+							let author = match.match(/<strong>(.+?)<\/strong>/)[1];
+							let orcid = match.match(/<a href="https?:\/\/orcid.org\/(.+?)" target="_blank">/)[1];
+							addNote(orcid, author);
+						}
 					}
 				}
 			}
 		}
 
-		if (orcidAuthorEntryCaseE && i.ISSN == "1988-7949") {
-			for (let c of orcidAuthorEntryCaseE) {
-					let name = ZU.xpathText(c, './/strong');
-					let orcid = ZU.xpathText(c, './/a[contains(@href, "orcid.org")]/@href');
-					if (orcid) i.notes.push({note: orcid.replace(/https?:\/\/orcid\.org\//g, 'orcid:') + ' | ' + ZU.trimInternal(name) + ' | ' + 'taken from website'});
+		if (orcidAuthorEntryCaseA.length && !orcidAuthorEntryCaseA[0].innerHTML.match(/\d+-\d+-\d+-\d+x?/gi) && i.ISSN === "2340-4256") {
+			for (let c of orcidAuthorEntryCaseF) {
+				let name = ZU.xpathText(c, './/strong').split(',')[0];
+				let orcid = ZU.xpathText(c, '//*[contains(@href, "orcid.org")]/@href');
+				if (orcid) {
+					orcid = orcid.match(/\d+-\d+-\d+-\d+x?/gi)[0];
+					addNote(ZU.trimInternal(orcid), ZU.trimInternal(name));
+				}
 			}
 		}
-		//e.g. https://ztp.jesuiten.org/index.php/ZTP/article/view/4074
-		if (orcidAuthorEntryCaseG) {
+
+		if (orcidAuthorEntryCaseA.length && ['2174-0887', '2254-6227'].includes(i.ISSN)) {
+			let allORCIDs = [];
+			for (let a of orcidAuthorEntryCaseA) {
+				let name = ZU.xpathText(a, './/strong');
+				let orcid = ZU.xpathText(a, './/a[contains(@href, "orcid.org")]/@href');
+				if (orcid && !allORCIDs.includes(orcid)) {
+					addNote(orcid.replace(/https?:\/\/orcid\.org\//g, ''), ZU.trimInternal(name));
+					allORCIDs.push(orcid);
+				}
+			}
+		}
+
+		if (orcidAuthorEntryCaseA.length && !orcidAuthorEntryCaseB.length && i.ISSN !== "2660-7743") {
+			for (let a of orcidAuthorEntryCaseA) {
+				if (a.innerHTML.match(/(<span>.*<\/span>.*https?:\/\/orcid\.org\/\d+-\d+-\d+-\d+x?)/gi)) {
+					let author = a.innerHTML.match(/(<span>.*<\/span>.*https?:\/\/orcid\.org\/\d+-\d+-\d+-\d+x?)/gi).toString().replace('<a class="orcidImage" href="', '');
+					i.notes.push({note: ZU.unescapeHTML(ZU.trimInternal(author)).replace(/https?:\/\/orcid\.org\//g, ' | orcid:') + ' | taken from website'});
+				}
+			}
+		}
+
+		if (orcidAuthorEntryCaseB.length) {
+			for (let b of orcidAuthorEntryCaseB) {
+				if (b.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
+					let orcid = b.innerHTML.match(/<a href="https?:\/\/orcid\.org\/([^"]+)/);
+					if (orcid) {
+						let name = b.innerHTML.match(/<span class="name">([^<]+)<\/span>/)[1];
+						addNote(orcid[1], ZU.trimInternal(name));
+					}
+				}
+			}
+		}
+
+		if (orcidAuthorEntryCaseC.length) {
+			for (let c of orcidAuthorEntryCaseC) {
+				if (c.innerHTML.match(/\d+-\d+-\d+-\d+x?/gi)) {
+					let author = ZU.trimInternal(c.innerText).replace('+', '').replace('−', '');
+					let orcid = ZU.trimInternal(c.innerHTML).match(/\d+-\d+-\d+-\d+x?/gi);
+					addNote(orcid, author);
+				}
+			}
+		}
+
+		if (orcidAuthorEntryCaseD.length) {
+			for (let c of orcidAuthorEntryCaseD) {
+				if (c.innerHTML.match(/\d+-\d+-\d+-\d+x?/gi)) {
+					let orcid = ZU.xpathText(c, './/a[@class="orcid"]/@href', '');
+					let author = ZU.xpathText(c, './/em', '');
+					if (orcid && author) {
+						addNote(orcid.replace(/https?:\/\/orcid.org\//g, ''), ZU.unescapeHTML(ZU.trimInternal(author)).trim());
+					}
+				}
+			}
+		}
+
+		if (orcidAuthorEntryCaseE.length && i.ISSN === "1988-7949") {
+			for (let c of orcidAuthorEntryCaseE) {
+				let name = ZU.xpathText(c, './/strong');
+				let orcid = ZU.xpathText(c, './/a[contains(@href, "orcid.org")]/@href');
+				if (orcid) {
+					addNote(orcid.replace(/https?:\/\/orcid\.org\//g, 'orcid:'), ZU.trimInternal(name));
+				}
+			}
+		}
+
+		if (orcidAuthorEntryCaseG.length) {
 			for (let g of orcidAuthorEntryCaseG) {
 				let author = ZU.trimInternal(g.innerText);
 				let orcid = ZU.trimInternal(g.innerHTML).match(/\d+-\d+-\d+-\d+x?/gi);
-				i.notes.push({note: "orcid:" + orcid + ' | ' + author + ' | ' + 'taken from website'});
+				addNote(orcid, author);
 			}
 		}
+
 
  		//clean pages e.g. pages": "6.-6." > 10.25786/cjbk.v0i01-02.631; or "pages": "01-07" > 10.25786/zfbeg.v0i01-02.793
  		if (i.pages != null) i.pages = i.pages.replace('S.', '').replace(/\./g, '').replace(/^([^-]+)-\1$/, '$1').replace(/^0/g, '').replace(/-0/g, '-').replace('â€“', '-');
@@ -726,7 +741,7 @@ var testCases = [
 					},
 					{
 						"firstName": "Jozef",
-						"lastName": "Žuffa",
+						"lastName": "Å½uffa",
 						"creatorType": "author"
 					}
 				],
@@ -791,7 +806,7 @@ var testCases = [
 				"libraryCatalog": "ojs.reformedjournals.co.za",
 				"pages": "299-317",
 				"publicationTitle": "Stellenbosch Theological Journal",
-				"rights": "Copyright (c) 2017 Pieter de Waal Neethling Trust, Stellenbosch",
+				"rights": "Copyright (c) 2017 Martien E Brinkman",
 				"url": "https://ojs.reformedjournals.co.za/stj/article/view/1743",
 				"volume": "3",
 				"attachments": [],
@@ -942,7 +957,16 @@ var testCases = [
 						"tag": "Dark Green Religion"
 					},
 					{
+						"tag": "environmental history"
+					},
+					{
+						"tag": "film"
+					},
+					{
 						"tag": "nature spirituality"
+					},
+					{
+						"tag": "religion and nature"
 					}
 				],
 				"notes": [],
@@ -1042,7 +1066,7 @@ var testCases = [
 				"date": "2021/06/18",
 				"DOI": "10.35068/aabner.v1i1.781",
 				"ISSN": "2748-6419",
-				"abstractNote": "The AABNER founding editors-in-chief describe some of the problems with traditional double-blind peer review and describe our solution for them, forum peerreview, which we have developed for use within AABNER.",
+				"abstractNote": "Die Chefredaktion von AABNER beschreibt die Schwächen und Probleme destraditionellen ‚Double-Blind-Peer-Review‘ und bietet eine innovative Lösung:den von uns weiterentwickelten ‚Forum-Peer-Review‘.",
 				"issue": "1",
 				"journalAbbreviation": "1",
 				"language": "en",
@@ -1081,10 +1105,10 @@ var testCases = [
 						"note": "orcid:0000-0002-0240-9219 | Jason M. Silverman | taken from website"
 					},
 					{
-						"note": "abs:L’équipe de rédaction en chef initiale d’AABNER décrit quelques problèmes liésau système traditionnel de la “double-blind peer review” et propose une solution, le système “forum peer review”, développé et mis en place pour la créationd’AABNER."
+						"note": "abs:The AABNER founding editors-in-chief describe some of the problems with traditional double-blind peer review and describe our solution for them, forum peerreview, which we have developed for use within AABNER."
 					},
 					{
-						"note": "abs:Die Chefredaktion von AABNER beschreibt die Schwächen und Probleme destraditionellen ‚Double-Blind-Peer-Review‘ und bietet eine innovative Lösung:den von uns weiterentwickelten ‚Forum-Peer-Review‘."
+						"note": "abs:L’équipe de rédaction en chef initiale d’AABNER décrit quelques problèmes liésau système traditionnel de la “double-blind peer review” et propose une solution, le système “forum peer review”, développé et mis en place pour la créationd’AABNER."
 					}
 				],
 				"seeAlso": []
@@ -1184,7 +1208,7 @@ var testCases = [
 				"ISSN": "2617-1953",
 				"abstractNote": "Fundamentalistische religiöse Stile, im katholischen Glaubensspektrum durch vorkonziliar-antimodernistische und traditionalismusaffine Frömmigkeitsformen geprägt, gehen auffallend oft mit expliziter Gruppenbezogener Menschenfeindlichkeit und sogar extrem rechten politischen Einstellungen einher. Diese Beobachtung legt nicht nur nahe, nach möglichen gemeinsamen psychischen Prädispositionen für politische wie religiöse autoritäre Einstellungen zu fragen, sondern ermutigt auch die Integration sozialpsychologischer Analysekategorien in die theologische Fundamentalismusforschung.\nDer vorliegende Beitrag stellt zunächst zentrale (schwerpunktmäßig sozialpsychologische) Forschungen zur Ambivalenz von Religiosität und zu Zusammenhängen zwischen religiösen Stilen und Vorurteilen sowie Autoritarismus vor. In einem zweiten Schritt wendet er deren sozialpsychologische Kategorien auf die Analyse rechtskatholischer Proteste gegen die Einbeziehung indigener Figuren in die Eröffnungszeremonie der Amazonassynode 2019 an. Dies ermöglicht die Offenlegung autoritärer und ethnozentrischer Haltungen, die durch religiösen Exklusivismus, strafende Gottesbilder sowie entsprechende eschatologische Vorstellungen gerechtfertigt werden. Aus sozialpsychologischer Perspektive lässt sich der innerkirchliche Konflikt um die Reformen des Zweiten Vatikanischen Konzils als ein ,Clash‘ unterschiedlicher – reiferer bzw. wenig komplexer – religiöser Stile beschreiben.",
 				"issue": "1",
-				"journalAbbreviation": "Limina",
+				"journalAbbreviation": "LIMINA",
 				"language": "de",
 				"libraryCatalog": "limina-graz.eu",
 				"pages": "16-40",
@@ -1770,7 +1794,7 @@ var testCases = [
 				"ISSN": "2617-1953",
 				"abstractNote": "„Wir aßen stumm. Auf dem Kindertransport“ ist eine Kurzgeschichte der amerikanisch-österreichischen Autorin Lore Segal, die von ihrer Flucht vor den Nazis und der Trennung von ihren jüdischen Eltern in Österreich auf einer unfreiwilligen und ungewissen Reise an einen sicheren Ort erzählt, begleitet von anderen Kindern und einer Tüte Süßigkeiten. Am Tag ihrer Abreise aus dem österreichischen Ort Fischamend, wo sie als jüdisches Kind vor den Nazis flieht, bittet die junge Lore ihre Mutter um eine Knackwurst - eine typisch österreichische Wurstsorte, die als Proviant für ihre „Reise“ dienen soll, in Segals Erzählung aber viel mehr als nur zur Mahlzeit wird. In einem bereits übereilten und gefährlichen Versuch, den letzten Wunsch ihrer Tochter vor der Abreise zu erfüllen, gibt Lores Mutter nach und kauft ihr eine Wurst als Mahlzeit, die sie im Zug satt machen würde. Die Wurst erfüllt nicht nur den Zweck der Ernährung, sondern eröffnet schließlich einen Raum innerhalb der Erzählung, der es Segal als Erzählerin erlaubt, die Trauer der jungen Lore und die Angst vor der Ungewissheit auszudrücken. Anstatt die Wurst einfach zu essen, wie es ihre Mutter vorgesehen hatte, hebt Lore das Essen für später auf. Indem sie die Wurst aufbewahrt, wird sie zu einem Ersatz für ihre Gefühle. Je weiter sich die junge Lore von zu Hause entfernt, desto mehr verfällt die Wurst, beginnt zu stinken und wird schließlich ungenießbar. Von der Unappetitlichkeit bis zur langsamen Fäulnis nimmt die Wurst als Ersatz für die Gefühle der jungen Lore einen wesentlichen Teil der Erzählung ein. Gleichzeitig wird die Wurst zum Indikator dafür, wie weit sich die junge Lore auf ihrer Reise bereits von zu Hause entfernt hat – räumlich und emotional. Abgesehen davon, dass die Knackwurst kein koscheres Essen ist, ist sie auch nicht das, was sie bei der Abreise wirklich will – sie verschafft ihr nur mehr Zeit mit ihrer Familie. Je mehr sie jedoch auf ihrer Reise zu stinken beginnt, desto weiter entfernt sich Lore von ihrem Zuhause in Fischamend, und desto schwieriger wird es, die stinkende Wurst vor allen anderen zu verstecken, bis sie schließlich gefunden wird, was das Mädchen in Verlegenheit bringt und ihr schließlich erlaubt, ihre Traurigkeit offen und vor allen anderen auszudrücken. Segals Geschichte ist ein Beispiel dafür, was passiert, wenn Essen nicht mehr nur ein einfaches Produkt oder eine grundlegende Notwendigkeit ist, sondern über Ernährung hinausgeht. In Segals Geschichte lässt das Lebensmittel zweierlei Analysen zu. Einerseits eröffnet es einen Raum innerhalb der Erzählung, der die Distanz der Erfahrungen darstellt. Andererseits erlaubt die Wurst und ihr Verfall Segal, die Knackwurst als erzählerisches Mittel zu nutzen, um die Erfahrung der Protagonistin greifbarer zu machen und narrative Elemente für eine historische Darstellung zu verwenden, ganz im Sinne des Schreibens von „Geschichte“ durch „Geschichten“ (vgl. Segal 2019a), wie sie es für sich als Schriftstellerin beansprucht.",
 				"issue": "2",
-				"journalAbbreviation": "Limina",
+				"journalAbbreviation": "LIMINA",
 				"language": "en",
 				"libraryCatalog": "limina-graz.eu",
 				"pages": "95-111",
@@ -2055,7 +2079,7 @@ var testCases = [
 				"abstractNote": "The concept of ἄσκησις in Philo’s works, as in other intellectual contexts of Antiquity, is linked to those of effort and advance, because, when dealing with philosophical texts of this time, one must always think about the idea of spiritual ascension, πνευματική πρόοδος, together with the idea of exercise that is inherent in it.\\n4207 El concepto de ἄσκησις en el contexto filónico al igual que en otros entornos intelectuales de la Antigüedad, está ligado a los de esfuerzo y avance, porque, cuando se afronta un texto filosófico de esta época, hay que pensar siempre en la idea de ascenso espiritual, πνευματική πρόοδος, además de en el ejercicio que lleva consigo.",
 				"archiveLocation": "The ἄσκησις or “spiritual exercise” in the treatise De vita contemplativa by Philo of Alexandria",
 				"issue": "150",
-				"journalAbbreviation": "Hisp. Sacra",
+				"journalAbbreviation": "Hisp. sacra",
 				"language": "es",
 				"libraryCatalog": "hispaniasacra.revistas.csic.es",
 				"pages": "347-355",
@@ -2150,7 +2174,7 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "2023/06/26",
+				"date": "2023",
 				"DOI": "10.7832/51-0-505",
 				"ISSN": "2312-878X",
 				"abstractNote": "The paper describes the lived experiences of present-day African Christian couples in urban South Africa with the aim of understanding the effect family involvement has on their marriages. This article contributes to understanding the marital experiences of contemporary African Christians to understand their views on the involvement of the extended family, which is part of African culture. Understanding these viewpoints sheds light on cultural dynamics, especially how African culture is valued in a changing society which adds value to understanding the modern African. To nurture meaningful ministry engagement for the African context, research and awareness of African cultural nuances are invaluable. The understanding from this article can contribute to the contextualisation of pastoral care and counselling in Africa. This understanding may also contribute to reframing the colonial discourse through which mission work in Africa has long operated.",
@@ -2481,7 +2505,7 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"date": "2023",
+				"date": "2024",
 				"DOI": "10.33137/rr.v45i3.40431",
 				"ISSN": "2293-7374",
 				"abstractNote": "The Italian Benedetto Tagliacarne, known as Theocrenus, was tutor to the sons of Francis I from 1527 to 1533. In this capacity, he was closely involved with the royal family, as witnessed by his poetic works, published in Poitiers by Marnef in 1536, and in particular his epigrams, which shaped court events and portray an artistically refined and poetic king. Theocrenus thus celebrates the wedding of the king and Eleanor of Austria and pays tribute to Louise of Savoy; he praises the poetic compositions of Francis I, choosing the epitaph of Petrarch’s muse, Laura de Noves, but also the translation of an epigram attributed to Germanicus; finally, he composes numerous ekphraseis of the king’s works of art. The study of these epigrams allows us to evaluate the contribution of the Italian poet to the cultural policy of Francis I and to the mythology of the reign., L’Italien Benedetto Tagliacarne, dit Théocrène, occupa la charge de précepteur des fils de François Ier, de 1527 à 1533. À ce titre, il évolua dans l’intimité de la famille royale, ce dont témoignent ses oeuvres poétiques, publiées à Poitiers, chez Marnef, en 1536, et notamment ses épigrammes qui orchestrent des événements de cour et mettent en scène un roi esthète et poète. Théocrène célèbre ainsi les noces du roi et d’Éléonore d’Autriche et rend hommage à Louise de Savoie ; il fait l’éloge des productions poétiques de François Ier, choisissant l’épitaphe de la muse de Pétrarque, Laure de Noves, mais aussi la traduction d’une épigramme attribuée à Germanicus ; enfin, il compose de nombreuses ekphraseis des oeuvres d’art du roi. L’étude de ces épigrammes permettra d’évaluer la contribution du poète italien à la politique culturelle de François Ier et à la mythologie du règne.",
@@ -2599,7 +2623,7 @@ var testCases = [
 				"abstractNote": "The concept of ἄσκησις in Philo’s works, as in other intellectual contexts of Antiquity, is linked to those of effort and advance, because, when dealing with philosophical texts of this time, one must always think about the idea of spiritual ascension, πνευματική πρόοδος, together with the idea of exercise that is inherent in it.\\n4207 El concepto de ἄσκησις en el contexto filónico al igual que en otros entornos intelectuales de la Antigüedad, está ligado a los de esfuerzo y avance, porque, cuando se afronta un texto filosófico de esta época, hay que pensar siempre en la idea de ascenso espiritual, πνευματική πρόοδος, además de en el ejercicio que lleva consigo.",
 				"archiveLocation": "The ἄσκησις or “spiritual exercise” in the treatise De vita contemplativa by Philo of Alexandria",
 				"issue": "150",
-				"journalAbbreviation": "Hisp. Sacra",
+				"journalAbbreviation": "Hisp. sacra",
 				"language": "es",
 				"libraryCatalog": "hispaniasacra.revistas.csic.es",
 				"pages": "347-355",
@@ -2980,13 +3004,13 @@ var testCases = [
 						"tag": "Ejercicios Espirituales"
 					},
 					{
-						"tag": "Principio y Fundamento"
-					},
-					{
 						"tag": "Principio y Fundamento "
 					},
 					{
-						"tag": "Principle and Foundation medios"
+						"tag": "Principio y Fundamento means"
+					},
+					{
+						"tag": "Principle and Foundation"
 					},
 					{
 						"tag": "Spiritual Exercises"
@@ -2999,9 +3023,6 @@ var testCases = [
 					},
 					{
 						"tag": "indifference"
-					},
-					{
-						"tag": "means"
 					},
 					{
 						"tag": "medios"
@@ -3193,6 +3214,15 @@ var testCases = [
 					},
 					{
 						"tag": "Religionsphilosophie"
+					},
+					{
+						"tag": "moral-ethics distinction"
+					},
+					{
+						"tag": "philosophy of religion"
+					},
+					{
+						"tag": "practical metaphysics"
 					},
 					{
 						"tag": "praktische Metaphysik"
@@ -3650,7 +3680,7 @@ var testCases = [
 				"language": "en",
 				"libraryCatalog": "lockwoodonlinejournals.com",
 				"pages": "815–837",
-				"publicationTitle": "Journal of the AOS",
+				"publicationTitle": "JAOS",
 				"rights": "Copyright (c) 2023 Journal of the American Oriental Society",
 				"shortTitle": "The Martyrs on the Mountain",
 				"url": "https://lockwoodonlinejournals.com/index.php/jaos/article/view/2406",
@@ -3658,6 +3688,75 @@ var testCases = [
 				"attachments": [],
 				"tags": [],
 				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.koersjournal.org.za/index.php/koers/article/view/2590",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Spirituality in the workplace in South Africa: : A systematic literature review",
+				"creators": [
+					{
+						"firstName": "Marita",
+						"lastName": "Heyns",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Tessa De",
+						"lastName": "Wet",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Vasti",
+						"lastName": "Marais-Opperman",
+						"creatorType": "author"
+					}
+				],
+				"date": "2024/06/21",
+				"DOI": "10.19108/KOERS.89.1.2590",
+				"ISSN": "2304-8557",
+				"abstractNote": "Background: Spirituality is a multi-dimensional concept that involves a person’s pursuit of well-being through connections with oneself, others, nature, and the transcendent. Spirituality in the workplace encompasses the integration of spirituality into organisational and work dynamics Purpose: This systematic literature review sourced and synthesised empirical research evidence to explore the influence and experience of perceived spirituality in the workplace on workers in the South African workplace Methodology: The systematic literature review plan was registered on the Open Science Framework. Keyword searches were conducted, and studies were screened following the Preferred Reporting Items for Systematic Reviews and Meta-Analyses (PRISMA) process and checklist. Specific inclusion and exclusion criteria informed the second screening and review of articles. Thirty-one articles fit the specific criteria for inclusion in the review. Relevant data was extracted using thematic analysis Findings/results: The respondents in the various studies spanned public and private sectors, encompassing various professions and ethnicities. The articles reviewed indicated that the perception of spirituality in the workplace manifested in a variety of constructs and concepts, positively influencing and impacting individual, group, and organisational levels. The review indicated that nuanced contextual differences may play a role in the experience of spirituality in the South African workplace Practical implications: The literature review suggests potential constructs for understanding workplace spirituality in South Africa, with future research potential for constructing a framework fostering a pluralistic model of spirituality at work Originality/value: Understanding spirituality in the South African work context could assist in bringing about more productive and healthy organisations. Provided data also forms a basis for developing a potential framework for implementing spirituality in South African organisations  OPSOMMINGAgtergrond: Spiritualiteit is ‘n multidimensionele konsep wat die nastrewing van ‘n persoon se algemene welsyn en gesondheid omvat, wat geïntegreerdheid met die self, ander, natuur en die bomenslike insluit. Spiritualiteit in die werkplek sluit die integrasie van spiritualiteit in organisatoriese en werksdinamika in. Doel: Hierdie sistematiese literatuuroorsig het empiriese navorsingsbewyse verkry en gesintetiseer om die invloed en ervaring van waargenome spiritualiteit by die werk op werkers in die Suid-Afrikaanse werkplek te verken Metodologie: Die sistematiese literatuurstudieplan is op die Open Science Framework geregistreer. Sleutelwoordsoektogte is gedoen, en studies is gesif met behulp van die Preferred Reporting Items for Systematic Reviews and Meta-Analyses- (PRISMA) proses en -kontrolelys. Spesifieke in- en uitsluitingskriteria het die tweede sifting en keuring van artikels gelei. Een-en-dertig (31) artikels pas by die spesifieke kriteria vir insluiting in die oorsig. Relevante data is onttrek deur tematiese analise te gebruik Bevindinge/resultate: Die respondente in die verskillende studies het oor openbare en private sektore gestrek en verskeie beroepe en etnisiteite ingesluit. Die artikels wat nagegaan is, het aangedui dat die persepsie van spiritualiteit in die werkplek gemanifesteer het in ‘n verskeidenheid konstrukte en konsepte, wat individuele, groeps- en organisatoriese vlakke positief beïnvloed. Die oorsig het aangedui dat genuanseerde kontekstuele verskille ’n rol in die ervaring van spiritualiteit in die Suid-Afrikaanse werkplek kan speel Praktiese implikasies: Die literatuuroorsig stel potensiële konstrukte voor om werkplekspiritualiteit in Suid-Afrika te verstaan, met toekomstige navorsingspotensiaal vir die bou van ‘n raamwerk wat ‘n pluralistiese model van spiritualiteit by die werk bevorder Oorspronklikheid/waarde: Begrip van spiritualiteit in die Suid-Afrikaanse werkskonteks kan daartoe bydra om produktiewer en gesonder organisasies tot stand te bring. Data wat voorsien is, skep ook ‘n basis vir die ontwikkeling van ‘n potensiële raamwerk vir die implementering van spiritualiteit in Suid-Afrikaanse organisasies https://doi.org/10.19108/KOERS.89.1.259",
+				"issue": "1",
+				"journalAbbreviation": "Koers",
+				"language": "en",
+				"libraryCatalog": "www.koersjournal.org.za",
+				"publicationTitle": "Koers - Bulletin for Christian Scholarship",
+				"shortTitle": "Spirituality in the workplace in South Africa",
+				"url": "https://www.koersjournal.org.za/index.php/koers/article/view/2590",
+				"volume": "89",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "South Africa"
+					},
+					{
+						"tag": "organisational psychology"
+					},
+					{
+						"tag": "spirituality"
+					},
+					{
+						"tag": "systematic literature review"
+					},
+					{
+						"tag": "workplace"
+					}
+				],
+				"notes": [
+					{
+						"note": "orcid:0000-0002-8829-9857 | Marita Heyns | taken from website"
+					},
+					{
+						"note": "orcid:0000-0002-8513-7609 | Tessa De Wet | taken from website"
+					},
+					{
+						"note": "orcid:0000-0003-3465-0899 | Vasti Marais-Opperman | taken from website"
+					}
+				],
 				"seeAlso": []
 			}
 		]
