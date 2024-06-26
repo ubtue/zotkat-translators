@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-01-29 15:48:31"
+	"lastUpdated": "2024-06-26 14:53:14"
 }
 
 /*
@@ -86,6 +86,8 @@ function invokeEMTranslator(doc) {
 		if (i.ISSN == undefined) i.ISSN = ZU.xpathText(doc, '//meta[@name="DC.Source.ISSN"]/@content');
 		if (i.ISSN == undefined && i.url.match(/\/godsandmonsters\//) != null) i.ISSN = "IXTH-0001";
 		if (i.ISSN == undefined) i.issue = ZU.xpathText(doc, '//meta[@name="DC.Source.Issue"]/@content');
+		if (i.ISSN == undefined && i.url.match(/journal.colourturn/) != null) i.ISSN = "ZOJS-0001";
+	
 		//article URL for Journal of the AOS
 		if (i.ISSN == "2169-2289") {
 			i.url = ZU.xpathText(doc, '//meta[@name="DC.Identifier.URI"]/@content');
@@ -3655,6 +3657,38 @@ var testCases = [
 				"shortTitle": "The Martyrs on the Mountain",
 				"url": "https://lockwoodonlinejournals.com/index.php/jaos/article/view/2406",
 				"volume": "143",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://journal.colourturn.net/ojs/index.php/tct/article/view/674",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Thinking Colours",
+				"creators": [
+					{
+						"firstName": "David Alan",
+						"lastName": "Warburton",
+						"creatorType": "author"
+					}
+				],
+				"date": "2018/08/28",
+				"DOI": "10.25538/tct.v0i1.674",
+				"ISSN": "ZOJS-0001",
+				"abstractNote": "Reviewed BookBogushevskaya, Victoria and Elisabetta Colla, eds. Thinking Colours: Perception, Translation and Representation. Newcastle: Cambridge Scholars Publishing, 2015. ISBN 978-1-4438-7529-5.AbstractThe editors state that ‘The place where science meets the humanities is cognitive culture studies ... and this is where our book begins ...’ 1 . The outcome of a gathering of scholars and artists in Lisbon, the book offers very different approaches to colour, each following a theme and offering a bibliography. The contributions range from state-of-the-art disputes about theoretical aspects to the use of colour in modern literature and advertising. The editors have created a sequence classifying the various contributions under headings related to ‘Cognition,’ ‘Language and Translation,’ ‘Literature,’ ‘Art,’ and ‘Space’. This review uses a different system.",
+				"issue": "1",
+				"journalAbbreviation": "tct",
+				"language": "en",
+				"libraryCatalog": "journal.colourturn.net",
+				"publicationTitle": "Colour Turn",
+				"rights": "Copyright (c) 2018 Colour Turn",
+				"url": "https://journal.colourturn.net/ojs/index.php/tct/article/view/674",
 				"attachments": [],
 				"tags": [],
 				"notes": [],
