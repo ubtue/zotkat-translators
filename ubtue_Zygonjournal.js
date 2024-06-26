@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-06-26 13:40:30"
+	"lastUpdated": "2024-06-26 14:05:08"
 }
 
 /*
@@ -78,7 +78,12 @@ async function scrape(doc, url = doc.location.href) {
     
     translator.setHandler('itemDone', (_obj, item) => {
         item.title = titleCase(item.title); // Apply title case
-        item.complete();
+		let reviewTag = ZU.xpathText(doc, "//div[@id='article_opener']//small[contains(text(), 'Reviews')]");//Z.debug(reviewTag)
+        if (reviewTag && reviewTag.includes("Reviews")) item.tags.push('RezensionstagPica');
+		for (let i in item.tags) { // Capitalize tags
+			item.tags[i] = item.tags[i].charAt(0).toUpperCase() + item.tags[i].substring(1);
+		}
+		item.complete();
     });
 
     let em = await translator.getTranslatorObject();
@@ -101,5 +106,124 @@ function titleCase(title) {
     }).join(' ');
 }/** BEGIN TEST CASES **/
 var testCases = [
+	{
+		"type": "web",
+		"url": "https://www.zygonjournal.org/issue/1177/info/",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://www.zygonjournal.org/article/id/14963/",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Religion, Spirituality, and Mental Health Among Scientists During the Pandemic: a Four‐country Study",
+				"creators": [
+					{
+						"firstName": "Di",
+						"lastName": "Di",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Stephen",
+						"lastName": "Cranney",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Brandon",
+						"lastName": "Vaidyanathan",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Caitlin Anne",
+						"lastName": "Fitzgerald",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023-12-02",
+				"DOI": "10.1111/zygo.12912",
+				"ISSN": "1467-9744",
+				"abstractNote": "A vast body of research shows largely positive associations between religiosity/spirituality (R/S) and positive well‐being outcomes. Such research has examined religious communities and general populations, but little is known about the relationship between R/S and well‐being among scientists, who typically tend to be less religious than the general public. Drawing on nationally representative survey data on physicists and biologists in India, Italy, the United Kingdom, and the United States (N = 3442), this study examines whether the relationship between R/S and mental health holds for scientists, particularly during the COVID‐19 pandemic. We find that net of statistical controls, higher levels of religious and spiritual commitment are associated with significantly higher levels of well‐being and lower levels of psychological distress. Overall, the results indicate that a positive relationship between R/S and mental health holds even for scientists. The study's findings have implications for future analysis of the relationship between R/S and the well‐being of people working in other professions.",
+				"issue": "4",
+				"language": "None",
+				"libraryCatalog": "www.zygonjournal.org",
+				"publicationTitle": "Zygon: Journal of Religion and Science",
+				"shortTitle": "Religion, Spirituality, and Mental Health Among Scientists During the Pandemic",
+				"url": "https://www.zygonjournal.org/article/id/14963/",
+				"volume": "58",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Academic science"
+					},
+					{
+						"tag": "Cross‐national study"
+					},
+					{
+						"tag": "Health"
+					},
+					{
+						"tag": "Religion"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.zygonjournal.org/article/id/14947/",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "The Gut: a Black Atlantic Alimentary Tract. by Elizabethpérez. Cambridge: Cambridge University Press, 2022. 75 Pages. $22.00 (paper).",
+				"creators": [
+					{
+						"firstName": "Mladen",
+						"lastName": "Turk",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023-12-02",
+				"DOI": "10.1111/zygo.12929",
+				"ISSN": "1467-9744",
+				"abstractNote": "&nbsp;",
+				"issue": "4",
+				"language": "None",
+				"libraryCatalog": "www.zygonjournal.org",
+				"publicationTitle": "Zygon: Journal of Religion and Science",
+				"shortTitle": "The Gut",
+				"url": "https://www.zygonjournal.org/article/id/14947/",
+				"volume": "58",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	}
 ]
 /** END TEST CASES **/
