@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-15 08:15:52"
+	"lastUpdated": "2024-06-26 13:46:06"
 }
 
 /*
@@ -146,6 +146,12 @@ function postProcess(doc, item) {
 	}
 	
 	item.attachments = [];
+
+	let additionalTitle = text(doc, '.title ~ div .typography-body ')
+	if (additionalTitle)
+	    item.notes.push( { note: "additional_title:" + additionalTitle });
+
+	if (!item.itemType)	item.itemType = "journalArticle";
 }
 
 function extractErscheinungsjahr(date) {
@@ -195,6 +201,7 @@ function doWeb(doc, url) {
 }
 
 	
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
