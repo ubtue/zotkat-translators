@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-06-26 15:13:22"
+	"lastUpdated": "2024-06-26 15:39:00"
 }
 
 /*
@@ -109,8 +109,8 @@ function titleCase(title) {
 }
 
 function getAuthorsAndOrcids(doc, item) {
-    // XPath to find the section containing authors
-    let authorSection = ZU.xpath(doc, '//*[contains(text(), "Authors")]/following-sibling::node()[not(self::h4)]');
+   // XPath to find the section containing authors under any header level
+    let authorSection = ZU.xpath(doc, '//*[self::h2 or self::h3 or self::h4 or self::h5 or self::h6][contains(text(), "Authors")]/following-sibling::node()[not(self::h2) and not(self::h3) and not(self::h4) and not(self::h5) and not(self::h6)]');
 
     // Regular expression to find ORCID in href attribute
     let orcidRegex = /https:\/\/orcid.org\/(\d{4}-\d{4}-\d{4}-\d{3}[0-9X])/i;
