@@ -5,136 +5,136 @@
 	"target": "zygonjournal.org",
 	"minVersion": "5.0",
 	"maxVersion": "",
-	"priority": 100,
+	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-06-26 15:39:00"
+	"lastUpdated": "2024-06-27 06:48:32"
 }
 
 /*
-    ***** BEGIN LICENSE BLOCK *****
+	***** BEGIN LICENSE BLOCK *****
 
-    Copyright © 2024 Universitätsbibliothek Tübingen
+	Copyright © 2024 Universitätsbibliothek Tübingen
 
-    This file is part of Zotero.
+	This file is part of Zotero.
 
-    Zotero is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	Zotero is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    Zotero is distributed in the hope that it will be useful,
-    but without any WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU Affero General Public License for more details.
+	Zotero is distributed in the hope that it will be useful,
+	but without any WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with Zotero. If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU Affero General Public License
+	along with Zotero. If not, see <http://www.gnu.org/licenses/>.
 
-    ***** END LICENSE BLOCK *****
+	***** END LICENSE BLOCK *****
 */
 
 function detectWeb(doc, url) {
-    if (url.includes('/article/')) {
-        return 'journalArticle';
-    } else if (getSearchResults(doc, true)) {
-        return 'multiple';
-    }
-    return false;
+	if (url.includes('/article/')) {
+		return 'journalArticle';
+	} else if (getSearchResults(doc, true)) {
+		return 'multiple';
+	}
+	return false;
 }
 
 function getSearchResults(doc, checkOnly) {
-    var items = {};
-    var found = false;
-    var rows = doc.querySelectorAll('a[href*="/article/"]');
-    for (let row of rows) {
-        let href = row.href;
-        let title = ZU.trimInternal(row.textContent);
-        if (!href || !title) continue;
-        if (checkOnly) return true;
-        found = true;
-        items[href] = title;
-    }
-    return found ? items : false;
+	var items = {};
+	var found = false;
+	var rows = doc.querySelectorAll('a[href*="/article/"]');
+	for (let row of rows) {
+		let href = row.href;
+		let title = ZU.trimInternal(row.textContent);
+		if (!href || !title) continue;
+		if (checkOnly) return true;
+		found = true;
+		items[href] = title;
+	}
+	return found ? items : false;
 }
 
 async function doWeb(doc, url) {
-    if (detectWeb(doc, url) == 'multiple') {
-        let items = await Zotero.selectItems(getSearchResults(doc, false));
-        if (!items) return;
-        for (let url of Object.keys(items)) {
-            await scrape(await requestDocument(url));
-        }
-    } else {
-        await scrape(doc, url);
-    }
+	if (detectWeb(doc, url) == 'multiple') {
+		let items = await Zotero.selectItems(getSearchResults(doc, false));
+		if (!items) return;
+		for (let url of Object.keys(items)) {
+			await scrape(await requestDocument(url));
+		}
+	} else {
+		await scrape(doc, url);
+	}
 }
 
 async function scrape(doc, url = doc.location.href) {
-    let translator = Zotero.loadTranslator('web');
-    translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48');
-    translator.setDocument(doc);
-    
-    translator.setHandler('itemDone', (_obj, item) => {
-        item.title = titleCase(item.title); // Apply title case
+	let translator = Zotero.loadTranslator('web');
+	translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48');
+	translator.setDocument(doc);
+	
+	translator.setHandler('itemDone', (_obj, item) => {
+		item.title = titleCase(item.title); // Apply title case
 		// ORCID
 		getAuthorsAndOrcids(doc, item);		
 		let reviewTag = ZU.xpathText(doc, "//div[@id='article_opener']//small[contains(text(), 'Reviews')]");//Z.debug(reviewTag)
-        if (reviewTag && reviewTag.includes("Reviews")) item.tags.push('RezensionstagPica');
+		if (reviewTag && reviewTag.includes("Reviews")) item.tags.push('RezensionstagPica');
 		for (let i in item.tags) { // Capitalize tags
 			item.tags[i] = item.tags[i].charAt(0).toUpperCase() + item.tags[i].substring(1);
 		}
 		item.complete();
-    });
+	});
 
-    let em = await translator.getTranslatorObject();
-    em.itemType = 'journalArticle';
+	let em = await translator.getTranslatorObject();
+	em.itemType = 'journalArticle';
 
-    await em.doWeb(doc, url);
+	await em.doWeb(doc, url);
 }
 
 function titleCase(title) {
-    const smallWords = /^(a|an|and|as|at|but|by|for|if|in|nor|of|on|or|so|the|to|up|yet)$/i;
-    return title.split(' ').map((word, index, array) => {
-        if (
-            word.match(smallWords) &&
-            index !== 0 &&
-            index !== array.length - 1
-        ) {
-            return word.toLowerCase();
-        }
-        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    }).join(' ');
+	const smallWords = /^(a|an|and|as|at|but|by|for|if|in|nor|of|on|or|so|the|to|up|yet)$/i;
+	return title.split(' ').map((word, index, array) => {
+		if (
+			word.match(smallWords) &&
+			index !== 0 &&
+			index !== array.length - 1
+		) {
+			return word.toLowerCase();
+		}
+		return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+	}).join(' ');
 }
 
 function getAuthorsAndOrcids(doc, item) {
    // XPath to find the section containing authors under any header level
-    let authorSection = ZU.xpath(doc, '//*[self::h2 or self::h3 or self::h4 or self::h5 or self::h6][contains(text(), "Authors")]/following-sibling::node()[not(self::h2) and not(self::h3) and not(self::h4) and not(self::h5) and not(self::h6)]');
+	let authorSection = ZU.xpath(doc, '//*[self::h2 or self::h3 or self::h4 or self::h5 or self::h6][contains(text(), "Authors")]/following-sibling::node()[not(self::h2) and not(self::h3) and not(self::h4) and not(self::h5) and not(self::h6)]');
 
-    // Regular expression to find ORCID in href attribute
-    let orcidRegex = /https:\/\/orcid.org\/(\d{4}-\d{4}-\d{4}-\d{3}[0-9X])/i;
+	// Regular expression to find ORCID in href attribute
+	let orcidRegex = /https:\/\/orcid.org\/(\d{4}-\d{4}-\d{4}-\d{3}[0-9X])/i;
 
-    // Iterate through the nodes following the "Authors" header
-    for (let node of authorSection) {
-        if (node.nodeType === Node.TEXT_NODE) {
-            let authorName = node.textContent.trim();
-            
-            // Check if there is a next sibling element and if it is an ORCID link
-            let orcidLink = node.nextSibling;
-            let orcid = null;
-            
-            if (orcidLink && orcidLink.nodeType === Node.ELEMENT_NODE && orcidLink.tagName === 'A' && orcidLink.href.match(orcidRegex)) {
-                orcid = orcidLink.href.match(orcidRegex)[1];
-            }
+	// Iterate through the nodes following the "Authors" header
+	for (let node of authorSection) {
+		if (node.nodeType === Node.TEXT_NODE) {
+			let authorName = node.textContent.trim();
+			
+			// Check if there is a next sibling element and if it is an ORCID link
+			let orcidLink = node.nextSibling;
+			let orcid = null;
+			
+			if (orcidLink && orcidLink.nodeType === Node.ELEMENT_NODE && orcidLink.tagName === 'A' && orcidLink.href.match(orcidRegex)) {
+				orcid = orcidLink.href.match(orcidRegex)[1];
+			}
 
-            // Add author and ORCID to the item notes only if ORCID is present
-            if (authorName && orcid) {
-                let note = `${authorName} | orcid:${orcid} | taken from website`;
-                item.notes.push({ note });
-            }
-        }
-    }
+			// Add author and ORCID to the item notes only if ORCID is present
+			if (authorName && orcid) {
+				let note = `${authorName} | orcid:${orcid} | taken from website`;
+				item.notes.push({ note });
+			}
+		}
+	}
 }
 
 /** BEGIN TEST CASES **/
