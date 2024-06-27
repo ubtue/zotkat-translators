@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 12,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-02-15 14:33:13"
+	"lastUpdated": "2021-10-14 15:54:05"
 }
 
 /*
@@ -130,7 +130,7 @@ function scrape(newDoc, url) {
 			if (abs) item.abstractNote = abs;
 			if (pdf) item.attachments.push({ url: pdf, title: "IngentaConnect Full Text PDF", mimeType: "application/pdf" });
 			// Note that the RIS translator gives us a link to the record already
-			//item.url = null;
+			item.url = null;
 			if (keys) item.tags = keys;
 			if (item.date) item.date = item.date.replace(/T00:00:00\/*/, "");
 			if (item.DOI) {
@@ -145,7 +145,6 @@ function scrape(newDoc, url) {
 		translator.translate();
 	});
 }
-
 
 
 /** BEGIN TEST CASES **/
