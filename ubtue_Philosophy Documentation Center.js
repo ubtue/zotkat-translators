@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-26 07:32:26"
+	"lastUpdated": "2024-06-28 14:24:05"
 }
 
 /*
@@ -99,6 +99,7 @@ function scrape(doc, url) {
 		if(issnEntry && issnEntry.match(/Print_ISSN/i) && issnEntry.match(/Print_ISSN=(\d{4}-\d{3}[\dx])/i)) i.ISSN = issnEntry.match(/Print_ISSN=(\d{4}-\d{3}[\dx])/i)[1];
 		if(issnEntry && issnEntry.match(/Book Review/i)) i.tags.push('RezensionstagPica');
 
+		i.creators = [];
 		let authors = ZU.xpath(doc, '//div[contains(@id, "articleInfo")]')[0].innerHTML.match(/>[^<]+<a\shref=[^<]+</g);
 		for (let j in authors) {
 			let author = authors[j].match(/^>([^<]+)</)[1];
@@ -107,6 +108,12 @@ function scrape(doc, url) {
 				i.notes.push("orcid:" + orcid + " | " + author + " | taken from website");
 			}
 		}
+		
+		let citationAuthor = doc.querySelector('meta[name="citation_author"]');
+		if (citationAuthor) {
+			let author = citationAuthor.getAttribute('content');
+			i.creators.push(ZU.cleanAuthor(author, "author", true));
+		}
 
 		i.attachments = [];
 		//i.url = url;
@@ -114,6 +121,7 @@ function scrape(doc, url) {
 	});
 	translator.translate();
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
