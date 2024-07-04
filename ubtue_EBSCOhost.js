@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-06-05 14:49:24"
+	"lastUpdated": "2024-06-13 09:07:24"
 }
 
 /*
@@ -55,7 +55,7 @@ function detectWeb(doc, url) {
 
 function extractAbstracts(doc, item) {
 	let  abstractCandidates= ZU.xpath(doc, '//dt[contains(text(),"Abstract")]');
-	if (abstractCandidates) {
+	if (abstractCandidates.length > 0) {
 		item.abstractNote = "";
 		let citation_field_values = ZU.xpath(abstractCandidates[0], './following-sibling::dd[@data-auto="citation_field_value"]');
 		for (citation_field_value of citation_field_values) {
