@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-07-04 13:55:16"
+	"lastUpdated": "2024-07-04 13:57:44"
 }
 
 /*
@@ -99,5 +99,65 @@ async function scrape(doc, url = doc.location.href) {
 
 /** BEGIN TEST CASES **/
 var testCases = [
+	{
+		"type": "web",
+		"url": "https://digitalcommons.unomaha.edu/jrf/vol28/iss1/61/",
+		"detectedItemType": "newspaperArticle",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Mary Magdalene on Film in Twenty-first Century: A Feminist Theological Critique",
+				"creators": [
+					{
+						"firstName": "Mary Ann",
+						"lastName": "Beavis",
+						"creatorType": "author"
+					}
+				],
+				"date": "2024",
+				"DOI": "10.32873/uno.dc.jrf.28.01.61",
+				"ISSN": "1092-1311",
+				"abstractNote": "Since the turn of the millennium, several films (and one popular TV series) featuring Mary Magdalene as a significant character, or even as the central character, have been produced. A few, specifically Son of God (2104), The Chosen (2017-), and Mary Magdalene (2019), gained a wide audience through some combination of theatrical release, television, and streaming services. Unlike earlier productions that unfailingly portrayed her conventionally as a penitent prostitute, these and other, less well-known films of recent decades have departed from this traditional Magdalene. This is no doubt due, among other things, to the influence of feminist theology and biblical studies, which since the 1980s, have definitively shown that there is no scriptural evidence that Mary Magdalene was either a prostitute, or in special need of repentance. Unfortunately, however, these productions tend to find another way to situate the Magdalene as abject relative to Jesus, and inevitably downplay the role of other women disciples in the Jesus movement. In addition, although most eschew the “penitent whore” stereotype, they tend to reiterate the “martyr/love story” narrative associated with prostitution in film.",
+				"issue": "1",
+				"language": "en",
+				"libraryCatalog": "digitalcommons.unomaha.edu",
+				"publicationTitle": "Journal of Religion & Film",
+				"shortTitle": "Mary Magdalene on Film in Twenty-first Century",
+				"url": "https://digitalcommons.unomaha.edu/jrf/vol28/iss1/61",
+				"volume": "28",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Biblical Studies"
+					},
+					{
+						"tag": "Biblical Women"
+					},
+					{
+						"tag": "Feminist Theology"
+					},
+					{
+						"tag": "Film"
+					},
+					{
+						"tag": "Mary Magdalene"
+					}
+				],
+				"notes": [
+					"artikelID:61"
+				],
+				"seeAlso": []
+			}
+		]
+	}
 ]
 /** END TEST CASES **/
