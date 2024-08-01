@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-04-01 09:41:08"
+	"lastUpdated": "2024-08-01 15:10:49"
 }
 
 /*
@@ -201,6 +201,11 @@ function scrape(doc, url) {
 				item.tags.push("RezensionstagPica");
 			}
 		}
+	
+		let title_addition = ZU.xpathText(doc, '//article[@class="article-details"]/header/h2/small')
+		if (title_addition)
+			item.title = item.title + " " + title_addition.trim();
+		
 		item.attachments = [];
 		
 		item.complete();
@@ -211,6 +216,7 @@ function scrape(doc, url) {
 		trans.doWeb(doc, url);
 	});
 }
+
 
 
 
