@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-06-26 14:27:50"
+	"lastUpdated": "2024-08-01 15:10:49"
 }
 
 /*
@@ -202,9 +202,9 @@ function scrape(doc, url) {
 			}
 		}
 	
-		let additional_title = ZU.xpathText(doc, '//article[@class="article-details"]/header/h2/small')
-		if (additional_title)
-		    item.title = item.title + " " + additional_title.trim();
+		let title_addition = ZU.xpathText(doc, '//article[@class="article-details"]/header/h2/small')
+		if (title_addition)
+			item.title = item.title + " " + title_addition.trim();
 		
 		item.attachments = [];
 		

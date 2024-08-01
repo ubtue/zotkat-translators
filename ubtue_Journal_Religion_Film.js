@@ -9,43 +9,43 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-07-04 13:57:44"
+	"lastUpdated": "2024-08-01 14:51:34"
 }
 
 /*
-    ***** BEGIN LICENSE BLOCK *****
+	***** BEGIN LICENSE BLOCK *****
 
-    Copyright © 2022 YOUR_NAME <- TODO
+	Copyright © 2022 Mara Spieß
 
-    This file is part of Zotero.
+	This file is part of Zotero.
 
-    Zotero is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	Zotero is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    Zotero is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU Affero General Public License for more details.
+	Zotero is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with Zotero. If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU Affero General Public License
+	along with Zotero. If not, see <http://www.gnu.org/licenses/>.
 
-    ***** END LICENSE BLOCK *****
+	***** END LICENSE BLOCK *****
 */
 
 
 function detectWeb(doc, url) {
 	const articlePattern = /\/vol\d+\/iss\d+\/\d+/;
 	const multiplePattern = /\/vol\d+\/iss\d+\/$/;
-    if (articlePattern.test(url)) {
-        return 'newspaperArticle';
-    }
-    else if (multiplePattern.test(url)) {
-        return 'multiple';
-    }
-    return false;
+	if (articlePattern.test(url)) {
+		return 'newspaperArticle';
+	}
+	else if (multiplePattern.test(url)) {
+		return 'multiple';
+	}
+	return false;
 }
 
 function getSearchResults(doc, checkOnly) {
@@ -53,9 +53,7 @@ function getSearchResults(doc, checkOnly) {
 	var found = false;
 	var rows = doc.querySelectorAll('div.doc > p > a[href^="https://digitalcommons.unomaha.edu/jrf/"]');
 	for (let row of rows) {
-		// TODO: check and maybe adjust
 		let href = row.href;
-		// TODO: check and maybe adjust
 		let title = ZU.trimInternal(row.textContent);
 		if (!href || !title) continue;
 		if (checkOnly) return true;
@@ -85,7 +83,6 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setDocument(doc);
 	
 	translator.setHandler('itemDone', (_obj, item) => {
-		// TODO adjust if needed:
 		item.notes.push('artikelID:'+item.pages);
 		item.pages = "";
 		item.complete();

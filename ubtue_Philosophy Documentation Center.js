@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-06-28 14:24:05"
+	"lastUpdated": "2024-08-01 14:49:11"
 }
 
 /*
@@ -99,20 +99,20 @@ function scrape(doc, url) {
 		if(issnEntry && issnEntry.match(/Print_ISSN/i) && issnEntry.match(/Print_ISSN=(\d{4}-\d{3}[\dx])/i)) i.ISSN = issnEntry.match(/Print_ISSN=(\d{4}-\d{3}[\dx])/i)[1];
 		if(issnEntry && issnEntry.match(/Book Review/i)) i.tags.push('RezensionstagPica');
 
-		i.creators = [];
-		let authors = ZU.xpath(doc, '//div[contains(@id, "articleInfo")]')[0].innerHTML.match(/>[^<]+<a\shref=[^<]+</g);
-		for (let j in authors) {
-			let author = authors[j].match(/^>([^<]+)</)[1];
-			if (authors[j].match(/orcid\.org\/\d{4}-\d{4}-\d{4}-\d{4}/)) {
-				let orcid = authors[j].match(/orcid\.org\/(\d{4}-\d{4}-\d{4}-\d{3}(?:\d|X|x))/)[1];
-				i.notes.push("orcid:" + orcid + " | " + author + " | taken from website");
-			}
-		}
-		
-		let citationAuthor = doc.querySelector('meta[name="citation_author"]');
-		if (citationAuthor) {
+		i.creators = [];	
+		let citationAuthors = doc.querySelectorAll('meta[name="citation_author"]');
+		for (citationAuthor of citationAuthors) {
 			let author = citationAuthor.getAttribute('content');
 			i.creators.push(ZU.cleanAuthor(author, "author", true));
+		}
+
+		let orcidAuthors = ZU.xpath(doc, '//div[contains(@id, "articleInfo")]')[0].innerHTML.match(/>[^<]+<a\shref=[^<]+</g);
+		for (let j in orcidAuthors) {
+			let orcidAuthor = orcidAuthors[j].match(/^>([^<]+)</)[1];
+			if (orcidAuthors[j].match(/orcid\.org\/\d{4}-\d{4}-\d{4}-\d{4}/)) {
+				let orcid = orcidAuthors[j].match(/orcid\.org\/(\d{4}-\d{4}-\d{4}-\d{3}(?:\d|X|x))/)[1];
+				i.notes.push("orcid:" + orcid + " | " + ordicAuthor + " | taken from website");
+			}
 		}
 
 		i.attachments = [];
