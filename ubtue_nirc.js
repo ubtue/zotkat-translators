@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-02 10:26:55"
+	"lastUpdated": "2024-08-02 10:29:04"
 }
 
 /*
@@ -171,6 +171,34 @@ var testCases = [
 				"shortTitle": "Korea in the Kamiyo",
 				"url": "https://nirc.nanzan-u.ac.jp/journal/6/issue/341/article/2330",
 				"volume": "49",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://nirc.nanzan-u.ac.jp/journal/3/issue/347/article/2367",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Annual Update: Japanese Journal of Religious Studies",
+				"creators": [
+					{
+						"firstName": "Matthew D.",
+						"lastName": "McMullen",
+						"creatorType": "author"
+					}
+				],
+				"ISSN": "0304-1042",
+				"language": "en",
+				"libraryCatalog": "nirc.nanzan-u.ac.jp",
+				"pages": "7-9",
+				"shortTitle": "Annual Update",
+				"url": "https://nirc.nanzan-u.ac.jp/journal/3/issue/347/article/2367",
+				"volume": "47",
 				"attachments": [],
 				"tags": [],
 				"notes": [],
