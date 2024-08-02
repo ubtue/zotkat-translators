@@ -5,11 +5,11 @@
 	"target": "^https?://www\\.degruyter\\.com",
 	"minVersion": "3.0",
 	"maxVersion": "",
-	"priority": 80,
+	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-06-28 09:21:13"
+	"lastUpdated": "2024-08-02 12:57:55"
 }
 
 /*
@@ -72,7 +72,7 @@ function doWeb(doc, url) {
 		invokeEMTranslator(doc, url);
 }
 
-function invokeEMTranslator(doc) {
+function invokeEMTranslator(doc, url) {
 	var translator = Zotero.loadTranslator("web");
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 	translator.setDocument(doc);
@@ -106,7 +106,17 @@ function invokeEMTranslator(doc) {
 		}
 		if (!i.ISSN) i.ISSN = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "onlineissn", " " )) and contains(concat( " ", @class, " " ), concat( " ", "text-metadata-value", " " ))]');
 		//delete lastPage if the value of firstPage is the same value as lastPage
-		i.pages = i.pages.trim().replace(/^([^-]+)-\1$/, '$1');
+		if (i.pages) {
+			i.pages = i.pages.trim().replace(/^([^-]+)-\1$/, '$1');
+		}
+		if (i.ISSN = 2300-6579) {
+			//let url = "test";
+			let match = url.match(/opth-(\d{4}-\d{4})/);
+			if (match) {
+				i.notes.push('artikelID:' + match[1].replace('-', ''));
+			}
+		}
+		
 		i.complete();
 	});
 	translator.translate();
