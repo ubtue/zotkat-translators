@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-06-26 13:46:06"
+	"lastUpdated": "2024-08-02 09:33:10"
 }
 
 /*
@@ -149,7 +149,7 @@ function postProcess(doc, item) {
 
 	let additionalTitle = text(doc, '.title ~ div .typography-body ')
 	if (additionalTitle)
-	    item.notes.push( { note: "additional_title:" + additionalTitle });
+		item.notes.push( { note: "Paralleltitel:" + additionalTitle });
 
 	if (!item.itemType)	item.itemType = "journalArticle";
 }
