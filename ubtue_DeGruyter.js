@@ -5,11 +5,11 @@
 	"target": "^https?://www\\.degruyter\\.com",
 	"minVersion": "3.0",
 	"maxVersion": "",
-	"priority": 100,
+	"priority": 80,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-02 13:07:49"
+	"lastUpdated": "2024-08-05 12:54:14"
 }
 
 /*
@@ -109,7 +109,7 @@ function invokeEMTranslator(doc, url) {
 		if (i.pages) {
 			i.pages = i.pages.trim().replace(/^([^-]+)-\1$/, '$1');
 		}
-		if (i.ISSN = 2300-6579) {
+		if (i.ISSN == '2300-6579') {
 			let match = url.match(/opth-(\d{4}-\d{4})/);
 			if (match) {
 				i.notes.push('artikelID:' + match[1].replace('-', ''));

@@ -5,11 +5,11 @@
 	"target": "^https?://www\\.degruyter\\.com/",
 	"minVersion": "2.1.9",
 	"maxVersion": "",
-	"priority": 80,
+	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-02 12:10:59"
+	"lastUpdated": "2024-08-05 13:03:13"
 }
 
 /*
