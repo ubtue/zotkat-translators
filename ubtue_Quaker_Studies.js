@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-05 12:20:52"
+	"lastUpdated": "2024-08-05 12:23:39"
 }
 
 /*
@@ -98,5 +98,70 @@ async function scrape(doc, url = doc.location.href) {
 
 /** BEGIN TEST CASES **/
 var testCases = [
+	{
+		"type": "web",
+		"url": "https://quakerstudies.openlibhums.org/article/id/15783/",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "John Woolman and ‘The Meek Shall Inherit the Earth’",
+				"creators": [
+					{
+						"firstName": "Mike",
+						"lastName": "Heller",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Ron",
+						"lastName": "Rembert",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023-12-04",
+				"DOI": "10.3828/quaker.2023.28.2.6",
+				"ISSN": "2397-1770",
+				"abstractNote": "Rufus Jones observed that John Woolman was ‘almost an incarnation of the beatitudes’. Mike Heller and Ron Rembert find this an intriguing doorway into understanding Woolman’s legacy. They have chosen to focus on one beatitude, ‘The meek shall inherit the earth’, because ‘meek’ and related terms appear often in Woolman’s writings. They find meekness an essential aspect of Woolman’s spiritual journey and his ministry, both of which were grounded in faith-filled, Christ-centred living. Meekness became for him a challenge and an aspiration as he sought to distinguish between authentic and feigned meekness, to be wary of the desire to please others, and to understand our spiritual versus materialistic inheritance. In addition to meekness regarding individuals, Woolman posed the possibility of it being a quality sensed within a Quaker meeting, which enabled the group to take on values and behaviours guiding their interaction and work in the world.\n.",
+				"issue": "2",
+				"language": "None",
+				"libraryCatalog": "quakerstudies.openlibhums.org",
+				"pages": "187-205",
+				"publicationTitle": "Quaker Studies",
+				"url": "https://quakerstudies.openlibhums.org/article/id/15783/",
+				"volume": "28",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Woolman"
+					},
+					{
+						"tag": "beatitude"
+					},
+					{
+						"tag": "incarnation"
+					},
+					{
+						"tag": "inheritance"
+					},
+					{
+						"tag": "meek"
+					},
+					{
+						"tag": "self-denial"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	}
 ]
 /** END TEST CASES **/
