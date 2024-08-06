@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-06 11:59:29"
+	"lastUpdated": "2024-08-06 12:55:14"
 }
 
 /*
@@ -134,8 +134,7 @@ function scrape(doc, url) {
 				}
 				let keywords = ZU.xpathText(doc, '//meta[@name="dc.Subject"]/@content');
 				if (keywords) {
-					let keywordArray = keywords ? keywords.split(';') : [];
-					for (let keyword of keywordArray) {
+					for (let keyword of keywords.split(';')) {
 						item.tags.push(keyword.trim());
 					}
 				}
