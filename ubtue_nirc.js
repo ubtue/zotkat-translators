@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-05 14:12:01"
+	"lastUpdated": "2024-08-06 07:09:48"
 }
 
 /*
@@ -103,11 +103,11 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			}
 		}
 		let issueinfo = ZU.xpathText(doc, '//main//h1//a');
-            if (issueinfo) {
-            let volumeMatch = issueinfo.match(/Volume (\d+)/);
-            item.volume = volumeMatch ?  volumeMatch[1] : null;
-            let issueMatch = issueinfo.match(/Issue (\d+)/);
-            item.issue = issueMatch ? issueMatch[1] : null;
+		if (issueinfo) {
+			let volumeMatch = issueinfo.match(/Volume (\d+)/);
+			item.volume = volumeMatch ?  volumeMatch[1] : null;
+			let issueMatch = issueinfo.match(/Issue (\d+)/);
+			item.issue = issueMatch ? issueMatch[1] : null;
 		}
 		if (ZU.xpathText(doc, '//main//h1//span')) {
 			let title = ZU.xpathText(doc, '//main//h1//span');
