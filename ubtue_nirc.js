@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-15 14:47:29"
+	"lastUpdated": "2024-08-06 07:09:48"
 }
 
 /*
@@ -102,10 +102,12 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 				item.creators.push({"firstName": firstname, "lastName": lastname, "creatorType": "author"});
 			}
 		}
-		if (ZU.xpathText(doc, '//main//h1//a')) {
-			let issueinfo = ZU.xpathText(doc, '//main//h1//a');
-			item.volume = issueinfo.match(/Volume (\d+)/)[1];
-			item.issue = issueinfo.match(/Issue (\d+)/)[1];
+		let issueinfo = ZU.xpathText(doc, '//main//h1//a');
+		if (issueinfo) {
+			let volumeMatch = issueinfo.match(/Volume (\d+)/);
+			item.volume = volumeMatch ?  volumeMatch[1] : null;
+			let issueMatch = issueinfo.match(/Issue (\d+)/);
+			item.issue = issueMatch ? issueMatch[1] : null;
 		}
 		if (ZU.xpathText(doc, '//main//h1//span')) {
 			let title = ZU.xpathText(doc, '//main//h1//span');
@@ -139,6 +141,7 @@ function doWeb(doc, url) {
 	} else invokeEmbeddedMetadataTranslator(doc, url);
 }
 
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -170,6 +173,34 @@ var testCases = [
 				"shortTitle": "Korea in the Kamiyo",
 				"url": "https://nirc.nanzan-u.ac.jp/journal/6/issue/341/article/2330",
 				"volume": "49",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://nirc.nanzan-u.ac.jp/journal/3/issue/347/article/2367",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Annual Update: Japanese Journal of Religious Studies",
+				"creators": [
+					{
+						"firstName": "Matthew D.",
+						"lastName": "McMullen",
+						"creatorType": "author"
+					}
+				],
+				"ISSN": "0304-1042",
+				"language": "en",
+				"libraryCatalog": "nirc.nanzan-u.ac.jp",
+				"pages": "7-9",
+				"shortTitle": "Annual Update",
+				"url": "https://nirc.nanzan-u.ac.jp/journal/3/issue/347/article/2367",
+				"volume": "47",
 				"attachments": [],
 				"tags": [],
 				"notes": [],

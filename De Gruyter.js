@@ -1,15 +1,15 @@
 {
 	"translatorID": "2a5dc3ed-ee5e-4bfb-baad-36ae007e40ce",
-	"translatorType": 4,
 	"label": "De Gruyter",
 	"creator": "Abe Jellinek",
 	"target": "^https?://www\\.degruyter\\.com/",
 	"minVersion": "2.1.9",
-	"maxVersion": null,
+	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
+	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-09-03 18:30:00"
+	"lastUpdated": "2024-08-05 13:03:13"
 }
 
 /*
@@ -159,6 +159,7 @@ function scrape(doc, url) {
 		trans.doWeb(doc, url);
 	});
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [

@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-07-04 14:58:52"
+	"lastUpdated": "2024-08-02 09:55:24"
 }
 
 /*
@@ -119,6 +119,10 @@ function invokeEMTranslator(doc) {
  			}
  		}
  		
+		if (i.ISSN == "2293-7374") {
+			i.title = i.title.replace( '| Renaissance and Reformation', '');
+		}
+
  		//title in other language for pica-field 4002
  		var articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
  		if (articleType === "Artículos") {
