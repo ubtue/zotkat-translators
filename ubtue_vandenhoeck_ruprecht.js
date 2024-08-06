@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-10-11 12:18:21"
+	"lastUpdated": "2024-08-06 11:59:29"
 }
 
 /*
@@ -132,6 +132,13 @@ function scrape(doc, url) {
 					if (metaLang && metaLang.getAttribute("content"))
 						item.language = metaLang.getAttribute("content")
 				}
+				let keywords = ZU.xpathText(doc, '//meta[@name="dc.Subject"]/@content');
+				if (keywords) {
+					let keywordArray = keywords ? keywords.split(';') : [];
+					for (let keyword of keywordArray) {
+						item.tags.push(keyword.trim());
+					}
+				}
 				let switchToDE = "https://www.vr-elibrary.de/action/doLocaleChange?locale=de&requestUri=/doi/"+ doi;
 					ZU.processDocuments(switchToDE, function (url) {
 						let scrapeAbstractsDE = ZU.xpathText(url, '//*[contains(concat( " ", @class, " " ), concat( " ", "abstractInFull", " " ))]');
@@ -171,6 +178,7 @@ function scrape(doc, url) {
 		});
 	});
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
