@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-02 09:55:24"
+	"lastUpdated": "2024-08-06 12:17:39"
 }
 
 /*
@@ -292,6 +292,10 @@ function invokeEMTranslator(doc) {
 			//then replace the range with a first page number e.g 3 
 			if (pageNumberFromDC != null) i.pages = pageNumberFromDC.trim().replace(/^([^-]+)-\1$/, '$1');
  		}
+		if (i.ISSN == "2468-9963") {
+			i.notes.push('artikelID:' + i.pages);
+			i.pages = "";
+		}
 
  		if (i.date == undefined && ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content') != undefined) {
  			i.date = ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content').substr(0,4);
