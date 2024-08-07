@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-06 07:09:48"
+	"lastUpdated": "2024-08-07 09:33:44"
 }
 
 /*
@@ -89,7 +89,11 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, item) {
 		item.itemType = 'journalArticle';
-		if (item.title == "NIRC") item.ISSN = "0304-1042";
+		let journalID = ZU.xpathText(doc, '//h1/span/a[1]');
+		if (journalID) {
+			if (journalID == "Bulletin") item.ISSN = "0386-720X";
+			else if (journalID == "JJRS") item.ISSN = "0304-1042";
+		}
 		if (ZU.xpathText(doc, '//main/div/p')) {
 			item.abstractNote = ZU.xpathText(doc, '//main/div/p').replace(/\n/g," ");
 		}
@@ -140,8 +144,6 @@ function doWeb(doc, url) {
 		});
 	} else invokeEmbeddedMetadataTranslator(doc, url);
 }
-
-
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
