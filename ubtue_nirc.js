@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-07 09:35:31"
+	"lastUpdated": "2024-08-07 09:52:16"
 }
 
 /*
@@ -90,9 +90,10 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 	translator.setHandler("itemDone", function (t, item) {
 		item.itemType = 'journalArticle';
 		let journalID = ZU.xpathText(doc, '//h1/span/a[1]');
-		if (journalID) {
-			if (journalID == "Bulletin") item.ISSN = "0386-720X";
-			else if (journalID == "JJRS") item.ISSN = "0304-1042";
+		if (journalID == "Bulletin") {
+			item.ISSN = "0386-720X";
+		} else if (journalID == "JJRS") {
+			item.ISSN = "0304-1042";
 		}
 		if (ZU.xpathText(doc, '//main/div/p')) {
 			item.abstractNote = ZU.xpathText(doc, '//main/div/p').replace(/\n/g," ");
