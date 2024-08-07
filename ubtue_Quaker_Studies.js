@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-05 12:23:39"
+	"lastUpdated": "2024-08-07 12:02:07"
 }
 
 /*
@@ -85,8 +85,8 @@ async function scrape(doc, url = doc.location.href) {
 		if (pages) {
 			item.pages = pages.replace('–', '-').replace(/^([^-]+)-\1$/, '$1').trim();
 		}
-        if (item.abstractNote) {
-		item.abstractNote = item.abstractNote.replace('This article was published open access under a CC BY licence: https://creativecommons.org/licences/by/4.0', '');
+		if (item.abstractNote) {
+		item.abstractNote = item.abstractNote.replace('This article was published open access under a CC BY licence: https://creativecommons.org/licences/by/4.0.', '');
 		}
 		item.complete();
 	});
