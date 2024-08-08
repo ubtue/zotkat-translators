@@ -2,14 +2,14 @@
 	"translatorID": "505a5d08-50b1-4c59-804c-a01b46d15d73",
 	"label": "ubtue_libraWeb",
 	"creator": "Simon Kornblith",
-	"target": "http:\\/\\/www.libraweb.net/articoli",
+	"target": "https:\\/\\/www.libraweb.net/articoli",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 95,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-10-05 08:54:30"
+	"lastUpdated": "2024-08-08 11:50:08"
 }
 
 /*
@@ -44,28 +44,28 @@ var replaceChars = {"Â¡": "¡", "Â¢": "¢", "Â£": "£", "Â¤": "¤", "Â�
 
 function romanToInt(r) {
 	if (r.match(/^[IVXLCM]+/)) {
-    const sym = { 
-        'I': 1,
-        'V': 5,
-        'X': 10,
-        'L': 50,
-        'C': 100,
-        'D': 500,
-        'M': 1000
-    }
-    let result = 0;
-    for (i=0; i < r.length; i++){
-        const cur = sym[r[i]];
-        const next = sym[r[i+1]];
-        if (cur < next){
-            result += next - cur 
-            i++
-        } else {
-            result += cur
-        }
-    }
+	const sym = { 
+		'I': 1,
+		'V': 5,
+		'X': 10,
+		'L': 50,
+		'C': 100,
+		'D': 500,
+		'M': 1000
+	}
+	let result = 0;
+	for (i=0; i < r.length; i++){
+		const cur = sym[r[i]];
+		const next = sym[r[i+1]];
+		if (cur < next){
+			result += next - cur 
+			i++
+		} else {
+			result += cur
+		}
+	}
 
-    return result; 
+	return result; 
 	}
 	else return r;
 };
@@ -193,6 +193,7 @@ function scrape(doc, url) {
 		item.complete();
 	}
 }
+
 
 
 /** BEGIN TEST CASES **/
