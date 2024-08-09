@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-06 12:55:14"
+	"lastUpdated": "2024-08-08 12:08:49"
 }
 
 /*
@@ -94,6 +94,7 @@ function scrape(doc, url) {
 			translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
 			translator.setString(text);
 			translator.setHandler("itemDone", function (obj, item) {
+
 				//subtitle
 				let subtitle = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "citation__subtitle", " " ))]');
 				if (subtitle) {
@@ -107,7 +108,10 @@ function scrape(doc, url) {
 						item.creators[i].firstName = fixCase(item.creators[i].firstName, true);
 					}
 				}
-				
+				if (item.series == "Jahrbuch für Biblische Theologie") {
+					item.ISSN = "2567-9392";
+					item.itemType = "journalArticle";
+				}
 				item.url = url;
 				if (ZU.xpathText(doc, '//span[@class="citation__access__type"]') != null) {
 					if (ZU.xpathText(doc, '//span[@class="citation__access__type"]').match(/(open(\s+)?access)|(kostenlos)/i)) {
