@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-01-27 08:02:47"
+	"lastUpdated": "2024-08-09 12:25:09"
 }
 
 /*
@@ -177,6 +177,10 @@ function scrape(doc, url) {
 					}
 				}
 			}
+			if (item.ISSN == "0022-0469, 1469-7637") {
+				item.tags = [];
+			}		
+
 			item.complete();
 		});
 
@@ -191,6 +195,7 @@ function scrape(doc, url) {
 		});
 	}
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
