@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-06-21 12:29:12"
+	"lastUpdated": "2024-08-12 12:07:14"
 }
 
 /*
@@ -60,23 +60,75 @@ function getSearchResults(doc) {
 	return found ? items : false;
 }
 
+function getOrcids(doc, item) {
+    let authors = ZU.xpath(doc, '//li[contains(@class,"data-author")]//a[@class="nonDisambigAuthorLink"]');
+    for (author of authors) {
+        let authorName = ZU.xpathText(author, '.');
+        if (!authorName)
+            continue;
+        let orcidUrl = ZU.xpath(author, './following-sibling::a/@href');
+        if (!orcidUrl || !orcidUrl.length)
+             continue;
+        let orcidNumber = orcidUrl[0].value.match(/\d+-\d+-\d+-\d+x?/i);
+        if (!orcidNumber)
+             continue;
+	item.notes.push("orcid: " + orcidNumber + ' | ' + authorName.trim() + ' | ' + 'taken from website');
+    }
+}
+
 function postProcess(item, doc) {
-	// sanitize page number ranges
-	if (item.pages) {
-		let pages = item.pages.trim();
-		if (pages) {
-			let matched = pages.match(/^([0-9]+-[0-9]+)/);
-			if (matched)
-				item.pages = matched[1];
-			}
-		}
+	item.itemType = 'journalArticle';
+
+	let title = doc.querySelector('meta[name="citation_title"]');
+	if (title) {
+		item.title = title.getAttribute('content');
+	}
+
+	let primaryISSN = doc.querySelector('meta[name="citation_issn"]');
+	if (primaryISSN) {
+		item.ISSN = primaryISSN.getAttribute('content');
+	}
+
+	let doi = doc.querySelector('meta[name="citation_doi"]');
+	if (doi) {
+		item.DOI = doi.getAttribute('content');
+	}
+
+	item.creators = [];
+	let citationAuthors = doc.querySelectorAll('meta[name="citation_author"]');
+	for (let citationAuthor of citationAuthors) {
+		let author = citationAuthor.getAttribute('content');
+		item.creators.push(ZU.cleanAuthor(author, "author", false));
+	}
+
+	let reviewTitles = ["boekbesprekingen", "reviews"];
+	let titleISBN = /\bISBN\s+\d+\b/;
+	if (reviewTitles.includes(item.title.toLowerCase().trim()) || item.title.match(titleISBN)) {
+		item.tags.push("RezensionstagPica");
+	}
+
+	let firstPageElement = doc.querySelector('meta[name="citation_firstpage"]');
+	let lastPageElement = doc.querySelector('meta[name="citation_lastpage"]');
+	
+	let firstPage = firstPageElement ? firstPageElement.getAttribute('content') : null;
+	let lastPage = lastPageElement ? lastPageElement.getAttribute('content') : null;
+	
+	if (firstPage !== lastPage) {
+		item.pages = firstPage + '-' + lastPage;
+		} else if (firstPage == lastPage || lastPage == null) {
+		item.pages = firstPage
+	}
+
 	let keywordTags = ZU.xpath(doc, '//div[@class="bottom-side-nav"]/a[@title]');
 	for (let i in keywordTags) {
 		item.tags.push(keywordTags[i].textContent);
 	}
+
 	item.abstractNote = item.abstractNote.replace(/^Abstract /, '');
+	item.abstractNote = item.abstractNote.replace(/^Summary /, '');
+	getOrcids(doc, item);
 	item.complete();
-	}
+}
 
 function invokeEmbeddedMetadataTranslator(doc) {
 	let translator = Zotero.loadTranslator("web");
@@ -92,7 +144,6 @@ function scrape(doc, url) {
 	let content = doc.contentDocument;
 	invokeEmbeddedMetadataTranslator(doc);
 }
-
 function doWeb(doc, url) {
 	Z.debug(detectWeb(doc, url));
 	if (detectWeb(doc, url) === "multiple") {
@@ -109,6 +160,7 @@ function doWeb(doc, url) {
 	} else
 		scrape(doc, url);
 }
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{

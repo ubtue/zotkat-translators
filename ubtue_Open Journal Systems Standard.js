@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-06 12:17:39"
+	"lastUpdated": "2024-08-09 10:59:12"
 }
 
 /*
@@ -102,6 +102,7 @@ function invokeEMTranslator(doc) {
 			i.volume = i.issue;
 			delete i.issue;
 		}
+	
 		if (i.volume == undefined) i.volume = ZU.xpathText(doc, '//meta[@name="DC.Source.Volume"]/@content');
 		if (i.pages == undefined) i.pages = ZU.xpathText(doc, '//meta[@name="DC.Identifier.Pagenumber"]/@content');
 		if (i.DOI == undefined) i.DOI = ZU.xpathText(doc, '//meta[@name="DC.Identifier.DOI"]/@content');
@@ -122,7 +123,6 @@ function invokeEMTranslator(doc) {
 		if (i.ISSN == "2293-7374") {
 			i.title = i.title.replace( '| Renaissance and Reformation', '');
 		}
-
  		//title in other language for pica-field 4002
  		var articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
  		if (articleType === "Artículos") {
@@ -636,6 +636,10 @@ function invokeEMTranslator(doc) {
 				delete i.issue;
 			}
 		}
+		if (i.ISSN =='1904-8181') {
+			i.volume = i.issue;
+			i.issue = "";
+		}
 		if (i.tags[1] == undefined && ZU.xpath(doc, '//section[@class="item keywords"]')[0]
 		&& ZU.xpath(doc, '//section[@class="item keywords"]')[0]["textContent"]) {
 			let tagsstring = ZU.xpath(doc, '//section[@class="item keywords"]')[0]["textContent"].replace(/Keywords?./g,'');
@@ -646,10 +650,16 @@ function invokeEMTranslator(doc) {
 				i.tags.push(tags[t].substring(0,tags[t].length-1));
 			} 
 		}
+
 		i.tags = [...new Set(i.tags.map(x => x))]
 		// only for https://jps.library.utoronto.ca/index.php/renref/article/view/41731"
 		let authors = ZU.xpath(doc, '//meta[@name="DC.Creator.PersonalName"]/@content');
 		if (authors) i.creators = authors.map(function(x) { return ZU.cleanAuthor(x.textContent, 'author'); })
+		if (i.creators) {
+			i.creators = i.creators.filter(creator => 
+			    creator.firstName !== "Author not" && creator.lastName !== "applicable"
+			);
+		}
 		i.complete();
 	});
 	translator.translate();
