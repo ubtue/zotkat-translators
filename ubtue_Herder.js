@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-12 11:59:47"
+	"lastUpdated": "2024-08-12 12:39:34"
 }
 
 /*
@@ -142,7 +142,7 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			item.issue = "";
 			if (item.title.toLowerCase().includes("buchvorstellungen")) {
 				item.tags.push('RezensionstagPica');
-				item.volume = item.volume.replace(/buchvorstellungen\//gi, '');
+				item.volume = item.volume.replace(/buchvorstellungen\//i, '');
 			}
 		}
 		if (item.publicationTitle == "Römische Quartalschrift") {
