@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-14 09:28:03"
+	"lastUpdated": "2024-08-14 09:46:41"
 }
 
 /*
@@ -120,6 +120,10 @@ function postProcess(item, doc) {
 	let titleISBN = /\bISBN\s+\d+\b/;
 	if (reviewTitles.includes(item.title.toLowerCase().trim()) || item.title.match(titleISBN)) {
 		item.tags.push("RezensionstagPica");
+		let pseudoAbstract = "amsterdam university press is a leading publisher of academic books";
+		if (item.abstractNote.toLowerCase().includes(pseudoAbstract)) {
+			item.abstractNote = '';
+		}
 	}
 
 	let firstPageElement = doc.querySelector('meta[name="citation_firstpage"]');
