@@ -1,15 +1,15 @@
 {
-	"translatorID": "65cf5a04-c67f-45a8-8dc4-8ac59b148d23",
-	"label": "ubtue_Violence_and_Victims",
+	"translatorID": "ebefcef0-ee95-4592-84be-c25894345c99",
+	"label": "ubtue_Springer_Publishing",
 	"creator": "Mara Spieß",
-	"target": "https:\\/\\/connect\\.springerpub\\.com\\/content\\/sgrvv\\/\\d+\\/\\d+",
+	"target": "https:\\/\\/connect\\.springerpub\\.com\\/content\\/\\w+\\/\\d+\\/\\d+",
 	"minVersion": "5.0",
 	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-13 14:39:41"
+	"lastUpdated": "2024-08-14 09:14:25"
 }
 
 /*
@@ -37,7 +37,7 @@
 
 
 function detectWeb(doc, url) {
-	let articleRegex = /\/content\/sgrvv\/\d+\/\d+\/\d+$/;
+	let articleRegex = /\/content\/\w+\/\d+\/\d+\/\d+/;
 	if (articleRegex.test(url)) {
 		return 'journalArticle';
 	}
