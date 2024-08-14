@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-12 12:07:14"
+	"lastUpdated": "2024-08-14 09:28:03"
 }
 
 /*
@@ -61,19 +61,19 @@ function getSearchResults(doc) {
 }
 
 function getOrcids(doc, item) {
-    let authors = ZU.xpath(doc, '//li[contains(@class,"data-author")]//a[@class="nonDisambigAuthorLink"]');
-    for (author of authors) {
-        let authorName = ZU.xpathText(author, '.');
-        if (!authorName)
-            continue;
-        let orcidUrl = ZU.xpath(author, './following-sibling::a/@href');
-        if (!orcidUrl || !orcidUrl.length)
-             continue;
-        let orcidNumber = orcidUrl[0].value.match(/\d+-\d+-\d+-\d+x?/i);
-        if (!orcidNumber)
-             continue;
+	let authors = ZU.xpath(doc, '//li[contains(@class,"data-author")]//a[@class="nonDisambigAuthorLink"]');
+	for (author of authors) {
+		let authorName = ZU.xpathText(author, '.');
+		if (!authorName)
+			continue;
+		let orcidUrl = ZU.xpath(author, './following-sibling::a/@href');
+		if (!orcidUrl || !orcidUrl.length)
+			 continue;
+		let orcidNumber = orcidUrl[0].value.match(/\d+-\d+-\d+-\d+x?/i);
+		if (!orcidNumber)
+			 continue;
 	item.notes.push("orcid: " + orcidNumber + ' | ' + authorName.trim() + ' | ' + 'taken from website');
-    }
+	}
 }
 
 function postProcess(item, doc) {
@@ -92,6 +92,21 @@ function postProcess(item, doc) {
 	let doi = doc.querySelector('meta[name="citation_doi"]');
 	if (doi) {
 		item.DOI = doi.getAttribute('content');
+	}
+
+	let issue = doc.querySelector('meta[name="citation_issue"]');
+	if (issue) {
+		item.issue = issue.getAttribute('content');
+	}
+
+	let volume = doc.querySelector('meta[name="citation_volume"]');
+	if (volume) {
+		item.volume = volume.getAttribute('content');
+	}
+
+	let date = doc.querySelector('meta[name="citation_date"]');
+	if (date) {
+		item.date = date.getAttribute('content');
 	}
 
 	item.creators = [];
