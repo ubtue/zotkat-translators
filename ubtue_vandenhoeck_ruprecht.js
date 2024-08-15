@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-08 12:08:49"
+	"lastUpdated": "2024-08-15 14:12:17"
 }
 
 /*
@@ -170,6 +170,11 @@ function scrape(doc, url) {
 							if (note['note'].match(/^(?:<p>)?doi:/) == null) {
 								newNotes.push(note);
 							}
+						}
+
+						let doiTag = doc.querySelector('meta[name="publication_doi"]');
+						if (doiTag) {
+							item.DOI = doiTag.getAttribute('content');
 						}
 						item.notes = newNotes;
 						item.complete();
