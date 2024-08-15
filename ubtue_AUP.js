@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-12 12:07:14"
+	"lastUpdated": "2024-08-15 15:08:30"
 }
 
 /*
@@ -61,78 +61,49 @@ function getSearchResults(doc) {
 }
 
 function getOrcids(doc, item) {
-    let authors = ZU.xpath(doc, '//li[contains(@class,"data-author")]//a[@class="nonDisambigAuthorLink"]');
-    for (author of authors) {
-        let authorName = ZU.xpathText(author, '.');
-        if (!authorName)
-            continue;
-        let orcidUrl = ZU.xpath(author, './following-sibling::a/@href');
-        if (!orcidUrl || !orcidUrl.length)
-             continue;
-        let orcidNumber = orcidUrl[0].value.match(/\d+-\d+-\d+-\d+x?/i);
-        if (!orcidNumber)
-             continue;
+	let authors = ZU.xpath(doc, '//li[contains(@class,"data-author")]//a[@class="nonDisambigAuthorLink"]');
+	for (author of authors) {
+		let authorName = ZU.xpathText(author, '.');
+		if (!authorName)
+			continue;
+		let orcidUrl = ZU.xpath(author, './following-sibling::a/@href');
+		if (!orcidUrl || !orcidUrl.length)
+			 continue;
+		let orcidNumber = orcidUrl[0].value.match(/\d+-\d+-\d+-\d+x?/i);
+		if (!orcidNumber)
+			 continue;
 	item.notes.push("orcid: " + orcidNumber + ' | ' + authorName.trim() + ' | ' + 'taken from website');
-    }
+	}
 }
 
 function postProcess(item, doc) {
 	item.itemType = 'journalArticle';
-
-	let title = doc.querySelector('meta[name="citation_title"]');
-	if (title) {
-		item.title = title.getAttribute('content');
-	}
-
-	let primaryISSN = doc.querySelector('meta[name="citation_issn"]');
-	if (primaryISSN) {
-		item.ISSN = primaryISSN.getAttribute('content');
-	}
-
-	let doi = doc.querySelector('meta[name="citation_doi"]');
-	if (doi) {
-		item.DOI = doi.getAttribute('content');
-	}
-
-	item.creators = [];
-	let citationAuthors = doc.querySelectorAll('meta[name="citation_author"]');
-	for (let citationAuthor of citationAuthors) {
-		let author = citationAuthor.getAttribute('content');
-		item.creators.push(ZU.cleanAuthor(author, "author", false));
-	}
-
-	let reviewTitles = ["boekbesprekingen", "reviews"];
-	let titleISBN = /\bISBN\s+\d+\b/;
-	if (reviewTitles.includes(item.title.toLowerCase().trim()) || item.title.match(titleISBN)) {
-		item.tags.push("RezensionstagPica");
-	}
-
-	let firstPageElement = doc.querySelector('meta[name="citation_firstpage"]');
-	let lastPageElement = doc.querySelector('meta[name="citation_lastpage"]');
-	
-	let firstPage = firstPageElement ? firstPageElement.getAttribute('content') : null;
-	let lastPage = lastPageElement ? lastPageElement.getAttribute('content') : null;
-	
-	if (firstPage !== lastPage) {
-		item.pages = firstPage + '-' + lastPage;
-		} else if (firstPage == lastPage || lastPage == null) {
-		item.pages = firstPage
-	}
 
 	let keywordTags = ZU.xpath(doc, '//div[@class="bottom-side-nav"]/a[@title]');
 	for (let i in keywordTags) {
 		item.tags.push(keywordTags[i].textContent);
 	}
 
+	let reviewTitles = ["boekbesprekingen", "reviews"];
+	let titleISBN = /\bISBN\s+\d+\b/;
+	if (reviewTitles.includes(item.title.toLowerCase().trim()) || item.title.match(titleISBN)) {
+		item.tags.push("RezensionstagPica");
+		let pseudoAbstract = "amsterdam university press is a leading publisher of academic books";
+		if (item.abstractNote.toLowerCase().includes(pseudoAbstract)) {
+			item.abstractNote = '';
+		}
+	}
+
 	item.abstractNote = item.abstractNote.replace(/^Abstract /, '');
 	item.abstractNote = item.abstractNote.replace(/^Summary /, '');
+
 	getOrcids(doc, item);
 	item.complete();
 }
 
 function invokeEmbeddedMetadataTranslator(doc) {
 	let translator = Zotero.loadTranslator("web");
-	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
+	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab28ae");
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
 		postProcess(i, doc);

@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-03-20 11:15:47"
+	"lastUpdated": "2024-08-15 15:02:47"
 }
 
 /*
@@ -37,69 +37,91 @@
 function detectWeb(doc, url) {
 	if (url.match(/\/arti((cle)|(kel))\//)) {
 		return "journalArticle";
-	} else if (url.match(/\/((journal)|(heft)|(issue))\//) ||
-		ZU.xpath(doc, '//h2[contains(@class, "issue-article-h2")]//a').length > 0) {
+	} else if (url.match(/\/((journal)|(heft)|(issue))\//)) {
 		return "multiple";
  	}
 }
 
-function getSearchResults(doc) {
+
+function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = ZU.xpath(doc, '//h2[contains(@class, "issue-article-h2")]//a')
-	for (let i=0; i<rows.length; i++) {
-		let href = rows[i].href;
-		let title = ZU.trimInternal(rows[i].textContent);
+	var rows = doc.querySelectorAll('div.text-h6.font-serif.text-primary > a[href*="/artikel/"]');
+	for (let row of rows) {
+		let href = row.href;
+		let title = ZU.trimInternal(row.textContent);
 		if (!href || !title) continue;
+		if (checkOnly) return true;
 		found = true;
 		items[href] = title;
 	}
 	return found ? items : false;
 }
 
-function postProcess(doc, item) {
-	let subtitle = ZU.xpathText(doc, '//h2[@class="droidserif20 product-detail-h2"]');
-	if (subtitle) item.title = item.title + ': ' + subtitle;
-	if (!item.abstractNote)
-		item.abstractNote = ZU.xpathText(doc, '//div[@id="previewShort"]');
 
-	item.tags = ZU.xpath(doc, '//div[@id="productKeywords"]//a').map(i => i.textContent.trim());
-
-	if (item.creators.length) item.creators = ZU.xpathText(doc, '//h2[contains(@class, "product-heading-author-block")]').split(",").map(i => ZU.cleanAuthor(i));
-	
-	if (!item.language)
-		item.language = ZU.xpathText(doc, '//meta[@name="language"]/@content');
+async function doWeb(doc, url) {
+	if (detectWeb(doc, url) == 'multiple') {
+		let items = await Zotero.selectItems(getSearchResults(doc, false));
+		if (!items) return;
+		for (let url of Object.keys(items)) {
+			await scrape(await requestDocument(url));
+		}
+	}
+	else {
+		await scrape(doc, url);
+	}
 }
 
-function invokeCoinsTranslator(doc, url) {
-	var translator = Zotero.loadTranslator("web");
-	translator.setTranslator("05d07af9-105a-4572-99f6-a8e231c0daef");
+async function scrape(doc, url = doc.location.href) {
+	let translator = Zotero.loadTranslator('web');
+	// Embedded Metadata
+	translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48');
 	translator.setDocument(doc);
-	translator.setHandler("itemDone", function (t, i) {
-		i.url = " https://doi.org/" + i.DOI;
-		postProcess(doc, i);
-		i.complete();
-	});
-	translator.translate();
-}
+	
+	translator.setHandler('itemDone', (_obj, item) => {
+		
+		let elements = doc.querySelectorAll('div[data-astro-cid-u2ukveoy]');
 
-function doWeb(doc, url) {
-	if (detectWeb(doc, url) === "multiple") {
-		Zotero.selectItems(getSearchResults(doc), function (items) {
-			if (!items) {
-				return true;
+		elements.forEach(element => {
+			let volumeMatch = element.innerText.match(/Jahrgang\s(\d+)\s\(\d+\)/i);
+			if (volumeMatch) {
+				item.volume = volumeMatch[1];
 			}
-			var articles = [];
-			for (var i in items) {
-				articles.push(i);
+			
+			let pagesMatch = element.innerText.match(/S.\s(\d+-\d+)/i);
+			if (pagesMatch) {
+				item.pages = pagesMatch[1];
 			}
-			ZU.processDocuments(articles, invokeCoinsTranslator);
+			
+			let reviewTitles = ["rubrik: book reviews", "rubrik: new books", "rubrik: einzelbesprechungen", "rubrik: literatur", "rubrik: buchnotizen", "rubrik: literatur"];
+			if (reviewTitles.includes(element.innerText.trim().toLowerCase())) {
+				item.tags.push("RezensionstagPica");
+			}
+
 		});
-	} else
-		invokeCoinsTranslator(doc, url);
-}
+		
+		let journalTitle = doc.querySelector('div[data-astro-cid-u2ukveoy] > a[href*="/zeitschrift/"]');
+		if (journalTitle) {
+			let journalMatch = journalTitle.innerText.match(/([^\d]+)(\s\(\w+\))/i);
+			if (journalMatch[1].trim() !== item.publicationTitle) {
+				item.title = item.title + ": " + item.publicationTitle;
+				item.publicationTitle = journalMatch[1];
+			}
+		}
 
-/** BEGIN TEST CASES **/
+		if (item.abstractNote) {
+			item.abstractNote = ZU.cleanTags(item.abstractNote);
+			item.abstractNote = item.abstractNote.replace(/\n/g, '');
+		}
+
+		item.complete();
+	});
+
+	let em = await translator.getTranslatorObject();
+
+	await em.doWeb(doc, url);
+}
+	/** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "web",
