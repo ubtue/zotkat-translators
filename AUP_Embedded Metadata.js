@@ -1,5 +1,5 @@
 {
-	"translatorID": "951c027d-74ac-47d4-a107-9c3069abms28",
+	"translatorID": "951c027d-74ac-47d4-a107-9c3069ab28ae",
 	"label": "AUP_Embedded Metadata",
 	"creator": "Mara Spieß",
 	"target": "",
@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-15 15:03:19"
+	"lastUpdated": "2024-08-15 15:09:04"
 }
 
 /*

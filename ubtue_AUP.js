@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-15 14:29:34"
+	"lastUpdated": "2024-08-15 15:08:30"
 }
 
 /*
@@ -103,7 +103,7 @@ function postProcess(item, doc) {
 
 function invokeEmbeddedMetadataTranslator(doc) {
 	let translator = Zotero.loadTranslator("web");
-	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069abms28");
+	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab28ae");
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
 		postProcess(i, doc);
