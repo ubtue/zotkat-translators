@@ -5,11 +5,11 @@
 	"target": "",
 	"minVersion": "5.0",
 	"maxVersion": "",
-	"priority": 100,
+	"priority": 500,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-15 14:23:30"
+	"lastUpdated": "2024-08-15 15:03:19"
 }
 
 /*
@@ -417,7 +417,7 @@ function addHighwireMetadata(doc, newItem, hwType) {
 				&& authorsByComma[0].includes(" ")
 				&& authorsByComma[1].includes(" ")
 				&& !LAST_NAME_PREFIX.test(authorsByComma[0]))
-			    authors = authorsByComma;
+				authors = authorsByComma;
 		}
 		for (var j = 0, m = authors.length; j < m; j++) {
 			var author = authors[j].trim();
