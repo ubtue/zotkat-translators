@@ -1,15 +1,15 @@
 {
 	"translatorID": "951c027d-74ac-47d4-a107-9c3069ab7b48",
-	"translatorType": 4,
 	"label": "Embedded Metadata",
 	"creator": "Simon Kornblith and Avram Lyon",
-	"target": null,
+	"target": "",
 	"minVersion": "3.0.4",
-	"maxVersion": null,
+	"maxVersion": "",
 	"priority": 320,
 	"inRepository": true,
+	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-03-10 04:50:00"
+	"lastUpdated": "2024-08-15 14:14:10"
 }
 
 /*
@@ -412,9 +412,12 @@ function addHighwireMetadata(doc, newItem, hwType) {
 			we get nothing when splitting by semicolon, and at least two words on
 			either side of the comma when splitting by comma, we split by comma. */
 			
+			LAST_NAME_PREFIX = /^(van|de|von)/i;
 			if (authorsByComma.length > 1
 				&& authorsByComma[0].includes(" ")
-				&& authorsByComma[1].includes(" ")) authors = authorsByComma;
+				&& authorsByComma[1].includes(" ")
+				&& !LAST_NAME_PREFIX.test(authorsByComma[0]))
+			    authors = authorsByComma;
 		}
 		for (var j = 0, m = authors.length; j < m; j++) {
 			var author = authors[j].trim();
@@ -902,6 +905,7 @@ var exports = {
 	splitTags: true,
 	fixSchemaURI: setPrefixRemap
 };
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
