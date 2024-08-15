@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-14 09:46:41"
+	"lastUpdated": "2024-08-15 14:29:34"
 }
 
 /*
@@ -79,41 +79,9 @@ function getOrcids(doc, item) {
 function postProcess(item, doc) {
 	item.itemType = 'journalArticle';
 
-	let title = doc.querySelector('meta[name="citation_title"]');
-	if (title) {
-		item.title = title.getAttribute('content');
-	}
-
-	let primaryISSN = doc.querySelector('meta[name="citation_issn"]');
-	if (primaryISSN) {
-		item.ISSN = primaryISSN.getAttribute('content');
-	}
-
-	let doi = doc.querySelector('meta[name="citation_doi"]');
-	if (doi) {
-		item.DOI = doi.getAttribute('content');
-	}
-
-	let issue = doc.querySelector('meta[name="citation_issue"]');
-	if (issue) {
-		item.issue = issue.getAttribute('content');
-	}
-
-	let volume = doc.querySelector('meta[name="citation_volume"]');
-	if (volume) {
-		item.volume = volume.getAttribute('content');
-	}
-
-	let date = doc.querySelector('meta[name="citation_date"]');
-	if (date) {
-		item.date = date.getAttribute('content');
-	}
-
-	item.creators = [];
-	let citationAuthors = doc.querySelectorAll('meta[name="citation_author"]');
-	for (let citationAuthor of citationAuthors) {
-		let author = citationAuthor.getAttribute('content');
-		item.creators.push(ZU.cleanAuthor(author, "author", false));
+	let keywordTags = ZU.xpath(doc, '//div[@class="bottom-side-nav"]/a[@title]');
+	for (let i in keywordTags) {
+		item.tags.push(keywordTags[i].textContent);
 	}
 
 	let reviewTitles = ["boekbesprekingen", "reviews"];
@@ -126,32 +94,16 @@ function postProcess(item, doc) {
 		}
 	}
 
-	let firstPageElement = doc.querySelector('meta[name="citation_firstpage"]');
-	let lastPageElement = doc.querySelector('meta[name="citation_lastpage"]');
-	
-	let firstPage = firstPageElement ? firstPageElement.getAttribute('content') : null;
-	let lastPage = lastPageElement ? lastPageElement.getAttribute('content') : null;
-	
-	if (firstPage !== lastPage) {
-		item.pages = firstPage + '-' + lastPage;
-		} else if (firstPage == lastPage || lastPage == null) {
-		item.pages = firstPage
-	}
-
-	let keywordTags = ZU.xpath(doc, '//div[@class="bottom-side-nav"]/a[@title]');
-	for (let i in keywordTags) {
-		item.tags.push(keywordTags[i].textContent);
-	}
-
 	item.abstractNote = item.abstractNote.replace(/^Abstract /, '');
 	item.abstractNote = item.abstractNote.replace(/^Summary /, '');
+
 	getOrcids(doc, item);
 	item.complete();
 }
 
 function invokeEmbeddedMetadataTranslator(doc) {
 	let translator = Zotero.loadTranslator("web");
-	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
+	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069abms28");
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
 		postProcess(i, doc);
