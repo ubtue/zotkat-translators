@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-15 15:02:47"
+	"lastUpdated": "2024-08-16 10:15:37"
 }
 
 /*
@@ -81,6 +81,7 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setHandler('itemDone', (_obj, item) => {
 		
 		let elements = doc.querySelectorAll('div[data-astro-cid-u2ukveoy]');
+		let hasReviewTag = false;
 
 		elements.forEach(element => {
 			let volumeMatch = element.innerText.match(/Jahrgang\s(\d+)\s\(\d+\)/i);
@@ -93,16 +94,17 @@ async function scrape(doc, url = doc.location.href) {
 				item.pages = pagesMatch[1];
 			}
 			
-			let reviewTitles = ["rubrik: book reviews", "rubrik: new books", "rubrik: einzelbesprechungen", "rubrik: literatur", "rubrik: buchnotizen", "rubrik: literatur"];
-			if (reviewTitles.includes(element.innerText.trim().toLowerCase())) {
+			let reviewTitlesMatch = element.innerText.match(/rubrik:\s*(book reviews|new books|einzelbesprechungen|literatur|buchnotizen)\s*/i);
+			if (reviewTitlesMatch && !hasReviewTag) {
 				item.tags.push("RezensionstagPica");
+				hasReviewTag = true;
 			}
 
 		});
-		
+
 		let journalTitle = doc.querySelector('div[data-astro-cid-u2ukveoy] > a[href*="/zeitschrift/"]');
 		if (journalTitle) {
-			let journalMatch = journalTitle.innerText.match(/([^\d]+)(\s\(\w+\))/i);
+			let journalMatch = journalTitle.innerText.match(/([^\d]+)(\s+\([a-zA-Z-äöüß]+\))/i);
 			if (journalMatch[1].trim() !== item.publicationTitle) {
 				item.title = item.title + ": " + item.publicationTitle;
 				item.publicationTitle = journalMatch[1];
@@ -112,6 +114,15 @@ async function scrape(doc, url = doc.location.href) {
 		if (item.abstractNote) {
 			item.abstractNote = ZU.cleanTags(item.abstractNote);
 			item.abstractNote = item.abstractNote.replace(/\n/g, '');
+		}
+
+		let openAccessElements = ZU.xpath(doc, "//div[@data-v-486ca2da and contains(text(), 'Open Access')]");
+		if (openAccessElements.length > 0) {
+			let openAccessElement = openAccessElements[0];
+			let openAccessMatch = openAccessElement.innerText.match(/open\s+access/i);
+			if (openAccessMatch) {
+				item.notes.push("LF:");
+			}
 		}
 
 		item.complete();
