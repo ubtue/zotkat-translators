@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-12-05 14:28:30"
+	"lastUpdated": "2024-08-16 08:16:01"
 }
 
 /*
@@ -132,7 +132,7 @@ function invokeEMTranslator(doc) {
 		let orcidAuthorEntryCaseF = doc.querySelectorAll('.article-main');
 		let orcidAuthorEntryCaseG = doc.querySelectorAll('.authors_info');//Z.debug(orcidAuthorEntryCaseG)
   		//AuthorEntryCaseA && childNodes[0]
-  		if (orcidAuthorEntryCaseA && ['2653-1372', '2627-6062', '0718-4727', '1983-2850'].includes(i.ISSN)) {
+  		if (orcidAuthorEntryCaseA && ['2653-1372', '0718-4727', '1983-2850'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
 				let orcidTag = a.querySelector('.orcid');//Z.debug(orcidTag)
 				let authorTag = a.querySelector('.author');//Z.debug(authorTag)
@@ -144,12 +144,13 @@ function invokeEMTranslator(doc) {
   			}
   		 }
 		//AuthorEntryCaseA && childNodes[1]
-		if (orcidAuthorEntryCaseA && ['2617-1953', '2182-8822'].includes(i.ISSN)) {
+		if (orcidAuthorEntryCaseA && ['2617-1953', '2182-8822', '2627-6062'].includes(i.ISSN)) {
   			for (let a of orcidAuthorEntryCaseA) {
 				let orcidTag = a.querySelector('.orcid');//Z.debug(orcidTag.innerText)
 				let authorTag = a.querySelector('.author');//Z.debug(authorTag)
 				if (orcidTag && authorTag) {
-					let author = ZU.trimInternal(authorTag.childNodes[1].textContent);//Z.debug(author)
+					let author = ZU.trimInternal(authorTag.childNodes[1].textContent);
+					//Z.debug(author)
 					let orcid = ZU.trimInternal(orcidTag.innerText.match(/\d+-\d+-\d+-\d+x?/gi)[0]);//Z.debug(orcid)
 					i.notes.push({note: "orcid:" + orcid + ' | ' + author + ' | ' + 'taken from website'});
 				}

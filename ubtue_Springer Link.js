@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-09-15 08:46:42"
+	"lastUpdated": "2024-08-16 13:05:33"
 }
 
 /*
@@ -257,7 +257,7 @@ function complementItem(doc, item) {
 }
 	// ORCID
 function getORCID(doc, item) {
-	let authorOrcidEntries = ZU.xpath(doc, '//*[@class="c-article-author-list__item"]');
+	let authorOrcidEntries = ZU.xpath(doc, '//*[contains(@class, "c-article-author-list__item")]');
 	for (let authorOrcidEntry of authorOrcidEntries) {
 		let authorEntry = authorOrcidEntry.textContent.split('\n')[0];
 		let orcidEntry = authorOrcidEntry.innerHTML;
@@ -268,6 +268,17 @@ function getORCID(doc, item) {
 		}
 	}
 }
+
+/*function getORCID(doc, item) {
+	let authorOrcidEntries = ZU.xpath(doc, '//*[contains(@class, "c-article-author-list__item")]');
+	for (let authorOrcidEntry of authorOrcidEntries) {
+		let author = ZU.xpath(authorOrcidEntry, '//*[@class, "c-article-author-list__item c-article-author-list__item--hide-small-screen"]');
+		let orcid = ZU.xpath(authorOrcidEntry, '//*[@class, "js-orcid"]');
+		item.notes.push({note: "orcid:" + orcid + ' | ' + author + ' | ' + 'taken from website'});
+	}
+}*/
+
+
 
 function shouldPostprocessWithEmbeddedMetadata(item) {
 	if (!item.pages) return true;
@@ -312,6 +323,7 @@ function scrape(doc, url) {
 		translator.translate();
 	});
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
