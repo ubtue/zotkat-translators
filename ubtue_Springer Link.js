@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-19 14:21:31"
+	"lastUpdated": "2024-08-19 14:24:03"
 }
 
 /*
@@ -268,8 +268,6 @@ function getORCID(doc, item) {
 		}
 	}
 }
-
-
 
 function shouldPostprocessWithEmbeddedMetadata(item) {
 	if (!item.pages) return true;
