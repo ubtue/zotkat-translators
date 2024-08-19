@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-09 10:59:12"
+	"lastUpdated": "2024-08-19 13:54:03"
 }
 
 /*
@@ -58,7 +58,7 @@ function getSearchResults(doc, url) {
 			else if (exclude.includes(title)) continue;
 			else if (title.match(/^Table of Contents/)) continue;
 		}
-		
+
 		if (!href || !title) continue;
 		found = true;
 		items[href] = title;
@@ -82,12 +82,12 @@ function invokeEMTranslator(doc) {
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
-		
+
 		if (i.ISSN == undefined) i.ISSN = ZU.xpathText(doc, '//meta[@name="DC.Source.ISSN"]/@content');
 		if (i.ISSN == undefined && i.url.match(/\/godsandmonsters\//) != null) i.ISSN = "IXTH-0001";
 		if (i.ISSN == undefined) i.issue = ZU.xpathText(doc, '//meta[@name="DC.Source.Issue"]/@content');
 		if (i.ISSN == undefined && i.url.match(/journal.colourturn/) != null) i.ISSN = "ZOJS-0001";
-		
+
 		//article URL for Journal of the AOS
 		if (i.ISSN == "2169-2289") {
 			i.url = ZU.xpathText(doc, '//meta[@name="DC.Identifier.URI"]/@content');
@@ -102,7 +102,7 @@ function invokeEMTranslator(doc) {
 			i.volume = i.issue;
 			delete i.issue;
 		}
-	
+
 		if (i.volume == undefined) i.volume = ZU.xpathText(doc, '//meta[@name="DC.Source.Volume"]/@content');
 		if (i.pages == undefined) i.pages = ZU.xpathText(doc, '//meta[@name="DC.Identifier.Pagenumber"]/@content');
 		if (i.DOI == undefined) i.DOI = ZU.xpathText(doc, '//meta[@name="DC.Identifier.DOI"]/@content');
@@ -119,7 +119,7 @@ function invokeEMTranslator(doc) {
  				i.title += ': ' + subTitle.trim();
  			}
  		}
- 		
+
 		if (i.ISSN == "2293-7374") {
 			i.title = i.title.replace( '| Renaissance and Reformation', '');
 		}
@@ -158,7 +158,7 @@ function invokeEMTranslator(doc) {
 			i.notes.push({note: `orcid:${orcid} | ${author} | taken from website`});
 		};
 
-		if (orcidAuthorEntryCaseA.length && ['2653-1372', '2627-6062', '0718-4727', '1983-2850'].includes(i.ISSN)) {
+		if (orcidAuthorEntryCaseA.length && ['2653-1372', '0718-4727', '1983-2850'].includes(i.ISSN)) {
 			for (let a of orcidAuthorEntryCaseA) {
 				let orcidTag = a.querySelector('.orcid');
 				let authorTag = a.querySelector('.author');
@@ -170,7 +170,7 @@ function invokeEMTranslator(doc) {
 			}
 		}
 
-		if (orcidAuthorEntryCaseA.length && ['2617-1953', '2182-8822'].includes(i.ISSN)) {
+		if (orcidAuthorEntryCaseA.length && ['2617-1953', '2182-8822', '2627-6062'].includes(i.ISSN)) {
 			for (let a of orcidAuthorEntryCaseA) {
 				let orcidTag = a.querySelector('.orcid');
 				let authorTag = a.querySelector('.author');
@@ -285,11 +285,11 @@ function invokeEMTranslator(doc) {
 
  		//clean pages e.g. pages": "6.-6." > 10.25786/cjbk.v0i01-02.631; or "pages": "01-07" > 10.25786/zfbeg.v0i01-02.793
  		if (i.pages != null) i.pages = i.pages.replace('S.', '').replace(/\./g, '').replace(/^([^-]+)-\1$/, '$1').replace(/^0/g, '').replace(/-0/g, '-').replace('â€“', '-');
- 		
+
  		if (i.pages == undefined) {
 			let pageNumberFromDC = ZU.xpathText(doc, '//meta[@name="DC.Identifier.pageNumber"]/@content');
 			//if the first page number matches the results of second page number (see regex "\1") e.g. 3-3,
-			//then replace the range with a first page number e.g 3 
+			//then replace the range with a first page number e.g 3
 			if (pageNumberFromDC != null) i.pages = pageNumberFromDC.trim().replace(/^([^-]+)-\1$/, '$1');
  		}
 		if (i.ISSN == "2468-9963") {
@@ -299,7 +299,7 @@ function invokeEMTranslator(doc) {
 
  		if (i.date == undefined && ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content') != undefined) {
  			i.date = ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content').substr(0,4);
- 		
+
  		}
  		if (ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content') && i.date.length !== 4 && i.ISSN == '1983-2850') {
 			i.date = ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content').substr(0, 4);
@@ -311,7 +311,7 @@ function invokeEMTranslator(doc) {
 		if (i.abstractNote == undefined) {
 			i.abstractNote = ZU.xpathText(doc, '//meta[@name="DC.Description"]/@content');
 		}
-		
+
 		else if (i.ISSN == "0555-9308") i.abstractNote = i.abstractNote.replace(/\n/, "\\n4207 ");
 		if (i.abstractNote == null) {i.abstractNote = undefined}
 		if (i.abstractNote !== undefined) {
@@ -386,8 +386,8 @@ function invokeEMTranslator(doc) {
 				if (i.title.match(/:$/)) {
 					if (!i.title.match(subtitle)) {
 					i.title = i.title + ' ' + ZU.trimInternal(subtitle);
-					} 
-				} 
+					}
+				}
 				else {
 					i.title = i.title + ': ' + ZU.trimInternal(subtitle);
 				}
@@ -396,7 +396,7 @@ function invokeEMTranslator(doc) {
 		if (i.ISSN === "2336-4483" && ZU.xpathText(doc, '//a[@title="Handle"]/@href')) i.notes.push('handle:' + ZU.xpathText(doc, '//a[@title="Handle"]/@href').replace(/https?:\/\/hdl.handle.net\//, ''));
 		//hier anpassen:
 		if (i.publicationTitle == "IJoReSH: Indonesian Journal of Religion, Spirituality, and Humanity") i.ISSN = "2962-665X";
-		if (i.ISSN == "2962-665X" && !i.pages && ZU.xpathText(doc, '//a[@class="file" and contains(., "PDF")]') 
+		if (i.ISSN == "2962-665X" && !i.pages && ZU.xpathText(doc, '//a[@class="file" and contains(., "PDF")]')
 		&& ZU.xpathText(doc, '//a[@class="file" and contains(., "PDF")]').match(/PDF\s*\(\d+(?:-\d+)?\)/)) i.pages = ZU.xpathText(doc, '//a[@class="file" and contains(., "PDF")]').match(/PDF\s*\((\d+(?:-\d+)?)\)/)[1];
 		if (["2159-6875"].includes(i.ISSN)) {
 			if (reviewURLs.includes(i.url)) i.tags.push("RezensionstagPica");
@@ -429,7 +429,7 @@ function invokeEMTranslator(doc) {
 		if (i.tags[0] == undefined) {
 			let tags = ZU.xpath(doc, '//meta[@name="citation_keywords"]');
 			for (let t in tags) {
-				if (!i.tags.includes(tags[t].content) 
+				if (!i.tags.includes(tags[t].content)
 				&& !i.tags.includes(tags[t].content[0].toUpperCase() + tags[t].content.substring(1)) && tags[t].content != '.')
 				i.tags.push(tags[t].content);
 			}
@@ -483,13 +483,13 @@ function invokeEMTranslator(doc) {
 				let tagsEntry = ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content');
 				tag = tagsEntry.split(/–|−/g);
 				for (let t in tag) {
-					i.tags.push(tag[t].capitalizeFirstLetter()); 
+					i.tags.push(tag[t].capitalizeFirstLetter());
 				}
 			}
 			if (ZU.xpathText(doc, '//meta[@name="DC.Title"]/@content')) {
 				for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
 					if (parallelTitle.value && parallelTitle.value != i.title) {
-						i.notes.push({'note': 'Paralleltitel:' + ZU.unescapeHTML(parallelTitle.textContent.trim())});	
+						i.notes.push({'note': 'Paralleltitel:' + ZU.unescapeHTML(parallelTitle.textContent.trim())});
 					}
 				}
 			}
@@ -501,7 +501,7 @@ function invokeEMTranslator(doc) {
 				}
 			}
 		}
-		
+
 		if (i.ISSN == "0717-6295") {
 			if (ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
 				for (let alternativeAbstract of ZU.xpath(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
@@ -536,7 +536,7 @@ function invokeEMTranslator(doc) {
 					}
 				}
 			}
-			
+
 			i.title = ZU.xpathText(doc, '//meta[@name="DC.Title"]/@content').trim();
 			if (!i.title) {
 				i.title = ZU.xpathText(doc, '//meta[@name="DC.Title.Alternative"][1]/@content').trim();
@@ -611,7 +611,7 @@ function invokeEMTranslator(doc) {
 				let abstractES = ZU.xpathText(doc, '//meta[@name="DC.Description"][2]/@content').trim();
 				i.abstractNote = abstractEN + '\\n4207 ' + abstractES;
 			}
-			
+
 			//english keywords e.g. https://www.sanisidoro.net/publicaciones/index.php/isidorianum/article/view/147
 			let dcSourceURI = ZU.xpathText(doc, '//meta[@name="DC.Source.URI"]/@content');
 			let dcArticleURI = ZU.xpathText(doc, '//meta[@name="DC.Identifier.URI"]/@content');
@@ -648,7 +648,7 @@ function invokeEMTranslator(doc) {
 			let tags = tagsstring.match(/(?:[^\s,]+ ?)+,?/g);
 			for (let t in tags) {
 				i.tags.push(tags[t].substring(0,tags[t].length-1));
-			} 
+			}
 		}
 
 		i.tags = [...new Set(i.tags.map(x => x))]
@@ -656,7 +656,7 @@ function invokeEMTranslator(doc) {
 		let authors = ZU.xpath(doc, '//meta[@name="DC.Creator.PersonalName"]/@content');
 		if (authors) i.creators = authors.map(function(x) { return ZU.cleanAuthor(x.textContent, 'author'); })
 		if (i.creators) {
-			i.creators = i.creators.filter(creator => 
+			i.creators = i.creators.filter(creator =>
 			    creator.firstName !== "Author not" && creator.lastName !== "applicable"
 			);
 		}

@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-03-04 14:17:22"
+	"lastUpdated": "2024-08-19 14:24:03"
 }
 
 /*
@@ -160,7 +160,7 @@ function complementItem(doc, item) {
 			item.notes.push({note: 'LF:'});
 	}
 
-	
+
 	if (itemType == 'bookSection' || itemType == "conferencePaper") {
 		// look for editors
 		var editors = ZU.xpath(doc, '//ul[@class="editors"]/li[@itemprop="editor"]/a[@class="person"]');
@@ -264,7 +264,7 @@ function complementItem(doc, item) {
 }
 	// ORCID
 function getORCID(doc, item) {
-	let authorOrcidEntries = ZU.xpath(doc, '//*[@class="c-article-author-list__item"]');
+	let authorOrcidEntries = ZU.xpath(doc, '//*[contains(@class, "c-article-author-list__item")]');
 	for (let authorOrcidEntry of authorOrcidEntries) {
 		let authorEntry = authorOrcidEntry.textContent.split('\n')[0];
 		let orcidEntry = authorOrcidEntry.innerHTML;
