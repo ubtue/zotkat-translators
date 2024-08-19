@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-16 13:05:33"
+	"lastUpdated": "2024-08-19 14:21:31"
 }
 
 /*
@@ -268,15 +268,6 @@ function getORCID(doc, item) {
 		}
 	}
 }
-
-/*function getORCID(doc, item) {
-	let authorOrcidEntries = ZU.xpath(doc, '//*[contains(@class, "c-article-author-list__item")]');
-	for (let authorOrcidEntry of authorOrcidEntries) {
-		let author = ZU.xpath(authorOrcidEntry, '//*[@class, "c-article-author-list__item c-article-author-list__item--hide-small-screen"]');
-		let orcid = ZU.xpath(authorOrcidEntry, '//*[@class, "js-orcid"]');
-		item.notes.push({note: "orcid:" + orcid + ' | ' + author + ' | ' + 'taken from website'});
-	}
-}*/
 
 
 
