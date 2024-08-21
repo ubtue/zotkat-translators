@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-18 13:58:02"
+	"lastUpdated": "2024-08-21 09:56:12"
 }
 
 /*
@@ -85,7 +85,20 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		if (i.url.match(/doi\.org/) && i.DOI) {
 			delete i.url;
 		}
+		
+		for (let authorInfoCard of ZU.xpath(doc, '//div[contains(@class, "info-card-author")]')){
+			let orcidRegex = /\d+-\d+-\d+-\d+x?/i;
+			if (authorInfoCard !=null && authorInfoCard.innerHTML.match(orcidRegex)){
+				let authorname = ZU.xpath(authorInfoCard, '//div[@class="info-card-name"]');
+				Z.debug(authorname)
+				let name = authorname[0].textContent.trim();
+				let orcid = authorInfoCard.innerHTML.match(orcidRegex);
+				i.notes.push({note: name + ' | orcid:' + orcid + ' | taken from website'});
+			}
+
+		}
 		i.complete();
+
 	});
 	translator.translate();
 }
@@ -105,6 +118,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEmbeddedMetadataTranslator(doc, url);
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
