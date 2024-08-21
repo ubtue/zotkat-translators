@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-21 15:47:04"
+	"lastUpdated": "2024-08-21 15:49:52"
 }
 
 /*
@@ -86,7 +86,7 @@ function isReview(item, element) {
 	let reviewTitlesMatch = element.innerText.match(/rubrik:\s*(book reviews|new books|einzelbesprechungen|literatur|buchnotizen)\s*/i);
 	if (reviewTitlesMatch) {
 		item.tags.push("RezensionstagPica");
-		}
+	}
 }
 
 async function scrape(doc, url = doc.location.href) {
