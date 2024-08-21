@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-18 13:58:02"
+	"lastUpdated": "2024-08-21 16:06:35"
 }
 
 /*
@@ -74,8 +74,8 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 				i.abstractNote = "";
 			}
 		}
-		if (i.abstractNote && i.abstractNote.trim().match(/^Abstract/)) {
-			i.abstractNote = i.abstractNote.replace(/^Abstract[\.:]\s*/, "");
+		if (i.abstractNote && i.abstractNote.trim().match(/^Abstract/i)) {
+			i.abstractNote = i.abstractNote.replace(/^Abstract[\.:]\s*/i, "");
 		}
 		else i.abstractNote = "";
 		//if (ZU.xpathText(doc, '//i[@class="icon-availability_unlocked"]/@title') == "Available") {
@@ -105,6 +105,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEmbeddedMetadataTranslator(doc, url);
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
