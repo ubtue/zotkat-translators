@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-06-13 09:07:24"
+	"lastUpdated": "2024-08-12 09:49:23"
 }
 
 /*
@@ -71,6 +71,23 @@ function extractAbstracts(doc, item) {
 		}
 	}
 }
+
+function GetRISJournalTitle(RIStext) {
+	let journalTitleRe = /^(?:JO|JF|J1)\s*-\s*(.*)/m;
+	let journalTitleMatch = RIStext.match(journalTitleRe);
+	if (!journalTitleMatch)
+	    return "";
+    return journalTitleMatch[1];
+}
+
+function GetRIST2Content(RIStext) {
+	let T2matcher = /^T2\s\s?-\s?(.*)/m;
+	let T2match = RIStext.match(T2matcher);
+	if (!T2match)
+	    return "";
+    return T2match[1];
+}
+
 /*
  * given the text of the delivery page, downloads an item
  */
@@ -117,18 +134,12 @@ function downloadFunction(doc, text, url, prefs) {
 	
 	// EBSCOhost uses nonstandard tags to represent journal titles on some items
 	// no /g flag so we don't create duplicate tags
-	let journalRe = /^(JO|JF|J1)/m;
-	if (journalRe.test(text)) {
-		let subtitleRe = /^T2\s\s?-\s?(.*)/m;
-		let subtitleMatch = text.match(subtitleRe);
-		if (subtitleMatch) {
-			// if there's already something in T2, store it and erase it from the RIS
-			subtitle = subtitleMatch[1];
-			text = text.replace(subtitleRe, '');
-		}
-		
-		text = text.replace(journalRe, 'T2');
-	}
+    let journalTitle = GetRISJournalTitle(text);
+	let t2Content = GetRIST2Content(text)
+	if (journalTitle != t2Content)
+	    subtitle = t2Content;
+	if (t2Content)
+	    text = text.replace(/^(JO|JF|J1)/, 'T2');
 	
 	// Let's try to keep season info
 	// Y1  - 1993///Winter93
