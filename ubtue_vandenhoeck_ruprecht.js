@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-15 14:12:17"
+	"lastUpdated": "2024-08-21 15:14:30"
 }
 
 /*
@@ -108,10 +108,6 @@ function scrape(doc, url) {
 						item.creators[i].firstName = fixCase(item.creators[i].firstName, true);
 					}
 				}
-				if (item.series == "Jahrbuch für Biblische Theologie") {
-					item.ISSN = "2567-9392";
-					item.itemType = "journalArticle";
-				}
 				item.url = url;
 				if (ZU.xpathText(doc, '//span[@class="citation__access__type"]') != null) {
 					if (ZU.xpathText(doc, '//span[@class="citation__access__type"]').match(/(open(\s+)?access)|(kostenlos)/i)) {
@@ -141,6 +137,13 @@ function scrape(doc, url) {
 					for (let keyword of keywords.split(';')) {
 						item.tags.push(keyword.trim());
 					}
+				}
+				if (item.series == "Jahrbuch für Biblische Theologie") {
+					item.ISSN = "2567-9392";
+					item.itemType = "journalArticle";
+					item.volume = item.volume.replace(/band /i, '');
+					item.volume = item.volume.replace(/, jahr \d{4}/i, '');
+					item.tags = [];
 				}
 				let switchToDE = "https://www.vr-elibrary.de/action/doLocaleChange?locale=de&requestUri=/doi/"+ doi;
 					ZU.processDocuments(switchToDE, function (url) {
