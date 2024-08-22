@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-15 15:02:47"
+	"lastUpdated": "2024-08-21 15:49:52"
 }
 
 /*
@@ -72,6 +72,23 @@ async function doWeb(doc, url) {
 	}
 }
 
+function isOpenAccess(doc, item) {
+	let openAccessElements = ZU.xpath(doc, "//div[@data-v-486ca2da and contains(text(), 'Open Access')]");
+	if (openAccessElements && openAccessElements.length > 0) {
+			item.notes.push("LF:");
+	}
+}
+
+function isReview(item, element) {
+	if (item.tags.includes("RezensionstagPica")) {
+		return;
+	}
+	let reviewTitlesMatch = element.innerText.match(/rubrik:\s*(book reviews|new books|einzelbesprechungen|literatur|buchnotizen)\s*/i);
+	if (reviewTitlesMatch) {
+		item.tags.push("RezensionstagPica");
+	}
+}
+
 async function scrape(doc, url = doc.location.href) {
 	let translator = Zotero.loadTranslator('web');
 	// Embedded Metadata
@@ -93,16 +110,12 @@ async function scrape(doc, url = doc.location.href) {
 				item.pages = pagesMatch[1];
 			}
 			
-			let reviewTitles = ["rubrik: book reviews", "rubrik: new books", "rubrik: einzelbesprechungen", "rubrik: literatur", "rubrik: buchnotizen", "rubrik: literatur"];
-			if (reviewTitles.includes(element.innerText.trim().toLowerCase())) {
-				item.tags.push("RezensionstagPica");
-			}
-
+			isReview(item, element);
 		});
-		
+
 		let journalTitle = doc.querySelector('div[data-astro-cid-u2ukveoy] > a[href*="/zeitschrift/"]');
 		if (journalTitle) {
-			let journalMatch = journalTitle.innerText.match(/([^\d]+)(\s\(\w+\))/i);
+			let journalMatch = journalTitle.innerText.match(/([^\d]+)(\s+\(.+\))/i);
 			if (journalMatch[1].trim() !== item.publicationTitle) {
 				item.title = item.title + ": " + item.publicationTitle;
 				item.publicationTitle = journalMatch[1];
@@ -113,6 +126,9 @@ async function scrape(doc, url = doc.location.href) {
 			item.abstractNote = ZU.cleanTags(item.abstractNote);
 			item.abstractNote = item.abstractNote.replace(/\n/g, '');
 		}
+
+		isOpenAccess(doc, item);
+
 
 		item.complete();
 	});
