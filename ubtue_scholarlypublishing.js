@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-21 16:06:35"
+	"lastUpdated": "2024-08-22 12:12:57"
 }
 
 /*
@@ -74,8 +74,8 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 				i.abstractNote = "";
 			}
 		}
-		if (i.abstractNote && i.abstractNote.trim().match(/^Abstract/i)) {
-			i.abstractNote = i.abstractNote.replace(/^Abstract[\.:]\s*/i, "");
+		if (i.abstractNote && i.abstractNote.trim().match(/^abstract/i)) {
+			i.abstractNote = i.abstractNote.replace(/^abstract[.:]\s*/i, "");
 		}
 		else i.abstractNote = "";
 		//if (ZU.xpathText(doc, '//i[@class="icon-availability_unlocked"]/@title') == "Available") {
@@ -85,7 +85,19 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		if (i.url.match(/doi\.org/) && i.DOI) {
 			delete i.url;
 		}
+		
+		for (let authorInfoCard of ZU.xpath(doc, '//div[contains(@class, "info-card-author")]')){
+			let orcidRegex = /\d+-\d+-\d+-\d+x?/i;
+			if (authorInfoCard !=null && authorInfoCard.innerHTML.match(orcidRegex)){
+				let authorInfoname = ZU.xpath(authorInfoCard, '//div[@class="info-card-name"]');
+				let name = authorInfoname[0].textContent.trim();
+				let orcid = authorInfoCard.innerHTML.match(orcidRegex);
+				i.notes.push({note: name + ' | orcid:' + orcid + ' | taken from website'});
+			}
+
+		}
 		i.complete();
+
 	});
 	translator.translate();
 }
@@ -105,6 +117,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEmbeddedMetadataTranslator(doc, url);
 }
+
 
 
 /** BEGIN TEST CASES **/
