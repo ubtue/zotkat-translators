@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-05 12:54:14"
+	"lastUpdated": "2024-08-23 09:47:03"
 }
 
 /*
@@ -99,7 +99,8 @@ function invokeEMTranslator(doc, url) {
 		for (let authorTag of ZU.xpath(doc, '//span[contains(@class, "contributor")]')) {
 			let orcidRegex = /\d+-\d+-\d+-\d+x?/i;
 			if (authorTag != null && authorTag.innerHTML.match(orcidRegex)) {
-				let name = authorTag.innerText;
+				let authorname = ZU.xpath(authorTag, '//span[@class ="displayName linkAnimation"]')
+				let name = authorname[0].innerText;
 				let orcid = authorTag.innerHTML.match(orcidRegex);
 				i.notes.push({note: name + ' | orcid:' + orcid + ' | taken from website'});	
 			}
@@ -120,6 +121,7 @@ function invokeEMTranslator(doc, url) {
 	});
 	translator.translate();
 }
+
 
 /** BEGIN TEST CASES **/
 var testCases = [
