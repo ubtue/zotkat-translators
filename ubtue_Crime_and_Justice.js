@@ -9,30 +9,30 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-26 15:00:37"
+	"lastUpdated": "2024-08-26 15:18:20"
 }
 
 /*
-    ***** BEGIN LICENSE BLOCK *****
+	***** BEGIN LICENSE BLOCK *****
 
-    Copyright © 2024 Mara Spieß
+	Copyright © 2024 Mara Spieß
 
-    This file is part of Zotero.
+	This file is part of Zotero.
 
-    Zotero is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	Zotero is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    Zotero is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU Affero General Public License for more details.
+	Zotero is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with Zotero. If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU Affero General Public License
+	along with Zotero. If not, see <http://www.gnu.org/licenses/>.
 
-    ***** END LICENSE BLOCK *****
+	***** END LICENSE BLOCK *****
 */
 
 
@@ -65,6 +65,22 @@ function getAuthors(entry) {
 	authors = strippedPrefix.split(/and|[,]/);
 return authors;
 }
+
+function getVolume(doc, item) {
+	let volumeNumber = doc.querySelector('h1.node-header');
+	if (volumeNumber) {
+		let volumeNumberMatch = volumeNumber.innerText.match(/prison\s+service\s+journal\s+(\d+)/i);
+		item.volume = volumeNumberMatch[1];
+	}
+}
+
+function getDate(doc, item) {
+	let date = doc.querySelector('span.date-display-single');
+	if (date) {
+		let dateMatch = date.innerText.match(/\w+,\s+\d+\s\w+\s+(\d+)/i);
+		item.date = dateMatch[1];
+	}
+}
  async function doWeb(doc, url) {
 	if (detectWeb(doc, url) == 'multiple') {
 		let items = await Zotero.selectItems(getSearchResults(doc, false));
@@ -74,20 +90,14 @@ return authors;
 			var relativeUrl = new URL(url);
 			entry = doc.querySelector('a[href*="' + relativeUrl.pathname + '"]');
 			item.title = entry.textContent;
+			item.url = url;
 
 			for (author of getAuthors(entry)) {
 				item.creators.push(ZU.cleanAuthor(author, "author", false));
 			}
 
-			let volumeNumber = doc.querySelector('h1.node-header');
-			let volumeNumberMatch = volumeNumber.innerText.match(/Prison Service Journal\s+(\d+)/i);
-			item.volume = volumeNumberMatch[1];
-
-			let date = doc.querySelector('span.date-display-single');
-			let dateMatch = date.innerText.match(/\w+,\s+\d+\s\w+\s+(\d+)/i)
-			item.date = dateMatch[1];
-
-			item.url = url;
+			getVolume(doc, item);
+			getDate(doc, item);
 			item.complete();
 		}
 	}
