@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-21 15:14:30"
+	"lastUpdated": "2024-08-26 15:12:00"
 }
 
 /*
@@ -141,8 +141,7 @@ function scrape(doc, url) {
 				if (item.series == "Jahrbuch für Biblische Theologie") {
 					item.ISSN = "2567-9392";
 					item.itemType = "journalArticle";
-					item.volume = item.volume.replace(/band /i, '');
-					item.volume = item.volume.replace(/, jahr \d{4}/i, '');
+					item.volume = item.volume.replace(/band\s+(\d+)(?:,\s+jahr\s+\d{4})?/i, '$1')
 					item.tags = [];
 				}
 				let switchToDE = "https://www.vr-elibrary.de/action/doLocaleChange?locale=de&requestUri=/doi/"+ doi;
