@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-26 15:18:20"
+	"lastUpdated": "2024-08-27 12:55:46"
 }
 
 /*
@@ -70,7 +70,9 @@ function getVolume(doc, item) {
 	let volumeNumber = doc.querySelector('h1.node-header');
 	if (volumeNumber) {
 		let volumeNumberMatch = volumeNumber.innerText.match(/prison\s+service\s+journal\s+(\d+)/i);
-		item.volume = volumeNumberMatch[1];
+		if (volumeNumberMatch) {
+			item.volume = volumeNumberMatch[1];
+		}	
 	}
 }
 
@@ -78,7 +80,9 @@ function getDate(doc, item) {
 	let date = doc.querySelector('span.date-display-single');
 	if (date) {
 		let dateMatch = date.innerText.match(/\w+,\s+\d+\s\w+\s+(\d+)/i);
-		item.date = dateMatch[1];
+		if (dateMatch) {
+			item.date = dateMatch[1];
+		}
 	}
 }
  async function doWeb(doc, url) {
@@ -102,9 +106,6 @@ function getDate(doc, item) {
 		}
 	}
 }
-
-
-
 
 /** BEGIN TEST CASES **/
 var testCases = [
