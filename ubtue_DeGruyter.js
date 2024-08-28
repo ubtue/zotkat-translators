@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-28 12:17:56"
+	"lastUpdated": "2024-08-28 12:22:30"
 }
 
 /*
@@ -100,7 +100,7 @@ function invokeEMTranslator(doc, url) {
 			let orcidRegex = /\d+-\d+-\d+-\d+x?/i;
 			if (authorTag != null && authorTag.innerHTML.match(orcidRegex)) {
 				let authorname = ZU.xpath(authorTag, '//span[@class ="displayName linkAnimation"]')
-				let name = (authorName != null && authorName.length) ? authorname[0].innerText : authorTag.innerText;
+				let name = (authorname != null && authorname.length) ? authorname[0].innerText : authorTag.innerText;
 				let orcid = authorTag.innerHTML.match(orcidRegex);
 				i.notes.push({note: name + ' | orcid:' + orcid + ' | taken from website'});	
 			}
