@@ -9,13 +9,13 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-29 12:13:50"
+	"lastUpdated": "2024-08-29 15:47:28"
 }
 
 /*
 	***** BEGIN LICENSE BLOCK *****
 
-	Copyright © 2024 YOUR_NAME <- TODO
+	Copyright © 2024 Mara Spieß
 
 	This file is part of Zotero.
 
@@ -74,30 +74,62 @@ async function doWeb(doc, url) {
 	}
 }
 
-function getAuthors (citationMatch, item) {
-	citationAuthors = citationMatch[1].split(/(?:,?\s+&\s+)|(?:\.,)/g);
+function getAuthors (item, citationParagraph) {
+	authorMatch = citationParagraph.textContent.match(/suggested citation:\s*(\D+)\((?:\d{4})\)/i);
+	citationAuthors = authorMatch[1].split(/(?:,?\s+&\s+)|(?:\.,)/g);
 	citationAuthors.forEach(author => {
 		item.creators.push(ZU.cleanAuthor(author, "author", true));
 	})
-	//Z.debug(citationAuthors);
 }
 
-function getKeywords (p, keywordsRegex, item) {
-	if (keywordsRegex.test(p.textContent)) {
-		keywordsParagraph = p;
-		Z.debug(keywordsParagraph.textContent);
-		keywords = keywordsParagraph.textContent.replace("Keywords: ", "").split(',');
-		keywords.forEach(keyword => {
-			item.tags.push(keyword.trim());
-		});
-		Z.debug(keywords);
+function getDate (item, citationParagraph) {
+	dateMatch = citationParagraph.textContent.match(/\((\d{4})\)/);
+	if (dateMatch) {
+		item.date = dateMatch[1];
 	}
 }
 
-function getAbstract (p, abstractRegex, item) {
+function getIssue (item, citationParagraph) {
+	issueMatch = citationParagraph.textContent.match(/(?:\d+)\((\d+)\)/);
+	if (issueMatch) {
+		item.issue = issueMatch[1];
+	}
+}
+
+function getVolume (item, citationParagraph) {
+	volumeMatch = citationParagraph.textContent.match(/(\d+)\((?:\d+)\)/);
+	if (volumeMatch) {
+		item.volume = volumeMatch[1];
+	}
+}
+
+function getPages (item, citationParagraph) {
+	pagesMatch = citationParagraph.textContent.match(/(\d+-?\d*)[.]/);
+	if (pagesMatch) {
+		item.pages = pagesMatch[1];
+	}
+}
+
+function getKeywords (p, item) {
+	let keywordsRegex = /keywords/i;
+	if (keywordsRegex.test(p.textContent)) {
+		keywordsParagraph = p;
+		separatorRegex = /^[^,]+,/i;
+		if (separatorRegex.test(keywordsParagraph.textContent)) {
+			keywords = keywordsParagraph.textContent.replace("Keywords: ", "").split(',');
+		} else {
+			keywords = keywordsParagraph.textContent.replace("Keywords: ", "").split(';');
+		}
+		keywords.forEach(keyword => {
+			item.tags.push(keyword.trim());
+		});
+	}
+}
+
+function getAbstract (p, item) {
+	let abstractRegex = /description/i;
 	if (abstractRegex.test(p.textContent)) {
 		abstractParagraph = p;
-		Z.debug(abstractParagraph.textContent);
 		item.abstractNote = abstractParagraph.textContent.replace("Description: ", "");
 	}
 }
@@ -106,40 +138,24 @@ async function scrape(doc, url = doc.location.href) {
 	let item = new Zotero.Item("journalArticle");
 	item.url = url;
 	item.title = doc.querySelector('#content_box > h3').textContent;
-	// quotation marks are being escaped, removing them is not an ideal solution
-	item.title = item.title.replace(/"/g, '');
 
 	let paragraphs = doc.querySelectorAll('p');
 	let citationParagraph = null;
-
-	let citationRegex = /suggested\s+citation\s*:\s*/i;
-	let keywordsRegex = /keywords/i;
-	let abstractRegex = /description/i;
+	let citationRegex = /suggested\s+citation/i;
 
 	if (paragraphs) {
 		paragraphs.forEach(p => {
 			if (citationRegex.test(p.textContent)) {
 				citationParagraph = p;
-				//Z.debug(citationParagraph.textContent);
-				citationMatch = citationParagraph.textContent.match(/suggested citation:\s*(\D+)\((\d{4})\)\s*.\s*([\d\w\s.,:;'"-]+)\s*\[electronic\s*version\].\s*applied\s+psychology\s+in\s+criminal\s+justice,\s*(\d+)\((\d+)\),\s*(\d+-?\d*)/i);
-				if (citationMatch) {
-					//Z.debug(citationMatch);
-					getAuthors(citationMatch, item);
-					item.date = citationMatch[2];
-					item.volume = citationMatch[4];
-					item.issue = citationMatch[5];
-					item.pages = citationMatch[6];
-				}
+				getAuthors(item, citationParagraph);
+				getDate(item, citationParagraph);
+				getIssue(item, citationParagraph);
+				getVolume(item, citationParagraph);
+				getPages(item, citationParagraph);		
 			}
-
-			getKeywords(p, keywordsRegex, item);
-			getAbstract(p, abstractRegex, item);
-				
+			getKeywords(p, item);
+			getAbstract(p, item);	
 		});
-	}
-
-	if (!citationParagraph) {
-		Z.debug("Citation paragraph not found");
 	}
 	
 	item.complete();  
