@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-29 15:47:28"
+	"lastUpdated": "2024-08-30 07:43:43"
 }
 
 /*
@@ -115,11 +115,7 @@ function getKeywords (p, item) {
 	if (keywordsRegex.test(p.textContent)) {
 		keywordsParagraph = p;
 		separatorRegex = /^[^,]+,/i;
-		if (separatorRegex.test(keywordsParagraph.textContent)) {
-			keywords = keywordsParagraph.textContent.replace("Keywords: ", "").split(',');
-		} else {
-			keywords = keywordsParagraph.textContent.replace("Keywords: ", "").split(';');
-		}
+		keywords = keywordsParagraph.textContent.replace("Keywords: ", "").split(/[,;]/);
 		keywords.forEach(keyword => {
 			item.tags.push(keyword.trim());
 		});
