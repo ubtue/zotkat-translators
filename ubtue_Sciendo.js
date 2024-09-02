@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-25 15:39:28"
+	"lastUpdated": "2024-09-02 10:24:02"
 }
 
 /*
@@ -45,11 +45,11 @@ function getSearchResults(doc, checkOnly) {
   let items = {};
   let found = false;
   let jsonData = JSON.parse(ZU.xpathText(doc, '//script[@id="__NEXT_DATA__"]'));
-  rows = jsonData.props.pageProps.productData.articles;
-  
+  rows = jsonData.props.pageProps.product.articles;
+
   for (let row of rows) {
 	let href = "https://www.doi.org/" + row.doi;
-	let title = row.nameText;
+	let title = row.title;
 	if (!href || !title) continue;
 	if (checkOnly) return true;
 	found = true;
@@ -86,7 +86,7 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			i.tags.push(keyword.textContent);
 		}
 		if (articleData.articleType == "book-review") i.tags.push("RezensionstagPica");
-		i.title = ZU.unescapeHTML(jsonData.props.pageProps.product.articleData.name);
+		i.title = ZU.unescapeHTML(jsonData.props.pageProps.product.articleData.nameText);
 		
 		i.attachments = [];
 		i.complete();
@@ -109,6 +109,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEmbeddedMetadataTranslator(doc, url);
 }
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
