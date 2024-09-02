@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-02 08:23:55"
+	"lastUpdated": "2024-09-02 12:57:13"
 }
 
 /*
@@ -67,7 +67,7 @@ function getAuthorName(text) {
 
 function addBookReviewTag(doc, item) {
 	var primaryHeading = ZU.xpathText(doc, '//span[@class="primary-heading"]');
-	if (primaryHeading.match(/Book\s?Reviews?|Review\s?Essays?|Reviews?/i)) {
+	if (primaryHeading.match(/Book Review\b|Review Essays?|Reviews?\b/i)) {
 		item.tags.push('RezensionstagPica');
 	}
 }
@@ -568,8 +568,6 @@ function doWeb(doc, url) {
 		}
 	}
 }
-
-
 
 /** BEGIN TEST CASES **/
 var testCases = [
