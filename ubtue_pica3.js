@@ -1,15 +1,14 @@
 {
-    "translatorID": "3422226d-9829-45ac-98a2-9a04aefc7f05",
-        "label": "ubtue_pica3",
-        "creator": "Philipp Zumstein, Timotheus Kim, Mario Trojan, Madeeswaran Kannan, Johannes Ruscheinski, Helena Nebel, Johannes Riedl",
-        "target": "txt",
-        "minVersion": "3.0",
-        "maxVersion": "",
-        "priority": 100,
-        "inRepository": true,
-        "translatorType": 2,
-        "browserSupport": "gcs",
-        "lastUpdated": "2024-06-13 14:28:01"
+	"translatorID": "3422226d-9829-45ac-98a2-9a04aefc7f05",
+	"label": "ubtue_pica3",
+	"creator": "Philipp Zumstein, Timotheus Kim, Mario Trojan, Madeeswaran Kannan, Johannes Ruscheinski, Helena Nebel, Johannes Riedl",
+	"target": "txt",
+	"minVersion": "3.0",
+	"maxVersion": "",
+	"priority": 100,
+	"inRepository": true,
+	"translatorType": 2,
+	"lastUpdated": "2024-09-03 12:48:04"
 }
 
 // Zotero Export Translator in Pica3 Format für das Einzeln- und Mulitiupload in WinIBW
@@ -663,7 +662,7 @@ function performExport() {
 								addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', authorValue);
 							}
 							else if (threadParams["authorOrcid"]) {
-								var authorValue = `${threadParams["authorName"]}$porcid: ${threadParams["authorOrcid"]}$BVerfasserIn$4aut`;
+								var authorValue = `${threadParams["authorName"]}$iorcid$j${threadParams["authorOrcid"]}$BVerfasserIn$4aut`;
 								addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', authorValue);	
 							}
 							else if (institution_retrieve_sign == "itbk") {
@@ -1035,3 +1034,7 @@ function doExport() {
 }
 
 
+/** BEGIN TEST CASES **/
+var testCases = [
+]
+/** END TEST CASES **/
