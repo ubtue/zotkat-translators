@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-28 12:22:30"
+	"lastUpdated": "2024-08-30 09:39:08"
 }
 
 /*
@@ -102,7 +102,7 @@ function invokeEMTranslator(doc, url) {
 				let authorname = ZU.xpath(authorTag, '//span[@class ="displayName linkAnimation"]')
 				let name = (authorname != null && authorname.length) ? authorname[0].innerText : authorTag.innerText;
 				let orcid = authorTag.innerHTML.match(orcidRegex);
-				i.notes.push({note: name + ' | orcid:' + orcid + ' | taken from website'});	
+				i.notes.push({note:'orcid:' + orcid + ' | '+ name +' | taken from website'});	
 			}
 		}
 		if (!i.ISSN) i.ISSN = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "onlineissn", " " )) and contains(concat( " ", @class, " " ), concat( " ", "text-metadata-value", " " ))]');
