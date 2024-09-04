@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-09-04 14:15:42"
+	"lastUpdated": "2024-09-04 14:26:41"
 }
 
 /*
@@ -120,5 +120,53 @@ function getKeywords(doc, item) {
 
 /** BEGIN TEST CASES **/
 var testCases = [
+	{
+		"type": "web",
+		"url": "https://www.ijcjs.com/article-detail.php?id=691",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Implementation of Defiance of a Court Order for the Optimization of Execution Implementation in the Indonesian State Administration Jurisdiction",
+				"creators": [
+					{
+						"firstName": "Fatria",
+						"lastName": "Khairo",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Firman Freaddy",
+						"lastName": "Busroh",
+						"creatorType": "author"
+					}
+				],
+				"abstractNote": "Indonesia is recognized as a nation governed by the rule of law, primarily anchored in the 1945 Constitution. This foundational document places significant emphasis on fostering a peaceful society while ensuring equal rights for all citizens concerning state officials and governmental entities. Consequently, to facilitate socio-economic development within the country, the Indonesian State Administration Jurisdiction (SAJ) assumes a pivotal role. The principal objective of this study is to investigate the implementation of court order defiance as a means to enhance the efficiency of execution procedures within the Indonesian SAJ. To accomplish this aim, an extensive judicial research endeavour was undertaken, drawing data from diverse sources. The methodological approach employed for addressing the study's objectives involved content analysis. This examination elucidates that the State Administrative Court (SAC) in Indonesia holds the responsibility for adjudicating conflicts between citizens and state officials or bodies. Nevertheless, the scope of the Indonesian SAJ is expansive, emphasizing the integration of innovation and advanced technology for the effective execution of its mandates. The Indonesian SAJ confronts several challenges, including issues related to transparency, suboptimal decision-making processes, and bureaucratic inefficiencies. Additionally, the adverse impact of \"Law No. 51/2009\" on execution procedures is evident. These challenges have the potential to influence the socio-economic development of the populace. To surmount these obstacles, the implementation of court order defiance and the infusion of principles of good governance within the judicial system are considered indispensable. Such measures can facilitate efficient decision-making processes and elevate transparency levels. The study culminates with a set of vital recommendations aimed at optimizing execution procedures within the Indonesian SAJ.",
+				"libraryCatalog": "ubtue_IJCJS",
+				"url": "https://www.ijcjs.com/article-detail.php?id=691",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Defiance"
+					},
+					{
+						"tag": "Execution Implementation"
+					},
+					{
+						"tag": "Indonesia"
+					},
+					{
+						"tag": "State Administration Jurisdiction"
+					},
+					{
+						"tag": "State Administrative Court"
+					},
+					{
+						"tag": "Transparency"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	}
 ]
 /** END TEST CASES **/
