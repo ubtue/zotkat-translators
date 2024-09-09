@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-19 14:24:03"
+	"lastUpdated": "2024-09-06 08:35:16"
 }
 
 /*
@@ -80,6 +80,9 @@ function getResultList(doc) {
 	}
 	if (!results.length) {
 		results = ZU.xpath(doc, '//h3[@class="c-card-open__heading"]/a');
+	}
+	if (!results.length) {
+		results = ZU.xpath(doc, '//h3[@class="app-card-open__heading"]/a')
 	}
 	return results;
 }
@@ -319,7 +322,6 @@ function scrape(doc, url) {
 		translator.translate();
 	});
 }
-
 
 /** BEGIN TEST CASES **/
 var testCases = [
