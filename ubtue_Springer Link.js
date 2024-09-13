@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-09-06 08:35:16"
+	"lastUpdated": "2024-09-13 07:16:24"
 }
 
 /*
@@ -62,29 +62,23 @@ function detectWeb(doc, url) {
 }
 
 function getResultList(doc) {
-	var results = ZU.xpath(doc,
-		'//ol[@class="content-item-list"]/li/*[self::h3 or self::h2]/a');
-	if (!results.length) {
-		results = ZU.xpath(doc,
-			'//div[@class="toc"]/ol//div[contains(@class,"toc-item")]/h3/a');
-	}
-	if (!results.length) {
-		results = ZU.xpath(doc,
-			'//div[@class="book-toc-container"]/ol//div[contains(@class,"content-type-list__meta")]/div/a');
-	}
-	if (!results.length) {
-		results = ZU.xpath(doc, '//div[@class="toc"]/ol//li[contains(@class,"toc-item")]/p[@class="title"]/a');
-	}
-	if (!results.length) {
-		results = ZU.xpath(doc, '//li[@class="c-list-group__item"]//h3/a');
-	}
-	if (!results.length) {
-		results = ZU.xpath(doc, '//h3[@class="c-card-open__heading"]/a');
-	}
-	if (!results.length) {
-		results = ZU.xpath(doc, '//h3[@class="app-card-open__heading"]/a')
-	}
-	return results;
+    const xpaths = [
+        '//ol[@class="content-item-list"]/li/*[self::h3 or self::h2]/a',
+        '//div[@class="toc"]/ol//div[contains(@class,"toc-item")]/h3/a',
+        '//div[@class="book-toc-container"]/ol//div[contains(@class,"content-type-list__meta")]/div/a',
+        '//div[@class="toc"]/ol//li[contains(@class,"toc-item")]/p[@class="title"]/a',
+        '//li[@class="c-list-group__item"]//h3/a',
+        '//h3[@class="c-card-open__heading"]/a',
+        '//h3[@class="app-card-open__heading"]/a'
+    ];
+
+    let results = [];
+    for (const xpath of xpaths) {
+        results = ZU.xpath(doc, xpath);
+        if (results.length) break;  // Stop if any results are found
+    }
+    
+    return results;
 }
 
 
