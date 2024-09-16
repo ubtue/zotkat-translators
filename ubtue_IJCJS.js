@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-09-04 14:26:41"
+	"lastUpdated": "2024-09-16 12:45:39"
 }
 
 /*
@@ -76,6 +76,7 @@ async function doWeb(doc, url) {
 
 async function scrape(doc, url = doc.location.href) {
 	let item = new Zotero.Item("journalArticle");
+	item.ISSN = "0973-5089";
 	item.url = url;
 	item.title = doc.querySelector('h2[style=" font-weight: bold; font-size: 30px; margin-bottom: 25px;"]').textContent;
 	getAbstract(doc, item);
@@ -99,23 +100,23 @@ function getAuthors(doc, item) {
 		authorsElements.forEach(author => {
 			let authorName = author.textContent.replace(/Dr\s/,'');
 			if (!authorName.includes("Published on")) {
-                filteredAuthors.push(authorName);
-            }
+				filteredAuthors.push(authorName);
+			}
 		});
-    }
-    filteredAuthors.forEach(authorName => {
-        item.creators.push(ZU.cleanAuthor(authorName, "author", false));
-    });
+	}
+	filteredAuthors.forEach(authorName => {
+		item.creators.push(ZU.cleanAuthor(authorName, "author", false));
+	});
 }
 
 function getKeywords(doc, item) {
-    let keywordsElement = ZU.xpathText(doc, '//h4[contains(text(), "Keyword:")]/following-sibling::p[1]');
-    if (keywordsElement) {
-        let keywords = keywordsElement.replace(/[.]$/,'').split(',').map(keyword => keyword.trim());
-        keywords.forEach(keyword => {
-            item.tags.push(keyword);
-        });
-    }
+	let keywordsElement = ZU.xpathText(doc, '//h4[contains(text(), "Keyword:")]/following-sibling::p[1]');
+	if (keywordsElement) {
+		let keywords = keywordsElement.replace(/[.]$/,'').split(',').map(keyword => keyword.trim());
+		keywords.forEach(keyword => {
+			item.tags.push(keyword);
+		});
+	}
 }
 
 /** BEGIN TEST CASES **/
