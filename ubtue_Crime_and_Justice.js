@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-27 12:55:46"
+	"lastUpdated": "2024-09-16 12:15:40"
 }
 
 /*
@@ -61,8 +61,8 @@ function getSearchResults(doc, checkOnly) {
 function getAuthors(entry) {
 	titleEntry = entry.closest('li');
 	titleEntry.removeChild(entry);
-	strippedPrefix = titleEntry.textContent.replace(/(?:\s*,\s*)?(?:interviewed\s+)?by\s*/i, '').replace(/\s*Dr\s*/g, '');
-	authors = strippedPrefix.split(/and|[,]/);
+	strippedPrefix = titleEntry.textContent.replace(/(?:\s*,\s*)?(?:(interviewe?d?|reviewed)\s+)?by\s*/ig, '').replace(/(?:\s*Dr\s+)|(?:\s*Professor\s+)/g, '');
+	authors = strippedPrefix.split(/and\s+|[,]/);
 return authors;
 }
 
@@ -91,6 +91,7 @@ function getDate(doc, item) {
 		if (!items) return;
 		for (let url of Object.keys(items)) {
 			let item = new Zotero.Item("journalArticle");
+			item.ISSN = "0300-3558";
 			var relativeUrl = new URL(url);
 			entry = doc.querySelector('a[href*="' + relativeUrl.pathname + '"]');
 			item.title = entry.textContent;

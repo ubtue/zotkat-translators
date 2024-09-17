@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-30 07:43:43"
+	"lastUpdated": "2024-09-16 12:50:51"
 }
 
 /*
@@ -126,13 +126,14 @@ function getAbstract (p, item) {
 	let abstractRegex = /description/i;
 	if (abstractRegex.test(p.textContent)) {
 		abstractParagraph = p;
-		item.abstractNote = abstractParagraph.textContent.replace("Description: ", "");
+		item.abstractNote = abstractParagraph.textContent.replace(/description:\s*/i, "").replace(/\n/g, "");
 	}
 }
 
 async function scrape(doc, url = doc.location.href) {
 	let item = new Zotero.Item("journalArticle");
 	item.url = url;
+	item.ISSN = "1550-3550";
 	item.title = doc.querySelector('#content_box > h3').textContent;
 
 	let paragraphs = doc.querySelectorAll('p');
