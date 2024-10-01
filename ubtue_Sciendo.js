@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-09-02 10:24:02"
+	"lastUpdated": "2024-10-01 13:02:38"
 }
 
 /*
@@ -65,28 +65,37 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 	translator.setHandler("itemDone", function (t, i) {
 		let jsonData = JSON.parse(ZU.xpathText(doc, '//script[@id="__NEXT_DATA__"]'));
 		let articleData = jsonData.props.pageProps.product.articleData;
-		if (articleData.permissions) {
-			if (articleData.permissions.license) {
-			if (articleData.permissions.license["license-type"]) {
-				if (articleData.permissions.license["license-type"] == "open-access") {i.notes.push('LF:')}
-			}
-			}
-		}
-		if (!i.abstractNote)
+
+		i.title = ZU.unescapeHTML(articleData?.title?.en);
+
+		i.publicationTitle = jsonData?.props?.pageProps?.product?.journalData?.title ?? '';
+
+        if (jsonData.props.pageProps.product.licenseType === "OpenAccess") {
+            i.notes.push('LF:');
+        }
+
+		i.abstractNote = ZU.unescapeHTML(articleData?.abstractContent?.en ?? '');
+		if (!i.abstractNote) {
 			i.abstractNote = ZU.xpathText(doc, '//section[@class="abstract"]//p');
 			if (i.abstractNote != null) i.abstractNote = i.abstractNote.replace(/Abstract\n/, '');
-		i.ISSN = articleData.eISSN;
+		}
+
+		i.ISSN = ZU.unescapeHTML(jsonData?.props?.pageProps?.product?.journalData?.eIssn);
 		if (!i.ISSN) {
 			i.ISSN = ZU.xpathText(doc, '//dl[@class="onlineissn"]//dd |//*[contains(concat( " ", @class, " " ), concat( " ", "onlineissn", " " )) and contains(concat( " ", @class, " " ), concat( " ", "text-metadata-value", " " ))]');
-			if (i.ISSN)
+			if (i.ISSN) {
 				i.ISSN = i.ISSN.trim();
+			}
 		}
-		i.publicationTitle = jsonData.props.pageProps.product.journalTitle;
-		for (let keyword of ZU.xpath(doc, '//ul[contains(@class, "Article_keywords-list")]/li')) {
-			i.tags.push(keyword.textContent);
+
+		for (let keyword of articleData.keywords) {
+			i.tags.push(keyword);
 		}
-		if (articleData.articleType == "book-review") i.tags.push("RezensionstagPica");
-		i.title = ZU.unescapeHTML(jsonData.props.pageProps.product.articleData.nameText);
+
+		let reviewTitle = i.title.toLowerCase().trim();
+        if (reviewTitle === "book reviews" || reviewTitle === "book review") {
+            i.tags.push("RezensionstagPica");
+        }
 		
 		i.attachments = [];
 		i.complete();
