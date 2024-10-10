@@ -1,92 +1,58 @@
 {
 	"translatorID": "58fd3287-b8e6-4b5d-8367-0ebbd4598991",
 	"label": "ubtue_Cairn.info",
-	"creator": "Timotheus Kim",
-	"target": "https?://www.cairn(-int)?.info",
+	"creator": "Mara Spieß",
+	"target": "https://shs.cairn.info",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-08-10 14:41:45"
+	"lastUpdated": "2024-10-10 15:17:44"
 }
 
 /*
 	***** BEGIN LICENSE BLOCK *****
 
-	Copyright © 2020 Universitätsbibliothek Tübingen.  All rights reserved.
+	Copyright © 2024 Mara Spieß
 
-	This program is free software: you can redistribute it and/or modify
+	This file is part of Zotero.
+
+	Zotero is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
+	Zotero is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	GNU Affero General Public License for more details.
 
 	You should have received a copy of the GNU Affero General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	along with Zotero. If not, see <http://www.gnu.org/licenses/>.
 
 	***** END LICENSE BLOCK *****
 */
-function romanToInt(r) {
-	if (r.match(/^[IVXLCM]+/)) {
-	const sym = { 
-		'I': 1,
-		'V': 5,
-		'X': 10,
-		'L': 50,
-		'C': 100,
-		'D': 500,
-		'M': 1000
-	}
-	let result = 0;
-	for (i=0; i < r.length; i++){
-		const cur = sym[r[i]];
-		const next = sym[r[i+1]];
-		if (cur < next){
-			result += next - cur 
-			i++
-		} else {
-			result += cur
-		}
-	}
-
-	return result; 
-	}
-	else return r;
-};
-
-function decoding(text) {
-	text = text.replace(/&#\d+;/g, function(t) {
-		let value = parseInt(t.match(/&#(\d+);/)[1]);
-		return String.fromCharCode(parseInt(value));
-		});
-	return text;
-}
 
 
 function detectWeb(doc, url) {
-	if (url.includes('page')) {
-		return "journalArticle";
+	if (url.includes('-page-')) {
+		return 'journalArticle';
 	}
 	else if (getSearchResults(doc, true)) {
-		return "multiple";
+		return 'multiple';
 	}
 	return false;
 }
 
-
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = doc.querySelectorAll('.titre-article');
+	var rows = doc.querySelectorAll('div.flex-row.p-3');
 	for (let row of rows) {
-		let href = row.innerHTML.split('"')[1].split('"')[0];//Z.debug(href)
-		let title = ZU.trimInternal(row.textContent);
+		let href = row.querySelector('a[href*="-page-"]');
+		let title = ZU.trimInternal(row.querySelector('h1.font-bold').textContent);
 		if (!href || !title) continue;
 		if (checkOnly) return true;
 		found = true;
@@ -95,135 +61,38 @@ function getSearchResults(doc, checkOnly) {
 	return found ? items : false;
 }
 
-function doWeb(doc, url) {
-	if (detectWeb(doc, url) == "multiple") {
-		Zotero.selectItems(getSearchResults(doc, false), function (items) {
-			if (items) ZU.processDocuments(Object.keys(items), scrape);
-		});
+async function doWeb(doc, url) {
+	if (detectWeb(doc, url) == 'multiple') {
+		let items = await Zotero.selectItems(getSearchResults(doc, false));
+		if (!items) return;
+		for (let url of Object.keys(items)) {
+			await scrape(await requestDocument(url));
+		}
 	}
 	else {
-		scrape(doc, url);
+		await scrape(doc, url);
 	}
 }
 
-function scrape(doc, url) {
-	let risURL = ZU.xpathText(doc, '//a[contains(@href, "exports/export-zotero.php?")]/@href')
-	ZU.doGet(risURL, function(text) {
-		var translator = Zotero.loadTranslator("import");
-		// Use RIS translator
-		translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
-		translator.setString(text);
-		translator.setHandler("itemDone", function(obj, item) {
-			var unescapeFields = ['title', 'publicationTitle', 'abstractNote'];
-			for (var i=0; i<unescapeFields.length; i++) {
-				if (item[unescapeFields[i]]) {
-					item[unescapeFields[i]] = ZU.unescapeHTML(item[unescapeFields[i]]);
-				}
-			}
-
-			// Subtitles could be in i or b
-		if (doc.querySelector('.sous-titre-article i')){
-			let addtitle = doc.querySelector('.sous-titre-article i').textContent.trim();
-			if (item.title.match(/\..*/) && addtitle == item.title.substring(item.title.match(/\..*/).index+1).trim()) {
-				item.title = item.title.substring(0,item.title.match(/\..*/).index);
-			}
-			item.title = item.title + ': ' + addtitle;
-		} 
-		if (doc.querySelector('.sous-titre-article b')){
-			let addtitle = doc.querySelector('.sous-titre-article b').textContent.trim();
-			if (item.title.match(/\..*/) && addtitle == item.title.substring(item.title.match(/\..*/).index+1).trim()) {
-				item.title = item.title.substring(0,item.title.match(/\..*/).index);
-			}
-			item.title = item.title + ': ' + addtitle;
-		}
-		//if (doc.querySelector('.sous-titre-article i')) item.title = item.title + ': ' + doc.querySelector('.sous-titre-article i').textContent.trim();
-		//if (doc.querySelector('.sous-titre-article b')) item.title = item.title + ': ' + doc.querySelector('.sous-titre-article b').textContent.trim();
-		// Correct volume and issue information
-		if (item.volume) {
-			if (item.volume.search(/^n°/i) != -1) {
-				item.volume = item.volume.split(/n°/i)[1].trim();
-			} else if (item.volume.search(/^Vol./i) != -1) {
-				item.volume = item.volume.split(/Vol./i)[1].trim();
-			} else if (item.volume.search(/^Tome/i) != -1) {
-				item.volume = item.volume.split(/Tome/i)[1].trim();
-			}
-
-			if (item.volume.search(/^\d+-\d+$/) != -1) {
-				var volume = item.volume.split('-');
-				item.volume = volume[0];
-				item.issue = volume[1];
-			}
-		}
+async function scrape(doc, url = doc.location.href) {
+	let translator = Zotero.loadTranslator('web');
+	// Embedded Metadata
+	translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48');
+	translator.setDocument(doc);
+	
+	translator.setHandler('itemDone', (_obj, item) => {
 		
-		if (!item.date || item.date == '0000-00-00') {
-			item.date = ZU.xpathText(doc, '//meta[@name="DCSext.annee_tomaison"]/@content');
+		//a title containing either an ISBN or a publication year followed by page numbers strongly indicates a review
+		if (item.title.match(/isbn\s+[\d\-x]+|\d{4},\s+\d+\s+p./i)) {
+			item.tags.push("RezensionstagPica");
 		}
-
-		if (!item.pages) {
-			item.pages = ZU.xpathText(doc, '//meta[@name="DCSext.doc_nb_pages"]/@content');
-		}
-		
-		var doi = ZU.xpathText(doc, '//li[contains(., "DOI :")]');
-		if (!item.DOI && doi) {
-			item.DOI = doi.replace('DOI :', '');
-		}
-		
-		let abstractFR = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "lang-fr", " " ))]//p');
-		let abstractEN = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "lang-en", " " ))]//p');
-		let abstractDE = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "lang-de", " " ))]//p');
-		let abstractES = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "lang-es", " " ))]//p');
-		
-		if (item.abstractNote) item.abstractNote = item.abstractNote.replace(/\n/g, ' ');
-		if (abstractDE) item.notes.push('abs:' + abstractDE.replace(/\n/g, ' '))
-		if (abstractEN && abstractEN.length > 100) {
-			item.notes.push('abs:' + abstractEN.replace(/\n/g, ' '))
-		}
-		else if (ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="en"]/@content') && ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="en"]/@content').length > 100) {
-			let abs = ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="en"]/@content').replace(/\n/g, ' ')
-			item.notes.push('abs:' + decoding(abs));
-		}
-		if (abstractES && abstractES.length > 100) {
-			item.notes.push('abs:' + abstractES.replace(/\n/g, ' '))
-		}
-		else if (ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="es"]/@content') && ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="es"]/@content').length > 100) {
-			let abs = ZU.xpathText(doc, '//meta[@name="citation_abstract" and @lang="es"]/@content').replace(/\n/g, ' ');
-			item.notes.push('abs:' + decoding(abs));
-		}
-		let DOIentry = ZU.xpathText(doc, '//dd');
-		if (!item.DOI && DOIentry) {
-			let splitDOIentry = DOIentry.split('\n');//Z.debug(splitDOIentry)
-			if (splitDOIentry) {
-				item.DOI = splitDOIentry[1];
-			}
-		}
-		
-		// Cairn.info uses non-standard keywords:
-		// we import them here, as the Embedded Metadata translator
-		// cannot catch them.
-		item.tags = [];
-		var keywords = ZU.xpathText(doc, '//meta[@name="article-mot_cle"]/@content | //div[@class="grmotcle lang-en"]//li[@class="motcle"]');
-		if (keywords) {
-			keywords = keywords.split(/\s*[,;]\s*/);
-			for (var i=0; i<keywords.length; i++) {
-				if (keywords[i].trim()) {
-					item.tags.push(keywords[i].replace(/\n/g, ' ').replace(/^[a-zA-ZÀ-ÿ-. ]/, function($0) { return $0.toUpperCase(); }));
-					}
-				}
-			}
-		for (let tag of ZU.xpath(doc, '//li[@class="motcle"]')) {
-			tag = tag.textContent.replace(/\n/g, ' ').replace(/^[a-zA-ZÀ-ÿ-. ]/, function($0) { return $0.toUpperCase(); });
-			if (!item.tags.includes(tag)) item.tags.push(tag);
-		}
-		if (item.volume) item.volume = romanToInt(item.volume).toString();
-
-		item.ISSN = ZU.xpathText(doc, '//meta[@name="citation_issn"]/@content');
-
-		if (["gratuit", "post barrière mobile"].includes(ZU.xpathText(doc, '//meta[@name="DCSext.comm_art"]/@content'))) item.notes.push('LF:');
-		item.attachments = [];
+	
 		item.complete();
-		});
-		translator.translate();
 	});
+
+	let em = await translator.getTranslatorObject();
+	
+	await em.doWeb(doc, url);
 }
 
 /** BEGIN TEST CASES **/

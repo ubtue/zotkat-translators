@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-09-02 10:24:02"
+	"lastUpdated": "2024-10-10 14:58:12"
 }
 
 /*
@@ -42,20 +42,23 @@ function detectWeb(doc, url) {
 }
 
 function getSearchResults(doc, checkOnly) {
-  let items = {};
-  let found = false;
-  let jsonData = JSON.parse(ZU.xpathText(doc, '//script[@id="__NEXT_DATA__"]'));
-  rows = jsonData.props.pageProps.product.articles;
-
-  for (let row of rows) {
-	let href = "https://www.doi.org/" + row.doi;
-	let title = row.title;
-	if (!href || !title) continue;
-	if (checkOnly) return true;
-	found = true;
-	items[href] = title;
-  }
-  return found ? items : false;
+	let items = {};
+	let found = false;
+	let jsonData = JSON.parse(ZU.xpathText(doc, '//script[@id="__NEXT_DATA__"]'));
+	rows = jsonData?.props?.pageProps?.product?.articleList;
+	if (!rows) {
+		rows = jsonData?.props?.pageProps?.product?.articles;
+	}
+	
+	for (let row of rows) {
+		let href = "https://www.doi.org/" + row.doi;
+		let title = ZU.unescapeHTML(row.title);
+		if (!href || !title) continue;
+		if (checkOnly) return true;
+		found = true;
+		items[href] = title;
+	}
+	return found ? items : false;
 }
 
 function invokeEmbeddedMetadataTranslator(doc, url) {
@@ -64,29 +67,47 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
 		let jsonData = JSON.parse(ZU.xpathText(doc, '//script[@id="__NEXT_DATA__"]'));
-		let articleData = jsonData.props.pageProps.product.articleData;
-		if (articleData.permissions) {
-			if (articleData.permissions.license) {
-			if (articleData.permissions.license["license-type"]) {
-				if (articleData.permissions.license["license-type"] == "open-access") {i.notes.push('LF:')}
-			}
+		let articleData = jsonData?.props?.pageProps?.product?.articleData;
+
+		i.title = ZU.unescapeHTML(articleData?.title?.en);
+
+		i.publicationTitle = jsonData?.props?.pageProps?.product?.journalData?.title ?? '';
+
+		if (jsonData?.props?.pageProps?.product?.licenseType === "OpenAccess") {
+			i.notes.push('LF:');
+		}
+		if (!i.notes) {
+			if (articleData?.permissions?.license["license-type"] == "open-access") {
+				i.notes.push('LF:');
 			}
 		}
-		if (!i.abstractNote)
+
+		i.abstractNote = ZU.unescapeHTML(articleData?.abstractContent?.en ?? '');
+		if (!i.abstractNote) {
 			i.abstractNote = ZU.xpathText(doc, '//section[@class="abstract"]//p');
 			if (i.abstractNote != null) i.abstractNote = i.abstractNote.replace(/Abstract\n/, '');
-		i.ISSN = articleData.eISSN;
+		}
+
+		i.ISSN = ZU.unescapeHTML(jsonData?.props?.pageProps?.product?.journalData?.eIssn);
 		if (!i.ISSN) {
 			i.ISSN = ZU.xpathText(doc, '//dl[@class="onlineissn"]//dd |//*[contains(concat( " ", @class, " " ), concat( " ", "onlineissn", " " )) and contains(concat( " ", @class, " " ), concat( " ", "text-metadata-value", " " ))]');
-			if (i.ISSN)
+			if (i.ISSN) {
 				i.ISSN = i.ISSN.trim();
+			}
 		}
-		i.publicationTitle = jsonData.props.pageProps.product.journalTitle;
-		for (let keyword of ZU.xpath(doc, '//ul[contains(@class, "Article_keywords-list")]/li')) {
-			i.tags.push(keyword.textContent);
+
+		for (let keyword of articleData.keywords) {
+			i.tags.push(keyword);
 		}
-		if (articleData.articleType == "book-review") i.tags.push("RezensionstagPica");
-		i.title = ZU.unescapeHTML(jsonData.props.pageProps.product.articleData.nameText);
+		if (!i.tags) {
+			for (let keyword of ZU.xpath(doc, '//ul[contains(@class, "Article_keywords-list")]/li')) {
+				i.tags.push(keyword.textContent);
+			}
+		}
+
+		if (i.title.match(/^book\s+reviews?|buchrezension(?:en)?|isbn:?\s+[\d\-x]+/i)) {
+			i.tags.push("RezensionstagPica");
+		}
 		
 		i.attachments = [];
 		i.complete();
