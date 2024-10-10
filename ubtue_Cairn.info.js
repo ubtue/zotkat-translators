@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-10 13:59:43"
+	"lastUpdated": "2024-10-10 15:17:44"
 }
 
 /*
@@ -82,7 +82,8 @@ async function scrape(doc, url = doc.location.href) {
 	
 	translator.setHandler('itemDone', (_obj, item) => {
 		
-		if (item.title.match(/isbn\s+\d+|\d{4},\s+\d+\s+p./i)) {
+		//a title containing either an ISBN or a publication year followed by page numbers strongly indicates a review
+		if (item.title.match(/isbn\s+[\d\-x]+|\d{4},\s+\d+\s+p./i)) {
 			item.tags.push("RezensionstagPica");
 		}
 	
