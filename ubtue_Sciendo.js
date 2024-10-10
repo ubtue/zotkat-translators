@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-10 14:44:23"
+	"lastUpdated": "2024-10-10 14:58:12"
 }
 
 /*
@@ -105,7 +105,7 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			}
 		}
 
-		if (i.title.match(/^book\s+reviews?|buchrezension(?:en)?|isbn:?\s+\d+/i)) {
+		if (i.title.match(/^book\s+reviews?|buchrezension(?:en)?|isbn:?\s+[\d\-x]+/i)) {
 			i.tags.push("RezensionstagPica");
 		}
 		
