@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-01 13:02:38"
+	"lastUpdated": "2024-10-10 13:57:25"
 }
 
 /*
@@ -45,11 +45,12 @@ function getSearchResults(doc, checkOnly) {
   let items = {};
   let found = false;
   let jsonData = JSON.parse(ZU.xpathText(doc, '//script[@id="__NEXT_DATA__"]'));
-  rows = jsonData.props.pageProps.product.articles;
+  rows = jsonData.props.pageProps.product.articleList; //additional case .articles
+
 
   for (let row of rows) {
 	let href = "https://www.doi.org/" + row.doi;
-	let title = row.title;
+	let title = ZU.unescapeHTML(row.title);
 	if (!href || !title) continue;
 	if (checkOnly) return true;
 	found = true;
@@ -70,9 +71,14 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 
 		i.publicationTitle = jsonData?.props?.pageProps?.product?.journalData?.title ?? '';
 
-        if (jsonData.props.pageProps.product.licenseType === "OpenAccess") {
-            i.notes.push('LF:');
-        }
+		if (jsonData?.props?.pageProps?.product?.licenseType === "OpenAccess") {
+			i.notes.push('LF:');
+		}
+		if (!i.notes) {
+			if (articleData?.permissions?.license["license-type"] == "open-access") {
+				i.notes.push('LF:');
+			}
+		}
 
 		i.abstractNote = ZU.unescapeHTML(articleData?.abstractContent?.en ?? '');
 		if (!i.abstractNote) {
@@ -91,11 +97,15 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		for (let keyword of articleData.keywords) {
 			i.tags.push(keyword);
 		}
+		if (!i.tags) {
+			for (let keyword of ZU.xpath(doc, '//ul[contains(@class, "Article_keywords-list")]/li')) {
+				i.tags.push(keyword.textContent);
+			}
+		}
 
-		let reviewTitle = i.title.toLowerCase().trim();
-        if (reviewTitle === "book reviews" || reviewTitle === "book review") {
-            i.tags.push("RezensionstagPica");
-        }
+		if (i.title.match(/^book\s+reviews?|buchrezension(?:en)?|isbn:?\s+\d+/i)) {
+			i.tags.push("RezensionstagPica");
+		}
 		
 		i.attachments = [];
 		i.complete();
