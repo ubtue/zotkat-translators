@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-10 13:57:25"
+	"lastUpdated": "2024-10-10 14:44:23"
 }
 
 /*
@@ -42,21 +42,23 @@ function detectWeb(doc, url) {
 }
 
 function getSearchResults(doc, checkOnly) {
-  let items = {};
-  let found = false;
-  let jsonData = JSON.parse(ZU.xpathText(doc, '//script[@id="__NEXT_DATA__"]'));
-  rows = jsonData.props.pageProps.product.articleList; //additional case .articles
-
-
-  for (let row of rows) {
-	let href = "https://www.doi.org/" + row.doi;
-	let title = ZU.unescapeHTML(row.title);
-	if (!href || !title) continue;
-	if (checkOnly) return true;
-	found = true;
-	items[href] = title;
-  }
-  return found ? items : false;
+	let items = {};
+	let found = false;
+	let jsonData = JSON.parse(ZU.xpathText(doc, '//script[@id="__NEXT_DATA__"]'));
+	rows = jsonData?.props?.pageProps?.product?.articleList;
+	if (!rows) {
+		rows = jsonData?.props?.pageProps?.product?.articles;
+	}
+	
+	for (let row of rows) {
+		let href = "https://www.doi.org/" + row.doi;
+		let title = ZU.unescapeHTML(row.title);
+		if (!href || !title) continue;
+		if (checkOnly) return true;
+		found = true;
+		items[href] = title;
+	}
+	return found ? items : false;
 }
 
 function invokeEmbeddedMetadataTranslator(doc, url) {
@@ -65,7 +67,7 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, i) {
 		let jsonData = JSON.parse(ZU.xpathText(doc, '//script[@id="__NEXT_DATA__"]'));
-		let articleData = jsonData.props.pageProps.product.articleData;
+		let articleData = jsonData?.props?.pageProps?.product?.articleData;
 
 		i.title = ZU.unescapeHTML(articleData?.title?.en);
 
