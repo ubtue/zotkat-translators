@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-17 11:23:50"
+	"lastUpdated": "2024-10-17 12:00:19"
 }
 
 /*
@@ -164,7 +164,7 @@ function scrape(doc, url) {
 			if (item.pages) {
 				if (item.pages.split('-')[0] == item.pages.split('-')[1]) item.pages = item.pages.split('-')[0];
 			}
-			if (item.ISSN == "0022-0469, 1469-7637") {
+			if (item.ISSN.match(/0022-0469|1469-7637/)) {
 				item.tags = [];
 			}	
 			if (ZU.xpathText(doc, '//dd[@class="col content" and contains(., "Book Review")]') != null) {
