@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-09 12:25:09"
+	"lastUpdated": "2024-10-17 12:00:19"
 }
 
 /*
@@ -160,13 +160,20 @@ function scrape(doc, url) {
 					orcid = orcid.replace("https://orcid.org/", "");
 					item.notes.push({note: "orcid:" + orcid + ' | ' + author});
 				}
-				
 			}
 			if (item.pages) {
 				if (item.pages.split('-')[0] == item.pages.split('-')[1]) item.pages = item.pages.split('-')[0];
 			}
+			if (item.ISSN.match(/0022-0469|1469-7637/)) {
+				item.tags = [];
+			}	
 			if (ZU.xpathText(doc, '//dd[@class="col content" and contains(., "Book Review")]') != null) {
 				item.tags.push("RezensionstagPica");
+			}
+			if (item.tags.length === 0) {
+				if (doc.querySelector('div.reviewed-product')) {
+					item.tags.push("RezensionstagPica");
+				}
 			}
 			let keywordsEntry = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "keywords", " " ))]');
 			if (item.tags) {
@@ -177,9 +184,7 @@ function scrape(doc, url) {
 					}
 				}
 			}
-			if (item.ISSN == "0022-0469, 1469-7637") {
-				item.tags = [];
-			}		
+
 
 			item.complete();
 		});
@@ -195,7 +200,6 @@ function scrape(doc, url) {
 		});
 	}
 }
-
 
 /** BEGIN TEST CASES **/
 var testCases = [
