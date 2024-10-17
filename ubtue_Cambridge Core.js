@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-17 12:00:19"
+	"lastUpdated": "2024-10-17 12:07:44"
 }
 
 /*
@@ -170,10 +170,8 @@ function scrape(doc, url) {
 			if (ZU.xpathText(doc, '//dd[@class="col content" and contains(., "Book Review")]') != null) {
 				item.tags.push("RezensionstagPica");
 			}
-			if (item.tags.length === 0) {
-				if (doc.querySelector('div.reviewed-product')) {
-					item.tags.push("RezensionstagPica");
-				}
+			if (item.tags.length == 0 && doc.querySelector('div.reviewed-product')) {
+				item.tags.push("RezensionstagPica");
 			}
 			let keywordsEntry = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "keywords", " " ))]');
 			if (item.tags) {
