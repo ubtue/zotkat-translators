@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-19 13:54:03"
+	"lastUpdated": "2024-10-18 14:55:29"
 }
 
 /*
@@ -640,6 +640,12 @@ function invokeEMTranslator(doc) {
 			i.volume = i.issue;
 			i.issue = "";
 		}
+		if (i.ISSN == "2413-3027") {
+			let uriElement = doc.querySelector('meta[name="DC.Identifier.URI"]');
+			if (uriElement) {
+				i.url = uriElement.getAttribute('content');
+			}
+		}
 		if (i.tags[1] == undefined && ZU.xpath(doc, '//section[@class="item keywords"]')[0]
 		&& ZU.xpath(doc, '//section[@class="item keywords"]')[0]["textContent"]) {
 			let tagsstring = ZU.xpath(doc, '//section[@class="item keywords"]')[0]["textContent"].replace(/Keywords?./g,'');
@@ -657,7 +663,7 @@ function invokeEMTranslator(doc) {
 		if (authors) i.creators = authors.map(function(x) { return ZU.cleanAuthor(x.textContent, 'author'); })
 		if (i.creators) {
 			i.creators = i.creators.filter(creator =>
-			    creator.firstName !== "Author not" && creator.lastName !== "applicable"
+				creator.firstName !== "Author not" && creator.lastName !== "applicable"
 			);
 		}
 		i.complete();
@@ -697,18 +703,6 @@ function doWeb(doc, url) {
 	} else
 		invokeEMTranslator(doc, url);
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 /** BEGIN TEST CASES **/
 var testCases = [
