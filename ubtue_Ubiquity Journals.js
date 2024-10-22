@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-07-04 15:19:12"
+	"lastUpdated": "2024-10-22 13:38:41"
 }
 
 /*
@@ -32,14 +32,9 @@
 	along with Zotero.  If not, see <http://www.gnu.org/licenses/>.
 */
 function detectWeb(doc, _url) {
-	var ubiquitytest = doc.getElementsByClassName("press-logo");
-	// this doesn't work always, so we're only using it on single items.
-	// if the translator doesn't detect there, we still get good EM import
-	// For multiples we check getSearchResults
-	if (ubiquitytest[0] && ubiquitytest[0].href.includes("http://www.ubiquitypress.com")) {
-		if (ZU.xpathText(doc, '//meta[@name="citation_journal_title"]/@content')) {
+	if (ZU.xpath(doc, '/head/link[contains(@href, "journal-assets.ubiquity.press")]') &&
+			ZU.xpathText(doc, '//meta[@name="citation_journal_title"]/@content')) {
 			return "journalArticle";
-		}
 	}
 	if (getSearchResults(doc, true)) {
 		return "multiple";
@@ -65,9 +60,7 @@ function doWeb(doc, url) {
 }
 
 function getSearchResults(doc, checkOnly) {
-	var results = ZU.xpath(doc,
-			'//div[@class="article-caption"]/div[@class="caption-text"]/a[contains(@href, "/articles/10.")]'
-		),
+	var results = ZU.xpath(doc,'//a[contains(@href, "/articles/10.")]'),
 		items = {},
 		found = false;
 	for (var i = 0; i < results.length; i++) {
@@ -92,9 +85,11 @@ function scrape(doc, url) {
 			item.abstractNote = ZU.cleanTags(abstract.trim());
 		}
 		if (item.ISSN == "2053-6712") {
-			item.notes.push("artikelID:" + item.pages);
-			item.pages = "";
 			item.issue = "";
+			let articleNumber = ZU.xpathText(doc, '//div[contains(text(), "Page/Article:")]');
+			if (articleNumber) {
+				item.notes.push("artikelID:" + articleNumber.match(/page\/article:\s*(\d+)/i)[1]);
+			}
 		}
 		for (let authorTag of ZU.xpath(doc, '//div[@class="author-block"]')) {
 			if (ZU.xpathText(authorTag, './/a[@class="orcid"]') != null) {
@@ -109,6 +104,7 @@ function scrape(doc, url) {
 		trans.doWeb(doc, url);
 	});
 }
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{

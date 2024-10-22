@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-22 10:44:44"
+	"lastUpdated": "2024-10-22 14:13:25"
 }
 
 /*
@@ -88,9 +88,13 @@ function invokeEMTranslator(doc) {
 		if (i.ISSN == undefined) i.issue = ZU.xpathText(doc, '//meta[@name="DC.Source.Issue"]/@content');
 		if (i.ISSN == undefined && i.url.match(/journal.colourturn/) != null) i.ISSN = "ZOJS-0001";
 
-		//article URL for Journal of the AOS
+		//article URL and review tag for Journal of the AOS
 		if (i.ISSN == "2169-2289") {
 			i.url = ZU.xpathText(doc, '//meta[@name="DC.Identifier.URI"]/@content');
+			let reviewTag = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
+			if (reviewTag.match(/reviews?$/i)) {
+				i.tags.push('RezensionstagPica');
+			}
 		}
 		//replace issue number with volume number for certain journals and delete year
 		if (i.ISSN == "2297-6469") {
@@ -182,7 +186,7 @@ function invokeEMTranslator(doc) {
 			}
 		}
 
-		if (orcidAuthorEntryCaseA.length && ['2748-6419', '2340-4256', '1860-8213'].includes(i.ISSN)) {
+		if (orcidAuthorEntryCaseA.length && ['2748-6419', '2340-4256', '1860-8213', '2413-3027'].includes(i.ISSN)) {
 			for (let a of orcidAuthorEntryCaseA) {
 				if (a.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
 					let orcidTag = ZU.trimInternal(a.innerHTML);
