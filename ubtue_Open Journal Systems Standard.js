@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-18 14:55:29"
+	"lastUpdated": "2024-10-22 10:44:44"
 }
 
 /*
@@ -365,6 +365,9 @@ function invokeEMTranslator(doc) {
 				}
 			}
 		}
+		if (i.ISSN == "1862-5886") {
+			i.abstractNote = i.abstractNote.replace(/\n+/g, " ");
+		}		
 		//artikelnummer anstatt seitenzahlen
 		if (i.ISSN == "2175-5841") {
 			i.notes.push("artikelID:" + i.pages);
