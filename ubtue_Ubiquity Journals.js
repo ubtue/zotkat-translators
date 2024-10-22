@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-22 13:13:59"
+	"lastUpdated": "2024-10-22 13:38:41"
 }
 
 /*
@@ -60,7 +60,7 @@ function doWeb(doc, url) {
 }
 
 function getSearchResults(doc, checkOnly) {
-	var results = ZU.xpath(doc,'//div[@class="jaxCjk"]/a[contains(@href, "/articles/10.")]'),
+	var results = ZU.xpath(doc,'//a[contains(@href, "/articles/10.")]'),
 		items = {},
 		found = false;
 	for (var i = 0; i < results.length; i++) {
@@ -86,7 +86,7 @@ function scrape(doc, url) {
 		}
 		if (item.ISSN == "2053-6712") {
 			item.issue = "";
-			let articleNumber = ZU.xpathText(doc, '//div[contains(@class, "hYZFkb") and contains(@class, "legDhJ")]/div[contains(text(), "Page/Article:")]');
+			let articleNumber = ZU.xpathText(doc, '//div[contains(text(), "Page/Article:")]');
 			if (articleNumber) {
 				item.notes.push("artikelID:" + articleNumber.match(/page\/article:\s*(\d+)/i)[1]);
 			}
