@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-22 15:17:53"
+	"lastUpdated": "2024-10-23 09:56:11"
 }
 
 /*
@@ -74,6 +74,29 @@ function getSearchResults(doc, checkOnly) {
 	return found ? items : false;
 }
 
+function getKeywords (doc, item) {
+	let keywordsSection = ZU.xpath(doc, '//div[span[@id="article-keywords"]]');
+		if (keywordsSection.length > 0) {
+			let keywords = keywordsSection[0].querySelectorAll('a');
+			if (keywords) {
+				keywords.forEach(keyword => {
+				item.tags.push(keyword.textContent.trim());
+				});
+			}
+		}
+}
+
+function getOrcid (doc, item) {
+	for (let authorTag of ZU.xpath(doc, '//div[@id="article-authors-bios"]')) {
+		let orcidLink = ZU.xpathText(authorTag, '//a[contains(@href, "https://orcid.org/")]/@href');
+		let authorName = ZU.xpathText(authorTag, '//ul/li/ul/li/span');
+		if (orcidLink && authorName) {
+			let orcid = orcidLink.replace(/https:\/\/orcid.org\//, "");
+			item.notes.push(authorName + ' | orcid:' + orcid + ' | taken from website');
+		}
+	}
+}
+
 function scrape(doc, url) {
 	var abstract = ZU.xpathText(doc, '//meta[@name="DC.Description"]/@content');
 	var translator = Zotero.loadTranslator('web');
@@ -94,13 +117,8 @@ function scrape(doc, url) {
 				}
 			}
 		}
-		for (let authorTag of ZU.xpath(doc, '//div[@class="author-block"]')) {
-			if (ZU.xpathText(authorTag, './/a[@class="orcid"]') != null) {
-				let orcid = ZU.xpathText(authorTag, './/a[@class="orcid"]/@href');
-				let name = ZU.xpathText(authorTag, './/span[@class="author-hover"]');
-				item.notes.push({note: name + ' | orcid:' + orcid.replace(/http:\/\/orcid.org\//, "") + ' | taken from website'});
-			}
-		}
+		getOrcid (doc, item);
+		getKeywords (doc, item);
 		item.complete();
 	});
 	translator.getTranslatorObject(function (trans) {

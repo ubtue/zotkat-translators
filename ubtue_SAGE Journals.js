@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-22 15:11:42"
+	"lastUpdated": "2024-10-23 07:53:41"
 }
 
 /*
@@ -94,6 +94,19 @@ function doWeb(doc, url) {
 	}
 }
 
+function isOpenAccess(doc, item) {
+	// mark articles as "LF" (MARC=856 |z|kostenfrei), that are published as open access
+	let openAccessCandidate = doc.querySelector('.accessIcon[alt]')?.alt;
+	if (!openAccessCandidate) {
+		openAccessCandidate = ZU.xpathText(doc, '//i[@class="icon-open_access"]/@data-original-title');
+	}
+	if (!openAccessCandidate) {
+		openAccessCandidate = ZU.xpathText(doc, '//i[@class="icon-open_access"]/@title');
+	}
+	if (openAccessCandidate?.match(/open\s+access/i)) {
+		item.notes.push('LF:');
+	}
+}
 
 function scrape(doc, url) {
 	var risURL = "//journals.sagepub.com/action/downloadCitation";
@@ -247,12 +260,7 @@ function scrape(doc, url) {
 					if (tags) item.tags = tags.map(n => n.textContent);
 				}
 			}
-			// mark articles as "LF" (MARC=856 |z|kostenfrei), that are published as open access
-			if (doc.querySelector('.accessIcon[alt]')?.alt?.match(/open\s+access/gi) ||
-			    ZU.xpathText(doc, '//i[@class="icon-open_access"]/@data-original-title')?.match(/open\s+access/i) ||
-				ZU.xpathText(doc, '//i[@class="icon-open_access"]/@title')?.match(/open\s+access/i)) {
-					item.notes.push({note: 'LF:'});
-			}
+			
 			item.language = ZU.xpathText(doc, '//meta[@name="dc.Language"]/@content');
 			item.attachments = [];
 			var articleType = ZU.xpathText(doc, '//span[@class="ArticleType"]');
@@ -268,6 +276,7 @@ function scrape(doc, url) {
 				item.creators.push(ZU.cleanAuthor(authorName, "author")) ;
 			}
 			}
+			isOpenAccess(doc, item);
 			item.complete();
 		});
 		translator.translate();
