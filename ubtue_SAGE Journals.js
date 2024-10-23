@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-19 15:06:50"
+	"lastUpdated": "2024-10-22 15:11:42"
 }
 
 /*
@@ -248,9 +248,11 @@ function scrape(doc, url) {
 				}
 			}
 			// mark articles as "LF" (MARC=856 |z|kostenfrei), that are published as open access
-			let accessIcon = doc.querySelector('.accessIcon[alt]');
-			if (accessIcon && accessIcon.alt.match(/open\s+access/gi)) item.notes.push({note: 'LF:'});
-			else if (ZU.xpathText(doc, '//i[@class="icon-open_access"]/@data-original-title') == 'Open access') item.notes.push({note: 'LF:'});
+			if (doc.querySelector('.accessIcon[alt]')?.alt?.match(/open\s+access/gi) ||
+			    ZU.xpathText(doc, '//i[@class="icon-open_access"]/@data-original-title')?.match(/open\s+access/i) ||
+				ZU.xpathText(doc, '//i[@class="icon-open_access"]/@title')?.match(/open\s+access/i)) {
+					item.notes.push({note: 'LF:'});
+			}
 			item.language = ZU.xpathText(doc, '//meta[@name="dc.Language"]/@content');
 			item.attachments = [];
 			var articleType = ZU.xpathText(doc, '//span[@class="ArticleType"]');
