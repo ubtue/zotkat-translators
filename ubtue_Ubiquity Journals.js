@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-23 09:56:11"
+	"lastUpdated": "2024-10-23 13:05:49"
 }
 
 /*
@@ -86,6 +86,8 @@ function getKeywords (doc, item) {
 		}
 }
 
+// Orcid can only be imported when the author information has been manually opened on the website
+// prevents import of Orcid information for multiple articles at once
 function getOrcid (doc, item) {
 	for (let authorTag of ZU.xpath(doc, '//div[@id="article-authors-bios"]')) {
 		let orcidLink = ZU.xpathText(authorTag, '//a[contains(@href, "https://orcid.org/")]/@href');
