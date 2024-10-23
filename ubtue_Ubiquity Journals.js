@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-23 08:45:49"
+	"lastUpdated": "2024-10-23 09:56:11"
 }
 
 /*
@@ -76,7 +76,7 @@ function getSearchResults(doc, checkOnly) {
 
 function getKeywords (doc, item) {
 	let keywordsSection = ZU.xpath(doc, '//div[span[@id="article-keywords"]]');
-		if (keywordsSection) {
+		if (keywordsSection.length > 0) {
 			let keywords = keywordsSection[0].querySelectorAll('a');
 			if (keywords) {
 				keywords.forEach(keyword => {
@@ -87,12 +87,13 @@ function getKeywords (doc, item) {
 }
 
 function getOrcid (doc, item) {
-	for (let authorTag of ZU.xpath(doc, '//div[@class="author-block"]')) {
-			if (ZU.xpathText(authorTag, './/a[@class="orcid"]') != null) {
-				let orcid = ZU.xpathText(authorTag, './/a[@class="orcid"]/@href');
-				let name = ZU.xpathText(authorTag, './/span[@class="author-hover"]');
-				item.notes.push({note: name + ' | orcid:' + orcid.replace(/http:\/\/orcid.org\//, "") + ' | taken from website'});
-			}
+	for (let authorTag of ZU.xpath(doc, '//div[@id="article-authors-bios"]')) {
+		let orcidLink = ZU.xpathText(authorTag, '//a[contains(@href, "https://orcid.org/")]/@href');
+		let authorName = ZU.xpathText(authorTag, '//ul/li/ul/li/span');
+		if (orcidLink && authorName) {
+			let orcid = orcidLink.replace(/https:\/\/orcid.org\//, "");
+			item.notes.push(authorName + ' | orcid:' + orcid + ' | taken from website');
+		}
 	}
 }
 
