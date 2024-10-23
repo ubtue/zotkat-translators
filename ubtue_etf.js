@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-07-27 11:19:06"
+	"lastUpdated": "2024-10-23 07:11:06"
 }
 
 /*
@@ -100,7 +100,7 @@ function ExtractData(text, wordeng, wordcs) {
 }
 
 function GetMetaData(urls, doc) {
-	let rows = ZU.xpath(doc, '//div[@class="pageContent "]')[0].innerHTML.split(/<div\sclass="anchorDiv"\sid="/);
+	let rows = ZU.xpath(doc, '//div[@class="pageContent fullContentWidth"]')[0].innerHTML.split(/<div\sclass="anchorDiv"\sid="/);
 	let issueinfos = ZU.xpath(doc, '//div/p[b]');
 	let year = "";
 	let volume = "";
