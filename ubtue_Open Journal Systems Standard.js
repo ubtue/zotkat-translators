@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-22 14:13:25"
+	"lastUpdated": "2024-10-23 10:16:41"
 }
 
 /*
@@ -647,7 +647,7 @@ function invokeEMTranslator(doc) {
 			i.volume = i.issue;
 			i.issue = "";
 		}
-		if (i.ISSN == "2413-3027") {
+		if (["1545-0031", "2413-3027"].includes(i.ISSN)) {
 			let uriElement = doc.querySelector('meta[name="DC.Identifier.URI"]');
 			if (uriElement) {
 				i.url = uriElement.getAttribute('content');
