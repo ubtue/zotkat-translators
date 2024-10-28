@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-22 14:13:25"
+	"lastUpdated": "2024-10-28 09:36:07"
 }
 
 /*
@@ -485,7 +485,7 @@ function invokeEMTranslator(doc) {
 			i.abstractNote = i.abstractNote.replace(/[^\\](\n)/g, " ");
 		}
 		if (i.ISSN == "1853-9106" && i.tags) i.tags = [];
-		if (['1853-9106', '2254-6227', '1860-8213'].includes(i.ISSN)) {
+		if (['1853-9106', '2254-6227', '1860-8213', '2500-5413'].includes(i.ISSN)) {
 			if (ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content')) {
 				let tagsEntry = ZU.xpathText(doc, '//meta[@name="citation_keywords"]/@content');
 				tag = tagsEntry.split(/–|−/g);
