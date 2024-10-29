@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-10 14:58:12"
+	"lastUpdated": "2024-10-29 14:58:50"
 }
 
 /*
@@ -88,7 +88,10 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			if (i.abstractNote != null) i.abstractNote = i.abstractNote.replace(/Abstract\n/, '');
 		}
 
-		i.ISSN = ZU.unescapeHTML(jsonData?.props?.pageProps?.product?.journalData?.eIssn);
+		let issnArray = jsonData?.props?.pageProps?.product?.journalData?.eIssn;
+		if (Array.isArray(issnArray) && issnArray.length > 0) {
+			i.ISSN = issnArray[0];
+		} 
 		if (!i.ISSN) {
 			i.ISSN = ZU.xpathText(doc, '//dl[@class="onlineissn"]//dd |//*[contains(concat( " ", @class, " " ), concat( " ", "onlineissn", " " )) and contains(concat( " ", @class, " " ), concat( " ", "text-metadata-value", " " ))]');
 			if (i.ISSN) {
