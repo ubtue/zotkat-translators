@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-23 10:06:57"
+	"lastUpdated": "2024-10-29 11:02:53"
 }
 
 /*
@@ -100,7 +100,17 @@ function ExtractData(text, wordeng, wordcs) {
 }
 
 function GetMetaData(urls, doc) {
-	let rows = ZU.xpath(doc, '//div[@class="pageContent fullContentWidth"]')?.[0].innerHTML.split(/<div\sclass="anchorDiv"\sid="/);
+	let rows = null;
+	let pageContentElement = ZU.xpath(doc, '//div[@class="pageContent fullContentWidth"]')?.[0];
+	if (pageContentElement) {
+		rows = pageContentElement.innerHTML.split(/<div\sclass="anchorDiv"\sid="/);
+	}
+	if (!rows) {
+		pageContentElement = ZU.xpath(doc, '//div[@class="pageContent "]')?.[0];
+		if (pageContentElement) {
+			rows = pageContentElement.innerHTML.split(/<div\sclass="anchorDiv"\sid="/);
+		}
+	}
 	let issueinfos = ZU.xpath(doc, '//div/p[b]');
 	let year = "";
 	let volume = "";
