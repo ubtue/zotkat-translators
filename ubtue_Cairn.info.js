@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-10 15:17:44"
+	"lastUpdated": "2024-10-29 11:07:54"
 }
 
 /*
@@ -51,7 +51,11 @@ function getSearchResults(doc, checkOnly) {
 	var found = false;
 	var rows = doc.querySelectorAll('div.flex-row.p-3');
 	for (let row of rows) {
-		let href = row.querySelector('a[href*="-page-"]');
+		let hrefElement = row.querySelector('a[href*="-page-"]');
+		let href = null;
+		if (hrefElement) {
+			href = hrefElement.href + "&tab=resume";
+		}
 		let title = ZU.trimInternal(row.querySelector('h1.font-bold').textContent);
 		if (!href || !title) continue;
 		if (checkOnly) return true;
@@ -74,6 +78,13 @@ async function doWeb(doc, url) {
 	}
 }
 
+async function getAbstract(item, doc) {
+	let abstract = ZU.xpathText(doc, '//div[@id="article-resume"]//div[contains(@class, "resume")]//em[contains(@class, "marquage italique")]');
+	if (abstract) {
+		item.abstractNote = abstract;
+	}
+}
+
 async function scrape(doc, url = doc.location.href) {
 	let translator = Zotero.loadTranslator('web');
 	// Embedded Metadata
@@ -86,6 +97,8 @@ async function scrape(doc, url = doc.location.href) {
 		if (item.title.match(/isbn\s+[\d\-x]+|\d{4},\s+\d+\s+p./i)) {
 			item.tags.push("RezensionstagPica");
 		}
+
+		getAbstract(item, doc);
 	
 		item.complete();
 	});
