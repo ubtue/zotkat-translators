@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-29 11:07:54"
+	"lastUpdated": "2024-10-29 15:14:33"
 }
 
 /*
@@ -79,9 +79,12 @@ async function doWeb(doc, url) {
 }
 
 async function getAbstract(item, doc) {
-	let abstract = ZU.xpathText(doc, '//div[@id="article-resume"]//div[contains(@class, "resume")]//em[contains(@class, "marquage italique")]');
-	if (abstract) {
-		item.abstractNote = abstract;
+	let abstractElements = doc.querySelectorAll('#article-resume .resume .corps');
+	if (abstractElements.length > 0) {
+		abstractElements.forEach(abstract => {
+			let abstractText = abstract.textContent.trim();
+			item.notes.push("abs:" + abstractText);
+		});
 	}
 }
 
