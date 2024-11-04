@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-28 09:36:07"
+	"lastUpdated": "2024-11-04 13:49:07"
 }
 
 /*
@@ -553,6 +553,11 @@ function invokeEMTranslator(doc) {
 				i.notes.push({'note': 'translatedTitle:' + parallelTitle.textContent.trim()});
 			}
 		}
+		if (['0014-1437'].includes(i.ISSN)) {
+			if (i.tags.includes('RezensionstagPica')) {
+				i.notes.push('LF:');
+			}
+		}		
 		if (["2709-8435", "1018-1539", "1988-4265"].includes(i.ISSN)) {
 			let abstracts = ZU.xpath(doc, '//meta[@name="DC.Description"]/@content');
 			if (abstracts[1] != null) {
