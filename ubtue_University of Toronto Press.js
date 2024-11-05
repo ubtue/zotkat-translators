@@ -9,30 +9,30 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-11-04 16:42:21"
+	"lastUpdated": "2024-11-05 08:15:42"
 }
 
 /*
-    ***** BEGIN LICENSE BLOCK *****
+	***** BEGIN LICENSE BLOCK *****
 
-    Copyright © 2024 Mara Spieß
+	Copyright © 2024 Mara Spieß
 
-    This file is part of Zotero.
+	This file is part of Zotero.
 
-    Zotero is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	Zotero is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    Zotero is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU Affero General Public License for more details.
+	Zotero is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with Zotero. If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU Affero General Public License
+	along with Zotero. If not, see <http://www.gnu.org/licenses/>.
 
-    ***** END LICENSE BLOCK *****
+	***** END LICENSE BLOCK *****
 */
 
 
@@ -82,11 +82,11 @@ function extractAndAssign(selector, property, doc, item) {
 }
 
 function mapTitleIssn(publicationTitle) {
-    let publicationTitleToIssn = {
-        'Toronto Journal of Theology': '1918-6371',
-        'Canadian Journal of Criminology and Criminal Justice': '1707-7753',
-    };
-    return publicationTitleToIssn[publicationTitle] || null;
+	let publicationTitleToIssn = {
+		'Toronto Journal of Theology': '1918-6371',
+		'Canadian Journal of Criminology and Criminal Justice': '1707-7753',
+	};
+	return publicationTitleToIssn[publicationTitle] || null;
 }
 
 async function scrape(doc, url = doc.location.href) {
@@ -96,35 +96,35 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setDocument(doc);
 	
 	translator.setHandler('itemDone', (_obj, item) => {
-
-        extractAndAssign('volume', 'volume', doc, item);
-        extractAndAssign('issue', 'issue', doc, item);
-        extractAndAssign('page', 'pages', doc, item);
-
+		
+		extractAndAssign('volume', 'volume', doc, item);
+		extractAndAssign('issue', 'issue', doc, item);
+		extractAndAssign('page', 'pages', doc, item);
+		
 		let metaElementDoi = doc.querySelector('meta[name="publication_doi"]');
-        if (metaElementDoi) {
-            item.DOI = metaElementDoi.getAttribute('content');
-        }
-
-		let metaElementReview = doc.querySelector('meta[name="dc.Type"]');
-        if (metaElementReview && metaElementReview.getAttribute('content').match(/book-review/i)) {
-            item.tags.push('RezensionstagPica');
-        }
-
-		if (item.ISSN == '1707-7753' && item.title.match(/book reviews|recensions de livres/i)) {
-            item.tags.push('RezensionstagPica');
+		if (metaElementDoi) {
+			item.DOI = metaElementDoi.getAttribute('content');
 		}
-
+		
+		let metaElementReview = doc.querySelector('meta[name="dc.Type"]');
+		if (metaElementReview && metaElementReview.getAttribute('content').match(/book-review/i)) {
+			item.tags.push('RezensionstagPica');
+		}
+		
+		if (item.ISSN == '1707-7753' && item.title.match(/book reviews|recensions de livres/i)) {
+			item.tags.push('RezensionstagPica');
+		}
+		
 		let issn = mapTitleIssn(item.publicationTitle);
-        if (issn) {
-            item.ISSN = issn;
-        }
-
-        let openAccessIcon = doc.querySelector('i.icon-unlock[title="Free access"]');
-        if (openAccessIcon) {
-            item.notes.push("LF:");
-        }
-
+		if (issn) {
+			item.ISSN = issn;
+		}
+		
+		let openAccessIcon = doc.querySelector('i.icon-unlock[title="Free access"]');
+		if (openAccessIcon) {
+			item.notes.push("LF:");
+		}
+		
 		item.complete();
 	});
 
