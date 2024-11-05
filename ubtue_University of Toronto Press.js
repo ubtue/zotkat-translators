@@ -105,6 +105,7 @@ async function scrape(doc, url = doc.location.href) {
 		if (metaElementDoi) {
 			item.DOI = metaElementDoi.getAttribute('content');
 		}
+
 		let metaElementReview = doc.querySelector('meta[name="dc.Type"]');
 		if (metaElementReview && metaElementReview.getAttribute('content').match(/book-review/i)) {
 			item.tags.push('RezensionstagPica');
@@ -118,10 +119,12 @@ async function scrape(doc, url = doc.location.href) {
 		if (issn) {
 			item.ISSN = issn;
 		}
+
 		let openAccessIcon = doc.querySelector('i.icon-unlock[title="Free access"]');
 		if (openAccessIcon) {
 			item.notes.push("LF:");
 		}
+		
 		item.complete();
 	});
 
