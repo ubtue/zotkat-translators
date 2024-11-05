@@ -9,11 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-<<<<<<< HEAD
-	"lastUpdated": "2024-11-05 08:15:42"
-=======
 	"lastUpdated": "2024-11-05 08:00:41"
->>>>>>> d14c18dcb545ae61e407002ab72c937fb924763d
 }
 
 /*
