@@ -9,7 +9,11 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
+<<<<<<< HEAD
 	"lastUpdated": "2024-11-05 08:15:42"
+=======
+	"lastUpdated": "2024-11-05 08:00:41"
+>>>>>>> d14c18dcb545ae61e407002ab72c937fb924763d
 }
 
 /*
@@ -96,16 +100,15 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setDocument(doc);
 	
 	translator.setHandler('itemDone', (_obj, item) => {
-		
+
 		extractAndAssign('volume', 'volume', doc, item);
 		extractAndAssign('issue', 'issue', doc, item);
 		extractAndAssign('page', 'pages', doc, item);
-		
+
 		let metaElementDoi = doc.querySelector('meta[name="publication_doi"]');
 		if (metaElementDoi) {
 			item.DOI = metaElementDoi.getAttribute('content');
 		}
-		
 		let metaElementReview = doc.querySelector('meta[name="dc.Type"]');
 		if (metaElementReview && metaElementReview.getAttribute('content').match(/book-review/i)) {
 			item.tags.push('RezensionstagPica');
@@ -119,12 +122,10 @@ async function scrape(doc, url = doc.location.href) {
 		if (issn) {
 			item.ISSN = issn;
 		}
-		
 		let openAccessIcon = doc.querySelector('i.icon-unlock[title="Free access"]');
 		if (openAccessIcon) {
 			item.notes.push("LF:");
 		}
-		
 		item.complete();
 	});
 
