@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 12,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-11-05 16:07:30"
+	"lastUpdated": "2024-11-06 08:20:23"
 }
 
 /*
@@ -116,42 +116,48 @@ async function scrape(doc, url = doc.location.href) {
 var testCases = [
 	{
 		"type": "web",
-		"url": "http://publikationen.ub.uni-frankfurt.de/solrsearch/index/search/searchtype/series/id/16137/start/0/rows/10/sortfield/year/sortorder/desc",
-		"items": "multiple"
-	},
-	{
-		"type": "web",
-		"url": "http://publikationen.ub.uni-frankfurt.de/frontdoor/index/index/docId/59122",
+		"url": "https://publikationen.ub.uni-frankfurt.de/frontdoor/index/index/docId/59122",
 		"items": [
 			{
 				"itemType": "journalArticle",
 				"title": "Il pazzo uomo e il vecchio Dio : l'apocalisse dell'esistenza moderna secondo Friedrich Nietzsche",
 				"creators": [
 					{
-						"lastName": "Weber",
 						"firstName": "Edmund",
+						"lastName": "Weber",
 						"creatorType": "author"
 					}
 				],
 				"date": "2021",
-				"ISSN": "1434-5935",
 				"abstractNote": "Friedrich Nietzsche criticò l’ateismo astratto e la religione astratta come illusioni esistenziali e ricostruì la condizione originaria dell’esistenza umana.",
 				"issue": "281",
-				"language": "it",
-				"libraryCatalog": "ubtue_OPUS_uniFrankfurt",
+				"language": "ita",
+				"libraryCatalog": "publikationen.ub.uni-frankfurt.de",
 				"publicationTitle": "Journal of religious culture = Journal für Religionskultur",
-				"series": "Journal of religious culture = Journal für Religionskultur - 281",
+				"rights": "http://publikationen.ub.uni-frankfurt.de/home/index/help#policies",
 				"shortTitle": "Il pazzo uomo e il vecchio Dio",
-				"url": "http://nbn-resolving.de/urn:nbn:de:hebis:30:3-591228",
+				"url": "http://publikationen.ub.uni-frankfurt.de/frontdoor/index/index/docId/59122",
 				"volume": "2021",
-				"attachments": [],
-				"tags": [],
-				"notes": [
-					"urn:nbn:de:hebis:30:3-591228"
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
 				],
+				"tags": [],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.uni-frankfurt.de/149034713/03___Jahrbuch_2023",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
