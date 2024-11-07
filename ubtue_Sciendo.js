@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-29 14:58:50"
+	"lastUpdated": "2024-11-07 15:30:53"
 }
 
 /*
@@ -111,11 +111,27 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		if (i.title.match(/^book\s+reviews?|buchrezension(?:en)?|isbn:?\s+[\d\-x]+/i)) {
 			i.tags.push("RezensionstagPica");
 		}
-		
+		getOrcid(doc, i);
 		i.attachments = [];
 		i.complete();
 	});
 	translator.translate();
+}
+
+function getOrcid(doc, i) {
+    for (let authorTag of ZU.xpath(doc, "//div[contains(@class, 'mb-lg-0')]")) {
+        let authorLinks = ZU.xpath(authorTag, ".//a[contains(@href, '/search/filterData?commonSearchText')]");
+        let orcidLinks = ZU.xpath(authorTag, ".//a[contains(@href, 'https://orcid.org/')]");
+        for (let j = 0; j < authorLinks.length; j++) {
+            let authorName = authorLinks[j].textContent.trim();
+            let orcidLink = orcidLinks[j] ? orcidLinks[j].getAttribute('href') : null;
+
+            if (orcidLink) {
+                let orcid = orcidLink.replace(/https:\/\/orcid.org\//, "");
+                i.notes.push(authorName + ' | orcid:' + orcid + ' | taken from website');
+            }
+        }
+    }
 }
 
 function doWeb(doc, url) {
