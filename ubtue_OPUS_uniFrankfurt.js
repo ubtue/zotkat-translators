@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 12,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-11-06 08:20:23"
+	"lastUpdated": "2024-11-12 14:08:27"
 }
 
 /*
@@ -70,7 +70,7 @@ async function doWeb(doc, url) {
 	}
 }
 
-function getOrcid (doc, item) {
+function getOrcids (doc, item) {
 	for (let authorTag of ZU.xpath(doc, "//th[@class='name' and text()='Verfasserangaben:']/following-sibling::td")) {
 		let authorLinks = ZU.xpath(authorTag, ".//a[contains(@href, '/authorsearch/author/')]");
 		let orcidLinks = ZU.xpath(authorTag, ".//a[@class='orcid-link']");
