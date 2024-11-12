@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-11-07 15:34:29"
+	"lastUpdated": "2024-11-12 13:53:19"
 }
 
 /*
@@ -515,8 +515,23 @@ function invokeEMTranslator(doc) {
 				i.abstractNote = "";
 			}
 		}
-
-		if (i.ISSN == "0717-6295") {
+		if (["2237-6461"].includes(i.ISSN)) {
+			if (ZU.xpathText(doc, '//meta[@name="DC.Title"]/@content')) {
+				for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"][@*=("es") or @*=("en") or @*=("fr") or @*=("pt") or @*=("de")]/@content')) {
+					if (parallelTitle.value && parallelTitle.value != i.title) {
+						i.notes.push({'note': 'Paralleltitel:' + ZU.unescapeHTML(parallelTitle.textContent.trim())});
+					}
+				}
+			}
+			if (ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("de") or @*=("pt")]/@content')) {
+				for (let alternativeAbstract of ZU.xpath(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("de") or @*=("pt")]/@content')) {
+					if (alternativeAbstract.value && alternativeAbstract.value != i.abstractNote) {
+						i.notes.push({'note': 'abs:' + ZU.unescapeHTML(alternativeAbstract.textContent.trim())});
+					}
+				}
+			}
+		}
+		if (["0717-6295"].includes(i.ISSN)) {
 			if (ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
 				for (let alternativeAbstract of ZU.xpath(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
 					if (alternativeAbstract.value && alternativeAbstract.value != i.abstractNote) {
