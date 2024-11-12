@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-11-12 13:53:19"
+	"lastUpdated": "2024-11-12 15:57:13"
 }
 
 /*
@@ -371,7 +371,7 @@ function invokeEMTranslator(doc) {
 		}
 		if (i.ISSN == "1862-5886") {
 			i.abstractNote = i.abstractNote.replace(/\n+/g, " ");
-		}		
+		}	
 		//artikelnummer anstatt seitenzahlen
 		if (i.ISSN == "2175-5841") {
 			i.notes.push("artikelID:" + i.pages);
@@ -690,16 +690,20 @@ function invokeEMTranslator(doc) {
 				i.tags.push(tags[t].substring(0,tags[t].length-1));
 			}
 		}
-
+	
 		i.tags = [...new Set(i.tags.map(x => x))]
+
 		// only for https://jps.library.utoronto.ca/index.php/renref/article/view/41731"
-		let authors = ZU.xpath(doc, '//meta[@name="DC.Creator.PersonalName"]/@content');
-		if (authors) i.creators = authors.map(function(x) { return ZU.cleanAuthor(x.textContent, 'author'); })
-		if (i.creators) {
-			i.creators = i.creators.filter(creator =>
+		if (i.ISSN == "2293-7374") {
+			let authors = ZU.xpath(doc, '//meta[@name="DC.Creator.PersonalName"]/@content');
+			if (authors) i.creators = authors.map(function(x) { return ZU.cleanAuthor(x.textContent, 'author'); })
+			if (i.creators) {
+				i.creators = i.creators.filter(creator =>
 				creator.firstName !== "Author not" && creator.lastName !== "applicable"
-			);
+				);
+			}
 		}
+
 		i.complete();
 	});
 	translator.translate();
