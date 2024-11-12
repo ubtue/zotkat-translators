@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 12,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-11-12 14:08:27"
+	"lastUpdated": "2024-11-12 14:34:38"
 }
 
 /*
@@ -94,7 +94,7 @@ async function scrape(doc, url = doc.location.href) {
 	
 	translator.setHandler('itemDone', (_obj, item) => {
 
-		getOrcid (doc, item);
+		getOrcids (doc, item);
 
 		if (item.publicationTitle.match(/jahrbuch des fachbereichs evangelische theologie/i)) {
 			item.ISSN = "IXTH-0005";
