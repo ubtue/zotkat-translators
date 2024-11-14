@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-11-12 15:57:13"
+	"lastUpdated": "2024-11-14 15:43:29"
 }
 
 /*
@@ -690,7 +690,20 @@ function invokeEMTranslator(doc) {
 				i.tags.push(tags[t].substring(0,tags[t].length-1));
 			}
 		}
-	
+		
+		if (['2317-4307'].includes(i.ISSN)) {
+			if (!i.abstractNote) {
+				let abstractElement = ZU.xpathText(doc, "//section[@class='item abstract']/p");
+				if (abstractElement) {
+					i.abstractNote = abstractElement;
+				}
+			}
+			if (i.tags) {
+				let tagRegex = /\.|palavras-chave:/i;
+				i.tags = i.tags.filter(tag => !tagRegex.test(tag));
+			}
+		}
+
 		i.tags = [...new Set(i.tags.map(x => x))]
 
 		// only for https://jps.library.utoronto.ca/index.php/renref/article/view/41731"
