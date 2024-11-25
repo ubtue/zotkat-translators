@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-11-14 15:43:29"
+	"lastUpdated": "2024-11-25 09:37:04"
 }
 
 /*
@@ -296,7 +296,7 @@ function invokeEMTranslator(doc) {
 			//then replace the range with a first page number e.g 3
 			if (pageNumberFromDC != null) i.pages = pageNumberFromDC.trim().replace(/^([^-]+)-\1$/, '$1');
  		}
-		if (i.ISSN == "2468-9963") {
+		if (["2468-9963", "1988-4265"].includes(i.ISSN)) {
 			i.notes.push('artikelID:' + i.pages);
 			i.pages = "";
 		}
@@ -335,6 +335,11 @@ function invokeEMTranslator(doc) {
 			if (doc.querySelector(".current").textContent.trim() === "Book Reviews" || articleType === "Recensiones" || articleType === "Rezensionen") {
 				i.tags.push('RezensionstagPica');
 			}
+		}
+		if (["1988-4265"].includes(i.ISSN)) {
+			if (i.title.match(/\d{4},\s+\d+\s+págs.,?\s+isbn:\s+[\d\-x]+/i)) {
+			i.tags.push("RezensionstagPica");
+		}
 		}
 		if (i.ISSN === "1982-8136") {
 			if (!i.volume) {
