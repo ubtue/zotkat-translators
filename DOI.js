@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-03-13 02:38:54"
+	"lastUpdated": "2024-11-25 16:19:13"
 }
 
 /*
@@ -35,6 +35,14 @@
 	***** END LICENSE BLOCK *****
 */
 
+// The variables items and selectArray will be filled during the first
+// as well as the second retrieveDOIs function call and therefore they
+// are defined global.
+
+var items = {};
+var selectArray = {};
+
+
 // builds a list of DOIs
 function getDOIs(doc) {
 	// TODO Detect DOIs more correctly.
@@ -59,7 +67,7 @@ function getDOIs(doc) {
 	while (treeWalker.nextNode()) {
 		if (ignore.includes(treeWalker.currentNode.parentNode.tagName.toLowerCase())) continue;
 		// Z.debug(node.nodeValue)
-		DOIre.lastIndex = 0;
+		DOIre.lastMatch = 0;
 		while ((m = DOIre.exec(treeWalker.currentNode.nodeValue))) {
 			DOI = m[0];
 			if (DOI.endsWith(")") && !DOI.includes("(")) {
@@ -71,27 +79,6 @@ function getDOIs(doc) {
 			// only add new DOIs
 			if (!dois.includes(DOI)) {
 				dois.push(DOI);
-			}
-		}
-	}
-	
-	// FIXME: The test for this (developmentbookshelf.com) fails in Scaffold due
-	// to a cookie error, though running the code in Scaffold still works
-	var links = doc.querySelectorAll('a[href]');
-	for (let link of links) {
-		DOIre.lastIndex = 0;
-		let m = DOIre.exec(link.href);
-		if (m) {
-			let doi = m[0];
-			if (doi.endsWith(")") && !doi.includes("(")) {
-				doi = doi.substr(0, doi.length - 1);
-			}
-			if (doi.endsWith("}") && !doi.includes("{")) {
-				doi = doi.substr(0, doi.length - 1);
-			}
-			// only add new DOIs
-			if (!dois.includes(doi)) {
-				dois.push(doi);
 			}
 		}
 	}
@@ -114,51 +101,49 @@ function detectWeb(doc, url) {
 	return false;
 }
 
-function retrieveDOIs(dois) {
-	let items = {};
-	let numDOIs = dois.length;
+function completeDOIs(_doc) {
+	// all DOIs retrieved now
+	// check to see if there is more than one DOI
+	var numDOIs = Object.keys(selectArray).length;
+	if (numDOIs == 0) {
+		throw new Error("DOI Translator: could not find DOI");
+	}
+	else {
+		Zotero.selectItems(selectArray, function (selectedDOIs) {
+			if (!selectedDOIs) return true;
 
-	for (const doi of dois) {
-		items[doi] = null;
-		
+			for (var DOI in selectedDOIs) {
+				items[DOI].complete();
+			}
+			return true;
+		});
+	}
+}
+
+function retrieveDOIs(dois, doc) {
+	let numDois = dois.length;
+
+	for (const DOI of dois) {
 		const translate = Zotero.loadTranslator("search");
 		translate.setTranslator("b28d0d42-8549-4c6d-83fc-8382874a5cb9");
-		translate.setSearch({ itemType: "journalArticle", DOI: doi });
+	
+		translate.setSearch({ itemType: "journalArticle", DOI: DOI });
 	
 		// don't save when item is done
 		translate.setHandler("itemDone", function (_translate, item) {
+			selectArray[item.DOI] = item.title;
 			if (!item.title) {
 				Zotero.debug("No title available for " + item.DOI);
 				item.title = "[No Title]";
+				selectArray[item.DOI] = "[" + item.DOI + "]";
 			}
 			items[item.DOI] = item;
 		});
 		/* eslint-disable no-loop-func */
 		translate.setHandler("done", function () {
-			numDOIs--;
-			
-			// All DOIs retrieved
-			if (numDOIs <= 0) {
-				// Check to see if there's at least one DOI
-				if (!Object.keys(items).length) {
-					throw new Error("DOI Translator: could not find DOI");
-				}
-				
-				// Only show items that resolved successfully
-				let select = {};
-				for (let doi in items) {
-					let item = items[doi];
-					if (item) {
-						select[doi] = item.title || "[" + item.DOI + "]";
-					}
-				}
-				Zotero.selectItems(select, function (selectedDOIs) {
-					if (!selectedDOIs) return;
-					
-					for (let selectedDOI in selectedDOIs) {
-						items[selectedDOI].complete();
-					}
-				});
+			numDois--;
+			if (numDois <= 0) {
+				completeDOIs(doc);
 			}
 		});
 	
@@ -172,7 +157,7 @@ function retrieveDOIs(dois) {
 function doWeb(doc) {
 	var dois = getDOIs(doc);
 	Z.debug(dois);
-	retrieveDOIs(dois);
+	retrieveDOIs(dois, doc);
 }
 
 /** BEGIN TEST CASES **/
@@ -200,11 +185,6 @@ var testCases = [
 	{
 		"type": "web",
 		"url": "https://en.wikipedia.org/wiki/Template_talk:Doi",
-		"items": "multiple"
-	},
-	{
-		"type": "web",
-		"url": "https://www.developmentbookshelf.com/action/showPublications",
 		"items": "multiple"
 	}
 ]
