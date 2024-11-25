@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-03-22 14:46:16"
+	"lastUpdated": "2024-11-25 11:36:59"
 }
 
 /*
@@ -35,7 +35,7 @@
 
 
 function detectWeb(doc, url) {
-	if (url.match(/\/issue\/[0-9]+\/[0-9]+/))
+	if (url.match(/\/issue/))
 		return "multiple";
 	else if (url.match(/\/article\/[0-9]+\/[0-9]+/)) {
 		// placeholder, actual type determined by the embedded metadata translator
@@ -46,7 +46,7 @@ function detectWeb(doc, url) {
 function getSearchResults(doc) {
 	var items = {};
 	var found = false;
-	var rows = ZU.xpath(doc, "//div[contains(@class, 'al-article-items')]/h5[contains(@class, 'item-title')]/a")
+	var rows = ZU.xpath(doc, "//div[contains(@class, 'al-article-items')]/h5[contains(@class, 'item-title')]/a");
 	for (let i=0; i<rows.length; i++) {
 		let href = rows[i].href;
 		let title = ZU.trimInternal(rows[i].textContent);
@@ -65,9 +65,12 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		// update abstract from the webpage as the embedded data is often incomplete
 		var abstractText = ZU.xpathText(doc, '//section[@class="abstract"]');
 		if (abstractText) i.abstractNote = abstractText;
-		var tagreview = ZU.xpathText(doc, '//*[(@id = "ContentTab")]//a')
-		if (tagreview.match(/Reviews|Book Reviews/i)) delete i.abstractNote;
-		if (tagreview.match(/Reviews|Book Reviews/i)) i.tags.push('RezensionstagPica');
+		var tagreview = ZU.xpathText(doc, '//*[(@id = "ContentTab")]//a');
+		if (tagreview) {
+			if (tagreview.match(/Reviews|Book Reviews/i)) delete i.abstractNote;
+			if (tagreview.match(/Reviews|Book Reviews/i)) i.tags.push('RezensionstagPica');
+		}
+		
 		if (ZU.xpathText(doc, '//i[@class="icon-availability_open"]/@title') != null) {
 			if (ZU.xpathText(doc, '//i[@class="icon-availability_open"]/@title').match(/open access/i)) {
 				i.notes.push("LF:");
@@ -114,8 +117,6 @@ function doWeb(doc, url) {
 	} else
 		invokeEmbeddedMetadataTranslator(doc, url);
 }
-
-
 
 /** BEGIN TEST CASES **/
 var testCases = [
