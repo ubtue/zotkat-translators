@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-11-25 09:37:04"
+	"lastUpdated": "2024-11-26 13:16:58"
 }
 
 /*
@@ -337,7 +337,7 @@ function invokeEMTranslator(doc) {
 			}
 		}
 		if (["1988-4265"].includes(i.ISSN)) {
-			if (i.title.match(/\d{4},\s+\d+\s+págs.,?\s+isbn:\s+[\d\-x]+/i)) {
+			if (i.title.match(/\s+isbn:?\s+[\d\-x]+/i)) {
 			i.tags.push("RezensionstagPica");
 		}
 		}
