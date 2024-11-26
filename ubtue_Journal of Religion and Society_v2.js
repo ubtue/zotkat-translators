@@ -1,15 +1,15 @@
 {
-	"translatorID": "e969da6b-30c9-4b26-8fcc-c2d78bce685f",
-	"label": "Journal of Religion and Society",
+	"translatorID": "51f6b7d2-f9b2-42cf-88da-db52f52c0925",
+	"label": "ubtue_Journal of Religion and Society_v2",
 	"creator": "Vincent Carret",
-	"target": "^https?://(www\\.)?moses\\.creighton\\.edu/JRS",
-	"minVersion": "3.0",
+	"target": "^https?://(www.)?moses.creighton.edu/JRS",
+	"minVersion": "5.0",
 	"maxVersion": "",
-	"priority": 102,
+	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-11-26 15:32:47"
+	"lastUpdated": "2024-11-26 15:34:18"
 }
 
 /*
@@ -119,7 +119,7 @@ function scrape(id, doc, url) {
 		for (let auth of author) item.creators.push(ZU.cleanAuthor(auth, "editor", false));
 	}
 	else if (url.includes('/toc/SS')) {
-		item = new Zotero.Item("bookSection");
+		item = new Zotero.Item("journalArticle");
 		item.title = id.split(" (")[0];
 		item.series = "Supplement of the Journal of Religion & Society";
 		item.seriesNumber = text(doc, ".heading").split('(')[0].match(/\d+/)[0];
@@ -155,25 +155,5 @@ function scrape(id, doc, url) {
 
 /** BEGIN TEST CASES **/
 var testCases = [
-	{
-		"type": "web",
-		"url": "http://moses.creighton.edu/JRS/toc/2016.html",
-		"items": "multiple"
-	},
-	{
-		"type": "web",
-		"url": "http://moses.creighton.edu/JRS/toc/Supplement.html",
-		"items": "multiple"
-	},
-	{
-		"type": "web",
-		"url": "http://moses.creighton.edu/JRS/toc/SS17.html",
-		"items": "multiple"
-	},
-	{
-		"type": "web",
-		"url": "http://moses.creighton.edu/JRS/toc/2021.html",
-		"items": "multiple"
-	}
 ]
 /** END TEST CASES **/
