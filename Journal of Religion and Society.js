@@ -5,11 +5,11 @@
 	"target": "^https?://(www\\.)?moses\\.creighton\\.edu/JRS",
 	"minVersion": "3.0",
 	"maxVersion": "",
-	"priority": 100,
+	"priority": 102,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-10-12 14:42:47"
+	"lastUpdated": "2024-11-26 15:32:47"
 }
 
 /*

@@ -5,11 +5,11 @@
 	"target": "^https?://(www\\.)?moses\\.creighton\\.edu/JRS",
 	"minVersion": "3.0",
 	"maxVersion": "",
-	"priority": 99,
+	"priority": 101,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-07-04 16:08:21"
+	"lastUpdated": "2024-11-26 15:32:25"
 }
 
 /*
@@ -51,7 +51,7 @@ function getSearchResults(doc, checkOnly) {
 	var text = doc.querySelectorAll('.title, .books a');
 	for (let i = 0; i < text.length; ++i) {
 		let href = links[i].href;
-		if (href.match(/handle/)) href = 'http://hdl.handle.net/' + links[i].href.split(/handle\//)[1].split(/\/\d{4}-.*.pdf/)[0];Z.debug(href)
+		if (href.match(/handle/)) href = 'https://hdl.handle.net/' + links[i].href.split(/handle\//)[1].split(/\/\d{4}-.*.pdf/)[0];Z.debug(href)
 		let title = ZU.trimInternal(text[i].textContent);
 		if (!href || !title) continue;
 		if (checkOnly) return true;
@@ -106,9 +106,6 @@ function scrape(doc, url) {
 		trans.doWeb(doc, url);
 	});
 }
-
-
-
 
 /** BEGIN TEST CASES **/
 var testCases = [
