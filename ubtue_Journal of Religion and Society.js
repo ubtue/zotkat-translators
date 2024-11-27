@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-11-27 11:50:19"
+	"lastUpdated": "2024-11-27 14:51:50"
 }
 
 /*
@@ -135,6 +135,15 @@ function parseOAI(xml, url) {
 	// URL
 	item.url = url;
 
+	// Language - get it from the title field's lang attribute
+	let langField = ZU.xpath(dimNode, './/dim:field[@element="title"]/@lang', ns);
+	if (langField.length > 0) {
+		item.language = langField[0].value.split('_')[0]; // converts 'en_US' to 'en'
+	}
+
+	// ISSN
+	item.ISSN = "1522-5658";
+	
 	item.complete();
 }
 
