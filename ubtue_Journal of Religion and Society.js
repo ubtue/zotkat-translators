@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-12-05 15:05:13"
+	"lastUpdated": "2024-12-05 15:25:28"
 }
 
 /*
@@ -48,7 +48,7 @@ function getSearchResults(doc, checkOnly) {
 	var links = doc.querySelectorAll('a[href*="handle"]');
 	var text = doc.querySelectorAll('.title, .books a');
 	if (text.length === 0) {
-		var text = doc.querySelectorAll('p.chap');
+		text = doc.querySelectorAll('p.chap');
 	}	
 	for (let i = 0; i < text.length; ++i) {
 		let href = links[i].href;
