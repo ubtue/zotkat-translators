@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-11-27 14:51:50"
+	"lastUpdated": "2024-12-05 15:25:28"
 }
 
 /*
@@ -47,6 +47,9 @@ function getSearchResults(doc, checkOnly) {
 	var found = false;
 	var links = doc.querySelectorAll('a[href*="handle"]');
 	var text = doc.querySelectorAll('.title, .books a');
+	if (text.length === 0) {
+		text = doc.querySelectorAll('p.chap');
+	}	
 	for (let i = 0; i < text.length; ++i) {
 		let href = links[i].href;
 		if (href.match(/handle/)) href = 'https://cdr.creighton.edu/handle/' + links[i].href.split(/handle\//)[1].split(/\/\d{4}-.*.pdf/)[0];
