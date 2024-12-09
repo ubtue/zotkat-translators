@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-09-13 08:43:34"
+	"lastUpdated": "2024-12-09 16:02:07"
 }
 
 /*
@@ -63,7 +63,7 @@ function getSearchResults(doc, checkOnly, extras) {
 	var articles = {};
 	var container = doc.getElementsByName('frmSearchResults')[0]
 		|| doc.getElementsByName('frmAbs')[0]
-		|| doc.querySelector('.search__body, .search-result, .table-of-content');
+		|| doc.querySelector('.search__body, .search-result, .table-of-content, .table-of-content__section');
 	if (!container) {
 		Z.debug('Atypon: multiples container not found.');
 		return false;
@@ -145,15 +145,15 @@ function getSearchResults(doc, checkOnly, extras) {
 		Z.debug("Trying alternate multiple format #2");
 		rows = container.querySelectorAll('.issue-item, .item__body');
 		for (let row of rows) {
-			let title = text(row, 'a');
+			let title = row.querySelector('a').textContent;
 			if (!title) continue;
 			title = ZU.trimInternal(title);
 			
-			let url = attr(row, 'a', 'href');
+			let url = row.querySelector('a').href;
 			if (!url) continue;
 			
 			if (attr(row, 'a', 'class') == "meta__serial") {
-				rowtext = row.innerHTML.substring(row.innerHTML.indexOf("issue-item__title"));
+				let rowtext = row.innerHTML.substring(row.innerHTML.indexOf("issue-item__title"));
 				title = rowtext.match(/<h5>([^<]+)</)[1];
 				url = rowtext.match(/<a\s*href\s?="([^"]+)"/)[1];
 			};
@@ -258,7 +258,7 @@ function doWeb(doc, url) {
 
 
 function getISSN(doc) {
-	if (ZU.xpathText(doc, '//div[@class="serialPublicationDetails"]')) {
+	if (ZU.xpathText(doc, '//div[@class="serialPublicationDetails"]').match(/ISSN[^\d]*\d{4}-\d{3}(?:\d|x)/ig)) {
 		let issntext = ZU.xpathText(doc, '//div[@class="serialPublicationDetails"]').match(/ISSN[^\d]*\d{4}-\d{3}(?:\d|x)/ig)[1];
 		return issntext.match(/ISSN[^\d]*(\d{4}-\d{3}.)/)[1];
 	}
@@ -445,6 +445,7 @@ function scrape(doc, url, extras) {
 				if (!item.language) item.language = "eng"; //set a default language
 				if (extras.ISSN) item.ISSN = extras.ISSN;
 				if (item.publicationTitle == "The Australasian Catholic Record") item.ISSN = "0727-3215"; 
+				if (item.publicationTitle == "Huguenot Society Journal") item.ISSN = "2053-6267";
 				item.attachments=[];
 
 				item.complete();
