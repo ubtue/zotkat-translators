@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-12-21 13:25:28"
+	"lastUpdated": "2024-12-12 15:03:26"
 }
 
 /*
@@ -120,7 +120,7 @@ function scrape(doc, url) {
 	if (item.ISSN == "0718-9273" && checkTitle && checkTitle!= item.title) {
 		item.title = checkTitle;
 		let transTitle = ZU.xpathText(doc, '//p[@class="trans-title"]');
-		if (transTitle != null) item.notes.push("translatedTitle:" + ZU.trimInternal(transTitle));
+		if (transTitle != null) item.notes.push("translatedTitle:" + ZU.trimInternal(ZU.unescapeHTML(transTitle)));
 	}
 	let keywords = ZU.xpath(doc, '//*[contains(text(), "Keywords:")  or contains(text(), "Keywords") or contains(text(), "Key words") or contains(text(), "Key Words") or contains(text(), "Kew words")]/..');
 	if (keywords && keywords.length > 0) {
@@ -209,9 +209,6 @@ function scrape(doc, url) {
 	});
 	translator.translate();
 }
-
-
-
 
 /** BEGIN TEST CASES **/
 var testCases = [
