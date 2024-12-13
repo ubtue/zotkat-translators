@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-12-05 15:25:28"
+	"lastUpdated": "2024-12-13 13:29:19"
 }
 
 /*
@@ -103,7 +103,7 @@ function parseOAI(xml, url) {
 	if (!dimNode) return;
 	
 	// Title
-	item.title = ZU.xpathText(dimNode, './/dim:field[@element="title"]', ns);
+	item.title = ZU.xpathText(dimNode, './/dim:field[@element="title" and not(@qualifier)]', ns);
 	
 	// Authors
 	var authors = ZU.xpath(dimNode, './/dim:field[@element="contributor"][@qualifier="author"]', ns);
@@ -132,7 +132,7 @@ function parseOAI(xml, url) {
 	// Handle
 	let identifier = ZU.xpathText(dimNode, './/dim:field[@element="identifier"][@qualifier="uri"]', ns);
 	if (identifier) {
-		item.notes.push({note: 'handle:' + identifier});
+		item.notes.push({note: 'handle:' + identifier.replace('https://cdr.creighton.edu/handle/', '')});
 	}
 	
 	// URL
