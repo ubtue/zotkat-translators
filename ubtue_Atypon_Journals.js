@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-12-09 16:02:07"
+	"lastUpdated": "2024-12-16 10:39:13"
 }
 
 /*
@@ -256,15 +256,16 @@ function doWeb(doc, url) {
 	}
 }
 
-
 function getISSN(doc) {
-	if (ZU.xpathText(doc, '//div[@class="serialPublicationDetails"]').match(/ISSN[^\d]*\d{4}-\d{3}(?:\d|x)/ig)) {
-		let issntext = ZU.xpathText(doc, '//div[@class="serialPublicationDetails"]').match(/ISSN[^\d]*\d{4}-\d{3}(?:\d|x)/ig)[1];
-		return issntext.match(/ISSN[^\d]*(\d{4}-\d{3}.)/)[1];
+	let issntext = ZU.xpathText(doc, '//div[@class="serialPublicationDetails"]');
+	if (issntext) {
+		let match = issntext.match(/ISSN[^\d]*\d{4}-\d{3}[\dXx]/i);
+		if (match) {
+			return match[1];
+		}
 	}
-	return
+	return "";
 }
-	
 
 function fixCase(str, titleCase) {
 	if (str.toUpperCase() != str) return str;
