@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-12-13 13:29:19"
+	"lastUpdated": "2024-12-16 13:54:58"
 }
 
 /*
@@ -128,12 +128,6 @@ function parseOAI(xml, url) {
 	
 	// Journal Title
 	item.publicationTitle = ZU.xpathText(dimNode, './/dim:field[@element="source"]', ns);
-	
-	// Handle
-	let identifier = ZU.xpathText(dimNode, './/dim:field[@element="identifier"][@qualifier="uri"]', ns);
-	if (identifier) {
-		item.notes.push({note: 'handle:' + identifier.replace('https://cdr.creighton.edu/handle/', '')});
-	}
 	
 	// URL
 	item.url = url;
