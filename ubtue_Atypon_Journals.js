@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-12-16 10:39:13"
+	"lastUpdated": "2024-12-19 15:00:48"
 }
 
 /*
@@ -259,7 +259,7 @@ function doWeb(doc, url) {
 function getISSN(doc) {
 	let issntext = ZU.xpathText(doc, '//div[@class="serialPublicationDetails"]');
 	if (issntext) {
-		let match = issntext.match(/ISSN[^\d]*\d{4}-\d{3}[\dXx]/i);
+		let match = issntext.match(/ISSN[^\d]*(\d{4}-\d{3}.)/i);
 		if (match) {
 			return match[1];
 		}
