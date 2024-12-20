@@ -903,7 +903,7 @@ function performExport() {
 		//Inhaltliche Zusammenfassung, falls mehr als ein Abstract --> 4207
 		if (item.notes) {
 			for (let i in item.notes) {
-				if (item.notes[i].note.includes('abs')) addLine(currentItemId, "\\n4207", item.notes[i].note.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract\s?:?/, '').replace(/Abstract  :/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, '').replace('abs:', ''));
+				if (item.notes[i].note.includes('abs:')) addLine(currentItemId, "\\n4207", item.notes[i].note.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract\s?:?/, '').replace(/Abstract  :/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, '').replace('abs:', ''));
 			}
 		}
 		//item.publicationTitle --> 4241 Beziehungen zur größeren Einheit
