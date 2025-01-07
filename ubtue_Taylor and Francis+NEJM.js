@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-12-19 16:40:54"
+	"lastUpdated": "2025-01-07 08:57:29"
 }
 
 /*
@@ -86,7 +86,6 @@ function doWeb(doc, url) {
 function fixBibTex(text) {
 	// T & F exports erroneous BibTex with trailing curly braces in the first line
 	text = text.replace(/^\s*[\r\n]+\s*/gm, "");
-	Z.debug(text);
 	if (text.length > 1 && text.match(/^@[^\s{]+\s*\{[^{]+\},\s*$/gm))
 		return text.replace(/\}/, "");
 	return text;
