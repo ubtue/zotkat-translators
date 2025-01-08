@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-02 09:33:10"
+	"lastUpdated": "2025-01-08 10:12:57"
 }
 
 /*
@@ -147,9 +147,11 @@ function postProcess(doc, item) {
 	
 	item.attachments = [];
 
-	let additionalTitle = text(doc, '.title ~ div .typography-body ')
-	if (additionalTitle)
-		item.notes.push( { note: "Paralleltitel:" + additionalTitle });
+	let additionalTitle = text(doc, '.title ~ div h4.typography-body');
+	if (additionalTitle) {
+		additionalTitle += text(doc, '.title ~ div h5.typography-body').replace(/^(?=.)/, ": ");
+		item.notes.push({ note: "Paralleltitel: " + additionalTitle });
+	}
 
 	if (!item.itemType)	item.itemType = "journalArticle";
 }
@@ -199,9 +201,6 @@ function doWeb(doc, url) {
 	} else
 		invokeEmbeddedMetadataTranslator(doc, url);
 }
-
-	
-
 
 /** BEGIN TEST CASES **/
 var testCases = [
@@ -512,6 +511,179 @@ var testCases = [
 					"abs:摘要本文通过调查“念佛会”与当地宗教、寺院佛教和灵媒的关系，探讨当代华北农村的居士佛教。念佛会由普通村民自发组织领导，绝大多数是女性。他们在私人住宅或民间宗教的村庄神庙中念佛。这些团体独立于神职人员权威，但个别团体成员，尤其是领导人，与佛教寺院保持密切关系。这些人是寺院佛教与乡村佛教群众的纽带，念佛团体是農村佛教网络的交汇点。念佛团体成員在参与当地宗教活动的同时，有着明确的佛教徒意识。此外，村民在危机期间经常咨询的村灵灵媒也具有一定的影响力。 他们还在该地区恢复佛教的过程中发挥了重要作用。",
 					{
 						"note": "orcid:0000-0001-8918-0826 | Shin-yi Chao (趙昕毅)"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://brill.com/view/journals/ssm/36/3-4/article-p349_4.xml",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Les premiers pères maristes en nouvelle-calédonie (1843-1853): Les enjeux de l’évangélisation et de l’inculturation",
+				"creators": [
+					{
+						"firstName": "Yannick",
+						"lastName": "Essertel",
+						"creatorType": "author"
+					}
+				],
+				"date": "2023/12/14",
+				"DOI": "10.1163/18748945-bja10083",
+				"ISSN": "1874-8945, 1874-8937",
+				"abstractNote": "Résumé Entre 1844 et 1853, Guillaume Douarre, premier vicaire apostolique de Nouvelle-Calédonie, avec quelques pères et frères Maristes, débarquent pour évangéliser la Nouvelle-Calédonie. Dans un pays vierge de présence coloniale, en dépit des intentions de prise de possession de la France, les Maristes débutent leur prêche dans la langue locale qu’ils ont apprise. Immergés dans une culture qu’ils essayent de comprendre ils obtiennent quelques conversions et forment des catéchistes comme futurs relais auprès des habitants. Or, en 1847, alors que Douarre réalise un voyage en Europe, une coalition menée par quelques chefs kanak détruit la mission et massacre un frère. En nous appuyant sur le Journal de l’évêque nous pouvons remonter aux origines de ce drame. Nous apprenons que les Kanak se demandent si les « âmes des ancêtres ne sont pas de retour » installant un premier malentendu. Âmes censées avoir un pouvoir sur les éléments de la nature. Un deuxième malentendu prend corps : le rite du baptême dispensé par les « ancêtres » fait mourir pour certains, surtout quand survient l’épidémie de peste entrainant la mort aussi de chrétiens. Ces causes mêlées à des frustrations diverses ont donc abouti à la destruction de la mission. En dépit de ce drame l’inculturation du christianisme était à l’œuvre comme pouvait en témoigner l’émergence d’une solide petite chrétienté. Celle-ci était formée par des Maristes, appliquant une pédagogie d’évangélisation respectant les cultures, recommandée par les Instructions de la Propaganda Fide.",
+				"issue": "3/4",
+				"language": "fra",
+				"libraryCatalog": "brill.com",
+				"pages": "349-388",
+				"publicationTitle": "Social Sciences and Missions",
+				"shortTitle": "Les premiers pères maristes en nouvelle-calédonie (1843-1853)",
+				"url": "https://brill.com/view/journals/ssm/36/3-4/article-p349_4.xml",
+				"volume": "36",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Instructions de la Propaganda Fide"
+					},
+					{
+						"tag": "New Caledonia"
+					},
+					{
+						"tag": "Nouvelle-Calédonie"
+					},
+					{
+						"tag": "Propaganda Fide Instructions"
+					},
+					{
+						"tag": "colonisation"
+					},
+					{
+						"tag": "colonization"
+					},
+					{
+						"tag": "culture kanak"
+					},
+					{
+						"tag": "evangelisation"
+					},
+					{
+						"tag": "inculturation"
+					},
+					{
+						"tag": "kanak culture"
+					},
+					{
+						"tag": "malentendu"
+					},
+					{
+						"tag": "marist fathers"
+					},
+					{
+						"tag": "misunderstanding"
+					},
+					{
+						"tag": "pères maristes"
+					},
+					{
+						"tag": "vicaire-apostolique"
+					},
+					{
+						"tag": "vicar-apostolic"
+					},
+					{
+						"tag": "évangélisation"
+					}
+				],
+				"notes": [
+					"abs:AbstractBetween 1844 and 1853, Guillaume Douarre, the first vicar apostolic of New Caledonia, along with a few Marist fathers and brothers, landed to evangelize New Caledonia. In a land untouched by colonial presence, despite France’s intentions to take possession, the Marists began preaching in the local language they had learned. Immersed in a culture they were trying to understand, they obtained a few converts and trained catechists as future relays to the inhabitants. But in 1847, while Douarre was on a trip to Europe, a coalition led by several Kanak chiefs destroyed the mission and massacred one of the brothers. Based on the Bishop’s Diary we can trace the origins of this tragedy. We learn that the Kanaks are wondering whether the “souls of the ancestors have returned”, setting up an initial misunderstanding. Souls who are supposed to have power over the elements of nature. A second misunderstanding takes shape : the rite of baptism dispensed by “ancestors” causes death for some, especially when the plague epidemic results in the death of Christians too. These causes, combined with various frustrations, led to the destruction of the mission. Despite this failure, the inculturation of Christianity was at work, as witnessed by the emergence of a solid little Christianity. This was formed by Marists, applying a pedagogy of evangelization respectful of cultures recommended by the Propaganda Fide Instructions., AbstractBetween 1844 and 1853, Guillaume Douarre, the first vicar apostolic of New Caledonia, along with a few Marist fathers and brothers, landed to evangelize New Caledonia. In a land untouched by colonial presence, despite France’s intentions to take possession, the Marists began preaching in the local language they had learned. Immersed in a culture they were trying to understand, they obtained a few converts and trained catechists as future relays to the inhabitants. But in 1847, while Douarre was on a trip to Europe, a coalition led by several Kanak chiefs destroyed the mission and massacred one of the brothers. Based on the Bishop’s Diary we can trace the origins of this tragedy. We learn that the Kanaks are wondering whether the “souls of the ancestors have returned”, setting up an initial misunderstanding. Souls who are supposed to have power over the elements of nature. A second misunderstanding takes shape : the rite of baptism dispensed by “ancestors” causes death for some, especially when the plague epidemic results in the death of Christians too. These causes, combined with various frustrations, led to the destruction of the mission. Despite this failure, the inculturation of Christianity was at work, as witnessed by the emergence of a solid little Christianity. This was formed by Marists, applying a pedagogy of evangelization respectful of cultures recommended by the Propaganda Fide Instructions.",
+					{
+						"note": "orcid:0000-0002-9623-5829 | Yannick Essertel"
+					},
+					{
+						"note": "Paralleltitel: The First Marist Brothers in New Caledonia (1843-1853): The Challenges of Evangelization and Inculturation"
+					}
+				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://brill.com/view/journals/scri/20/1/article-p106_8.xml",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Livres polémiques imprimés en arabe, en Moldavie et en Valachie, au milieu du XVIIIe siècle",
+				"creators": [
+					{
+						"firstName": "Policarp",
+						"lastName": "Chițulescu",
+						"creatorType": "author"
+					}
+				],
+				"date": "2024/10/09",
+				"DOI": "10.1163/18177565-bja10115",
+				"ISSN": "1817-7530, 1817-7565",
+				"abstractNote": "Résumé Les livres arabes imprimés dans les Principautés roumaines au milieu du XVIIIe siècle par le patriarche Sylvestre d’Antioche, avec l’aide généreuse des princes Ioan et Constantin Mavrocordat et de nombreux partisans locaux, étaient très recherchés dans les provinces arabophones de l’Empire ottoman. Ainsi, les copies ont presque entièrement disparu, détruites par un usage intense ou le passage du temps, ou pour des raisons confessionnelles. Par conséquent, les livres arabes du patriarche Sylvestre sont extrêmement rares de nos jours, leur contenu restant peu connu et peu étudié, une circonstance qui est révélée par leur absence dans les bibliographies et les études scientifiques du monde entier. Il est donc impératif de faire des recherches approfondies sur les livres arabes de Iași et de Bucarest imprimés en soutien aux chrétiens orthodoxes arabophones, de découvrir le contexte historique qui a généré un besoin d’œuvres polémiques imprimées en arabe, et les efforts du clergé orthodoxe et des princes roumains pour la consolidation de l’orthodoxie au Levant. Cette étude démontre que des projets véritablement missionnaires tels que celui du patriarche Sylvestre ont placé les sociétés roumaine, grecque, arabe et ottomane dans une interdépendance fascinante. L’article présente les résultats de nos recherches consacrées à l’imprimerie arabe en Moldavie et en Valachie à l’époque du patriarche Sylvestre d’Antioche en soutien à ses ouailles orthodoxes arabophones.",
+				"issue": "1",
+				"language": "fre",
+				"libraryCatalog": "brill.com",
+				"pages": "106-136",
+				"publicationTitle": "Scrinium",
+				"url": "https://brill.com/view/journals/scri/20/1/article-p106_8.xml",
+				"volume": "20",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Church of Antioch"
+					},
+					{
+						"tag": "Empire ottoman"
+					},
+					{
+						"tag": "Orthodox-Catholic interaction"
+					},
+					{
+						"tag": "Principautés roumaines"
+					},
+					{
+						"tag": "Romanian Principalities"
+					},
+					{
+						"tag": "Sylvester of Antioch"
+					},
+					{
+						"tag": "Sylvestre d’Antioche"
+					},
+					{
+						"tag": "Syria"
+					},
+					{
+						"tag": "Syrie"
+					},
+					{
+						"tag": "interaction orthodoxe-catholique"
+					},
+					{
+						"tag": "the Ottoman Empire"
+					},
+					{
+						"tag": "Église d’Antioche"
+					}
+				],
+				"notes": [
+					"abs:RésuméLes livres arabes imprimés dans les Principautés roumaines au milieu du XVIIIe siècle par le patriarche Sylvestre d’Antioche, avec l’aide généreuse des princes Ioan et Constantin Mavrocordat et de nombreux partisans locaux, étaient très recherchés dans les provinces arabophones de l’Empire ottoman. Ainsi, les copies ont presque entièrement disparu, détruites par un usage intense ou le passage du temps, ou pour des raisons confessionnelles. Par conséquent, les livres arabes du patriarche Sylvestre sont extrêmement rares de nos jours, leur contenu restant peu connu et peu étudié, une circonstance qui est révélée par leur absence dans les bibliographies et les études scientifiques du monde entier. Il est donc impératif de faire des recherches approfondies sur les livres arabes de Iași et de Bucarest imprimés en soutien aux chrétiens orthodoxes arabophones, de découvrir le contexte historique qui a généré un besoin d’œuvres polémiques imprimées en arabe, et les efforts du clergé orthodoxe et des princes roumains pour la consolidation de l’orthodoxie au Levant. Cette étude démontre que des projets véritablement missionnaires tels que celui du patriarche Sylvestre ont placé les sociétés roumaine, grecque, arabe et ottomane dans une interdépendance fascinante. L’article présente les résultats de nos recherches consacrées à l’imprimerie arabe en Moldavie et en Valachie à l’époque du patriarche Sylvestre d’Antioche en soutien à ses ouailles orthodoxes arabophones., AbstractThe Arabic books printed in the Romanian Principalities in the mid-18th century by Patriarch Sylvester of Antioch with the generous help of the princes Ioan and Constantin Mavrocordat and many local supporters were much sought after in the Arabic-speaking provinces of the Ottoman Empire. Thus, copies disappeared almost entirely, destroyed through intense use or the passing of time, or for confessional reasons. Consequently, Patriarch Sylvester’s Arabic books are extremely rare nowadays, their content remaining little known and surveyed, a circumstance that is revealed by their absence from the scientific bibliographies and studies around the world. It is therefore imperative to carefully research the Arabic books of Iași and Bucharest printed in support of the Orthodox Arabic-speaking Christians, to discover the historical background that generated a need for polemical works printed in Arabic, and the efforts of the Orthodox clergy and the Romanian princes towards the consolidation of Orthodoxy in the Levant. This survey demonstrates that genuinely missionary projects such as Patriarch Sylvester’s placed the Romanian, Greek, Arabic, and Ottoman societies in a fascinating interdependence. The article presents the results of our research dedicated to Arabic printing in Moldavia and Wallachia in the days of Patriarch Sylvester of Antioch in support of his Orthodox Arabic-speaking flock., RésuméLes livres arabes imprimés dans les Principautés roumaines au milieu du XVIIIe siècle par le patriarche Sylvestre d’Antioche, avec l’aide généreuse des princes Ioan et Constantin Mavrocordat et de nombreux partisans locaux, étaient très recherchés dans les provinces arabophones de l’Empire ottoman. Ainsi, les copies ont presque entièrement disparu, détruites par un usage intense ou le passage du temps, ou pour des raisons confessionnelles. Par conséquent, les livres arabes du patriarche Sylvestre sont extrêmement rares de nos jours, leur contenu restant peu connu et peu étudié, une circonstance qui est révélée par leur absence dans les bibliographies et les études scientifiques du monde entier. Il est donc impératif de faire des recherches approfondies sur les livres arabes de Iași et de Bucarest imprimés en soutien aux chrétiens orthodoxes arabophones, de découvrir le contexte historique qui a généré un besoin d’œuvres polémiques imprimées en arabe, et les efforts du clergé orthodoxe et des princes roumains pour la consolidation de l’orthodoxie au Levant. Cette étude démontre que des projets véritablement missionnaires tels que celui du patriarche Sylvestre ont placé les sociétés roumaine, grecque, arabe et ottomane dans une interdépendance fascinante. L’article présente les résultats de nos recherches consacrées à l’imprimerie arabe en Moldavie et en Valachie à l’époque du patriarche Sylvestre d’Antioche en soutien à ses ouailles orthodoxes arabophones., AbstractThe Arabic books printed in the Romanian Principalities in the mid-18th century by Patriarch Sylvester of Antioch with the generous help of the princes Ioan and Constantin Mavrocordat and many local supporters were much sought after in the Arabic-speaking provinces of the Ottoman Empire. Thus, copies disappeared almost entirely, destroyed through intense use or the passing of time, or for confessional reasons. Consequently, Patriarch Sylvester’s Arabic books are extremely rare nowadays, their content remaining little known and surveyed, a circumstance that is revealed by their absence from the scientific bibliographies and studies around the world. It is therefore imperative to carefully research the Arabic books of Iași and Bucharest printed in support of the Orthodox Arabic-speaking Christians, to discover the historical background that generated a need for polemical works printed in Arabic, and the efforts of the Orthodox clergy and the Romanian princes towards the consolidation of Orthodoxy in the Levant. This survey demonstrates that genuinely missionary projects such as Patriarch Sylvester’s placed the Romanian, Greek, Arabic, and Ottoman societies in a fascinating interdependence. The article presents the results of our research dedicated to Arabic printing in Moldavia and Wallachia in the days of Patriarch Sylvester of Antioch in support of his Orthodox Arabic-speaking flock.",
+					{
+						"note": "orcid:0000-0002-3869-8884 | Policarp Chițulescu"
+					},
+					{
+						"note": "LF:"
+					},
+					{
+						"note": "Paralleltitel: Polemical Books Printed in Arabic in Moldavia and Wallachia in the mid-18th Century"
 					}
 				],
 				"seeAlso": []
