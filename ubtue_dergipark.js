@@ -80,7 +80,7 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setHandler('itemDone', (_obj, item) => {
 		let parallelTitle = ZU.xpathText(doc, '//*[@id="article_en"]/*[@class="article-title"]');
 		if (parallelTitle) {
-			item.notes.push({'note': 'translatedTitle:' + parallelTitle.trim()});
+			item.notes.push({'note': 'Paralleltitel:' + parallelTitle.trim()});
 		}
 		let abstractText = ZU.xpathText(doc, '//*[@id="article_en"]/*[@class="article-abstract data-section"]/p');
 		if (item.abstractNote  && abstractText) {
@@ -189,7 +189,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "translatedTitle:An Investigation on Narratives About Prophet Muhammad's Nice Voice"
+						"note": "Paralleltitel:An Investigation on Narratives About Prophet Muhammad's Nice Voice"
 					},
 					{
 						"note": "orcid:0000-0003-1555-0251 | Fatih KOCA | taken from website"
@@ -261,7 +261,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "translatedTitle:A Sacred Place in Buryat Beliefs: Olkhon Island"
+						"note": "Paralleltitel:A Sacred Place in Buryat Beliefs: Olkhon Island"
 					},
 					{
 						"note": "orcid:0000-0003-1636-2463 | Mehmet Mustafa ERKAL | taken from website"
@@ -340,7 +340,7 @@ var testCases = [
 				],
 				"notes": [
 					{
-						"note": "translatedTitle:The Formation and Definition of the Concept of \"Spritual Well-Being\""
+						"note": "Paralleltitel:The Formation and Definition of the Concept of \"Spritual Well-Being\""
 					},
 					{
 						"note": "orcid:0000-0002-0325-7210 | Hümeyra Nazlı TAN | taken from website"
