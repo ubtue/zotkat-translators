@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-11-22 14:36:15"
+	"lastUpdated": "2025-01-09 15:17:47"
 }
 
 /*
@@ -80,7 +80,7 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setHandler('itemDone', (_obj, item) => {
 		let parallelTitle = ZU.xpathText(doc, '//*[@id="article_en"]/*[@class="article-title"]');
 		if (parallelTitle) {
-			item.notes.push({'note': 'translatedTitle:' + parallelTitle.trim()});
+			item.notes.push({'note': 'Paralleltitel:' + parallelTitle.trim()});
 		}
 		let abstractText = ZU.xpathText(doc, '//*[@id="article_en"]/*[@class="article-abstract data-section"]/p');
 		if (item.abstractNote  && abstractText) {

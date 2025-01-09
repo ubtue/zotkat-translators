@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-12-12 15:03:26"
+	"lastUpdated": "2025-01-09 15:02:46"
 }
 
 /*
@@ -120,7 +120,7 @@ function scrape(doc, url) {
 	if (item.ISSN == "0718-9273" && checkTitle && checkTitle!= item.title) {
 		item.title = checkTitle;
 		let transTitle = ZU.xpathText(doc, '//p[@class="trans-title"]');
-		if (transTitle != null) item.notes.push("translatedTitle:" + ZU.trimInternal(ZU.unescapeHTML(transTitle)));
+		if (transTitle != null) item.notes.push("Paralleltitel:" + ZU.trimInternal(ZU.unescapeHTML(transTitle)));
 	}
 	let keywords = ZU.xpath(doc, '//*[contains(text(), "Keywords:")  or contains(text(), "Keywords") or contains(text(), "Key words") or contains(text(), "Key Words") or contains(text(), "Kew words")]/..');
 	if (keywords && keywords.length > 0) {
@@ -531,7 +531,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://www.scielo.org.za/scielo.php?script=sci_issuetoc&pid=1011-760120210002&lng=en&nrm=iso",
+		"url": "https://scielo.org.za/scielo.php?script=sci_issuetoc&pid=1011-760120210002&lng=en&nrm=iso",
 		"items": "multiple"
 	},
 	{
