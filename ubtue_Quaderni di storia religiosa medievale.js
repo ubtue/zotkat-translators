@@ -6,10 +6,10 @@
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 80,
-	"inRepository": false,
+	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-06-18 19:17:46"
+	"lastUpdated": "2025-01-20 13:37:50"
 }
 
 /*
@@ -47,13 +47,12 @@ function detectWeb(doc, url) {
 }
 
 function getSearchResults(doc, checkOnly) {
-	let items = {};
-	let found = false;
-	let links = doc.querySelectorAll('.servizi li:nth-child(1) a');
-	let text = doc.querySelectorAll('#threeColumnsBarCenter h4');
-	for (let i = 0; i < links.length; ++i) {
-		let href = links[i].href;
-		let title = ZU.trimInternal(text[i].textContent);
+	var items = {};
+	var found = false;
+	var rows = doc.querySelectorAll('div.title > a');
+	for (let row of rows) {
+		let href = row.href;
+		let title = ZU.trimInternal(row.textContent);
 		if (!href || !title) continue;
 		if (checkOnly) return true;
 		found = true;
@@ -90,11 +89,6 @@ function scrape(doc, url) {
 
 /** BEGIN TEST CASES **/
 var testCases = [
-	{
-		"type": "web",
-		"url": "https://www.rivisteweb.it/issn/1126-9200/issue/7842",
-		"items": "multiple"
-	},
 	{
 		"type": "web",
 		"url": "https://www.rivisteweb.it/doi/10.32052/95676",
@@ -265,6 +259,11 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.rivisteweb.it/issn/2724-573X/issue/9647",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
