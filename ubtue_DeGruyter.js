@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-30 09:39:08"
+	"lastUpdated": "2025-01-20 10:22:32"
 }
 
 /*
@@ -87,12 +87,14 @@ function invokeEMTranslator(doc, url) {
 		if (ZU.xpathText(doc, '//span[contains(@class, "accessAccessible") and (contains(., "Öffentlich zugänglich") or contains(., "Publicly Available"))]')) i.notes.push('LF:');
 		
 		if (i.abstractNote === undefined) i.abstractNote = '';
-
-        let subtitle = text(doc, 'h2.subtitle');
-        if (subtitle && !i.title.includes(': ')) {
-            i.title = `${i.title.trim()}: ${subtitle}`;
-        }
-		if (i.abstractNote.match(pseudoabstract) || i.abstractNote.match(/^Der Artikel/)) delete i.abstractNote;
+		
+		let subtitle = text(doc, 'h2.subtitle');
+		if (subtitle && !i.title.includes(': ')) {
+			i.title = `${i.title.trim()}: ${subtitle}`;
+		}
+		if (i.abstractNote.includes(pseudoabstract) || i.abstractNote.match(/^Der Artikel/)) {
+			delete i.abstractNote;
+		}
 		for (let keyWord of ZU.xpath(doc, '//div[contains(@class, "keywords")]/a')) {
 			if (!i.tags.includes(keyWord.textContent)) i.tags.push(keyWord.textContent);
 		}
