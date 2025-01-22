@@ -665,7 +665,7 @@ function performExport() {
 								var authorValue = `${threadParams["authorName"]}$iorcid$j${threadParams["authorOrcid"]}$BVerfasserIn$4aut`;
 								addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', authorValue);	
 							}
-							else if (institution_retrieve_sign == "itbk") {
+							else if (institution_retrieve_sign == "itbk" || institution_retrieve_sign == "tojs") {
 								if (threadParams["authorName"].match(/^\d+/)) {
 								addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', "!" + threadParams["authorName"] + "!" + "$BVerfasserIn$4aut");
 								}
