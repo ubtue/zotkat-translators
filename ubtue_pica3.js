@@ -966,7 +966,9 @@ function performExport() {
 			} else if (institution_retrieve_sign == "zojs") {
 					addLine(currentItemId, '\\nE* l01\\n4801 Der Zugriff ist kostenfrei möglich\\n7100 $B21\\n8012 fauf$auwzs$azojs' + localURL, "");
 		   }
-
+			} else if (institution_retrieve_sign == "tojs") {
+					addLine(currentItemId, '\\nE* l01\\n4801 Der Zugriff ist kostenfrei möglich\\n7100 $B21\\n8012 tojs$ixrk$aixzs$aixzo' + localURL, "");
+		   }
 			//K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
 			//Schlagwörter aus einem Thesaurus (Fremddaten) --> 5520 (oder alternativ siehe Mapping)
 
