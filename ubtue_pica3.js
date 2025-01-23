@@ -1036,7 +1036,3 @@ function doExport() {
 	});
 }
 
-/** BEGIN TEST CASES **/
-var testCases = [
-]
-/** END TEST CASES **/
