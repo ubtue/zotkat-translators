@@ -8,7 +8,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 2,
-	"lastUpdated": "2025-01-23 09:27:53"
+	"lastUpdated": "2025-01-23 09:45:02"
 }
 
 // Zotero Export Translator in Pica3 Format für das Einzeln- und Mulitiupload in WinIBW
@@ -935,40 +935,49 @@ function performExport() {
 				}
 			}
 			//Abrufzeichen für Retrokat "ixrk" --> 8910
-			var abrufzeichenRetrokat = "";
+			var ixrkIxtheo = "";
 			if (item.tags) {
 				for (let i in item.tags) {
-					if (item.tags[i].tag.includes('retrokat')) {
-						abrufzeichenRetrokat = "$aixbt";
+					if (item.tags[i].tag.includes('ixrk')) {
+						ixrkIxtheo = "$aixrk";
+					}
+				}
+			}
+						//Abrufzeichen für Retrokat "ixrk" --> 8910
+			var rwrkRelbib = "";
+			if (item.tags) {
+				for (let i in item.tags) {
+					if (item.tags[i].tag.includes('rwrk')) {
+						rwrkRelbib = "$arwrk";
 					}
 				}
 			}
 			if (institution_retrieve_sign == "") {
 				if (SsgField == "NABZ") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo$aNABZ' + abrufzeichenRetrokat + localURL, ""); 
+					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo$aNABZ' + ixrkIxtheo + rwrkRelbib + localURL, ""); 
 				}
-				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo' + abrufzeichenRetrokat + localURL, "");
+				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
 			}
 			else if (institution_retrieve_sign == "inzo") {
 				if (SsgField == "NABZ") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo$aNABZ' + abrufzeichenRetrokat + localURL, ""); 
+					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo$aNABZ' + ixrkIxtheo + rwrkRelbib + localURL, ""); 
 				}
-				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo' + abrufzeichenRetrokat + localURL, "");
+				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
 			}
 			else if (institution_retrieve_sign == "krzo") {
 				if (SsgField == "NABZ") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 krzo$aNABZ' + abrufzeichenRetrokat + localURL, ""); 
+					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 krzo$aNABZ' + ixrkIxtheo + rwrkRelbib + localURL, ""); 
 				}
-				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 krzo' + abrufzeichenRetrokat + localURL, "");
+				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 krzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
 			}
 			else if (institution_retrieve_sign == "itbk") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 itbk$aixzs$aixzo' + abrufzeichenRetrokat + localURL, ""); 
+					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 itbk$aixzs$aixzo' + ixrkIxtheo + rwrkRelbib + localURL, ""); 
 			}
 			else if (institution_retrieve_sign == "zojs") {
-					addLine(currentItemId, '\\nE* l01\\n4801 Der Zugriff ist kostenfrei möglich\\n7100 $B21\\n8012 fauf$auwzs$azojs' + abrufzeichenRetrokat + localURL, "");
+					addLine(currentItemId, '\\nE* l01\\n4801 Der Zugriff ist kostenfrei möglich\\n7100 $B21\\n8012 fauf$auwzs$azojs' + ixrkIxtheo + rwrkRelbib + localURL, "");
 		    }
 			else if (institution_retrieve_sign == "tojs") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 tojs$aixzs$aixzo' + abrufzeichenRetrokat + localURL, "");
+					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 tojs$aixzs$aixzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
 		    }
 			//K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
 			//Schlagwörter aus einem Thesaurus (Fremddaten) --> 5520 (oder alternativ siehe Mapping)
