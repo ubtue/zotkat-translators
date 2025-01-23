@@ -8,7 +8,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 2,
-	"lastUpdated": "2024-09-03 12:48:04"
+	"lastUpdated": "2025-01-23 09:27:53"
 }
 
 // Zotero Export Translator in Pica3 Format für das Einzeln- und Mulitiupload in WinIBW
@@ -491,15 +491,6 @@ function performExport() {
 			item.url = null;
 		}
 
-		// 1140 Veröffentlichungsart und Inhalt http://swbtools.bsz-bw.de/winibwhelp/Liste_1140.htm K10plus:1140 "uwre" entfällt. Das Feld wird folglich auch nicht mehr benötigt. Es sei denn es handelt sich um eines der folgenden Dokumente: http://swbtools.bsz-bw.de/cgi-bin/k10plushelp.pl?cmd=kat&val=1140&kattype=Standard
-		/*if (item.itemType == "magazineArticle") {
-			addLine(currentItemId, "1140", "uwre");
-		}*/
-
-		// 1140 text nur bei Online-Aufsätzen (Satztyp O), aber fakultativ
-		/*if (physicalForm === "O") {
-	  addLine(currentItemId, "1140", "text");
-	}*/
 
 		//item.language --> 1500 Sprachcodes
 		if (item.itemType == "journalArticle") {
@@ -943,32 +934,42 @@ function performExport() {
 					}
 				}
 			}
+			//Abrufzeichen für Retrokat "ixrk" --> 8910
+			var abrufzeichenRetrokat = "";
+			if (item.tags) {
+				for (let i in item.tags) {
+					if (item.tags[i].tag.includes('retrokat')) {
+						abrufzeichenRetrokat = "$aixbt";
+					}
+				}
+			}
 			if (institution_retrieve_sign == "") {
 				if (SsgField == "NABZ") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo$aNABZ' + localURL, ""); 
+					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo$aNABZ' + abrufzeichenRetrokat + localURL, ""); 
 				}
-				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo' + localURL, "");
+				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo' + abrufzeichenRetrokat + localURL, "");
 			}
 			else if (institution_retrieve_sign == "inzo") {
 				if (SsgField == "NABZ") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo$aNABZ' + localURL, ""); 
+					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo$aNABZ' + abrufzeichenRetrokat + localURL, ""); 
 				}
-				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo' + localURL, "");
+				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo' + abrufzeichenRetrokat + localURL, "");
 			}
 			else if (institution_retrieve_sign == "krzo") {
 				if (SsgField == "NABZ") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 krzo$aNABZ' + localURL, ""); 
+					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 krzo$aNABZ' + abrufzeichenRetrokat + localURL, ""); 
 				}
-				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 krzo' + localURL, "");
+				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 krzo' + abrufzeichenRetrokat + localURL, "");
 			}
-			 else if (institution_retrieve_sign == "itbk") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 itbk$aixrk$aixzs$aixzo' + localURL, ""); 
-			} else if (institution_retrieve_sign == "zojs") {
-					addLine(currentItemId, '\\nE* l01\\n4801 Der Zugriff ist kostenfrei möglich\\n7100 $B21\\n8012 fauf$auwzs$azojs' + localURL, "");
-		   }
-			} else if (institution_retrieve_sign == "tojs") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 tojs$aixrk$aixzs$aixzo' + localURL, "");
-		   }
+			else if (institution_retrieve_sign == "itbk") {
+					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 itbk$aixzs$aixzo' + abrufzeichenRetrokat + localURL, ""); 
+			}
+			else if (institution_retrieve_sign == "zojs") {
+					addLine(currentItemId, '\\nE* l01\\n4801 Der Zugriff ist kostenfrei möglich\\n7100 $B21\\n8012 fauf$auwzs$azojs' + abrufzeichenRetrokat + localURL, "");
+		    }
+			else if (institution_retrieve_sign == "tojs") {
+					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 tojs$aixzs$aixzo' + abrufzeichenRetrokat + localURL, "");
+		    }
 			//K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
 			//Schlagwörter aus einem Thesaurus (Fremddaten) --> 5520 (oder alternativ siehe Mapping)
 
@@ -1034,3 +1035,8 @@ function doExport() {
 		performExport();
 	});
 }
+
+/** BEGIN TEST CASES **/
+var testCases = [
+]
+/** END TEST CASES **/
