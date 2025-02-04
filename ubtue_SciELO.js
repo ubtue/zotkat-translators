@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-12-12 15:03:26"
+	"lastUpdated": "2025-01-09 15:02:46"
 }
 
 /*
@@ -531,7 +531,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "http://www.scielo.org.za/scielo.php?script=sci_issuetoc&pid=1011-760120210002&lng=en&nrm=iso",
+		"url": "https://scielo.org.za/scielo.php?script=sci_issuetoc&pid=1011-760120210002&lng=en&nrm=iso",
 		"items": "multiple"
 	},
 	{

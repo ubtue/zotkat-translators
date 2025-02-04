@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-12 09:49:23"
+	"lastUpdated": "2025-01-09 15:10:23"
 }
 
 /*
@@ -76,16 +76,16 @@ function GetRISJournalTitle(RIStext) {
 	let journalTitleRe = /^(?:JO|JF|J1)\s*-\s*(.*)/m;
 	let journalTitleMatch = RIStext.match(journalTitleRe);
 	if (!journalTitleMatch)
-	    return "";
-    return journalTitleMatch[1];
+		return "";
+	return journalTitleMatch[1];
 }
 
 function GetRIST2Content(RIStext) {
 	let T2matcher = /^T2\s\s?-\s?(.*)/m;
 	let T2match = RIStext.match(T2matcher);
 	if (!T2match)
-	    return "";
-    return T2match[1];
+		return "";
+	return T2match[1];
 }
 
 /*
@@ -134,12 +134,12 @@ function downloadFunction(doc, text, url, prefs) {
 	
 	// EBSCOhost uses nonstandard tags to represent journal titles on some items
 	// no /g flag so we don't create duplicate tags
-    let journalTitle = GetRISJournalTitle(text);
+	let journalTitle = GetRISJournalTitle(text);
 	let t2Content = GetRIST2Content(text)
 	if (journalTitle != t2Content)
-	    subtitle = t2Content;
+		subtitle = t2Content;
 	if (t2Content)
-	    text = text.replace(/^(JO|JF|J1)/, 'T2');
+		text = text.replace(/^(JO|JF|J1)/, 'T2');
 	
 	// Let's try to keep season info
 	// Y1  - 1993///Winter93
@@ -595,12 +595,6 @@ function doDelivery(doc, itemInfo) {
 		downloadFunction(doc, text, postURL, prefs);
 	});
 }
-
-
-
-
-
-
 
 /** BEGIN TEST CASES **/
 var testCases = [

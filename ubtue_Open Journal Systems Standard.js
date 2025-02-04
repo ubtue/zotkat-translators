@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-11-26 13:16:58"
+	"lastUpdated": "2025-01-09 15:15:13"
 }
 
 /*
@@ -2076,7 +2076,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://cauriensia.es/index.php/cauriensia/article/view/mis4",
+		"url": "https://www.cauriensia.es/index.php/cauriensia/article/view/mis4",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2094,11 +2094,11 @@ var testCases = [
 				"abstractNote": "The current resonance that Rawls' Theory of Justice is having seems to indicate that this theory is appropriate as a practical solution to the problem of pluralism on the different conceptions of life that characterize democratic societies. The starting point from which the theory parts is subordinate to the objective of reaching an agreement, rather than responding to a common good. Thus, procedural systems are given primacy, as they strive to determine the social structure by justice alone. Justice is seen, therefore, not so much as a virtue of the subject, but as a correct social order that guarantees an equality of possibilities through a procedural channel. However, ignoring the issue of what is good and the right that one has over it, the Theory of Justice contradicts the intrinsic rationality of social relations, since such relations are based on the communication of specific goods. That is why there is a supremacy of good over justice.\\n4207 La actual resonancia de la teoría de Rawls parece indicar que es apropiada como solución práctica al problema del pluralismo sobre las distintas concepciones de la vida que caracteriza a las sociedades democráticas. El punto de inicio del que parte está subordinado al objetivo de alcanzar un acuerdo y no tanto de responder a un bien común. Se da así primacía a los sistemas procedimentales tratando de determinar la estructura social por la sola justicia. La justicia se ve, entonces, no tanto como una virtud del sujeto, cuanto como un recto ordenamiento social que garantice una igualdad de posibilidades a través de un cauce procedimental. Sin embargo, ignorar el tema del bien y del derecho que sobre él se tiene, contradice la racionalidad intrínseca de las relaciones sociales, ya que tales relaciones están fundadas en la comunicación de bienes específicos, por lo que se da una supremacía del bien sobre la justicia.\\n4207",
 				"journalAbbreviation": "RevCau",
 				"language": "es",
-				"libraryCatalog": "cauriensia.es",
+				"libraryCatalog": "www.cauriensia.es",
 				"pages": "63-83",
 				"publicationTitle": "Cauriensia. Revista anual de Ciencias Eclesiásticas",
 				"rights": "Derechos de autor 2022 CAURIENSIA. Revista anual de Ciencias Eclesiásticas",
-				"url": "https://cauriensia.es/index.php/cauriensia/article/view/mis4",
+				"url": "https://www.cauriensia.es/index.php/cauriensia/article/view/mis4",
 				"volume": "17",
 				"attachments": [],
 				"tags": [
