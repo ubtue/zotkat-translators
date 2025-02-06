@@ -120,8 +120,8 @@ function cleanTags(tags) {
 			if (decodedTag.endsWith('"')) {
 				decodedTag = decodedTag.slice(1, -1).trim();
 			}
-            tags[index] = decodedTag;
-        });
+			tags[index] = decodedTag;
+		});
 }
 
 function scrape(doc, url) {
@@ -131,7 +131,7 @@ function scrape(doc, url) {
 		item.abstractNote = text(doc, 'p:nth-child(2)');
 		
 		item.title = decodeEntity(item.title);
-        cleanTags(item.tags);
+		cleanTags(item.tags);
 
 		if (item.volume.match(/[IVXLCDM]/)){
 			item.volume = romanToInt(item.volume).toString();
