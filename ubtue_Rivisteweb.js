@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-06 15:42:33"
+	"lastUpdated": "2025-02-06 15:48:09"
 }
 
 /*
@@ -110,7 +110,6 @@ function decodeEntities(inputStr) {
 
 function cleanTags(tags) {
 	return tags.map(tag => {
-		Z.debug(tag);
 		let decodedTag = decodeEntities(tag);
 		if (decodedTag.endsWith("–")) {
 			decodedTag = decodedTag.slice(0, -1).trim();
