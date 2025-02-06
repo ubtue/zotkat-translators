@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-06 14:35:06"
+	"lastUpdated": "2025-02-06 15:42:33"
 }
 
 /*
@@ -102,26 +102,27 @@ function doWeb(doc, url) {
 	}
 }
 
-function decodeEntity(inputStr) {
+function decodeEntities(inputStr) {
 	let textarea = document.createElement('textarea');
 	textarea.innerHTML = inputStr;
 	return textarea.value;
 }
 
 function cleanTags(tags) {
-	tags.forEach((tag, index, tags) => {
-            let decodedTag = decodeEntity(tag);
-            if (decodedTag.endsWith("–")) {
-                decodedTag = decodedTag.slice(0, -1).trim();
-            }
-			if (decodedTag.endsWith('.')) {
-				decodedTag = decodedTag.slice(0, -1).trim();
-			}
-			if (decodedTag.endsWith('"')) {
-				decodedTag = decodedTag.slice(1, -1).trim();
-			}
-			tags[index] = decodedTag;
-		});
+	return tags.map(tag => {
+		Z.debug(tag);
+		let decodedTag = decodeEntities(tag);
+		if (decodedTag.endsWith("–")) {
+			decodedTag = decodedTag.slice(0, -1).trim();
+		}
+		if (decodedTag.endsWith('.')) {
+			decodedTag = decodedTag.slice(0, -1).trim();
+		}
+		if (decodedTag.endsWith('"')) {
+			decodedTag = decodedTag.slice(1, -1).trim();
+		}
+		return decodedTag;
+	});
 }
 
 function scrape(doc, url) {
@@ -130,8 +131,8 @@ function scrape(doc, url) {
 	translator.setHandler('itemDone', function (obj, item) {
 		item.abstractNote = text(doc, 'p:nth-child(2)');
 		
-		item.title = decodeEntity(item.title);
-		cleanTags(item.tags);
+		item.title = decodeEntities(item.title);
+		item.tags = cleanTags(item.tags);
 
 		if (item.volume.match(/[IVXLCDM]/)){
 			item.volume = romanToInt(item.volume).toString();
