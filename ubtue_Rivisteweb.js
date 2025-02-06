@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-06 11:11:05"
+	"lastUpdated": "2025-02-06 12:41:42"
 }
 
 /*
@@ -63,7 +63,6 @@ function romanToInt(r) {
 
 	return result; 
 	}
-	else return r;
 };
 
 function detectWeb(doc, url) {
@@ -107,7 +106,10 @@ function scrape(doc, url) {
 	translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48'); 	// Embedded Metadata
 	translator.setHandler('itemDone', function (obj, item) {
 		item.abstractNote = text(doc, 'p:nth-child(2)');
-		item.volume = romanToInt(item.volume).toString();
+
+		if (item.volume.match(/[IVXLCDM]/)){
+			item.volume = romanToInt(item.volume).toString();
+		}
 
 		let regex = /mulino rivisteweb/i;
 		item.tags = item.tags.filter(tag => !regex.test(tag));
