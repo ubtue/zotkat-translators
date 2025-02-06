@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-06 12:41:42"
+	"lastUpdated": "2025-02-06 12:52:02"
 }
 
 /*
@@ -63,6 +63,7 @@ function romanToInt(r) {
 
 	return result; 
 	}
+	return r;
 };
 
 function detectWeb(doc, url) {
