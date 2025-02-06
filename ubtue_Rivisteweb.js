@@ -9,7 +9,7 @@
 	"inRepository": false,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-06 12:52:02"
+	"lastUpdated": "2025-02-06 15:48:09"
 }
 
 /*
@@ -102,11 +102,36 @@ function doWeb(doc, url) {
 	}
 }
 
+function decodeEntities(inputStr) {
+	let textarea = document.createElement('textarea');
+	textarea.innerHTML = inputStr;
+	return textarea.value;
+}
+
+function cleanTags(tags) {
+	return tags.map(tag => {
+		let decodedTag = decodeEntities(tag);
+		if (decodedTag.endsWith("–")) {
+			decodedTag = decodedTag.slice(0, -1).trim();
+		}
+		if (decodedTag.endsWith('.')) {
+			decodedTag = decodedTag.slice(0, -1).trim();
+		}
+		if (decodedTag.endsWith('"')) {
+			decodedTag = decodedTag.slice(1, -1).trim();
+		}
+		return decodedTag;
+	});
+}
+
 function scrape(doc, url) {
 	var translator = Zotero.loadTranslator('web');
 	translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48'); 	// Embedded Metadata
 	translator.setHandler('itemDone', function (obj, item) {
 		item.abstractNote = text(doc, 'p:nth-child(2)');
+		
+		item.title = decodeEntities(item.title);
+		item.tags = cleanTags(item.tags);
 
 		if (item.volume.match(/[IVXLCDM]/)){
 			item.volume = romanToInt(item.volume).toString();
