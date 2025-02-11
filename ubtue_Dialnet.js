@@ -445,7 +445,7 @@ var testCases = [
 				"volume": "14",
 				"attachments": [],
 				"notes": [
-					"Paralleltitel:Public Space and religious symbols in the Secular State of Spain"
+					"translatedTitle:Public Space and religious symbols in the Secular State of Spain"
 				],
 				"seeAlso": []
 			}
@@ -537,7 +537,7 @@ var testCases = [
 				"attachments": [],
 				"notes": [
 					"abs:El artículo pretende trazar las grandes líneas del pensamiento teológico católico que surgen del llamado Movimiento Ecuménico, cómo se va madurando la reflexión acerca de la pertenencia a la Iglesia y la valoración de los cristianos separados y de las Iglesias y Comunidades que no están en comunión con la Iglesia católica y cómo el concepto “ves-tigia Ecclesiae” es utilizado en primer lugar por el Consejo Mundial de las Iglesias y pos-teriormente por los teólogos católicos para designar esos elementos nucleares de la Iglesia de Cristo comunes a todas las confesiones cristianas. Se podría considerar la realidad en-tera, invisible y visible, que constituye la Iglesia verdadera, y llamar “elemento de Iglesia” a todo lo que es esencial o propio de la Iglesia. Habría, en este caso, “elementos de Iglesia” de naturaleza invisible, como la presencia del Espíritu Santo, y “elementos de Iglesia” de naturaleza visible, como la sucesión apostólica. También se presenta de forma sumaria el pensamiento de algunos de estos teólogos o se citan las obras más significativas de otros. Un pensamiento que, de forma más madura, entra y cristaliza en el Aula conciliar.",
-					"Paralleltitel:Theological Assessment of Separated Christians According to the Pre-Vatican II Council Theology"
+					"translatedTitle:Theological Assessment of Separated Christians According to the Pre-Vatican II Council Theology"
 				],
 				"seeAlso": []
 			}

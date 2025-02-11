@@ -644,7 +644,7 @@ function performExport() {
 		if (item.notes) {
 			for (let i in item.notes) {
 				if (item.notes[i].note.includes('Paralleltitel:')) addLine(currentItemId, "\\n4002", item.notes[i].note.replace(/paralleltitel:/i, ''));
-				if (item.notes[i].note.includes('Paralleltitel:')) addLine(currentItemId, "\\n4212 Übersetzung des Haupttitels: ", item.notes[i].note.replace(/Paralleltitel:/i, ''));
+				if (item.notes[i].note.includes('translatedTitle:')) addLine(currentItemId, "\\n4212 Übersetzung des Haupttitels: ", item.notes[i].note.replace(/translatedTitle:/i, ''));
 			}
 		}
 

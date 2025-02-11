@@ -587,7 +587,7 @@ function invokeEMTranslator(doc) {
 			}
 			for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"]/@content')) {
 				if (parallelTitle.value != i.title)
-				i.notes.push({'note': 'Paralleltitel:' + parallelTitle.textContent.trim()});
+				i.notes.push({'note': 'translatedTitle:' + parallelTitle.textContent.trim()});
 			}
 		}
 		if (['0014-1437'].includes(i.ISSN)) {
@@ -2133,7 +2133,7 @@ var testCases = [
 						"note": "orcid:0000-0001-9243-9755 | María Teresa Cid Vázquez | taken from website"
 					},
 					{
-						"note": "Paralleltitel:Justice as Fairness or as Acknowledging the Good in Others"
+						"note": "translatedTitle:Justice as Fairness or as Acknowledging the Good in Others"
 					}
 				],
 				"seeAlso": []
