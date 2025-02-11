@@ -228,7 +228,7 @@ function downloadFunction(doc, text, url, prefs) {
 		if (item.ISSN == "03938417") {
 		if (item.publicationTitle != undefined && item.publicationTitle != "Studi e Materiali di Storia delle Religioni") {
 			item.publicationTitle = ZU.trimInternal(item.publicationTitle);
-			item.notes.push("translatedTitle:" + item.publicationTitle);
+			item.notes.push("Paralleltitel:" + item.publicationTitle);
 		}
 		}
 		item.publicationTitle = item.journalAbbreviation;
