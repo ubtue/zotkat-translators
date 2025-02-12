@@ -6,10 +6,10 @@
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 80,
-	"inRepository": false,
+	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-06 15:48:09"
+	"lastUpdated": "2025-02-12 14:31:28"
 }
 
 /*
@@ -38,33 +38,6 @@
 // attr()/text() v2
 function attr(docOrElem ,selector ,attr ,index){ var elem=index?docOrElem.querySelectorAll(selector).item(index):docOrElem.querySelector(selector); return elem?elem.getAttribute(attr):null;}function text(docOrElem,selector,index){ var elem=index?docOrElem.querySelectorAll(selector).item(index):docOrElem.querySelector(selector); return elem?elem.textContent:null; }
 
-function romanToInt(r) {
-	if (r.match(/^[IVXLCM]+/)) {
-	const sym = { 
-		'I': 1,
-		'V': 5,
-		'X': 10,
-		'L': 50,
-		'C': 100,
-		'D': 500,
-		'M': 1000
-	}
-	let result = 0;
-	for (i=0; i < r.length; i++){
-		const cur = sym[r[i]];
-		const next = sym[r[i+1]];
-		if (cur < next){
-			result += next - cur 
-			i++
-		} else {
-			result += cur
-		}
-	}
-
-	return result; 
-	}
-	return r;
-};
 
 function detectWeb(doc, url) {
 	if (url.includes('/doi/')) {
@@ -102,6 +75,34 @@ function doWeb(doc, url) {
 	}
 }
 
+function romanToInt(r) {
+	if (r.match(/^[IVXLCM]+/)) {
+	const sym = { 
+		'I': 1,
+		'V': 5,
+		'X': 10,
+		'L': 50,
+		'C': 100,
+		'D': 500,
+		'M': 1000
+	}
+	let result = 0;
+	for (i=0; i < r.length; i++){
+		const cur = sym[r[i]];
+		const next = sym[r[i+1]];
+		if (cur < next){
+			result += next - cur 
+			i++
+		} else {
+			result += cur
+		}
+	}
+
+	return result; 
+	}
+	return r;
+};
+
 function decodeEntities(inputStr) {
 	let textarea = document.createElement('textarea');
 	textarea.innerHTML = inputStr;
@@ -124,6 +125,20 @@ function cleanTags(tags) {
 	});
 }
 
+function getOrcids(doc, item) {
+    let authors = doc.querySelectorAll('p.authors > a.author');
+    authors.forEach(author => {
+        let authorName = author.textContent.trim();
+        let orcidElement = author.querySelector('i.bi-rw-orcid');
+        if (orcidElement) {
+            let orcid = orcidElement.getAttribute('title').match(/\d{4}-\d{4}-\d{4}-\d{4}/);
+            if (orcid) {
+                item.notes.push("orcid: " + orcid[0] + ' | ' + authorName + ' | ' + 'taken from website');
+            }
+        }
+    });
+}
+
 function scrape(doc, url) {
 	var translator = Zotero.loadTranslator('web');
 	translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48'); 	// Embedded Metadata
@@ -132,6 +147,8 @@ function scrape(doc, url) {
 		
 		item.title = decodeEntities(item.title);
 		item.tags = cleanTags(item.tags);
+
+		getOrcids(doc, item);
 
 		if (item.volume.match(/[IVXLCDM]/)){
 			item.volume = romanToInt(item.volume).toString();
