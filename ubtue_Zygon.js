@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-01-30 15:03:34"
+	"lastUpdated": "2025-02-11 10:22:34"
 }
 
 /*
@@ -100,7 +100,7 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setDocument(doc);
 
 	translator.setHandler('itemDone', (_obj, item) => {
-		if (item.abstractNote.length < 20) {
+		if (item.abstractNote?.length < 20) {
 			let abstractNEU = text(doc, 'div.card-content h2~p'); 
 			if (abstractNEU.length > 20) {
 				item.abstractNote = abstractNEU; 
