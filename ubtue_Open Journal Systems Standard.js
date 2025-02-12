@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-05 13:35:03"
+	"lastUpdated": "2025-02-12 09:03:09"
 }
 
 /*
@@ -133,6 +133,10 @@ function invokeEMTranslator(doc) {
  				i.title += ': ' + subTitle.trim();
  			}
  		}
+
+		if (i.publicationTitle.match(/transformatio/i)) {
+			i.ISSN = "2813-4613";
+		}
 
 		if (i.ISSN == "2293-7374") {
 			i.title = i.title.replace( '| Renaissance and Reformation', '');
