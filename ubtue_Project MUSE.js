@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-13 11:10:28"
+	"lastUpdated": "2025-02-13 12:47:09"
 }
 
 /*
@@ -100,6 +100,7 @@ function scrape(doc) {
 		translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
 		translator.setString(risEntry);
 		translator.setHandler("itemDone", function (obj, item) {
+			// overwriting unwanted notes containing citation information
 			item.notes = [];
 			if (doi) {
 				item.DOI = doi;
