@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-11-09 16:17:52"
+	"lastUpdated": "2025-02-13 12:47:09"
 }
 
 /*
@@ -100,6 +100,8 @@ function scrape(doc) {
 		translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
 		translator.setString(risEntry);
 		translator.setHandler("itemDone", function (obj, item) {
+			// overwriting unwanted notes containing citation information
+			item.notes = [];
 			if (doi) {
 				item.DOI = doi;
 			} else {
@@ -125,7 +127,9 @@ function scrape(doc) {
 			if (item.pages && item.pages.split('-').length > 1) {
 				if (item.pages.split('-')[0] == item.pages.split('-')[1]) item.pages = item.pages.split('-')[0];
 			}
-			item.notes = [];
+			if (ZU.xpathText(doc, '//div[@class="cell label"][contains(text(),"Open Access")]/following-sibling::div[contains(text(),"Yes")]')) {
+				item.notes.push('LF:');
+			}
 			item.complete();
 		});
 		translator.translate();
