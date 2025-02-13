@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-13 09:53:27"
+	"lastUpdated": "2025-02-13 10:17:34"
 }
 
 /*
@@ -741,6 +741,10 @@ function invokeEMTranslator(doc) {
 				(creator.firstName === "The" || creator.firstName === "the") &&
 				(creator.lastName === "Editor" || creator.lastName === "editor")
 				));
+			let availabilityElement = doc.querySelector('a.pdf.restricted') ;
+			if (!availabilityElement) {
+				i.notes.push('LF:');
+			}
 		}
 
 		i.complete();
