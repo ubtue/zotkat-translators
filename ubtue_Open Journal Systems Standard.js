@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-12 09:03:09"
+	"lastUpdated": "2025-02-13 09:53:27"
 }
 
 /*
@@ -734,6 +734,13 @@ function invokeEMTranslator(doc) {
 				creator.firstName !== "Author not" && creator.lastName !== "applicable"
 				);
 			}
+		}
+
+		if (['1918-610X'].includes(i.ISSN)) {
+			i.creators = i.creators.filter(creator => !(
+				(creator.firstName === "The" || creator.firstName === "the") &&
+				(creator.lastName === "Editor" || creator.lastName === "editor")
+				));
 		}
 
 		i.complete();
