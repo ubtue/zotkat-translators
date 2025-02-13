@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-13 10:17:34"
+	"lastUpdated": "2025-02-13 10:21:29"
 }
 
 /*
@@ -738,8 +738,8 @@ function invokeEMTranslator(doc) {
 
 		if (['1918-610X'].includes(i.ISSN)) {
 			i.creators = i.creators.filter(creator => !(
-				(creator.firstName === "The" || creator.firstName === "the") &&
-				(creator.lastName === "Editor" || creator.lastName === "editor")
+				(creator.firstName.toLowerCase() === "the" &&
+				creator.lastName.toLowerCase() === "editor")
 				));
 			let availabilityElement = doc.querySelector('a.pdf.restricted') ;
 			if (!availabilityElement) {
