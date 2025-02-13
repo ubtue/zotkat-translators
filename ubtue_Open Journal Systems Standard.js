@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-13 10:37:34"
+	"lastUpdated": "2025-02-13 16:20:32"
 }
 
 /*
@@ -209,6 +209,28 @@ function invokeEMTranslator(doc) {
 						for (let match of matches) {
 							let author = match.match(/<strong>(.+?)<\/strong>/)[1];
 							let orcid = match.match(/<a href="https?:\/\/orcid.org\/(.+?)" target="_blank">/)[1];
+							addNote(orcid, author);
+						}
+					}
+				}
+			}
+		}
+
+		if (orcidAuthorEntryCaseA.length && ['2813-4613'].includes(i.ISSN)) {
+			for (let entry of orcidAuthorEntryCaseA) {
+				let orcidElements = entry.querySelectorAll('span.orcid');
+				for (let orcidTag of orcidElements) {
+					let orcidLink = orcidTag.querySelector('a[href^="http://orcid.org/"]');
+					if (orcidLink) {
+						let orcid = orcidLink.innerText.match(/\d+-\d+-\d+-\d+x?/i)[0];
+						let previousElement = orcidTag.previousElementSibling;
+						let author = null;
+						if (previousElement) {
+							if (previousElement.tagName.toLowerCase() === 'strong') {
+								author = previousElement.textContent.trim();
+							}
+						}
+						if (orcid && author) {
 							addNote(orcid, author);
 						}
 					}
