@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-12 14:31:28"
+	"lastUpdated": "2025-02-18 11:59:42"
 }
 
 /*
@@ -126,17 +126,17 @@ function cleanTags(tags) {
 }
 
 function getOrcids(doc, item) {
-    let authors = doc.querySelectorAll('p.authors > a.author');
-    authors.forEach(author => {
-        let authorName = author.textContent.trim();
-        let orcidElement = author.querySelector('i.bi-rw-orcid');
-        if (orcidElement) {
-            let orcid = orcidElement.getAttribute('title').match(/\d{4}-\d{4}-\d{4}-\d{4}/);
-            if (orcid) {
-                item.notes.push("orcid: " + orcid[0] + ' | ' + authorName + ' | ' + 'taken from website');
-            }
-        }
-    });
+	let authors = doc.querySelectorAll('p.authors > a.author');
+	authors.forEach(author => {
+		let authorName = author.textContent.trim();
+		let orcidElement = author.querySelector('i.bi-rw-orcid');
+		if (orcidElement) {
+			let orcid = orcidElement.getAttribute('title').match(/\d{4}-\d{4}-\d{4}-\d{3}[0-9X]/i);
+			if (orcid) {
+				item.notes.push("orcid: " + orcid[0] + ' | ' + authorName + ' | ' + 'taken from website');
+			}
+		}
+	});
 }
 
 function scrape(doc, url) {
