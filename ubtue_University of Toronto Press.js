@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-11-05 08:00:41"
+	"lastUpdated": "2025-01-31 14:18:18"
 }
 
 /*
@@ -120,7 +120,7 @@ async function scrape(doc, url = doc.location.href) {
 			item.ISSN = issn;
 		}
 
-		let openAccessIcon = doc.querySelector('i.icon-unlock[title="Free access"]');
+		let openAccessIcon = doc.querySelector('i.icon-access-open[title="Open access"]');
 		if (openAccessIcon) {
 			item.notes.push("LF:");
 		}
