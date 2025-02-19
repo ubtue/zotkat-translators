@@ -2,14 +2,14 @@
 	"translatorID": "dec09eec-baee-44d3-a306-5dfb8d3ae733",
 	"label": "ubtue_Crime_and_Justice",
 	"creator": "Mara Spieß",
-	"target": "https://www.crimeandjustice.org.uk/publications",
+	"target": "https://www.crimeandjustice.org.uk/",
 	"minVersion": "5.0",
 	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-09-16 12:15:40"
+	"lastUpdated": "2025-02-19 09:50:33"
 }
 
 /*
@@ -37,7 +37,7 @@
 
 
 function detectWeb(doc, url) {
-	if (url.includes('/psj/')) {
+	if (url.includes('/prison-service-journal')) {
 		return 'multiple';
 	}
 	return false;
@@ -61,13 +61,13 @@ function getSearchResults(doc, checkOnly) {
 function getAuthors(entry) {
 	titleEntry = entry.closest('li');
 	titleEntry.removeChild(entry);
-	strippedPrefix = titleEntry.textContent.replace(/(?:\s*,\s*)?(?:(interviewe?d?|reviewed)\s+)?by\s*/ig, '').replace(/(?:\s*Dr\s+)|(?:\s*Professor\s+)/g, '');
+	strippedPrefix = titleEntry.textContent.replace(/(?:\s*,\s*)?(?:(interviewe?d?|reviewed)\s+)?by\b\s*/ig, '').replace(/(?:\s*Dr\s+)|(?:\s*Professor\s+)/g, '');
 	authors = strippedPrefix.split(/and\s+|[,]/);
 return authors;
 }
 
 function getVolume(doc, item) {
-	let volumeNumber = doc.querySelector('h1.node-header');
+	let volumeNumber = doc.querySelector('span.field--name-title');
 	if (volumeNumber) {
 		let volumeNumberMatch = volumeNumber.innerText.match(/prison\s+service\s+journal\s+(\d+)/i);
 		if (volumeNumberMatch) {
@@ -77,9 +77,9 @@ function getVolume(doc, item) {
 }
 
 function getDate(doc, item) {
-	let date = doc.querySelector('span.date-display-single');
+	let date = doc.querySelector('div.field--name-field-date');
 	if (date) {
-		let dateMatch = date.innerText.match(/\w+,\s+\d+\s\w+\s+(\d+)/i);
+		let dateMatch = date.innerText.match(/\d+\s+\w+\s+(\d+)/i);
 		if (dateMatch) {
 			item.date = dateMatch[1];
 		}
