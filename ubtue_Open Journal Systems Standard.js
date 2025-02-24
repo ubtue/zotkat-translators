@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-13 16:20:32"
+	"lastUpdated": "2025-02-21 13:12:49"
 }
 
 /*
@@ -764,6 +764,12 @@ function invokeEMTranslator(doc) {
 				creator.lastName.toLowerCase() === "editor")
 				));
 			if (!doc.querySelector('a.pdf.restricted')) {
+				i.notes.push('LF:');
+			}
+		}
+
+		if (['1749-4915'].includes(i.ISSN)) {
+			if (ZU.xpath(doc, '//a[contains(@class, "pdf") and contains(text(), "OPEN ACCESS")]').length > 0) {
 				i.notes.push('LF:');
 			}
 		}
