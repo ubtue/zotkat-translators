@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-19 09:26:09"
+	"lastUpdated": "2025-02-25 08:18:23"
 }
 
 /*
@@ -82,7 +82,7 @@ async function doWeb(doc, url) {
 						let authors = citation[1].replace('et al', '').split('&');
 						authors.forEach(author => getAuthor(author, item));
 					}
-					item.title = citation[2];
+					item.title = citation[2].replace(/,$/,"");
 					item.volume = citation[3];
 					item.issue = citation[4];
 					item.date = citation[5];
