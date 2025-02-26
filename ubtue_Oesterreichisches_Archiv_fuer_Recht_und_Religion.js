@@ -66,7 +66,7 @@ async function doWeb(doc, url) {
 		let items = await Zotero.selectItems(getSearchResults(doc, false));
 		if (!items) return;
 		for (let url of Object.keys(items)) {
-			// Website is script based, so if we don't get the DOM from the browser 
+			// Website is script based, so if we don't get the DOM from the browser
 			// we have to generate the it on our own.
 			await scrape(await requestDocument(url), url, true /*needSingleFile*/);
 		}
@@ -86,16 +86,16 @@ async function scrape(doc, url = doc.location.href, needSingleFile = false) {
 	let bySlash = new RegExp(/\s*\/\s*/);
 	item.title = ZU.xpathText(doc, '//h1')?.replaceAll(/[\s\n]+/g, ' ');
 	item.creators =
-		ZU.xpathText(doc, 
+		ZU.xpathText(doc,
 		     '//div[contains(@class, "fw-bold")][contains(text(), "Autor:in")]/following-sibling::div')
 			 ?.split(bySlash)
 			 ?.map(author => ZU.cleanAuthor(author, "author"));
-	
+
 	item.pages = ZU.xpathText(doc, '//div[contains(@class, "fw-bold")][contains(text(), "Seite")]/following-sibling::div');
-	
+
 	let issueAndYear = ZU.xpathText(doc, '//div[contains(@class, "fw-bold")][contains(text(), "Heft")]/following-sibling::div');
 	item.issue = issueAndYear?.split(bySlash)?.[0];
-    item.year = issueAndYear?.split(bySlash)?.[1];
+    item.date = issueAndYear?.split(bySlash)?.[1];
 	item.complete();
 }
 
