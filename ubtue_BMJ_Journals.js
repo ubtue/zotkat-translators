@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-18 11:45:48"
+	"lastUpdated": "2025-02-26 14:54:45"
 }
 
 /*
@@ -95,9 +95,14 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setDocument(doc);
 	
 	translator.setHandler('itemDone', (_obj, item) => {
-
-		item.abstractNote = ZU.cleanTags(item.abstractNote);
-
+		
+		if (item.abstractNote.endsWith("…")) {
+			item.abstractNote = "";
+		} else {
+			item.abstractNote = ZU.cleanTags(item.abstractNote);
+			item.abstractNote = item.abstractNote.replace(/\n/g, " ");
+		}
+		
 		let accessRights = doc.querySelector('meta[name="DC.AccessRights"]');
 		if (accessRights && accessRights.getAttribute('content').match(/open-access/i)) {
 			item.notes.push("LF:");
