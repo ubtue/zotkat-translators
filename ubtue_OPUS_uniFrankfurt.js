@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 12,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-11-12 14:34:38"
+	"lastUpdated": "2025-02-26 12:56:33"
 }
 
 /*
@@ -102,6 +102,11 @@ async function scrape(doc, url = doc.location.href) {
 
 		if (item.abstractNote) {
 			item.abstractNote = item.abstractNote.replace(/\n/g, " ");
+		}
+		
+		let urnElement = doc.querySelector('meta[name="DC.identifier"][content^="urn:"]');
+		if (urnElement) {
+			item.notes.push(urnElement.getAttribute('content'));
 		}
 		
 		item.complete();
