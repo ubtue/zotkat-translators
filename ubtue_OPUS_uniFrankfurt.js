@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 12,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-26 12:56:33"
+	"lastUpdated": "2025-02-26 14:14:46"
 }
 
 /*
@@ -107,6 +107,11 @@ async function scrape(doc, url = doc.location.href) {
 		let urnElement = doc.querySelector('meta[name="DC.identifier"][content^="urn:"]');
 		if (urnElement) {
 			item.notes.push(urnElement.getAttribute('content'));
+		}
+
+		if (item.ISSN == "1434-5935") {
+			item.notes.push('artikelID:' + item.issue);
+			item.issue = "";
 		}
 		
 		item.complete();
