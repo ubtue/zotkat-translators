@@ -1,21 +1,21 @@
 {
-	"translatorID": "17809ade-c31b-40e5-b627-528235a8dd1d",
-	"label": "ubtue_BMJ_Journals",
+	"translatorID": "fd78d8d0-f651-4755-b172-1a24302dd243",
+	"label": "ubtue_OeAW",
 	"creator": "Mara Spieß",
-	"target": "https://jme.bmj.com/content/",
+	"target": "https://austriaca.at/",
 	"minVersion": "5.0",
 	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-26 15:27:55"
+	"lastUpdated": "2025-02-26 14:40:01"
 }
 
 /*
 	***** BEGIN LICENSE BLOCK *****
 
-	Copyright © 2025 Unibibliothek Tübingen
+	Copyright © 2025 Universitätsbibliothek Tübingen
 
 	This file is part of Zotero.
 
@@ -37,10 +37,10 @@
 
 
 function detectWeb(doc, url) {
-	if (url.match(/content\/\d*\/\d*\/d*/)) {
+	if (url.includes('/?arp=')) {
 		return 'journalArticle';
 	}
-	else if (getSearchResults(doc, true)) {
+	else if (url.includes('inhalt') && getSearchResults(doc, true)) {
 		return 'multiple';
 	}
 	return false;
@@ -49,7 +49,7 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = doc.querySelectorAll('a.highwire-cite-linked-title[href*="/content/"]');
+	var rows = doc.querySelectorAll('div.jArticle > h4.jTitle > a[href*="/?arp="]');
 	for (let row of rows) {
 		let href = row.href;
 		let title = ZU.trimInternal(row.textContent);
@@ -74,18 +74,18 @@ async function doWeb(doc, url) {
 	}
 }
 
-function extractOrcids(doc, item) {
-	for (orcid_tag of ZU.xpath(doc, '//meta[@name="citation_author_orcid"]')){
-		let previous_author_tag = orcid_tag.previousElementSibling;
-		while (previous_author_tag && previous_author_tag.name !== "citation_author") {
-			previous_author_tag = previous_author_tag.previousElementSibling;
+function getOrcids(doc, item) {
+	let authors = doc.querySelectorAll('ul.authors > span.author');
+	authors.forEach(author => {
+		let authorName = author.textContent.trim();
+		let orcidElement = author.querySelector('a[href*="orcid.org"]');
+		if (orcidElement) {
+			let orcid = orcidElement.getAttribute('href').match(/\d{4}-\d{4}-\d{4}-\d{3}[0-9X]/i);
+			if (orcid) {
+				item.notes.push("orcid: " + orcid[0] + ' | ' + authorName + ' | ' + 'taken from website');
+			}
 		}
-		if (previous_author_tag && previous_author_tag.name === "citation_author") {
-			let author_name = previous_author_tag.content;
-			let orcid = orcid_tag.content.match(/\d{4}-\d{4}-\d{4}-\d{3}[0-9X]/i);
-			item.notes.push({note: "orcid:" + orcid[0] + ' | ' + author_name + ' | ' + "taken from website"});
-		}
-	}
+	})
 }
 
 async function scrape(doc, url = doc.location.href) {
@@ -95,25 +95,17 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setDocument(doc);
 	
 	translator.setHandler('itemDone', (_obj, item) => {
-		
-		if (item.abstractNote.endsWith("…")) {
-			item.abstractNote = "";
+		getOrcids(doc, item);
+		item.tags = [];
+		if (item.title.match(/Rezensionen/)) {
+			item.notes.push('LF:');
 		}
-		item.abstractNote = ZU.cleanTags(item.abstractNote);
-		item.abstractNote = item.abstractNote.replace(/\n/g, " ");
-		
-		let accessRights = doc.querySelector('meta[name="DC.AccessRights"]');
-		if (accessRights && accessRights.getAttribute('content').match(/open-access/i)) {
-			item.notes.push("LF:");
-		}
-
-		extractOrcids(doc, item);
-		
-		item.complete();
+		item.complete(); 
 	});
 
 	let em = await translator.getTranslatorObject();
-	
+	em.itemType = 'journalArticle';
+
 	await em.doWeb(doc, url);
 }
 
