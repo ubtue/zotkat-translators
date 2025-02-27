@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-18 11:59:42"
+	"lastUpdated": "2025-02-27 14:13:46"
 }
 
 /*
@@ -154,8 +154,12 @@ function scrape(doc, url) {
 			item.volume = romanToInt(item.volume).toString();
 		}
 
-		let regex = /mulino rivisteweb/i;
-		item.tags = item.tags.filter(tag => !regex.test(tag));
+		let tagRegex = /mulino rivisteweb/i;
+		item.tags = item.tags.filter(tag => !tagRegex.test(tag));
+
+		if (item.abstractNote.match(/^la\spiattaforma\sitaliana|^the\sitalian\splatform/i)) {
+			item.abstractNote = "";
+		}
 		
 		item.complete();
 	});
