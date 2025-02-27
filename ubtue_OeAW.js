@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-26 14:40:01"
+	"lastUpdated": "2025-02-27 14:23:51"
 }
 
 /*
@@ -99,6 +99,7 @@ async function scrape(doc, url = doc.location.href) {
 		item.tags = [];
 		if (item.title.match(/Rezensionen/)) {
 			item.notes.push('LF:');
+			item.tags.push('RezensionstagPica');
 		}
 		item.complete(); 
 	});
