@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-27 14:13:46"
+	"lastUpdated": "2025-02-28 07:15:31"
 }
 
 /*
@@ -159,6 +159,10 @@ function scrape(doc, url) {
 
 		if (item.abstractNote.match(/^la\spiattaforma\sitaliana|^the\sitalian\splatform/i)) {
 			item.abstractNote = "";
+		}
+
+		if (item.title.match(/recensioni/i)) {
+			item.tags.push('RezensionstagPica');
 		}
 		
 		item.complete();
