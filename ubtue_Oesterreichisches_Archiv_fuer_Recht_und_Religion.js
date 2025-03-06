@@ -9,30 +9,30 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-12-19 08:27:22"
+	"lastUpdated": "2025-03-06 14:56:23"
 }
 
 /*
-    ***** BEGIN LICENSE BLOCK *****
+	***** BEGIN LICENSE BLOCK *****
 
-    Copyright © 2024 UB Tübingen
+	Copyright © 2024 UB Tübingen
 
-    This file is part of Zotero.
+	This file is part of Zotero.
 
-    Zotero is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	Zotero is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    Zotero is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU Affero General Public License for more details.
+	Zotero is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with Zotero. If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU Affero General Public License
+	along with Zotero. If not, see <http://www.gnu.org/licenses/>.
 
-    ***** END LICENSE BLOCK *****
+	***** END LICENSE BLOCK *****
 */
 
 
@@ -87,15 +87,26 @@ async function scrape(doc, url = doc.location.href, needSingleFile = false) {
 	item.title = ZU.xpathText(doc, '//h1')?.replaceAll(/[\s\n]+/g, ' ');
 	item.creators =
 		ZU.xpathText(doc, 
-		     '//div[contains(@class, "fw-bold")][contains(text(), "Autor:in")]/following-sibling::div')
+			 '//div[contains(@class, "fw-bold")][contains(text(), "Autor:in")]/following-sibling::div')
 			 ?.split(bySlash)
 			 ?.map(author => ZU.cleanAuthor(author, "author"));
 	
 	item.pages = ZU.xpathText(doc, '//div[contains(@class, "fw-bold")][contains(text(), "Seite")]/following-sibling::div');
 	
+	//get abstract
+	let abstract = ZU.xpathText(doc, '(//div[@id = "doc-content-main"]//p)[1]');
+	item.abstractNote = ZU.trimInternal(abstract);
+
+	//get URL
+	if (url.match(/rdb.tso/)) {
+		item.url = url;
+	}
+
+	item.ISSN = "1560-8670";
+
 	let issueAndYear = ZU.xpathText(doc, '//div[contains(@class, "fw-bold")][contains(text(), "Heft")]/following-sibling::div');
 	item.issue = issueAndYear?.split(bySlash)?.[0];
-    item.year = issueAndYear?.split(bySlash)?.[1];
+	item.date = issueAndYear?.split(bySlash)?.[1];
 	item.complete();
 }
 
