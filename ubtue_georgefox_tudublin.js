@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-05-25 09:44:15"
+	"lastUpdated": "2025-03-07 15:28:13"
 }
 
 /*
@@ -72,13 +72,15 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 					i.notes.push({note:  author + ' | orcid:' + orcid + ' | ' + 'taken from website'});
 		}
 		}
-		if (i.ISSN == "2693-2148" || i.ISSN == "2009-7379") {
-			i.notes.push('artikelID:' + i.pages);
+		if (i.ISSN == "2693-2148" || i.ISSN == "2009-7379" || i.ISSN == "2693-2229") {
+			i.notes.push('artikelID: ' + i.pages);
 			i.pages = '';
+			Z.debug(i.pages)
 			if (i.title.match(/^Book\s+review/gi) != null) i.tags.push('RezensionstagPica');
 			}
 		i.attachments = [];
 		i.complete();
+
 	});
 	translator.translate();
 }
@@ -98,6 +100,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEmbeddedMetadataTranslator(doc, url);
 }
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
