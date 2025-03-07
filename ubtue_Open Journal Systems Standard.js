@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-28 09:59:59"
+	"lastUpdated": "2025-03-07 11:47:31"
 }
 
 /*
@@ -739,6 +739,9 @@ function invokeEMTranslator(doc) {
 					i.abstractNote = abstractElement;
 				}
 			}
+		}
+
+		if (['2317-4307', '1983-2850'].includes(i.ISSN)) {
 			if (i.tags) {
 				let tagRegex = /\.|palavras-chave:/i;
 				i.tags = i.tags.filter(tag => !tagRegex.test(tag));
