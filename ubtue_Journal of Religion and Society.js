@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-12-16 13:54:58"
+	"lastUpdated": "2025-03-07 13:57:58"
 }
 
 /*
@@ -139,7 +139,8 @@ function parseOAI(xml, url) {
 	}
 
 	// ISSN
-	item.ISSN = "1522-5658";
+	item.ISSN = ZU.xpathText(dimNode, './/dim:field[@element="identifier"][@qualifier="issn"]', ns);
+	item.ISSN = item.ISSN || "1522-5658";
 	
 	item.complete();
 }
