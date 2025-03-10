@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-07 15:28:13"
+	"lastUpdated": "2025-03-10 08:43:54"
 }
 
 /*
@@ -75,7 +75,6 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		if (i.ISSN == "2693-2148" || i.ISSN == "2009-7379" || i.ISSN == "2693-2229") {
 			i.notes.push('artikelID: ' + i.pages);
 			i.pages = '';
-			Z.debug(i.pages)
 			if (i.title.match(/^Book\s+review/gi) != null) i.tags.push('RezensionstagPica');
 			}
 		i.attachments = [];
