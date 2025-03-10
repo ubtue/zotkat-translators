@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-10 09:02:25"
+	"lastUpdated": "2025-03-10 09:55:04"
 }
 
 /*
@@ -83,8 +83,12 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setHandler('itemDone', (_obj, item) => {
 
 		let abstracts = doc.querySelectorAll('div.abstract-container > p');
-		abstracts.forEach(abstract => {
-			item.notes.push(abstract.textContent);
+		abstracts.forEach((abstract, index) => {
+			if (index === 0) {
+				item.abstractNote = abstract.textContent;
+				} else {
+					item.notes.push("abs:" + abstract.textContent);
+				}
 		});
 
 		item.complete();
