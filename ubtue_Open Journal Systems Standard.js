@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-07 11:47:31"
+	"lastUpdated": "2025-03-10 09:00:08"
 }
 
 /*
@@ -747,6 +747,26 @@ function invokeEMTranslator(doc) {
 				i.tags = i.tags.filter(tag => !tagRegex.test(tag));
 			}
 		}
+
+		if (['2695-4397'].includes(i.ISSN)) {
+			i.language = i.language == "español" ? "es" : i.language;
+			if (i.issue && !i.volume) {
+				i.volume = i.issue;
+				i.issue = "";
+			}
+			let articleTypeElement = doc.querySelector('meta[name="DC.Type.articleType"]');
+			if (articleTypeElement) {
+				let articleType = articleTypeElement.getAttribute('content');
+				if (articleType.match(/recensiones|reseñas/i)) {
+					i.tags.push('RezensionstagPica');
+				}
+			}
+			if (i.creators) {
+				let creatorRegex = /^aa vv/i;
+				i.creators = i.creators.filter(creator => !creatorRegex.test(creator.firstName + ' ' + creator.lastName));
+			}
+		} 
+		
 
 		i.tags = [...new Set(i.tags.map(x => x))]
 
