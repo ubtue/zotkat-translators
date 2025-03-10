@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-07 13:57:58"
+	"lastUpdated": "2025-03-10 09:31:27"
 }
 
 /*
@@ -127,7 +127,7 @@ function parseOAI(xml, url) {
 	}
 	
 	// Journal Title
-	item.publicationTitle = ZU.xpathText(dimNode, './/dim:field[@element="source"]', ns);
+	item.publicationTitle = ZU.xpathText(dimNode, './/dim:field[@element="title"][@qualifier="work"]', ns);
 	
 	// URL
 	item.url = url;
@@ -140,7 +140,6 @@ function parseOAI(xml, url) {
 
 	// ISSN
 	item.ISSN = ZU.xpathText(dimNode, './/dim:field[@element="identifier"][@qualifier="issn"]', ns);
-	item.ISSN = item.ISSN || "1522-5658";
 	
 	item.complete();
 }
