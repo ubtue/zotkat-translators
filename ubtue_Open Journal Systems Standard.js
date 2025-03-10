@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-10 09:00:08"
+	"lastUpdated": "2025-03-10 14:34:34"
 }
 
 /*
@@ -282,10 +282,20 @@ function invokeEMTranslator(doc) {
 			}
 		}
 
-		if (orcidAuthorEntryCaseC.length) {
+		if (orcidAuthorEntryCaseC.length && i.ISSN !== "2304-8557") {
 			for (let c of orcidAuthorEntryCaseC) {
 				if (c.innerHTML.match(/\d+-\d+-\d+-\d+x?/gi)) {
 					let author = ZU.trimInternal(c.innerText).replace('+', '').replace('−', '');
+					let orcid = ZU.trimInternal(c.innerHTML).match(/\d+-\d+-\d+-\d+x?/gi);
+					addNote(orcid, author);
+				}
+			}
+		}
+
+		if (orcidAuthorEntryCaseC.length && ['2304-8557'].includes(i.ISSN)) {
+			for (let c of orcidAuthorEntryCaseC) {
+				if (c.innerHTML.match(/\d+-\d+-\d+-\d+x?/gi)) {
+					let author = ZU.trimInternal(c.innerText).replace('+', '').replace('−', '').replace(' .st0{fill:#A6CE39;} .st1{fill:#FFFFFF;}', '');
 					let orcid = ZU.trimInternal(c.innerHTML).match(/\d+-\d+-\d+-\d+x?/gi);
 					addNote(orcid, author);
 				}
@@ -501,7 +511,7 @@ function invokeEMTranslator(doc) {
 				}
 			}
 		}
- 		if (i.ISSN=="2183-2803") {
+ 		if (i.ISSN =="2183-2803") {
  			let abstract = ZU.xpathText(doc, '//meta[@name="DC.Description"]/@content');
  			if (abstract) {
  				i.abstractNote = abstract;
