@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-25 08:18:23"
+	"lastUpdated": "2025-03-11 09:48:56"
 }
 
 /*
@@ -76,7 +76,7 @@ async function doWeb(doc, url) {
 			let entry = doc.querySelector('a[href*="' + relativeUrl.pathname.replace("/pdf/", "pdf/") + '"]');
 			if (entry) {
 				let entryText = entry.textContent;
-				let citation = entryText.match(/(.*),?\s*"([\s\S]*),?"\s+ashland theological journal\s+(\d+)\.(\d+)\s+\(\w+\s+(\d+)\):\s(\d+-\d+)/i);
+				let citation = entryText.match(/(.*),*\s*"([\s\S]*),?"\s+ashland theological journal\s?(\d+)\s+\(\w*\s*(\d{4})\):\s+(\d+-\d+)/i);
 				if (citation) {
 					if (citation[1].length) {
 						let authors = citation[1].replace('et al', '').split('&');
@@ -84,9 +84,8 @@ async function doWeb(doc, url) {
 					}
 					item.title = citation[2].replace(/,$/,"");
 					item.volume = citation[3];
-					item.issue = citation[4];
-					item.date = citation[5];
-					item.pages = citation[6];	
+					item.date = citation[4];
+					item.pages = citation[5];	
 				}
 			}
 
