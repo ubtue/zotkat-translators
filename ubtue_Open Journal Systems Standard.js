@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-11 08:37:13"
+	"lastUpdated": "2025-03-12 10:37:46"
 }
 
 /*
@@ -150,7 +150,7 @@ function invokeEMTranslator(doc) {
  				delete i.archiveLocation;
  			}
  		}
-		if (articleType && articleType.match(/^(Book Reviews?)/gi) != null) i.tags.push("RezensionstagPica");
+		if (articleType && articleType.match(/^(Book Reviews?)|Recensioni/gi) != null) i.tags.push("RezensionstagPica");
 		 //orcid for pica-field 8910
    		// Collect all ORCID author entries from various cases
 		let orcidAuthorEntryCaseA = doc.querySelectorAll('.authors, .div.authors > strong, author');
