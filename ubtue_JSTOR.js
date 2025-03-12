@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-12-12 15:13:22"
+	"lastUpdated": "2025-03-12 14:52:17"
 }
 
 /*
@@ -40,13 +40,8 @@
 function attr(docOrElem,selector,attr,index){var elem=index?docOrElem.querySelectorAll(selector).item(index):docOrElem.querySelector(selector);return elem?elem.getAttribute(attr):null;}function text(docOrElem,selector,index){var elem=index?docOrElem.querySelectorAll(selector).item(index):docOrElem.querySelector(selector);return elem?elem.textContent:null;}
 
 function detectWeb(doc, url) {
-	// See if this is a search results page or Issue content
-	if (doc.title == "JSTOR: Search Results") {
+	if (url.includes('/stable/')) {
 		return getSearchResults(doc, true) ? "multiple" : false;
-	}
-	else if (/stable|pss/.test(url) // Issues with DOIs can't be identified by URL
-		&& getSearchResults(doc, true)) {
-		return "multiple";
 	}
 	// If this is a view page, find the link to the citation
 	var favLink = getFavLink(doc);
@@ -92,14 +87,12 @@ function getKeyWords(item) {
 }
 
 function getSearchResults(doc, checkOnly) {
-	var resultsBlock = ZU.xpath(doc, '//div[@class="toc-item"]')
-	if (!resultsBlock) return false;
-	var items = {}, found = false;
-	for (let i=0; i<resultsBlock.length; i++) {
-		let node = resultsBlock[i];
-		let link = ZU.xpath(node, './/*[@data-qa="content title"]');
-		let href = ZU.xpathText(link[0], './@href');
-		let title = link[0].textContent.trim();
+	var items = {};
+	var found = false;
+	var rows = ZU.xpath(doc, '//ul[@class="visuallyhidden"]/li//li[1]/a');
+	for (let row of rows) {
+		let href = row.getAttribute('href');
+		let title = ZU.trimInternal(row.textContent);
 		if (!href || !title) continue;
 		if (checkOnly) return true;
 		found = true;
@@ -331,9 +324,6 @@ function finalizeItem(item, onDone) {
 		},
 	onDone(item));
 }
-	
-
-
 
 /** BEGIN TEST CASES **/
 var testCases = [
