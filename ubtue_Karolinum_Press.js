@@ -9,30 +9,30 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-18 15:14:07"
+	"lastUpdated": "2025-03-18 15:45:31"
 }
 
 /*
-    ***** BEGIN LICENSE BLOCK *****
+	***** BEGIN LICENSE BLOCK *****
 
-    Copyright © 2025 Universitätsbibliothek Tübingen
+	Copyright © 2025 Universitätsbibliothek Tübingen
 
-    This file is part of Zotero.
+	This file is part of Zotero.
 
-    Zotero is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	Zotero is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    Zotero is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU Affero General Public License for more details.
+	Zotero is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with Zotero. If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU Affero General Public License
+	along with Zotero. If not, see <http://www.gnu.org/licenses/>.
 
-    ***** END LICENSE BLOCK *****
+	***** END LICENSE BLOCK *****
 */
 
 
@@ -76,9 +76,9 @@ async function doWeb(doc, url) {
 
 function getParallelTitle(doc, item) {
 	let titleElement = doc.querySelector('h1');
-	if (titleElement && titleElement.textContent.trim() === item.title.trim()) {
+	if (titleElement?.textContent.trim() === item.title.trim()) {
 		let siblingElement = titleElement.nextElementSibling;
-		if (siblingElement.textContent.trim().startsWith('[') && siblingElement.textContent.trim().endsWith(']')) {
+		if (siblingElement?.textContent.trim().startsWith('[') && siblingElement?.textContent.trim().endsWith(']')) {
 			let parallelTitle = siblingElement.textContent.trim().replace(/^\[/, '').replace(/\]$/, '');
 			item.notes.push("Paralleltitel: " + parallelTitle);
 		}
