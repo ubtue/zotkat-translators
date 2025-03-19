@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-12 10:37:46"
+	"lastUpdated": "2025-03-19 11:29:12"
 }
 
 /*
@@ -343,7 +343,7 @@ function invokeEMTranslator(doc) {
 			//then replace the range with a first page number e.g 3
 			if (pageNumberFromDC != null) i.pages = pageNumberFromDC.trim().replace(/^([^-]+)-\1$/, '$1');
  		}
-		if (["2468-9963", "1988-4265"].includes(i.ISSN)) {
+		if (["2468-9963", "1988-4265", "2175-5841", "1980-6736"].includes(i.ISSN)) {
 			i.notes.push('artikelID:' + i.pages);
 			i.pages = "";
 		}
@@ -425,9 +425,7 @@ function invokeEMTranslator(doc) {
 			i.abstractNote = i.abstractNote.replace(/\n+/g, " ");
 		}	
 		//artikelnummer anstatt seitenzahlen
-		if (i.ISSN == "2175-5841") {
-			i.notes.push("artikelID:" + i.pages);
-			i.pages = "";
+		if (['2175-5841'].includes(i.ISSN)) {
 			let volumeIssueEntry = ZU.xpathText(doc, '//*[@class="breadcrumb"]');
  			if (volumeIssueEntry) {
  				i.volume = volumeIssueEntry.trim().match(/v\.\s+(\d{2}),\s+n\.\s+(\d{2})/i)[1];
