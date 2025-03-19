@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-19 11:29:12"
+	"lastUpdated": "2025-03-19 11:40:08"
 }
 
 /*
@@ -543,17 +543,20 @@ function invokeEMTranslator(doc) {
 					i.tags.push(tag[t].capitalizeFirstLetter());
 				}
 			}
-			if (ZU.xpathText(doc, '//meta[@name="DC.Title"]/@content')) {
-				for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
-					if (parallelTitle.value && parallelTitle.value != i.title) {
-						i.notes.push({'note': 'Paralleltitel:' + ZU.unescapeHTML(parallelTitle.textContent.trim())});
-					}
-				}
-			}
+			
 			if (ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
 				for (let alternativeAbstract of ZU.xpath(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
 					if (alternativeAbstract.value && alternativeAbstract.value != i.abstractNote) {
 						i.notes.push({'note': 'abs:' + ZU.unescapeHTML(alternativeAbstract.textContent.trim())});
+					}
+				}
+			}
+		}
+		if (['1853-9106', '2254-6227', '1860-8213', '2500-5413', '1980-6736', '2237-6461'].includes(i.ISSN)) {
+			if (ZU.xpathText(doc, '//meta[@name="DC.Title"]/@content')) {
+				for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt") or @*=("de")]/@content')) {
+					if (parallelTitle.value && parallelTitle.value != i.title) {
+						i.notes.push({'note': 'Paralleltitel:' + ZU.unescapeHTML(parallelTitle.textContent.trim())});
 					}
 				}
 			}
@@ -566,13 +569,6 @@ function invokeEMTranslator(doc) {
 			}
 		}
 		if (["2237-6461"].includes(i.ISSN)) {
-			if (ZU.xpathText(doc, '//meta[@name="DC.Title"]/@content')) {
-				for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"][@*=("es") or @*=("en") or @*=("fr") or @*=("pt") or @*=("de")]/@content')) {
-					if (parallelTitle.value && parallelTitle.value != i.title) {
-						i.notes.push({'note': 'Paralleltitel:' + ZU.unescapeHTML(parallelTitle.textContent.trim())});
-					}
-				}
-			}
 			if (ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("de") or @*=("pt")]/@content')) {
 				for (let alternativeAbstract of ZU.xpath(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("de") or @*=("pt")]/@content')) {
 					if (alternativeAbstract.value && alternativeAbstract.value != i.abstractNote) {
@@ -615,7 +611,6 @@ function invokeEMTranslator(doc) {
 					}
 				}
 			}
-
 			i.title = ZU.xpathText(doc, '//meta[@name="DC.Title"]/@content').trim();
 			if (!i.title) {
 				i.title = ZU.xpathText(doc, '//meta[@name="DC.Title.Alternative"][1]/@content').trim();
