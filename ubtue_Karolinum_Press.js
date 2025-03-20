@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-20 08:21:32"
+	"lastUpdated": "2025-03-20 08:33:24"
 }
 
 /*
@@ -49,10 +49,7 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = doc.querySelectorAll('a[href*="/article-"]');
-	if (!rows.length) {
-		var rows = doc.querySelectorAll('a[href*="/clanek-"]');
-	} 
+	var rows = doc.querySelectorAll('a[href*="/article-"], a[href*="/clanek-"]');
 	for (let row of rows) {
 		let href = row.href;
 		let title = ZU.trimInternal(row.textContent);
