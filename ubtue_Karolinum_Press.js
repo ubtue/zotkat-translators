@@ -2,14 +2,14 @@
 	"translatorID": "9331adb1-ed81-4e1b-abd4-b4673c556fde",
 	"label": "ubtue_Karolinum_Press",
 	"creator": "Mara Spieß",
-	"target": "https://karolinum.cz(.*)/journal/",
+	"target": "https://karolinum.cz(.*)/(journal|casopis)/",
 	"minVersion": "5.0",
 	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-18 15:45:31"
+	"lastUpdated": "2025-03-20 08:21:32"
 }
 
 /*
@@ -37,7 +37,7 @@
 
 
 function detectWeb(doc, url) {
-	if (url.includes('/article-')) {
+	if (url.includes('/article-') || url.includes('/clanek-')) {
 		return 'journalArticle';
 	}
 	else if (getSearchResults(doc, true)) {
@@ -50,6 +50,9 @@ function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
 	var rows = doc.querySelectorAll('a[href*="/article-"]');
+	if (!rows.length) {
+		var rows = doc.querySelectorAll('a[href*="/clanek-"]');
+	} 
 	for (let row of rows) {
 		let href = row.href;
 		let title = ZU.trimInternal(row.textContent);
@@ -86,7 +89,7 @@ function getParallelTitle(doc, item) {
 }
 
 function getKeywords(doc, item) {
-	let keywords = ZU.xpath(doc, '//p/strong[contains(text(), "keywords:")]');
+	let keywords = ZU.xpath(doc, '//p/strong[contains(text(), "keywords:") or contains(text(), "klíčová slova:")]');
 	if (keywords.length) {
 		let keywordElement = keywords[0];
 		let keywordText = keywordElement.parentNode.textContent.replace(/keywords:/i, '').trim();
