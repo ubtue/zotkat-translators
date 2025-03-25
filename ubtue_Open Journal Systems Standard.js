@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-19 12:00:43"
+	"lastUpdated": "2025-03-25 12:25:59"
 }
 
 /*
@@ -107,10 +107,6 @@ function invokeEMTranslator(doc) {
 			delete i.issue;
 		}
 
-		if (i.publicationTitle.match(/transformatio/i)) {
-			i.ISSN = "2813-4613";
-		}
-
 		if (['2296-469X'].includes(i.ISSN)) {
 			let volumeText = doc.querySelector('div.page_article a[href*="/issue/view/"]').textContent;
 			if (volumeText) {
@@ -140,6 +136,11 @@ function invokeEMTranslator(doc) {
 
 		if (i.ISSN == "2293-7374") {
 			i.title = i.title.replace( '| Renaissance and Reformation', '');
+			i.publicationTitle = ZU.xpathText(doc, '//meta[@name="DC.Source"]/@content');
+		}
+
+		if (i.publicationTitle.match(/transformatio/i)) {
+			i.ISSN = "2813-4613";
 		}
  		//title in other language for pica-field 4002
  		var articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
