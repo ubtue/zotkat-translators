@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-23 07:53:41"
+	"lastUpdated": "2025-03-27 14:55:11"
 }
 
 /*
@@ -174,19 +174,8 @@ function scrape(doc, url) {
 					var orcid = ZU.xpathText(authorSectionEntry, './a[contains(@href, "orcid")]').replace(/https?:\/\/orcid.org\//, '');
 					let authorName = ZU.xpathText(authorSectionEntry, './/span[@property="givenName"]') + ' ' + ZU.xpathText(authorSectionEntry, './/span[@property="familyName"]');
 					item.notes.push({"note": "orcid:" + orcid + ' | ' + authorName + ' | taken from website'});
-				} else if (!orcid) {
- 					let bottomAuthorSectionEntries = doc.querySelectorAll('#orcid');
-					for (let bottomSectionEntry of bottomAuthorSectionEntries) {
-						let entry = bottomSectionEntry.innerText;
-						let regexOrcid = /\d+-\d+-\d+-\d+x?/i;
-						let entryOrcidAuthor = entry.split('\n')[1].split('https://orcid.org/');
-							if(entryOrcidAuthor[1].match(regexOrcid)) {
-							item.notes.push({note: "orcid:" + entryOrcidAuthor[1] + ' | ' + entryOrcidAuthor[0] + ' | taken from website'});
-						}
-					}	
-				}	
+				} 
 			}
-
 			// Workaround to address address weird incorrect multiple extraction by both querySelectorAll and xpath
 			// So, let's deduplicate...
 			item.notes = Array.from(new Set(item.notes.map(JSON.stringify))).map(JSON.parse);
