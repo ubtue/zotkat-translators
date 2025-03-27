@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-14 09:22:27"
+	"lastUpdated": "2025-02-18 11:23:45"
 }
 
 /*
@@ -75,6 +75,24 @@ async function doWeb(doc, url) {
 	}
 }
 
+function extractOrcid(doc, item) {
+	for (orcid_tag of ZU.xpath(doc, '//meta[@name="citation_author_orcid"]')){
+		let previous_author_tag = orcid_tag.previousElementSibling;
+		if (previous_author_tag.name == 'citation_author') {
+			let author_name = previous_author_tag.content;
+			let orcid = orcid_tag.content;
+			item.notes.push({note: "orcid:" + orcid + ' | ' + author_name + ' | ' + "taken from website"});
+		}
+	}
+	if (!item.notes.some(obj => obj.note.startsWith('orcid'))) {
+		for (orcid_element of ZU.xpath(doc, '//a[contains(@href, "orcid")]')) {
+			let orcid = orcid_element.href.match(/\d{4}-\d{4}-\d{4}-\d{3}[0-9X]/i);
+			let author_name = orcid_element.previousSibling.textContent.trim()
+			item.notes.push({note: "orcid:" + orcid[0] + ' | ' + author_name + ' | ' + "taken from website"});
+		}
+	}
+}
+
 async function scrape(doc, url = doc.location.href) {
 	let translator = Zotero.loadTranslator('web');
 	// Embedded Metadata
@@ -82,7 +100,7 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setDocument(doc);
 
 	translator.setHandler('itemDone', (_obj, item) => {
-		if (item.abstractNote.length < 20) {
+		if (item.abstractNote?.length < 20) {
 			let abstractNEU = text(doc, 'div.card-content h2~p'); 
 			if (abstractNEU.length > 20) {
 				item.abstractNote = abstractNEU; 
@@ -91,14 +109,8 @@ async function scrape(doc, url = doc.location.href) {
 				item.abstractNote = "";
 			}
 		}
-		for (orcid_tag of ZU.xpath(doc, '//meta[@name="citation_author_orcid"]')){
-			let previous_author_tag = orcid_tag.previousElementSibling;
-			if (previous_author_tag.name == 'citation_author') {
-				let author_name = previous_author_tag.content;
-				let orcid = orcid_tag.content;
-				item.notes.push({note: "orcid:" + orcid + ' | ' + author_name});
-			}
-		}
+
+		extractOrcid(doc, item);
 			
 		if (text(doc, 'span.card-title div small') == 'Reviews'){
 			item.tags.push("RezensionstagPica");
@@ -107,6 +119,7 @@ async function scrape(doc, url = doc.location.href) {
 		if (!item.pages && ZU.xpathText(doc, '//th[text()="Pages"]/following-sibling::td/text()')) item.pages = ZU.xpathText(doc, '//th[text()="Pages"]/following-sibling::td/text()');
 
 		item.complete();
+
 	});
 
 	
@@ -114,8 +127,6 @@ async function scrape(doc, url = doc.location.href) {
 	
 	await em.doWeb(doc, url); 
 }
-
-
 
 /** BEGIN TEST CASES **/
 var testCases = [

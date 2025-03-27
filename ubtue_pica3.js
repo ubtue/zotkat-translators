@@ -8,7 +8,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 2,
-	"lastUpdated": "2025-01-23 09:45:02"
+	"lastUpdated": "2025-03-07 11:08:10"
 }
 
 // Zotero Export Translator in Pica3 Format für das Einzeln- und Mulitiupload in WinIBW
@@ -482,7 +482,7 @@ function performExport() {
 			}
 		}
 		var localURL = "";		
-		if (item.url && item.url.match(/redi-bw.de/) && physicalForm === "O") {
+		if (item.url && item.url.match(/research.ebsco.com/) && physicalForm === "O") {
 			localURL = "\\n7133 " + item.url + "$xH$3Volltext$4ZZ$534";
 			item.url = null;		
 		}
@@ -889,12 +889,12 @@ function performExport() {
 		//Inhaltliche Zusammenfassung --> 4207
 		if (item.abstractNote) {
 			item.abstractNote = ZU.unescapeHTML(item.abstractNote);
-			addLine(currentItemId, "\\n4207", item.abstractNote.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract\s?:?/, '').replace(/Abstract  :/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, ''));
+			addLine(currentItemId, "\\n4207", item.abstractNote.replace(/–/g, '-').replace(/&#160;|^abstract\s*:?|^zusammenfassung|^summary|not?\s(abstract\s)?available\.?/gi, ''));
 		}
 		//Inhaltliche Zusammenfassung, falls mehr als ein Abstract --> 4207
 		if (item.notes) {
 			for (let i in item.notes) {
-				if (item.notes[i].note.includes('abs')) addLine(currentItemId, "\\n4207", item.notes[i].note.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract\s?:?/, '').replace(/Abstract  :/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, '').replace('abs:', ''));
+				if (item.notes[i].note.includes('abs:')) addLine(currentItemId, "\\n4207", item.notes[i].note.replace(/–/g, '-').replace(/&#160;|^abstract\s*:?|^zusammenfassung|^summary|abs:|not?\s(abstract\s)?available\.?/gi, ''));
 			}
 		}
 		//item.publicationTitle --> 4241 Beziehungen zur größeren Einheit
@@ -975,10 +975,10 @@ function performExport() {
 			}
 			else if (institution_retrieve_sign == "zojs") {
 					addLine(currentItemId, '\\nE* l01\\n4801 Der Zugriff ist kostenfrei möglich\\n7100 $B21\\n8012 fauf$auwzs$azojs' + ixrkIxtheo + rwrkRelbib + localURL, "");
-		    }
+			}
 			else if (institution_retrieve_sign == "tojs") {
 					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 tojs$aixzs$aixzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
-		    }
+			}
 			//K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
 			//Schlagwörter aus einem Thesaurus (Fremddaten) --> 5520 (oder alternativ siehe Mapping)
 
@@ -1045,3 +1045,7 @@ function doExport() {
 	});
 }
 
+/** BEGIN TEST CASES **/
+var testCases = [
+]
+/** END TEST CASES **/

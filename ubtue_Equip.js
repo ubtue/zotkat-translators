@@ -1,21 +1,21 @@
 {
-	"translatorID": "4ccf849b-f9e9-4cec-9bae-7c10aa4dea53",
-	"label": "ubtue_University of Toronto Press",
+	"translatorID": "03b213df-2daf-428a-86dc-44e16339eaa5",
+	"label": "ubtue_Equip",
 	"creator": "Mara Spieß",
-	"target": "^https?://(www\\.)?utp(journals|publishing).com/(doi|toc)",
-	"minVersion": "3.0",
+	"target": "https://equipthecalled.com/(.*)-journal-(article|issue)",
+	"minVersion": "5.0",
 	"maxVersion": "",
-	"priority": 90,
+	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-01-31 14:18:18"
+	"lastUpdated": "2025-03-20 10:27:02"
 }
 
 /*
 	***** BEGIN LICENSE BLOCK *****
 
-	Copyright © 2024 Mara Spieß
+	Copyright © 2025 Universitätsbibliotehk Tübingen
 
 	This file is part of Zotero.
 
@@ -37,7 +37,7 @@
 
 
 function detectWeb(doc, url) {
-	if (url.includes('/doi/')) {
+	if (url.includes('journal-article/')) {
 		return 'journalArticle';
 	}
 	else if (getSearchResults(doc, true)) {
@@ -49,7 +49,7 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = doc.querySelectorAll('h2.issue-item__title > a[href*="/doi/"]');
+	var rows = doc.querySelectorAll('a[href*="journal-article/"]');
 	for (let row of rows) {
 		let href = row.href;
 		let title = ZU.trimInternal(row.textContent);
@@ -74,19 +74,11 @@ async function doWeb(doc, url) {
 	}
 }
 
-function extractAndAssign(selector, property, doc, item) {
-	let element = doc.querySelector('span.' + selector);
-	if (element) {
-		item[property] = element.textContent.trim();
+function getAuthors(doc, item) {
+	let authorsElement = doc.querySelector('div.authors'); 
+	for (author of authorsElement.querySelectorAll('h4.mb-2')) {
+		item.creators.push(ZU.cleanAuthor(author.textContent, "author", false));
 	}
-}
-
-function mapTitleIssn(publicationTitle) {
-	let publicationTitleToIssn = {
-		'Toronto Journal of Theology': '1918-6371',
-		'Canadian Journal of Criminology and Criminal Justice': '1707-7753',
-	};
-	return publicationTitleToIssn[publicationTitle] || null;
 }
 
 async function scrape(doc, url = doc.location.href) {
@@ -97,34 +89,39 @@ async function scrape(doc, url = doc.location.href) {
 	
 	translator.setHandler('itemDone', (_obj, item) => {
 
-		extractAndAssign('volume', 'volume', doc, item);
-		extractAndAssign('issue', 'issue', doc, item);
-		extractAndAssign('page', 'pages', doc, item);
+		item.itemType = "journalArticle";
 
-		let metaElementDoi = doc.querySelector('meta[name="publication_doi"]');
-		if (metaElementDoi) {
-			item.DOI = metaElementDoi.getAttribute('content');
-		}
+		item.abstractNote = "";
 
-		let metaElementReview = doc.querySelector('meta[name="dc.Type"]');
-		if (metaElementReview && metaElementReview.getAttribute('content').match(/book-review/i)) {
-			item.tags.push('RezensionstagPica');
+		let publicationTitle = doc.querySelector('div.breadcrumb');
+		if (publicationTitle) {
+			item.publicationTitle = publicationTitle.textContent;
 		}
-		
-		if (item.ISSN == '1707-7753' && item.title.match(/book reviews|recensions de livres/i)) {
-			item.tags.push('RezensionstagPica');
-		}
-		
-		let issn = mapTitleIssn(item.publicationTitle);
-		if (issn) {
-			item.ISSN = issn;
+		if (item.publicationTitle.match(/Southwestern Journal of Theology Article/i)) {
+			item.ISSN = "0038-4828";
 		}
 
-		let openAccessIcon = doc.querySelector('i.icon-access-open[title="Open access"]');
-		if (openAccessIcon) {
-			item.notes.push("LF:");
+		let citation = doc.querySelector('div.journal-float > div.row > div.col-md-6 > p')?.textContent;
+		if (citation) {
+			let citationMatch = citation.match(/volume\s+(\d*),\s?(?:no.)?\s?(\d+)?\s?-?\s+\w*\s+(\d{4})/i);
+			if (citationMatch) {
+				item.volume = citationMatch[1];
+				item.issue = citationMatch[2];
+				item.date = citationMatch[3];
+			}
 		}
-		
+
+		let reviewElement = ZU.xpathText(doc, '//div[contains(text(), "Book Review")]');
+		if (reviewElement) {
+			item.tags.push("RezensionstagPica");
+			let reviewAbstractElement = doc.querySelector('div.post_content > p > strong');
+			if (reviewAbstractElement) {
+				item.abstractNote = reviewAbstractElement.textContent;
+			}
+		}
+
+		getAuthors(doc, item);
+
 		item.complete();
 	});
 

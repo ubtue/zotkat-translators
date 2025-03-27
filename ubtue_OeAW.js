@@ -1,21 +1,21 @@
 {
-	"translatorID": "4ccf849b-f9e9-4cec-9bae-7c10aa4dea53",
-	"label": "ubtue_University of Toronto Press",
+	"translatorID": "fd78d8d0-f651-4755-b172-1a24302dd243",
+	"label": "ubtue_OeAW",
 	"creator": "Mara Spieß",
-	"target": "^https?://(www\\.)?utp(journals|publishing).com/(doi|toc)",
-	"minVersion": "3.0",
+	"target": "https://austriaca.at/",
+	"minVersion": "5.0",
 	"maxVersion": "",
-	"priority": 90,
+	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-01-31 14:18:18"
+	"lastUpdated": "2025-02-27 14:23:51"
 }
 
 /*
 	***** BEGIN LICENSE BLOCK *****
 
-	Copyright © 2024 Mara Spieß
+	Copyright © 2025 Universitätsbibliothek Tübingen
 
 	This file is part of Zotero.
 
@@ -37,10 +37,10 @@
 
 
 function detectWeb(doc, url) {
-	if (url.includes('/doi/')) {
+	if (url.includes('/?arp=')) {
 		return 'journalArticle';
 	}
-	else if (getSearchResults(doc, true)) {
+	else if (url.includes('inhalt') && getSearchResults(doc, true)) {
 		return 'multiple';
 	}
 	return false;
@@ -49,7 +49,7 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = doc.querySelectorAll('h2.issue-item__title > a[href*="/doi/"]');
+	var rows = doc.querySelectorAll('div.jArticle > h4.jTitle > a[href*="/?arp="]');
 	for (let row of rows) {
 		let href = row.href;
 		let title = ZU.trimInternal(row.textContent);
@@ -74,19 +74,18 @@ async function doWeb(doc, url) {
 	}
 }
 
-function extractAndAssign(selector, property, doc, item) {
-	let element = doc.querySelector('span.' + selector);
-	if (element) {
-		item[property] = element.textContent.trim();
-	}
-}
-
-function mapTitleIssn(publicationTitle) {
-	let publicationTitleToIssn = {
-		'Toronto Journal of Theology': '1918-6371',
-		'Canadian Journal of Criminology and Criminal Justice': '1707-7753',
-	};
-	return publicationTitleToIssn[publicationTitle] || null;
+function getOrcids(doc, item) {
+	let authors = doc.querySelectorAll('ul.authors > span.author');
+	authors.forEach(author => {
+		let authorName = author.textContent.trim();
+		let orcidElement = author.querySelector('a[href*="orcid.org"]');
+		if (orcidElement) {
+			let orcid = orcidElement.getAttribute('href').match(/\d{4}-\d{4}-\d{4}-\d{3}[0-9X]/i);
+			if (orcid) {
+				item.notes.push("orcid: " + orcid[0] + ' | ' + authorName + ' | ' + 'taken from website');
+			}
+		}
+	})
 }
 
 async function scrape(doc, url = doc.location.href) {
@@ -96,39 +95,17 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setDocument(doc);
 	
 	translator.setHandler('itemDone', (_obj, item) => {
-
-		extractAndAssign('volume', 'volume', doc, item);
-		extractAndAssign('issue', 'issue', doc, item);
-		extractAndAssign('page', 'pages', doc, item);
-
-		let metaElementDoi = doc.querySelector('meta[name="publication_doi"]');
-		if (metaElementDoi) {
-			item.DOI = metaElementDoi.getAttribute('content');
-		}
-
-		let metaElementReview = doc.querySelector('meta[name="dc.Type"]');
-		if (metaElementReview && metaElementReview.getAttribute('content').match(/book-review/i)) {
+		getOrcids(doc, item);
+		item.tags = [];
+		if (item.title.match(/Rezensionen/)) {
+			item.notes.push('LF:');
 			item.tags.push('RezensionstagPica');
 		}
-		
-		if (item.ISSN == '1707-7753' && item.title.match(/book reviews|recensions de livres/i)) {
-			item.tags.push('RezensionstagPica');
-		}
-		
-		let issn = mapTitleIssn(item.publicationTitle);
-		if (issn) {
-			item.ISSN = issn;
-		}
-
-		let openAccessIcon = doc.querySelector('i.icon-access-open[title="Open access"]');
-		if (openAccessIcon) {
-			item.notes.push("LF:");
-		}
-		
-		item.complete();
+		item.complete(); 
 	});
 
 	let em = await translator.getTranslatorObject();
+	em.itemType = 'journalArticle';
 
 	await em.doWeb(doc, url);
 }

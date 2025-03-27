@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-26 15:12:00"
+	"lastUpdated": "2025-01-16 14:43:34"
 }
 
 /*
@@ -138,12 +138,18 @@ function scrape(doc, url) {
 						item.tags.push(keyword.trim());
 					}
 				}
-				if (item.series == "Jahrbuch für Biblische Theologie") {
-					item.ISSN = "2567-9392";
-					item.itemType = "journalArticle";
-					item.volume = item.volume.replace(/band\s+(\d+)(?:,\s+jahr\s+\d{4})?/i, '$1')
-					item.tags = [];
-				}
+				const seriesData = [
+					{ title: "Jahrbuch für Biblische Theologie", ISSN: "2567-9392" },
+					{ title: "Pietismus und Neuzeit", ISSN: "2197-3180" }
+				];
+				seriesData.forEach(series => {
+					if (item.series == series.title) {
+						item.ISSN = series.ISSN;
+						item.itemType = "journalArticle";
+						item.volume = item.volume.replace(/band\s+(\d+)(?:,\s+jahr\s+\d{4})?/i, '$1');
+						item.tags = [];
+					}
+				});
 				let switchToDE = "https://www.vr-elibrary.de/action/doLocaleChange?locale=de&requestUri=/doi/"+ doi;
 					ZU.processDocuments(switchToDE, function (url) {
 						let scrapeAbstractsDE = ZU.xpathText(url, '//*[contains(concat( " ", @class, " " ), concat( " ", "abstractInFull", " " ))]');
@@ -188,7 +194,6 @@ function scrape(doc, url) {
 		});
 	});
 }
-
 
 /** BEGIN TEST CASES **/
 var testCases = [

@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-17 12:07:44"
+	"lastUpdated": "2025-02-10 10:48:15"
 }
 
 /*
@@ -36,7 +36,7 @@
 */
 
 function detectWeb(doc, url) {
-	let multiples = /\/search\?|\/listing\?|\/issue\//;
+	let multiples = /\/search\?|\/listing\?|\/issue\/|\/volume\//;
 	if (multiples.test(url) && getSearchResults(doc, true)) {
 		return "multiple";
 	}

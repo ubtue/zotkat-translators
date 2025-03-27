@@ -1,21 +1,21 @@
 {
-	"translatorID": "4ccf849b-f9e9-4cec-9bae-7c10aa4dea53",
-	"label": "ubtue_University of Toronto Press",
+	"translatorID": "17809ade-c31b-40e5-b627-528235a8dd1d",
+	"label": "ubtue_BMJ_Journals",
 	"creator": "Mara Spieß",
-	"target": "^https?://(www\\.)?utp(journals|publishing).com/(doi|toc)",
-	"minVersion": "3.0",
+	"target": "https://jme.bmj.com/content/",
+	"minVersion": "5.0",
 	"maxVersion": "",
-	"priority": 90,
+	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-01-31 14:18:18"
+	"lastUpdated": "2025-02-28 07:55:38"
 }
 
 /*
 	***** BEGIN LICENSE BLOCK *****
 
-	Copyright © 2024 Mara Spieß
+	Copyright © 2025 Unibibliothek Tübingen
 
 	This file is part of Zotero.
 
@@ -37,7 +37,7 @@
 
 
 function detectWeb(doc, url) {
-	if (url.includes('/doi/')) {
+	if (url.match(/content\/\d*\/\d*\/d*/)) {
 		return 'journalArticle';
 	}
 	else if (getSearchResults(doc, true)) {
@@ -49,7 +49,7 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = doc.querySelectorAll('h2.issue-item__title > a[href*="/doi/"]');
+	var rows = doc.querySelectorAll('a.highwire-cite-linked-title[href*="/content/"]');
 	for (let row of rows) {
 		let href = row.href;
 		let title = ZU.trimInternal(row.textContent);
@@ -74,19 +74,18 @@ async function doWeb(doc, url) {
 	}
 }
 
-function extractAndAssign(selector, property, doc, item) {
-	let element = doc.querySelector('span.' + selector);
-	if (element) {
-		item[property] = element.textContent.trim();
+function extractOrcids(doc, item) {
+	for (orcid_tag of ZU.xpath(doc, '//meta[@name="citation_author_orcid"]')){
+		let previous_author_tag = orcid_tag.previousElementSibling;
+		while (previous_author_tag && previous_author_tag.name !== "citation_author") {
+			previous_author_tag = previous_author_tag.previousElementSibling;
+		}
+		if (previous_author_tag && previous_author_tag.name === "citation_author") {
+			let author_name = previous_author_tag.content;
+			let orcid = orcid_tag.content.match(/\d{4}-\d{4}-\d{4}-\d{3}[0-9X]/i);
+			item.notes.push({note: "orcid:" + orcid[0] + ' | ' + author_name + ' | ' + "taken from website"});
+		}
 	}
-}
-
-function mapTitleIssn(publicationTitle) {
-	let publicationTitleToIssn = {
-		'Toronto Journal of Theology': '1918-6371',
-		'Canadian Journal of Criminology and Criminal Justice': '1707-7753',
-	};
-	return publicationTitleToIssn[publicationTitle] || null;
 }
 
 async function scrape(doc, url = doc.location.href) {
@@ -96,40 +95,31 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setDocument(doc);
 	
 	translator.setHandler('itemDone', (_obj, item) => {
-
-		extractAndAssign('volume', 'volume', doc, item);
-		extractAndAssign('issue', 'issue', doc, item);
-		extractAndAssign('page', 'pages', doc, item);
-
-		let metaElementDoi = doc.querySelector('meta[name="publication_doi"]');
-		if (metaElementDoi) {
-			item.DOI = metaElementDoi.getAttribute('content');
-		}
-
-		let metaElementReview = doc.querySelector('meta[name="dc.Type"]');
-		if (metaElementReview && metaElementReview.getAttribute('content').match(/book-review/i)) {
-			item.tags.push('RezensionstagPica');
-		}
 		
-		if (item.ISSN == '1707-7753' && item.title.match(/book reviews|recensions de livres/i)) {
-			item.tags.push('RezensionstagPica');
+		if (item.abstractNote.endsWith("…")) {
+			item.abstractNote = "";
 		}
+		item.abstractNote = ZU.cleanTags(item.abstractNote);
+		item.abstractNote = item.abstractNote.replace(/\n/g, " ");
 		
-		let issn = mapTitleIssn(item.publicationTitle);
-		if (issn) {
-			item.ISSN = issn;
-		}
-
-		let openAccessIcon = doc.querySelector('i.icon-access-open[title="Open access"]');
-		if (openAccessIcon) {
+		let accessRights = doc.querySelector('meta[name="DC.AccessRights"]');
+		if (accessRights && accessRights.getAttribute('content').match(/open-access/i)) {
 			item.notes.push("LF:");
 		}
+
+		let firstPage = doc.querySelector('meta[name="citation_firstpage"]').getAttribute('content');
+		let lastPage =doc.querySelector('meta[name="citation_lastpage"]').getAttribute('content');
+		if (firstPage == lastPage) {
+			item.pages = firstPage;
+		}
+
+		extractOrcids(doc, item);
 		
 		item.complete();
 	});
 
 	let em = await translator.getTranslatorObject();
-
+	
 	await em.doWeb(doc, url);
 }
 

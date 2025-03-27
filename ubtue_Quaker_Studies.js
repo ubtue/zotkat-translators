@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-07 12:02:07"
+	"lastUpdated": "2024-12-05 15:23:55"
 }
 
 /*
@@ -87,6 +87,9 @@ async function scrape(doc, url = doc.location.href) {
 		}
 		if (item.abstractNote) {
 		item.abstractNote = item.abstractNote.replace('This article was published open access under a CC BY licence: https://creativecommons.org/licences/by/4.0.', '');
+		}
+		if (item.title.match(/book review/i)) {
+			item.tags.push('RezensionstagPica');
 		}
 		item.complete();
 	});

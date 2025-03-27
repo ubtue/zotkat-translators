@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-11-26 13:16:58"
+	"lastUpdated": "2025-03-25 12:25:59"
 }
 
 /*
@@ -107,6 +107,16 @@ function invokeEMTranslator(doc) {
 			delete i.issue;
 		}
 
+		if (['2296-469X'].includes(i.ISSN)) {
+			let volumeText = doc.querySelector('div.page_article a[href*="/issue/view/"]').textContent;
+			if (volumeText) {
+				let match = volumeText.match(/(\d{1,3})\s?\(\d{4}\)/);
+				if (match) {
+					i.volume = match[1];
+				}		
+			}
+		}
+
 		if (i.volume == undefined) i.volume = ZU.xpathText(doc, '//meta[@name="DC.Source.Volume"]/@content');
 		if (i.pages == undefined) i.pages = ZU.xpathText(doc, '//meta[@name="DC.Identifier.Pagenumber"]/@content');
 		if (i.DOI == undefined) i.DOI = ZU.xpathText(doc, '//meta[@name="DC.Identifier.DOI"]/@content');
@@ -117,15 +127,20 @@ function invokeEMTranslator(doc) {
  			i.title = i.title + ' ' + doc.querySelector(".subtitle").textContent.trim();
 			}
  		}
- 		if (['1804-6444', '1018-1539', '1860-8213'].includes(i.ISSN)) {
+ 		if (['1804-6444', '1018-1539', '1860-8213', '2813-4613'].includes(i.ISSN)) {
  			let subTitle = ZU.xpathText(doc, '//article[@class="article-details"]//h1[@class="page-header"]/small');
  			if (subTitle) {
- 				i.title += ': ' + subTitle.trim();
+ 				i.title += '$d' + subTitle.trim();
  			}
  		}
 
 		if (i.ISSN == "2293-7374") {
 			i.title = i.title.replace( '| Renaissance and Reformation', '');
+			i.publicationTitle = ZU.xpathText(doc, '//meta[@name="DC.Source"]/@content');
+		}
+
+		if (i.publicationTitle.match(/transformatio/i)) {
+			i.ISSN = "2813-4613";
 		}
  		//title in other language for pica-field 4002
  		var articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
@@ -136,7 +151,7 @@ function invokeEMTranslator(doc) {
  				delete i.archiveLocation;
  			}
  		}
-		if (articleType && articleType.match(/^(Book Reviews?)/gi) != null) i.tags.push("RezensionstagPica");
+		if (articleType && articleType.match(/^(Book Reviews?)|Recensioni/gi) != null) i.tags.push("RezensionstagPica");
 		 //orcid for pica-field 8910
    		// Collect all ORCID author entries from various cases
 		let orcidAuthorEntryCaseA = doc.querySelectorAll('.authors, .div.authors > strong, author');
@@ -202,6 +217,28 @@ function invokeEMTranslator(doc) {
 			}
 		}
 
+		if (orcidAuthorEntryCaseA.length && ['2813-4613'].includes(i.ISSN)) {
+			for (let entry of orcidAuthorEntryCaseA) {
+				let orcidElements = entry.querySelectorAll('span.orcid');
+				for (let orcidTag of orcidElements) {
+					let orcidLink = orcidTag.querySelector('a[href^="http://orcid.org/"]');
+					if (orcidLink) {
+						let orcid = orcidLink.innerText.match(/\d+-\d+-\d+-\d+x?/i)[0];
+						let previousElement = orcidTag.previousElementSibling;
+						let author = null;
+						if (previousElement) {
+							if (previousElement.tagName.toLowerCase() === 'strong') {
+								author = previousElement.textContent.trim();
+							}
+						}
+						if (orcid && author) {
+							addNote(orcid, author);
+						}
+					}
+				}
+			}
+		}
+
 		if (orcidAuthorEntryCaseA.length && !orcidAuthorEntryCaseA[0].innerHTML.match(/\d+-\d+-\d+-\d+x?/gi) && i.ISSN === "2340-4256") {
 			for (let c of orcidAuthorEntryCaseF) {
 				let name = ZU.xpathText(c, './/strong').split(',')[0];
@@ -247,15 +284,26 @@ function invokeEMTranslator(doc) {
 		}
 
 		if (orcidAuthorEntryCaseC.length) {
-			for (let c of orcidAuthorEntryCaseC) {
-				if (c.innerHTML.match(/\d+-\d+-\d+-\d+x?/gi)) {
-					let author = ZU.trimInternal(c.innerText).replace('+', '').replace('−', '');
-					let orcid = ZU.trimInternal(c.innerHTML).match(/\d+-\d+-\d+-\d+x?/gi);
-					addNote(orcid, author);
+			if (['2304-8557'].includes(i.ISSN)) {
+				for (let c of orcidAuthorEntryCaseC) {
+					let orcidLink = ZU.xpath(c, './/a[@class="orcidImage"]/@href');
+					let author = ZU.xpathText(c, './/span');
+					if (author && orcidLink.length > 0 && orcidLink[0].textContent.match(/\d+-\d+-\d+-\d+x?/gi)) {
+						let orcid = ZU.trimInternal(orcidLink[0].textContent).match(/\d+-\d+-\d+-\d+x?/gi)[0];
+						addNote(orcid, author);
+					} 
+				}
+			} else {
+				for (let c of orcidAuthorEntryCaseC) {
+					if (c.innerHTML.match(/\d+-\d+-\d+-\d+x?/gi)) {
+						let author = ZU.trimInternal(c.innerText).replace('+', '').replace('−', '');
+						let orcid = ZU.trimInternal(c.innerHTML).match(/\d+-\d+-\d+-\d+x?/gi);
+						addNote(orcid, author);
+					}
 				}
 			}
 		}
-
+		
 		if (orcidAuthorEntryCaseD.length) {
 			for (let c of orcidAuthorEntryCaseD) {
 				if (c.innerHTML.match(/\d+-\d+-\d+-\d+x?/gi)) {
@@ -296,7 +344,8 @@ function invokeEMTranslator(doc) {
 			//then replace the range with a first page number e.g 3
 			if (pageNumberFromDC != null) i.pages = pageNumberFromDC.trim().replace(/^([^-]+)-\1$/, '$1');
  		}
-		if (["2468-9963", "1988-4265"].includes(i.ISSN)) {
+		//artikelnummer anstatt seitenzahlen
+		if (["2468-9963", "1988-4265", "2175-5841", "1980-6736"].includes(i.ISSN)) {
 			i.notes.push('artikelID:' + i.pages);
 			i.pages = "";
 		}
@@ -377,21 +426,29 @@ function invokeEMTranslator(doc) {
 		if (i.ISSN == "1862-5886") {
 			i.abstractNote = i.abstractNote.replace(/\n+/g, " ");
 		}	
-		//artikelnummer anstatt seitenzahlen
-		if (i.ISSN == "2175-5841") {
-			i.notes.push("artikelID:" + i.pages);
-			i.pages = "";
-			let volumeIssueEntry = ZU.xpathText(doc, '//*[@class="breadcrumb"]');
- 			if (volumeIssueEntry) {
- 				i.volume = volumeIssueEntry.trim().match(/v\.\s+(\d{2}),\s+n\.\s+(\d{2})/i)[1];
-				i.issue = volumeIssueEntry.trim().match(/v\.\s+(\d{2}),\s+n\.\s+(\d{2})/i)[2];
-			}
+		if (['2175-5841', '1853-9106', '2254-6227', '1860-8213', '2500-5413', '0717-6295', '1980-6736'].includes(i.ISSN)) {
 			if (ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
 				for (let alternativeAbstract of ZU.xpath(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
 					if (alternativeAbstract.value && alternativeAbstract.value != i.abstractNote) {
 						i.notes.push({'note': 'abs:' + ZU.unescapeHTML(alternativeAbstract.textContent.trim())});
 					}
 				}
+			}
+		}
+		if (["2237-6461"].includes(i.ISSN)) {
+			if (ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("de") or @*=("pt")]/@content')) {
+				for (let alternativeAbstract of ZU.xpath(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("de") or @*=("pt")]/@content')) {
+					if (alternativeAbstract.value && alternativeAbstract.value != i.abstractNote) {
+						i.notes.push({'note': 'abs:' + ZU.unescapeHTML(alternativeAbstract.textContent.trim())});
+					}
+				}
+			}
+		}
+		if (['2175-5841'].includes(i.ISSN)) {
+			let volumeIssueEntry = ZU.xpathText(doc, '//*[@class="breadcrumb"]');
+ 			if (volumeIssueEntry) {
+ 				i.volume = volumeIssueEntry.trim().match(/v\.\s+(\d{2}),\s+n\.\s+(\d{2})/i)[1];
+				i.issue = volumeIssueEntry.trim().match(/v\.\s+(\d{2}),\s+n\.\s+(\d{2})/i)[2];
 			}
 			let subtitle = ZU.xpathText(doc, '//h1/small');
 			if (subtitle) {
@@ -413,7 +470,7 @@ function invokeEMTranslator(doc) {
 		if (["2159-6875"].includes(i.ISSN)) {
 			if (reviewURLs.includes(i.url)) i.tags.push("RezensionstagPica");
 		}
-		if (['2617-3697', '2660-4418', '2748-6419', '1988-3269', '1804-6444', '2391-4327', '2174-0887', '2709-8435'].includes(i.ISSN)) {
+		if (['2617-3697', '2660-4418', '2748-6419', '1988-3269', '1804-6444', '2391-4327', '2174-0887', '2709-8435', '2296-469X'].includes(i.ISSN)) {
 			if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')) {
 				if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')[0].content.match(/(Media reviews)|(Rezensionen)|(Reseñas)|(Part\s+Two:\s+Reviews)|(Buchbesprechungen)/i)) {
 					i.tags.push("RezensionstagPica");
@@ -465,7 +522,7 @@ function invokeEMTranslator(doc) {
 				}
 			}
 		}
- 		if (i.ISSN=="2183-2803") {
+ 		if (i.ISSN =="2183-2803") {
  			let abstract = ZU.xpathText(doc, '//meta[@name="DC.Description"]/@content');
  			if (abstract) {
  				i.abstractNote = abstract;
@@ -498,17 +555,12 @@ function invokeEMTranslator(doc) {
 					i.tags.push(tag[t].capitalizeFirstLetter());
 				}
 			}
+		}
+		if (['1853-9106', '2254-6227', '1860-8213', '2500-5413', '1980-6736', '2237-6461'].includes(i.ISSN)) {
 			if (ZU.xpathText(doc, '//meta[@name="DC.Title"]/@content')) {
-				for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
+				for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt") or @*=("de")]/@content')) {
 					if (parallelTitle.value && parallelTitle.value != i.title) {
 						i.notes.push({'note': 'Paralleltitel:' + ZU.unescapeHTML(parallelTitle.textContent.trim())});
-					}
-				}
-			}
-			if (ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
-				for (let alternativeAbstract of ZU.xpath(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
-					if (alternativeAbstract.value && alternativeAbstract.value != i.abstractNote) {
-						i.notes.push({'note': 'abs:' + ZU.unescapeHTML(alternativeAbstract.textContent.trim())});
 					}
 				}
 			}
@@ -520,30 +572,7 @@ function invokeEMTranslator(doc) {
 				i.abstractNote = "";
 			}
 		}
-		if (["2237-6461"].includes(i.ISSN)) {
-			if (ZU.xpathText(doc, '//meta[@name="DC.Title"]/@content')) {
-				for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"][@*=("es") or @*=("en") or @*=("fr") or @*=("pt") or @*=("de")]/@content')) {
-					if (parallelTitle.value && parallelTitle.value != i.title) {
-						i.notes.push({'note': 'Paralleltitel:' + ZU.unescapeHTML(parallelTitle.textContent.trim())});
-					}
-				}
-			}
-			if (ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("de") or @*=("pt")]/@content')) {
-				for (let alternativeAbstract of ZU.xpath(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("de") or @*=("pt")]/@content')) {
-					if (alternativeAbstract.value && alternativeAbstract.value != i.abstractNote) {
-						i.notes.push({'note': 'abs:' + ZU.unescapeHTML(alternativeAbstract.textContent.trim())});
-					}
-				}
-			}
-		}
 		if (["0717-6295"].includes(i.ISSN)) {
-			if (ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
-				for (let alternativeAbstract of ZU.xpath(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
-					if (alternativeAbstract.value && alternativeAbstract.value != i.abstractNote) {
-						i.notes.push({'note': 'abs:' + ZU.unescapeHTML(alternativeAbstract.textContent.trim())});
-					}
-				}
-			}
 			if (ZU.xpathText(doc, '//*[@class="list-group-item keywords"]/./*[@class=""]/*[@class="value"]')) {
 				let tagsEntry = ZU.xpathText(doc, '//*[@class="list-group-item keywords"]/./*[@class=""]/*[@class="value"]');
 				tag = tagsEntry.split(/,\s/g);
@@ -570,14 +599,13 @@ function invokeEMTranslator(doc) {
 					}
 				}
 			}
-
 			i.title = ZU.xpathText(doc, '//meta[@name="DC.Title"]/@content').trim();
 			if (!i.title) {
 				i.title = ZU.xpathText(doc, '//meta[@name="DC.Title.Alternative"][1]/@content').trim();
 			}
 			for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"]/@content')) {
 				if (parallelTitle.value != i.title)
-				i.notes.push({'note': 'translatedTitle:' + parallelTitle.textContent.trim()});
+				i.notes.push({'note': 'Paralleltitel:' + parallelTitle.textContent.trim()});
 			}
 		}
 		if (['0014-1437'].includes(i.ISSN)) {
@@ -703,11 +731,34 @@ function invokeEMTranslator(doc) {
 					i.abstractNote = abstractElement;
 				}
 			}
+		}
+
+		if (['2317-4307', '1983-2850'].includes(i.ISSN)) {
 			if (i.tags) {
 				let tagRegex = /\.|palavras-chave:/i;
 				i.tags = i.tags.filter(tag => !tagRegex.test(tag));
 			}
 		}
+
+		if (['2695-4397'].includes(i.ISSN)) {
+			i.language = i.language == "español" ? "es" : i.language;
+			if (i.issue && !i.volume) {
+				i.volume = i.issue;
+				i.issue = "";
+			}
+			let articleTypeElement = doc.querySelector('meta[name="DC.Type.articleType"]');
+			if (articleTypeElement) {
+				let articleType = articleTypeElement.getAttribute('content');
+				if (articleType.match(/recensiones|reseñas/i)) {
+					i.tags.push('RezensionstagPica');
+				}
+			}
+			if (i.creators) {
+				let creatorRegex = /^aa vv/i;
+				i.creators = i.creators.filter(creator => !creatorRegex.test(creator.firstName + ' ' + creator.lastName));
+			}
+		} 
+		
 
 		i.tags = [...new Set(i.tags.map(x => x))]
 
@@ -719,6 +770,22 @@ function invokeEMTranslator(doc) {
 				i.creators = i.creators.filter(creator =>
 				creator.firstName !== "Author not" && creator.lastName !== "applicable"
 				);
+			}
+		}
+
+		if (['1918-610X'].includes(i.ISSN)) {
+			i.creators = i.creators.filter(creator => !(
+				(creator.firstName.toLowerCase() === "the" &&
+				creator.lastName.toLowerCase() === "editor")
+				));
+			if (!doc.querySelector('a.pdf.restricted')) {
+				i.notes.push('LF:');
+			}
+		}
+
+		if (['1749-4915'].includes(i.ISSN)) {
+			if (ZU.xpath(doc, '//a[contains(@class, "pdf") and contains(text(), "OPEN ACCESS")]').length > 0) {
+				i.notes.push('LF:');
 			}
 		}
 
@@ -2076,7 +2143,7 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://cauriensia.es/index.php/cauriensia/article/view/mis4",
+		"url": "https://www.cauriensia.es/index.php/cauriensia/article/view/mis4",
 		"items": [
 			{
 				"itemType": "journalArticle",
@@ -2094,11 +2161,11 @@ var testCases = [
 				"abstractNote": "The current resonance that Rawls' Theory of Justice is having seems to indicate that this theory is appropriate as a practical solution to the problem of pluralism on the different conceptions of life that characterize democratic societies. The starting point from which the theory parts is subordinate to the objective of reaching an agreement, rather than responding to a common good. Thus, procedural systems are given primacy, as they strive to determine the social structure by justice alone. Justice is seen, therefore, not so much as a virtue of the subject, but as a correct social order that guarantees an equality of possibilities through a procedural channel. However, ignoring the issue of what is good and the right that one has over it, the Theory of Justice contradicts the intrinsic rationality of social relations, since such relations are based on the communication of specific goods. That is why there is a supremacy of good over justice.\\n4207 La actual resonancia de la teoría de Rawls parece indicar que es apropiada como solución práctica al problema del pluralismo sobre las distintas concepciones de la vida que caracteriza a las sociedades democráticas. El punto de inicio del que parte está subordinado al objetivo de alcanzar un acuerdo y no tanto de responder a un bien común. Se da así primacía a los sistemas procedimentales tratando de determinar la estructura social por la sola justicia. La justicia se ve, entonces, no tanto como una virtud del sujeto, cuanto como un recto ordenamiento social que garantice una igualdad de posibilidades a través de un cauce procedimental. Sin embargo, ignorar el tema del bien y del derecho que sobre él se tiene, contradice la racionalidad intrínseca de las relaciones sociales, ya que tales relaciones están fundadas en la comunicación de bienes específicos, por lo que se da una supremacía del bien sobre la justicia.\\n4207",
 				"journalAbbreviation": "RevCau",
 				"language": "es",
-				"libraryCatalog": "cauriensia.es",
+				"libraryCatalog": "www.cauriensia.es",
 				"pages": "63-83",
 				"publicationTitle": "Cauriensia. Revista anual de Ciencias Eclesiásticas",
 				"rights": "Derechos de autor 2022 CAURIENSIA. Revista anual de Ciencias Eclesiásticas",
-				"url": "https://cauriensia.es/index.php/cauriensia/article/view/mis4",
+				"url": "https://www.cauriensia.es/index.php/cauriensia/article/view/mis4",
 				"volume": "17",
 				"attachments": [],
 				"tags": [
@@ -2123,7 +2190,7 @@ var testCases = [
 						"note": "orcid:0000-0001-9243-9755 | María Teresa Cid Vázquez | taken from website"
 					},
 					{
-						"note": "translatedTitle:Justice as Fairness or as Acknowledging the Good in Others"
+						"note": "Paralleltitel:Justice as Fairness or as Acknowledging the Good in Others"
 					}
 				],
 				"seeAlso": []

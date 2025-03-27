@@ -1,21 +1,21 @@
 {
-	"translatorID": "4ccf849b-f9e9-4cec-9bae-7c10aa4dea53",
-	"label": "ubtue_University of Toronto Press",
+	"translatorID": "475d0105-4631-444c-a4bd-366458100c80",
+	"label": "ubtue_Beltz",
 	"creator": "Mara Spieß",
-	"target": "^https?://(www\\.)?utp(journals|publishing).com/(doi|toc)",
-	"minVersion": "3.0",
+	"target": "https://www.beltz.de/(.*)/zeitschriften/",
+	"minVersion": "5.0",
 	"maxVersion": "",
-	"priority": 90,
+	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-01-31 14:18:18"
+	"lastUpdated": "2025-03-13 08:08:01"
 }
 
 /*
 	***** BEGIN LICENSE BLOCK *****
 
-	Copyright © 2024 Mara Spieß
+	Copyright © 2025 Universitätsbibliothek Tübingen
 
 	This file is part of Zotero.
 
@@ -37,7 +37,7 @@
 
 
 function detectWeb(doc, url) {
-	if (url.includes('/doi/')) {
+	if (url.includes('/artikel/')) {
 		return 'journalArticle';
 	}
 	else if (getSearchResults(doc, true)) {
@@ -49,7 +49,7 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = doc.querySelectorAll('h2.issue-item__title > a[href*="/doi/"]');
+	var rows = doc.querySelectorAll('div.articleTitle > a[href*="/artikel/"]');
 	for (let row of rows) {
 		let href = row.href;
 		let title = ZU.trimInternal(row.textContent);
@@ -74,21 +74,6 @@ async function doWeb(doc, url) {
 	}
 }
 
-function extractAndAssign(selector, property, doc, item) {
-	let element = doc.querySelector('span.' + selector);
-	if (element) {
-		item[property] = element.textContent.trim();
-	}
-}
-
-function mapTitleIssn(publicationTitle) {
-	let publicationTitleToIssn = {
-		'Toronto Journal of Theology': '1918-6371',
-		'Canadian Journal of Criminology and Criminal Justice': '1707-7753',
-	};
-	return publicationTitleToIssn[publicationTitle] || null;
-}
-
 async function scrape(doc, url = doc.location.href) {
 	let translator = Zotero.loadTranslator('web');
 	// Embedded Metadata
@@ -97,39 +82,60 @@ async function scrape(doc, url = doc.location.href) {
 	
 	translator.setHandler('itemDone', (_obj, item) => {
 
-		extractAndAssign('volume', 'volume', doc, item);
-		extractAndAssign('issue', 'issue', doc, item);
-		extractAndAssign('page', 'pages', doc, item);
+		let yearToVolumeMap = {
+			2008: "40",
+			2009: "41",
+			2010: "42",
+			2011: "43",
+			2012: "44",
+			2013: "45",
+			2014: "46",
+			2015: "47",
+			2016: "48",
+			2017: "49",
+			2018: "50",
+			2019: "51",
+			2020: "52",
+			2021: "53",
+			2022: "54",
+			2023: "55",
+			2024: "56"
+		};
 
-		let metaElementDoi = doc.querySelector('meta[name="publication_doi"]');
-		if (metaElementDoi) {
-			item.DOI = metaElementDoi.getAttribute('content');
+		let citationElement = ZU.xpathText(doc, '//h5[contains(text(), "Zeitschrift")]/following-sibling::p[1]/a');
+		if (citationElement) {
+			let citationMatch = citationElement.match(/Ausgabe\s*(\d),\s*Jahr\s*(\d{4})\s*,\s*Seite\s*(\d+\s*-?\s*\d*)/i);
+			if (citationMatch) {
+				item.issue = citationMatch[1];
+				item.pages = citationMatch[3].replace(/\s*(–|-)\s*/, '-');
+				if (citationMatch[2]) {
+					let year = parseInt(citationMatch[2], 10);
+					item.volume = yearToVolumeMap[year];
+				}
+			}
 		}
 
-		let metaElementReview = doc.querySelector('meta[name="dc.Type"]');
-		if (metaElementReview && metaElementReview.getAttribute('content').match(/book-review/i)) {
-			item.tags.push('RezensionstagPica');
-		}
-		
-		if (item.ISSN == '1707-7753' && item.title.match(/book reviews|recensions de livres/i)) {
-			item.tags.push('RezensionstagPica');
-		}
-		
-		let issn = mapTitleIssn(item.publicationTitle);
-		if (issn) {
-			item.ISSN = issn;
+		let subtitle = doc.querySelector('h5.descsubtitle');
+		item.title = subtitle && subtitle.textContent.length > 0 ? item.title + "$d" + subtitle.textContent : item.title;
+
+		if (item.creators) {
+			let creatorRegex = /beltz/i;
+			item.creators = item.creators.filter(creator => !creatorRegex.test(creator.lastName));
 		}
 
-		let openAccessIcon = doc.querySelector('i.icon-access-open[title="Open access"]');
-		if (openAccessIcon) {
+		if (doc.querySelector('div.panel-openaccess')) {
 			item.notes.push("LF:");
 		}
 		
+		if (item.title.match(/buchbesprechungen/i)) {
+			item.tags.push("RezensionstagPica");
+		}
+
 		item.complete();
 	});
 
 	let em = await translator.getTranslatorObject();
-
+	
 	await em.doWeb(doc, url);
 }
 
