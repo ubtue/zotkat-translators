@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-01 09:56:29"
+	"lastUpdated": "2025-04-01 10:41:33"
 }
 
 /*
@@ -157,6 +157,7 @@ function invokeEMTranslator(doc) {
 		let orcidAuthorEntryCaseE = ZU.xpath(doc, '//div[@class="list-group-item date-published"]');
 		let orcidAuthorEntryCaseF = doc.querySelectorAll('.article-main');
 		let orcidAuthorEntryCaseG = doc.querySelectorAll('.authors_info');
+		let orcidAuthorEntryCaseH = doc.querySelectorAll('ul.metadata > li');
 
 		const positionTitlesToRemove = ["Prof", "Dr"];
 
@@ -330,6 +331,13 @@ function invokeEMTranslator(doc) {
 			}
 		}
 
+		if (orcidAuthorEntryCaseH.length) {
+			for (let h of orcidAuthorEntryCaseH) {
+				let author = ZU.trimInternal(h.innerText);
+				let orcid = ZU.trimInternal(h.innerHTML).match(/\d+-\d+-\d+-\d+x?/gi);
+				addNote(orcid, author);
+			}
+		}
 
  		//clean pages e.g. pages": "6.-6." > 10.25786/cjbk.v0i01-02.631; or "pages": "01-07" > 10.25786/zfbeg.v0i01-02.793
  		if (i.pages != null) i.pages = i.pages.replace('S.', '').replace(/\./g, '').replace(/^([^-]+)-\1$/, '$1').replace(/^0/g, '').replace(/-0/g, '-').replace('â€“', '-');
