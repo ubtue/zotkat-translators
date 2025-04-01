@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-01 12:14:00"
+	"lastUpdated": "2025-04-01 12:59:34"
 }
 
 /*
@@ -87,9 +87,24 @@ function invokeEMTranslator(doc) {
 			i.notes.push('LF:');
 		}
 		if (i.abstractNote) i.abstractNote = i.abstractNote.replace(/^abstract:?\s*/i, '');
+		getOrcids(doc, i);
 		i.complete();
 	});
 	translator.translate();
+}
+
+function getOrcids(doc, i) {
+	let authors = doc.querySelectorAll('div.contributor-details');
+	for (let author of authors) {
+		let orcid = author.querySelector('.orcid');
+		if (orcid) {
+			let orcidNumber = orcid.href.match(/\d+-\d+-\d+-\d+x?/gi);
+			let authorName = author.querySelector('.contributor-details-link').textContent.trim();
+			if (orcidNumber && authorName) {
+				i.notes.push("orcid:" + orcidNumber + " | " + authorName + " | taken from website");
+			}
+		}
+	}
 }
 
 function doWeb(doc, url) {
