@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-25 12:25:59"
+	"lastUpdated": "2025-04-01 09:43:00"
 }
 
 /*
@@ -91,10 +91,6 @@ function invokeEMTranslator(doc) {
 		//article URL and review tag for Journal of the AOS
 		if (i.ISSN == "2169-2289") {
 			i.url = ZU.xpathText(doc, '//meta[@name="DC.Identifier.URI"]/@content');
-			let reviewTag = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
-			if (reviewTag.match(/reviews?$/i)) {
-				i.tags.push('RezensionstagPica');
-			}
 		}
 		//replace issue number with volume number for certain journals and delete year
 		if (i.ISSN == "2297-6469") {
@@ -470,9 +466,9 @@ function invokeEMTranslator(doc) {
 		if (["2159-6875"].includes(i.ISSN)) {
 			if (reviewURLs.includes(i.url)) i.tags.push("RezensionstagPica");
 		}
-		if (['2617-3697', '2660-4418', '2748-6419', '1988-3269', '1804-6444', '2391-4327', '2174-0887', '2709-8435', '2296-469X'].includes(i.ISSN)) {
+		if (['2617-3697', '2660-4418', '2748-6419', '1988-3269', '1804-6444', '2391-4327', '2174-0887', '2709-8435', '2296-469X', '2057-5831', '2695-4397', '2169-2289'].includes(i.ISSN)) {
 			if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')) {
-				if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')[0].content.match(/(Media reviews)|(Rezensionen)|(Reseñas)|(Part\s+Two:\s+Reviews)|(Buchbesprechungen)/i)) {
+				if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')[0].content.match(/Media reviews|Rezensionen|Reseñas|(?:Part\s+Two:\s+)?Reviews|Buchbesprechungen/i)) {
 					i.tags.push("RezensionstagPica");
 				}
 			}
@@ -745,13 +741,6 @@ function invokeEMTranslator(doc) {
 			if (i.issue && !i.volume) {
 				i.volume = i.issue;
 				i.issue = "";
-			}
-			let articleTypeElement = doc.querySelector('meta[name="DC.Type.articleType"]');
-			if (articleTypeElement) {
-				let articleType = articleTypeElement.getAttribute('content');
-				if (articleType.match(/recensiones|reseñas/i)) {
-					i.tags.push('RezensionstagPica');
-				}
 			}
 			if (i.creators) {
 				let creatorRegex = /^aa vv/i;
