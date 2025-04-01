@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-01 12:59:34"
+	"lastUpdated": "2025-04-01 13:11:25"
 }
 
 /*
@@ -60,9 +60,10 @@ function invokeEMTranslator(doc) {
 	translator.setHandler("itemDone", function (t, i) {
 		i.itemType = "journalArticle";
 		// add keywords
-		var keywords;
-		if (keywords = ZU.xpath(doc, '//p[contains(@class, "articleBody_keywords")]//a'))
-			i.tags = keywords.map(n => n.textContent);
+		let keywords = ZU.xpath(doc, '//meta[@property="article:tag"]/@content');
+		if (keywords) {
+			i.tags = keywords.map(keyword => keyword.textContent);
+		}
 		i.attachments = [];
 		i.title = ZU.xpathText(doc, '//meta[@name="citation_title"]/@content');
 		if (i.title.match(/^Review/i)) i.tags.push('RezensionstagPica');
