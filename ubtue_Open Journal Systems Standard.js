@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-25 12:25:59"
+	"lastUpdated": "2025-04-01 13:24:05"
 }
 
 /*
@@ -91,10 +91,6 @@ function invokeEMTranslator(doc) {
 		//article URL and review tag for Journal of the AOS
 		if (i.ISSN == "2169-2289") {
 			i.url = ZU.xpathText(doc, '//meta[@name="DC.Identifier.URI"]/@content');
-			let reviewTag = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
-			if (reviewTag.match(/reviews?$/i)) {
-				i.tags.push('RezensionstagPica');
-			}
 		}
 		//replace issue number with volume number for certain journals and delete year
 		if (i.ISSN == "2297-6469") {
@@ -161,6 +157,7 @@ function invokeEMTranslator(doc) {
 		let orcidAuthorEntryCaseE = ZU.xpath(doc, '//div[@class="list-group-item date-published"]');
 		let orcidAuthorEntryCaseF = doc.querySelectorAll('.article-main');
 		let orcidAuthorEntryCaseG = doc.querySelectorAll('.authors_info');
+		let orcidAuthorEntryCaseH = doc.querySelectorAll('ul.metadata > li');
 
 		const positionTitlesToRemove = ["Prof", "Dr"];
 
@@ -334,6 +331,13 @@ function invokeEMTranslator(doc) {
 			}
 		}
 
+		if (orcidAuthorEntryCaseH.length) {
+			for (let h of orcidAuthorEntryCaseH) {
+				let author = ZU.trimInternal(h.innerText);
+				let orcid = ZU.trimInternal(h.innerHTML).match(/\d+-\d+-\d+-\d+x?/gi);
+				addNote(orcid, author);
+			}
+		}
 
  		//clean pages e.g. pages": "6.-6." > 10.25786/cjbk.v0i01-02.631; or "pages": "01-07" > 10.25786/zfbeg.v0i01-02.793
  		if (i.pages != null) i.pages = i.pages.replace('S.', '').replace(/\./g, '').replace(/^([^-]+)-\1$/, '$1').replace(/^0/g, '').replace(/-0/g, '-').replace('â€“', '-');
@@ -470,11 +474,10 @@ function invokeEMTranslator(doc) {
 		if (["2159-6875"].includes(i.ISSN)) {
 			if (reviewURLs.includes(i.url)) i.tags.push("RezensionstagPica");
 		}
-		if (['2617-3697', '2660-4418', '2748-6419', '1988-3269', '1804-6444', '2391-4327', '2174-0887', '2709-8435', '2296-469X'].includes(i.ISSN)) {
-			if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')) {
-				if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')[0].content.match(/(Media reviews)|(Rezensionen)|(Reseñas)|(Part\s+Two:\s+Reviews)|(Buchbesprechungen)/i)) {
-					i.tags.push("RezensionstagPica");
-				}
+		if (['2617-3697', '2660-4418', '2748-6419', '1988-3269', '1804-6444', '2391-4327', '2174-0887', '2709-8435', '2296-469X', '2057-5831', '2695-4397', '2169-2289'].includes(i.ISSN)) {
+			let articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
+			if (articleType && articleType.match(/Media reviews|Rezensionen|recensiones|Reseñas|(?:Part\s+Two:\s+)?Reviews?|Buchbesprechungen/i)) {
+				i.tags.push("RezensionstagPica");
 			}
 		}
 		var authorNames = ZU.xpath(doc, '//meta[@name = "DC.Creator.PersonalName"]');//Z.debug(authorNames)
@@ -746,13 +749,6 @@ function invokeEMTranslator(doc) {
 				i.volume = i.issue;
 				i.issue = "";
 			}
-			let articleTypeElement = doc.querySelector('meta[name="DC.Type.articleType"]');
-			if (articleTypeElement) {
-				let articleType = articleTypeElement.getAttribute('content');
-				if (articleType.match(/recensiones|reseñas/i)) {
-					i.tags.push('RezensionstagPica');
-				}
-			}
 			if (i.creators) {
 				let creatorRegex = /^aa vv/i;
 				i.creators = i.creators.filter(creator => !creatorRegex.test(creator.firstName + ' ' + creator.lastName));
@@ -783,7 +779,7 @@ function invokeEMTranslator(doc) {
 			}
 		}
 
-		if (['1749-4915'].includes(i.ISSN)) {
+		if (['1749-4915', '2057-5831'].includes(i.ISSN)) {
 			if (ZU.xpath(doc, '//a[contains(@class, "pdf") and contains(text(), "OPEN ACCESS")]').length > 0) {
 				i.notes.push('LF:');
 			}

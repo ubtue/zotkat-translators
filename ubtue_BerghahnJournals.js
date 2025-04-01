@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-12-06 10:14:13"
+	"lastUpdated": "2025-04-01 13:11:25"
 }
 
 /*
@@ -41,8 +41,7 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, url) {
 	var items = {};
 	var found = false;
-	var rows = ZU.xpath(doc, '//li[contains(@class,"type-article")]//a[contains(@href, "/view/journals/")]');
-	
+	var rows = ZU.xpath(doc, '//div[contains(@class,"type-article")]//a[contains(@href, "/view/journals/")]');
 	for (let row of rows) {
 		let href = row.href;
 		let title = ZU.trimInternal(row.textContent).replace(/pdf/i, '');
@@ -61,9 +60,10 @@ function invokeEMTranslator(doc) {
 	translator.setHandler("itemDone", function (t, i) {
 		i.itemType = "journalArticle";
 		// add keywords
-		var keywords;
-		if (keywords = ZU.xpath(doc, '//p[contains(@class, "articleBody_keywords")]//a'))
-			i.tags = keywords.map(n => n.textContent);
+		let keywords = ZU.xpath(doc, '//meta[@property="article:tag"]/@content');
+		if (keywords) {
+			i.tags = keywords.map(keyword => keyword.textContent);
+		}
 		i.attachments = [];
 		i.title = ZU.xpathText(doc, '//meta[@name="citation_title"]/@content');
 		if (i.title.match(/^Review/i)) i.tags.push('RezensionstagPica');
@@ -84,13 +84,28 @@ function invokeEMTranslator(doc) {
 		if (!i.date) {
 			i.date = ZU.xpathText(doc, '//meta[@name="citation_publication_date"]/@content');
 		}
-		if (ZU.xpathText(doc, '//a[@rel="license"]/@href') && ZU.xpathText(doc, '//a[@rel="license"]/@href').match('creativecommons')) {
+		if (ZU.xpathText(doc, '//div[@class="access-open"]')) {
 			i.notes.push('LF:');
 		}
 		if (i.abstractNote) i.abstractNote = i.abstractNote.replace(/^abstract:?\s*/i, '');
+		getOrcids(doc, i);
 		i.complete();
 	});
 	translator.translate();
+}
+
+function getOrcids(doc, i) {
+	let authors = doc.querySelectorAll('div.contributor-details');
+	for (let author of authors) {
+		let orcid = author.querySelector('.orcid');
+		if (orcid) {
+			let orcidNumber = orcid.href.match(/\d+-\d+-\d+-\d+x?/gi);
+			let authorName = author.querySelector('.contributor-details-link').textContent.trim();
+			if (orcidNumber && authorName) {
+				i.notes.push("orcid:" + orcidNumber + " | " + authorName + " | taken from website");
+			}
+		}
+	}
 }
 
 function doWeb(doc, url) {
@@ -107,7 +122,9 @@ function doWeb(doc, url) {
 		});
 	} else
 		invokeEMTranslator(doc);
-}/** BEGIN TEST CASES **/
+}
+
+/** BEGIN TEST CASES **/
 var testCases = [
 ]
 /** END TEST CASES **/
