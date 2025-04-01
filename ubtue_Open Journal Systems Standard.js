@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-01 10:41:33"
+	"lastUpdated": "2025-04-01 10:52:34"
 }
 
 /*
@@ -476,7 +476,7 @@ function invokeEMTranslator(doc) {
 		}
 		if (['2617-3697', '2660-4418', '2748-6419', '1988-3269', '1804-6444', '2391-4327', '2174-0887', '2709-8435', '2296-469X', '2057-5831', '2695-4397', '2169-2289'].includes(i.ISSN)) {
 			if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')) {
-				if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')[0].content.match(/Media reviews|Rezensionen|Reseñas|(?:Part\s+Two:\s+)?Reviews|Buchbesprechungen/i)) {
+				if (ZU.xpath(doc, '//meta[@name="DC.Type.articleType"]')[0].content.match(/Media reviews|Rezensionen|recensiones|Reseñas|(?:Part\s+Two:\s+)?Reviews|Buchbesprechungen/i)) {
 					i.tags.push("RezensionstagPica");
 				}
 			}
