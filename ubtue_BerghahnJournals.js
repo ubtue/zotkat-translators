@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-12-06 10:14:13"
+	"lastUpdated": "2025-04-01 12:14:00"
 }
 
 /*
@@ -41,8 +41,7 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, url) {
 	var items = {};
 	var found = false;
-	var rows = ZU.xpath(doc, '//li[contains(@class,"type-article")]//a[contains(@href, "/view/journals/")]');
-	
+	var rows = ZU.xpath(doc, '//div[contains(@class,"type-article")]//a[contains(@href, "/view/journals/")]');
 	for (let row of rows) {
 		let href = row.href;
 		let title = ZU.trimInternal(row.textContent).replace(/pdf/i, '');
@@ -84,7 +83,7 @@ function invokeEMTranslator(doc) {
 		if (!i.date) {
 			i.date = ZU.xpathText(doc, '//meta[@name="citation_publication_date"]/@content');
 		}
-		if (ZU.xpathText(doc, '//a[@rel="license"]/@href') && ZU.xpathText(doc, '//a[@rel="license"]/@href').match('creativecommons')) {
+		if (ZU.xpathText(doc, '//div[@class="access-open"]')) {
 			i.notes.push('LF:');
 		}
 		if (i.abstractNote) i.abstractNote = i.abstractNote.replace(/^abstract:?\s*/i, '');
@@ -107,7 +106,9 @@ function doWeb(doc, url) {
 		});
 	} else
 		invokeEMTranslator(doc);
-}/** BEGIN TEST CASES **/
+}
+
+/** BEGIN TEST CASES **/
 var testCases = [
 ]
 /** END TEST CASES **/
