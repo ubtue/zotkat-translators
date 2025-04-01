@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-01 09:43:00"
+	"lastUpdated": "2025-04-01 09:56:29"
 }
 
 /*
@@ -772,7 +772,7 @@ function invokeEMTranslator(doc) {
 			}
 		}
 
-		if (['1749-4915'].includes(i.ISSN)) {
+		if (['1749-4915', '2057-5831'].includes(i.ISSN)) {
 			if (ZU.xpath(doc, '//a[contains(@class, "pdf") and contains(text(), "OPEN ACCESS")]').length > 0) {
 				i.notes.push('LF:');
 			}
