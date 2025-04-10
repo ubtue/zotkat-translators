@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-10 12:15:01"
+	"lastUpdated": "2025-04-10 13:48:27"
 }
 
 /*
@@ -105,13 +105,6 @@ async function doWeb(doc, url) {
 	}
 }
 
-function addBookReviewTag(doc, item) {
-	var documentType = ZU.xpathText(doc, '//h3[@id="TypDoc"]/following-sibling::ul[1]/li[1]');
-	if (documentType && documentType.match(/Book Review\b|Review Essays?|Reviews?\b/i)) {
-		item.tags.push('RezensionstagPica');
-	}
-}
-
 
 async function scrape(doc, url = doc.location.href) {
 	// Z.debug(url);
@@ -134,6 +127,9 @@ async function scrape(doc, url = doc.location.href) {
 	let translator = Zotero.loadTranslator('import');
 	translator.setTranslator('32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7'); // RIS
 	translator.setString(risText);
+	let ogType = doc.querySelector('meta[name="og:type"]');
+	let documentType = ogType ? ogType.getAttribute('content') : null;
+	Z.debug(documentType)
 	translator.setHandler('itemDone', (_obj, item) => {
 		// the DB gets written to the Archive field
 		delete item.archive;
@@ -145,7 +141,9 @@ async function scrape(doc, url = doc.location.href) {
 			}
 		}
 
-		addBookReviewTag(doc, item);
+		if (documentType && documentType.match(/Book Review\b|Review Essays?|Reviews?\b/i)) {
+			item.tags.push('RezensionstagPica');
+		}
 		
 		item.attachments.push({ url: pdfURL, title: "Full text PDF", mimeType: "application/pdf" });
 		item.complete();
