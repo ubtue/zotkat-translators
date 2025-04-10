@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-10 13:50:07"
+	"lastUpdated": "2025-04-10 13:58:20"
 }
 
 /*
@@ -89,6 +89,7 @@ function getSearchResults(doc, checkOnly) {
 	return found ? items : false;
 }
 
+
 async function doWeb(doc, url) {
 	if (detectWeb(doc, url) == 'multiple') {
 		let items = await Zotero.selectItems(getSearchResults(doc, false));
@@ -126,8 +127,6 @@ async function scrape(doc, url = doc.location.href) {
 	let translator = Zotero.loadTranslator('import');
 	translator.setTranslator('32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7'); // RIS
 	translator.setString(risText);
-	let ogType = doc.querySelector('meta[name="og:type"]');
-	let documentType = ogType ? ogType.getAttribute('content') : null;
 	translator.setHandler('itemDone', (_obj, item) => {
 		// the DB gets written to the Archive field
 		delete item.archive;
@@ -139,7 +138,8 @@ async function scrape(doc, url = doc.location.href) {
 			}
 		}
 
-		if (documentType && documentType.match(/Book Review\b|Review Essays?|Reviews?\b/i)) {
+		let documentType = ZU.xpathText(doc, '//meta[@name="og:type"]/@content') || null;
+		if (documentType && documentType.match(/Reviews?\b/i)) {
 			item.tags.push('RezensionstagPica');
 		}
 		
