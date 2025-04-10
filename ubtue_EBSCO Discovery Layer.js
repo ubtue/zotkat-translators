@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-10 13:48:27"
+	"lastUpdated": "2025-04-10 13:50:07"
 }
 
 /*
@@ -89,7 +89,6 @@ function getSearchResults(doc, checkOnly) {
 	return found ? items : false;
 }
 
-
 async function doWeb(doc, url) {
 	if (detectWeb(doc, url) == 'multiple') {
 		let items = await Zotero.selectItems(getSearchResults(doc, false));
@@ -129,7 +128,6 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setString(risText);
 	let ogType = doc.querySelector('meta[name="og:type"]');
 	let documentType = ogType ? ogType.getAttribute('content') : null;
-	Z.debug(documentType)
 	translator.setHandler('itemDone', (_obj, item) => {
 		// the DB gets written to the Archive field
 		delete item.archive;
