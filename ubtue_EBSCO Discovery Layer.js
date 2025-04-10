@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-28 07:27:37"
+	"lastUpdated": "2025-04-10 12:15:01"
 }
 
 /*
@@ -105,6 +105,14 @@ async function doWeb(doc, url) {
 	}
 }
 
+function addBookReviewTag(doc, item) {
+	var documentType = ZU.xpathText(doc, '//h3[@id="TypDoc"]/following-sibling::ul[1]/li[1]');
+	if (documentType && documentType.match(/Book Review\b|Review Essays?|Reviews?\b/i)) {
+		item.tags.push('RezensionstagPica');
+	}
+}
+
+
 async function scrape(doc, url = doc.location.href) {
 	// Z.debug(url);
 	let itemMatch = url.match(itemRegex);
@@ -136,6 +144,9 @@ async function scrape(doc, url = doc.location.href) {
 				item.creators[i] = ZU.cleanAuthor(item.creators[i].lastName, item.creators[i].creatorType, false);
 			}
 		}
+
+		addBookReviewTag(doc, item);
+		
 		item.attachments.push({ url: pdfURL, title: "Full text PDF", mimeType: "application/pdf" });
 		item.complete();
 	});
