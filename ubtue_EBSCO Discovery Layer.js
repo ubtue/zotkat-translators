@@ -2,14 +2,14 @@
 	"translatorID": "27d98308-a0f1-4736-8223-73f711b184f5",
 	"label": "ubtue_EBSCO Discovery Layer",
 	"creator": "Sebastian Karcher",
-	"target": "^https?://(discovery|research)\\\\.ebsco\\\\.com/",
+	"target": "^https?://(discovery|research)\\.ebsco\\.com/",
 	"minVersion": "5.0",
 	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-28 07:27:37"
+	"lastUpdated": "2025-04-10 14:05:37"
 }
 
 /*
@@ -105,6 +105,7 @@ async function doWeb(doc, url) {
 	}
 }
 
+
 async function scrape(doc, url = doc.location.href) {
 	// Z.debug(url);
 	let itemMatch = url.match(itemRegex);
@@ -136,6 +137,9 @@ async function scrape(doc, url = doc.location.href) {
 				item.creators[i] = ZU.cleanAuthor(item.creators[i].lastName, item.creators[i].creatorType, false);
 			}
 		}
+
+		if (ZU.xpathText(doc, '//meta[@name="og:type"]/@content')?.match(/Review/i)) item.tags.push('RezensionstagPica');
+		
 		item.attachments.push({ url: pdfURL, title: "Full text PDF", mimeType: "application/pdf" });
 		item.complete();
 	});
