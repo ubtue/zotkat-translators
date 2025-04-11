@@ -2,14 +2,14 @@
 	"translatorID": "27d98308-a0f1-4736-8223-73f711b184f5",
 	"label": "ubtue_EBSCO Discovery Layer",
 	"creator": "Sebastian Karcher",
-	"target": "^https?://(discovery|research)\\\\.ebsco\\\\.com/",
+	"target": "^https?://(discovery|research)[.]ebsco[.]com/",
 	"minVersion": "5.0",
 	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-28 07:27:37"
+	"lastUpdated": "2025-04-11 11:57:08"
 }
 
 /*
@@ -120,7 +120,6 @@ async function scrape(doc, url = doc.location.href) {
 	// this won't work always
 	let pdfURL = `/linkprocessor/v2-pdf?recordId=${recordId}&sourceRecordId=${recordId}&profileIdentifier=${opid}&intent=download&lang=en`;
 
-
 	let risText = await requestText(risURL);
 	// Z.debug(risText)
 	let translator = Zotero.loadTranslator('import');
@@ -136,6 +135,21 @@ async function scrape(doc, url = doc.location.href) {
 				item.creators[i] = ZU.cleanAuthor(item.creators[i].lastName, item.creators[i].creatorType, false);
 			}
 		}
+
+		let abstractITFull = ZU.xpathText(doc, '//h3/strong[contains(text(),"Abstract (Italienisch)")]/../following-sibling::ul[1]');
+		let abstractIT = abstractITFull.replace("[ABSTRACT FROM AUTHOR]", "").trim();
+		if (!item.abstractNote)
+				item.abstractNote = abstractIT;
+			else
+				item.notes.push({'note' : 'abs: ' + abstractIT});
+		
+		let author_supplied_keywords_list = ZU.xpath(doc, '//h3/strong[text() = "Stichwörter der Autoren"]/../following-sibling::ul[1] | //h3/strong[text() = "Author-Supplied Keywords"]/../following-sibling::ul[1]/li/a');
+        for (let author_supplied_keyword_obj of author_supplied_keywords_list){
+            Z.debug("XXXX");
+            author_supplied_keyword = ZU.xpathText(author_supplied_keyword_obj, ".");
+            Z.debug(author_supplied_keyword + "\n");
+        }
+
 		item.attachments.push({ url: pdfURL, title: "Full text PDF", mimeType: "application/pdf" });
 		item.complete();
 	});
