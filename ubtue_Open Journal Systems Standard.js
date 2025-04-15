@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-01 13:24:05"
+	"lastUpdated": "2025-04-15 12:41:13"
 }
 
 /*
@@ -98,7 +98,7 @@ function invokeEMTranslator(doc) {
 			delete i.issue;
 		}
 		//replace issue number with volume number
-		if (['2182-8822'].includes(i.ISSN)) {
+		if (['2182-8822', '0718-9273', '1904-8181'].includes(i.ISSN)) {
 			i.volume = i.issue;
 			delete i.issue;
 		}
@@ -705,10 +705,6 @@ function invokeEMTranslator(doc) {
 				i.volume = i.issue;
 				delete i.issue;
 			}
-		}
-		if (i.ISSN =='1904-8181') {
-			i.volume = i.issue;
-			i.issue = "";
 		}
 		if (i.ISSN == "2413-3027") {
 			let uriElement = doc.querySelector('meta[name="DC.Identifier.URI"]');
