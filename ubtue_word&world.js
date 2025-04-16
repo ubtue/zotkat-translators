@@ -9,7 +9,7 @@
     "inRepository": true,
     "translatorType": 4,
     "browserSupport": "gcsibv",
-    "lastUpdated": "2025-04-16 12:15:31"
+    "lastUpdated": "2025-04-16 12:19:29"
 }
 
 /*
@@ -64,7 +64,7 @@ function extractYear(doc) {
     let issueYear = text.match(/(Spring|Summer|Autumn|Fall|Winter)\s+(\d{4})/i);
     if (!issueYear) return null;
     
-    return parseInt(issueYear[2]).toString();
+    return issueYear[2];
 }
 
 function extractIssue(doc) {
