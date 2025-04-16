@@ -9,7 +9,7 @@
     "inRepository": true,
     "translatorType": 4,
     "browserSupport": "gcsibv",
-    "lastUpdated": "2025-04-16 11:53:33"
+    "lastUpdated": "2025-04-16 12:15:31"
 }
 
 /*
@@ -64,7 +64,7 @@ function extractYear(doc) {
     let issueYear = text.match(/(Spring|Summer|Autumn|Fall|Winter)\s+(\d{4})/i);
     if (!issueYear) return null;
     
-    return parseInt(issueYear[2]);
+    return parseInt(issueYear[2]).toString();
 }
 
 function extractIssue(doc) {
@@ -78,13 +78,13 @@ function extractIssue(doc) {
     let season = issueYear[1].toLowerCase();
 
     const issueLookup = {
-        "winter": 1,
-        "spring": 1,
-        "summer": 3,
-        "autumn": 4
+        "winter": "1",
+        "spring": "2",
+        "summer": "3",
+        "autumn": "4"
     };
 
-    return issueLookup[season].toString();
+    return issueLookup[season];
 }
 
 function getArticle(url, title, year, issue) {
@@ -96,7 +96,7 @@ function getArticle(url, title, year, issue) {
     item.ISSN = "0275-5270";
     item.language = "eng";
 
-    item.year = year;
+    item.date = year;
     item.issue = issue;
 
     item.complete();
