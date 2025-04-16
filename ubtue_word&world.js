@@ -9,7 +9,7 @@
     "inRepository": true,
     "translatorType": 4,
     "browserSupport": "gcsibv",
-    "lastUpdated": "2025-04-16 12:19:29"
+    "lastUpdated": "2025-04-16 12:44:37"
 }
 
 /*
@@ -113,9 +113,9 @@ async function doWeb(doc, url) {
             let year = extractYear(doc);
             let issue = extractIssue(doc);
 
-            for (let item in items) {
-                let title = searchResults[item];
-                getArticle(item, title, year, issue);
+            for (let [href, articleTitle] of Object.entries(items)) {
+                let title = articleTitle;
+                getArticle(href, title, year, issue);
             }
         });
     } else {
