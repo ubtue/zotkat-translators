@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-16 09:18:11"
+	"lastUpdated": "2025-04-16 11:19:35"
 }
 
 /*
@@ -33,80 +33,95 @@
 	***** END LICENSE BLOCK *****
 */
 
-function detectWeb(doc) {
-	return doc.querySelector('a.article-name[href$=".pdf"]') ? 'multiple' : false;
+function detectWeb(doc, url) {
+	if (doc.querySelector('a.article-name[href$=".pdf"]')) {
+		return "multiple";
+	} 
+	else return false;
 }
 
-function getSearchResults (doc) {
-	let results = [];
-	let links = doc.querySelectorAll('a.article-name[href$=".pdf"]');
-	for (let link of links) {
-		let href = link.href;
-		let title = link.querySelector('h3');
-		if (href && title) {
-			results.push({
-				href: href,
-				title: ZU.trimInternal(title.textContent),
-			});
-		}
-	}
-	return results;
-};
+function getSearchResults(doc) {
+    let items = {};
+	let found = false;
 
-function extractYearIssue(doc) {
+    let links = doc.querySelectorAll('a.article-name[href$=".pdf"]');
+    for (let link of links) {
+        let href = link.href;
+        let title = link.querySelector('h3');
+        if (href && title) {
+			found = true;
+            items[href] = ZU.trimInternal(title.textContent);
+        }
+    }
+    return found ? items : false;
+}
+
+function extractYear(doc) {
 	let heading = doc.querySelector('h3.ww-issue-year');
 	if (!heading) return null;
 
 	let text = ZU.trimInternal(heading.textContent);
-	let match = text.match(/(Spring|Summer|Autumn|Fall|Winter)\s+(\d{4})/i);
-	if (!match) return null;
+	let issueYear = text.match(/(Spring|Summer|Autumn|Fall|Winter)\s+(\d{4})/i);
+	if (!issueYear) return null;
 
-	let season = match[1].toLowerCase();
-	let year = parseInt(match[2]);
+	let year = parseInt(issueYear[2]);
+    
+    return year.toString();
+}
+
+function extractIssue(doc) {
+	let heading = doc.querySelector('h3.ww-issue-year');
+	if (!heading) return null;
+
+	let text = ZU.trimInternal(heading.textContent);
+	let issueYear = text.match(/(Spring|Summer|Autumn|Fall|Winter)\s+(\d{4})/i);
+	if (!issueYear) return null;
+
+	let season = issueYear[1].toLowerCase();
 
     const issueLookup = {
-        winter: 1,
-        spring: 2,
-        summer: 3,
-        autumn: 4
+        "winter": 1,
+        "spring": 1,
+        "summer": 3,
+        "autumn": 4
     };
 
     let issue = issueLookup[season] || null;
     
-    return { year: year.toString(), issue: issue.toString() };
+    return issue.toString();
 }
 
-async function doWeb(doc) {
-    let items = {};
-    let searchResults = getSearchResults(doc);
+function getArticle(doc, url, title) {
+    let item = new Zotero.Item('journalArticle');
+    item.url = url;
+    item.title = title;
+    item.publicationTitle = "Word & World : Theology for Christian Ministry";
+	item.notes.push('LF:');
+    item.ISSN = "0275-5270";
+    item.language = "eng";
 
-    for (let result of searchResults) {
-        let href = result.href;
-        let title = result.title;
-        items[href] = title;
+    item.year = extractYear(doc);
+    item.issue = extractIssue(doc);
+
+    item.complete();
+}
+
+async function doWeb(doc, url) {
+    if (detectWeb(doc, url) === "multiple") {
+		let searchResults = getSearchResults(doc);
+        Zotero.selectItems(searchResults, function (items) {
+            if (!items) {
+                return true;
+            }
+
+			for (let item in items) {
+				let title = searchResults[item];
+				getArticle(doc, item, title);
+			}
+        });
+    } else {
+        return false;
     }
-
-	let selected = await Zotero.selectItems(items);
-	if (!selected) return;
-
-	let issueMeta = extractYearIssue(doc);
-
-	for (let pdfUrl in selected) {
-		let item = new Zotero.Item('journalArticle');
-		item.title = selected[pdfUrl];
-		item.url = pdfUrl;
-		item.publicationTitle = "Word & World : Theology for Christian Ministry";
-		item.notes.push('LF:');
-		item.ISSN = "0275-5270";
-		item.language = "eng";
-
-		if (issueMeta) {
-			item.year = issueMeta.year;
-			item.issue = issueMeta.issue;
-		}
-
-		item.complete();
-	}
 }
 
 /** BEGIN TEST CASES **/
