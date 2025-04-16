@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-16 08:16:13"
+	"lastUpdated": "2025-04-16 08:57:57"
 }
 
 /*
@@ -34,66 +34,72 @@
 */
 
 function detectWeb(doc) {
-	return doc.querySelector('a.article-name[href$=".pdf"]') ? 'multiple' : false;
+    return doc.querySelector('a.article-name[href$=".pdf"]') ? 'multiple' : false;
 }
+
+function getSearchResults (doc) {
+    let results = [];
+    let links = doc.querySelectorAll('a.article-name[href$=".pdf"]');
+    for (let link of links) {
+        let href = link.href;
+        let title = link.querySelector('h3');
+        if (href && title) {
+            results.push({
+                href: href,
+                title: ZU.trimInternal(title.textContent),
+            });
+        }
+    }
+    return results;
+};
 
 function extractYearIssue(doc) {
-	let heading = doc.querySelector('h3.ww-issue-year');
-	if (!heading) return null;
+    let heading = doc.querySelector('h3.ww-issue-year');
+    if (!heading) return null;
 
-	let text = ZU.trimInternal(heading.textContent);
-	let match = text.match(/(Spring|Summer|Autumn|Fall|Winter)\s+(\d{4})/i);
-	if (!match) return null;
+    let text = ZU.trimInternal(heading.textContent);
+    let match = text.match(/(Spring|Summer|Autumn|Fall|Winter)\s+(\d{4})/i);
+    if (!match) return null;
 
-	let season = match[1].toLowerCase();
-	let year = parseInt(match[2]);
-	let issue = { spring: 1, summer: 2, autumn: 3, winter: 4 }[season];
-
-	let month = { spring: 5, summer: 8, autumn: 11, winter: 2 }[season];
-	let day = 30;
-
-	let formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-	
-	return { year: year.toString(), issue: issue.toString(), date: formattedDate };
+    let season = match[1].toLowerCase();
+    let year = parseInt(match[2]);
+    let issue = { winter: 1, spring: 2, summer: 3, autumn: 4}[season];
+    
+    return { year: year.toString(), issue: issue.toString() };
 }
 
-async function doWeb(doc, url) {
-	let items = {};
-	let links = doc.querySelectorAll('a.article-name[href$=".pdf"]');
+async function doWeb(doc) {
+    let items = {};
+    let links = doc.querySelectorAll('a.article-name[href$=".pdf"]');
 
-	for (let link of links) {
-		let href = link.href;
-		let title = link.querySelector('h3');
-		if (href && title) {
-			items[href] = ZU.trimInternal(title.textContent);
-		}
-	}
+    for (let link of links) {
+        let href = link.href;
+        let title = link.querySelector('h3');
+        if (href && title) {
+            items[href] = ZU.trimInternal(title.textContent);
+        }
+    }
 
-	let selected = await Zotero.selectItems(items);
-	if (!selected) return;
+    let selected = await Zotero.selectItems(items);
+    if (!selected) return;
 
-	let issueMeta = extractYearIssue(doc);
+    let issueMeta = extractYearIssue(doc);
 
-	for (let pdfUrl in selected) {
-		let item = new Zotero.Item('journalArticle');
-		item.title = selected[pdfUrl];
-		item.url = pdfUrl;
-		item.libraryCatalog = "Word & World";
-		item.language = "eng";
+    for (let pdfUrl in selected) {
+        let item = new Zotero.Item('journalArticle');
+        item.title = selected[pdfUrl];
+        item.url = pdfUrl;
+        item.publicationTitle = "Word & World : Theology for Christian Ministry";
+        item.ISSN = "0275-5270";
+        item.language = "eng";
 
-		if (issueMeta) {
-			item.date = issueMeta.date;
-			item.issue = issueMeta.issue;
-		}
+        if (issueMeta) {
+            item.year = issueMeta.year;
+            item.issue = issueMeta.issue;
+        }
 
-		item.attachments.push({
-			title: "Full Text PDF",
-			mimeType: "application/pdf",
-			url: pdfUrl
-		});
-
-		item.complete();
-	}
+        item.complete();
+    }
 }
 
 /** BEGIN TEST CASES **/
