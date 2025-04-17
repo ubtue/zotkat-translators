@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-01-16 14:43:34"
+	"lastUpdated": "2025-04-17 13:21:05"
 }
 
 /*
@@ -76,6 +76,37 @@ function fixCase(str, titleCase) {
 	return str.charAt(0) + str.substr(1).toLowerCase();
 }
 
+function convertToJournal(item) {
+	const seriesData = [
+		{ title: "Jahrbuch für Biblische Theologie", ISSN: "2567-9392" },
+		{ title: "Pietismus und Neuzeit", ISSN: "2197-3180" }
+	];
+
+	seriesData.forEach(series => {
+		let isMatch = false;
+
+		if (item.series && item.series === series.title) {
+			isMatch = true;
+		} else if (item.bookTitle && item.bookTitle.includes(series.title)) {
+			isMatch = true;
+		}
+
+		if (isMatch) {
+			item.ISSN = series.ISSN;
+			item.itemType = "journalArticle";
+			if (item.volume) {
+				item.volume = item.volume.replace(/band\s+(\d+)(?:,\s+jahr\s+\d{4})?/i, '$1');
+			} else if (item.bookTitle) {
+				let volumeMatch = item.bookTitle.match(/band\s+(\d{2})/i);
+				if (volumeMatch) {
+					item.volume = volumeMatch[1];
+				}
+			}
+			item.tags = [];
+		}
+	});
+}
+
 // Keep this in line with target regexp
 var replURLRegExp = /\/doi\/((?:abs|abstract|full|figure|ref|citedby|book)\/)?/;
 
@@ -138,18 +169,7 @@ function scrape(doc, url) {
 						item.tags.push(keyword.trim());
 					}
 				}
-				const seriesData = [
-					{ title: "Jahrbuch für Biblische Theologie", ISSN: "2567-9392" },
-					{ title: "Pietismus und Neuzeit", ISSN: "2197-3180" }
-				];
-				seriesData.forEach(series => {
-					if (item.series == series.title) {
-						item.ISSN = series.ISSN;
-						item.itemType = "journalArticle";
-						item.volume = item.volume.replace(/band\s+(\d+)(?:,\s+jahr\s+\d{4})?/i, '$1');
-						item.tags = [];
-					}
-				});
+				convertToJournal(item);
 				let switchToDE = "https://www.vr-elibrary.de/action/doLocaleChange?locale=de&requestUri=/doi/"+ doi;
 					ZU.processDocuments(switchToDE, function (url) {
 						let scrapeAbstractsDE = ZU.xpathText(url, '//*[contains(concat( " ", @class, " " ), concat( " ", "abstractInFull", " " ))]');
