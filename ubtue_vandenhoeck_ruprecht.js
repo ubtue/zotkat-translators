@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-17 13:21:05"
+	"lastUpdated": "2025-04-17 14:14:25"
 }
 
 /*
@@ -82,25 +82,14 @@ function convertToJournal(item) {
 		{ title: "Pietismus und Neuzeit", ISSN: "2197-3180" }
 	];
 
-	seriesData.forEach(series => {
-		let isMatch = false;
-
-		if (item.series && item.series === series.title) {
-			isMatch = true;
-		} else if (item.bookTitle && item.bookTitle.includes(series.title)) {
-			isMatch = true;
-		}
-
-		if (isMatch) {
+	seriesData.forEach(series => {	
+		if (item?.series == series.title || item?.bookTitle.includes(series.title)) {
 			item.ISSN = series.ISSN;
 			item.itemType = "journalArticle";
 			if (item.volume) {
 				item.volume = item.volume.replace(/band\s+(\d+)(?:,\s+jahr\s+\d{4})?/i, '$1');
 			} else if (item.bookTitle) {
-				let volumeMatch = item.bookTitle.match(/band\s+(\d{2})/i);
-				if (volumeMatch) {
-					item.volume = volumeMatch[1];
-				}
+				item.volume = item.bookTitle.match(/band\s+(\d{2})/i)?.[1];
 			}
 			item.tags = [];
 		}
