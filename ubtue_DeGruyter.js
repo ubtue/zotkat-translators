@@ -2,14 +2,14 @@
 	"translatorID": "9ef1752e-bd32-49bb-9d9b-f06c039712ab",
 	"label": "ubtue_DeGruyter",
 	"creator": "Timotheus Kim",
-	"target": "^https?://www\\.degruyter\\.com",
+	"target": "^https?://www[.]degruyterbrill[.]com",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 80,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-01-20 10:22:32"
+	"lastUpdated": "2025-04-17 06:50:10"
 }
 
 /*
