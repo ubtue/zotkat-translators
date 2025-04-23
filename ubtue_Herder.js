@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-23 06:30:25"
+	"lastUpdated": "2025-04-23 07:39:08"
 }
 
 /*
@@ -105,18 +105,13 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 	translator.setHandler("itemDone", function (t, item) {
 		item.itemType = 'journalArticle';
 		let titleSpan = doc.querySelector('span.headline');
+
 		if (titleSpan) {
 			let mainTitleText = titleSpan.textContent.trim();
-			let hiddenColonElement = titleSpan.previousElementSibling;
-			if (hiddenColonElement && hiddenColonElement.classList.contains('is-vishidden')) {
-				let titlePrefixNode = hiddenColonElement.previousElementSibling;
-				if (titlePrefixNode) {
-					mainTitleText = titlePrefixNode.textContent.trim() + ': ' + mainTitleText;
-					item.title = mainTitleText;
-				}
-			} else {
-				item.title = mainTitleText;
-			}
+			let prefix = titleSpan.previousElementSibling?.classList?.contains('is-vishidden') ?
+						 titleSpan.previousElementSibling.previousElementSibling?.textContent?.trim() : null;
+
+			item.title = (prefix ? `${prefix}: ` : '') + mainTitleText;
 		}
 		
 		if (extractAuthors(doc)) {
