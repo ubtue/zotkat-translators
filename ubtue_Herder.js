@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-12 12:39:34"
+	"lastUpdated": "2025-04-23 07:39:08"
 }
 
 /*
@@ -104,9 +104,16 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, item) {
 		item.itemType = 'journalArticle';
-		let itemTitle = doc.querySelector('span.headline');
-		if (itemTitle)
-			item.title = itemTitle.textContent;
+		let titleSpan = doc.querySelector('span.headline');
+
+		if (titleSpan) {
+			let mainTitleText = titleSpan.textContent.trim();
+			let prefix = titleSpan.previousElementSibling?.classList?.contains('is-vishidden') ?
+						 titleSpan.previousElementSibling.previousElementSibling?.textContent?.trim() : null;
+
+			item.title = (prefix ? `${prefix}: ` : '') + mainTitleText;
+		}
+		
 		if (extractAuthors(doc)) {
 			item.creators = [];
 			for (let author of extractAuthors(doc))
@@ -185,7 +192,6 @@ function doWeb(doc, url) {
 		});
 	} else invokeEmbeddedMetadataTranslator(doc, url);
 }
-
 
 /** BEGIN TEST CASES **/
 var testCases = [
