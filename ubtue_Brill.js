@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-24 07:18:16"
+	"lastUpdated": "2025-04-24 07:42:16"
 }
 
 /*
@@ -71,9 +71,9 @@ function postProcess(doc, item) {
 	let title = ZU.xpathText(doc, '//meta[@name="citation_title"]//@content');
 	if (title) item.title = title; 
 	
-	let titleNode = ZU.xpath(doc, '//h1[contains(@class, "typography-body title")]')
+	let titleText = ZU.xpath(doc, '//h1[contains(@class, "typography-body title")]')
 		.find(node => node?.offsetParent !== null)?.innerText;
-	let titleParts = titleNode?.split(/\r?\n/).map(p => p.trim()).filter(part => part);
+	let titleParts = titleText?.split(/\r?\n+/).map(p => p.trim());
 	item.title = titleParts?.length > 1 ? titleParts.join('. ') : title;
 
 	if (!item.abstractNote) {
