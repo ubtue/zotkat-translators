@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-09-02 12:57:13"
+	"lastUpdated": "2025-04-25 13:45:11"
 }
 
 /*
@@ -69,6 +69,10 @@ function addBookReviewTag(doc, item) {
 	var primaryHeading = ZU.xpathText(doc, '//span[@class="primary-heading"]');
 	if (primaryHeading.match(/Book Review\b|Review Essays?|Reviews?\b/i)) {
 		item.tags.push('RezensionstagPica');
+		let titleMeta = doc.querySelector('meta[property="og:title"]')?.getAttribute('content');
+		if (titleMeta) {
+			item.title = titleMeta.trim();
+		}
 	}
 }
 
