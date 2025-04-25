@@ -8,7 +8,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 2,
-	"lastUpdated": "2025-03-07 11:08:10"
+	"lastUpdated": "2025-04-25 12:16:41"
 }
 
 // Zotero Export Translator in Pica3 Format für das Einzeln- und Mulitiupload in WinIBW
@@ -491,6 +491,10 @@ function performExport() {
 			item.url = null;
 		}
 
+		//1140 Veröffentlichungsart und Inhalt
+		if (['IXTH-0006'].includes(item.ISSN)) {
+			addLine(currentItemId, "\\n1140", "uwlx");
+		}
 
 		//item.language --> 1500 Sprachcodes
 		if (item.itemType == "journalArticle") {
