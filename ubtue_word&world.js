@@ -9,7 +9,7 @@
     "inRepository": true,
     "translatorType": 4,
     "browserSupport": "gcsibv",
-    "lastUpdated": "2025-04-16 12:44:37"
+    "lastUpdated": "2025-04-28 11:47:27"
 }
 
 /*
@@ -50,7 +50,8 @@ function getSearchResults(doc) {
         let title = link.querySelector('h3');
         if (href && title) {
             found = true;
-            items[href] = ZU.trimInternal(title.textContent);
+            let cleanTitle = ZU.trimInternal(title.textContent).replace(/;/g, ':');
+            items[href] = cleanTitle;
         }
     }
     return found ? items : false;
@@ -81,7 +82,7 @@ function extractIssue(doc) {
         "winter": "1",
         "spring": "2",
         "summer": "3",
-        "autumn": "4"
+        "fall": "4"
     };
 
     return issueLookup[season];
