@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-17 06:50:10"
+	"lastUpdated": "2025-04-30 07:24:47"
 }
 
 /*
@@ -118,6 +118,8 @@ function invokeEMTranslator(doc, url) {
 				i.notes.push('artikelID:' + match[1].replace('-', ''));
 			}
 		}
+
+		if (ZU.xpathText(doc, '//h2')?.match(/Reviewed Publications?:/i)) i.tags.push('RezensionstagPica');
 
 		i.complete();
 	});
