@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-10 09:55:04"
+	"lastUpdated": "2025-05-07 12:52:11"
 }
 
 /*
@@ -49,11 +49,16 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = doc.querySelectorAll('a.pl-contents__link[href*="/de/10."]');
+	var rows = doc.querySelectorAll('li.pl-contents__item[data-doi*="10."]');
 	for (let row of rows) {
-		let href = row.href;
-		let title = ZU.trimInternal(row.textContent);
+		let hrefElement = row.querySelector('button.js-contents-details[data-route*="/de/10."]');
+		let titleElement = row.querySelector('button.pl-contents__link');
+		if (!hrefElement || !titleElement) continue;
+
+		let href = hrefElement.getAttribute('data-route');
+		let title = ZU.trimInternal(titleElement.textContent);
 		if (!href || !title) continue;
+		
 		if (checkOnly) return true;
 		found = true;
 		items[href] = title;
