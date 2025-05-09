@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-05-09 15:13:40"
+	"lastUpdated": "2025-05-09 15:19:59"
 }
 
 /*
@@ -165,5 +165,45 @@ async function scrape(doc, url = doc.location.href) {
 
 /** BEGIN TEST CASES **/
 var testCases = [
+	{
+		"type": "web",
+		"url": "https://opus.bibliothek.uni-augsburg.de/opus4/frontdoor/index/index/docId/119049",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Persönliche Eigenschaften mit Störpotenzial?! Probleme bei der Auslegung von c. 1098 CIC",
+				"creators": [
+					{
+						"firstName": "Georg",
+						"lastName": "Bier",
+						"creatorType": "author"
+					}
+				],
+				"date": "2025",
+				"language": "de",
+				"libraryCatalog": "opus.bibliothek.uni-augsburg.de",
+				"pages": "9-28",
+				"rights": "https://www.uni-augsburg.de/de/organisation/bibliothek/publizieren-zitieren-archivieren/publiz/",
+				"shortTitle": "Persönliche Eigenschaften mit Störpotenzial?",
+				"url": "https://opus.bibliothek.uni-augsburg.de/opus4/frontdoor/index/index/docId/119049",
+				"volume": "32",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [
+					"urn:nbn:de:bvb:384-opus4-1190491"
+				],
+				"seeAlso": []
+			}
+		]
+	}
 ]
 /** END TEST CASES **/
