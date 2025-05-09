@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-29 15:14:33"
+	"lastUpdated": "2025-05-09 15:22:45"
 }
 
 /*
@@ -83,7 +83,7 @@ async function getAbstract(item, doc) {
 	if (abstractElements.length > 0) {
 		abstractElements.forEach(abstract => {
 			let abstractText = abstract.textContent.trim();
-			item.notes.push("abs:" + abstractText);
+			item.notes.push("abs:" + abstractText.replace(/\n/g, ''));
 		});
 	}
 }
