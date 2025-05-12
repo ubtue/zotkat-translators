@@ -2,14 +2,14 @@
 	"translatorID": "27d98308-a0f1-4736-8223-73f711b184f5",
 	"label": "ubtue_EBSCO Discovery Layer",
 	"creator": "Sebastian Karcher",
-	"target": "^https?://(discovery|research)\\.ebsco\\.com/",
+	"target": "^https?://(discovery|research)[.]ebsco[.]com/",
 	"minVersion": "5.0",
 	"maxVersion": "",
-	"priority": 100,
+	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-10 14:05:37"
+	"lastUpdated": "2025-05-12 14:09:28"
 }
 
 /*
@@ -89,7 +89,6 @@ function getSearchResults(doc, checkOnly) {
 	return found ? items : false;
 }
 
-
 async function doWeb(doc, url) {
 	if (detectWeb(doc, url) == 'multiple') {
 		let items = await Zotero.selectItems(getSearchResults(doc, false));
@@ -105,6 +104,27 @@ async function doWeb(doc, url) {
 	}
 }
 
+function addItalianAbstract(doc, item) {
+	let abstractITFull = ZU.xpathText(doc, '//h3[strong[contains(text(),"Abstract (Ita")]]/following-sibling::ul[1]/li');
+	if (abstractITFull) {
+		let abstractIT = abstractITFull.replace("[ABSTRACT FROM AUTHOR]", "").trim();
+		if (!item.abstractNote) {
+			item.abstractNote = abstractIT;
+		} else {
+			item.notes.push({ note: 'abs: ' + abstractIT });
+		}
+	}
+}
+
+function addAuthorSuppliedKeywords(doc, item) {
+	let keywordNodes = ZU.xpath(doc, '//h3/strong[text() = "Stichwörter der Autoren"]/../following-sibling::ul[1]/li/a | //h3/strong[text() = "Author-Supplied Keywords"]/../following-sibling::ul[1]/li/a');
+	for (let keywordNode of keywordNodes) {
+		let keyword = ZU.xpathText(keywordNode, ".");
+		if (keyword) {
+			item.tags.push(keyword);
+		}
+	}
+}
 
 async function scrape(doc, url = doc.location.href) {
 	// Z.debug(url);
@@ -120,7 +140,6 @@ async function scrape(doc, url = doc.location.href) {
 
 	// this won't work always
 	let pdfURL = `/linkprocessor/v2-pdf?recordId=${recordId}&sourceRecordId=${recordId}&profileIdentifier=${opid}&intent=download&lang=en`;
-
 
 	let risText = await requestText(risURL);
 	// Z.debug(risText)
@@ -138,8 +157,11 @@ async function scrape(doc, url = doc.location.href) {
 			}
 		}
 
+		addItalianAbstract(doc, item);
+		addAuthorSuppliedKeywords(doc, item);
+
 		if (ZU.xpathText(doc, '//meta[@name="og:type"]/@content')?.match(/Review/i)) item.tags.push('RezensionstagPica');
-		
+
 		item.attachments.push({ url: pdfURL, title: "Full text PDF", mimeType: "application/pdf" });
 		item.complete();
 	});
