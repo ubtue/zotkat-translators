@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-30 07:24:47"
+	"lastUpdated": "2025-05-12 12:53:26"
 }
 
 /*
@@ -44,7 +44,7 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "issueContentsArticleLink", " " ))]');
+	var rows = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "ahead-of-print-header", " " ))]//a[@class="text-dark"]');
 	for (let row of rows) {
 		let href = row.href;
 		let title = ZU.trimInternal(row.text);
