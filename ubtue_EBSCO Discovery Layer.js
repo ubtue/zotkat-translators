@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-05-12 14:09:28"
+	"lastUpdated": "2025-05-12 14:28:22"
 }
 
 /*
@@ -159,6 +159,12 @@ async function scrape(doc, url = doc.location.href) {
 
 		addItalianAbstract(doc, item);
 		addAuthorSuppliedKeywords(doc, item);
+
+		//replace issue number with volume number
+		if (['0075-2541'].includes(item.ISSN)) {
+			item.volume = item.issue;
+			delete item.issue;
+		}
 
 		if (ZU.xpathText(doc, '//meta[@name="og:type"]/@content')?.match(/Review/i)) item.tags.push('RezensionstagPica');
 
