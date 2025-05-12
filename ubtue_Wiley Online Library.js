@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-25 13:45:11"
+	"lastUpdated": "2025-05-12 09:09:19"
 }
 
 /*
@@ -88,7 +88,7 @@ function addPages (doc, item) {
 //ubtue: write article number in $y
 function addArticleNumber (doc, item) {
 	if (item.pages && item.pages.match(/\d{5,}/)) {
-		item.pages = 'article ' + item.pages;	
+		item.notes.push('artikelID:' + item.pages);
 	}
 }
 
