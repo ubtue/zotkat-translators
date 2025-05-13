@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-10 08:43:54"
+	"lastUpdated": "2025-05-12 14:51:07"
 }
 
 /*
@@ -77,6 +77,11 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			i.pages = '';
 			if (i.title.match(/^Book\s+review/gi) != null) i.tags.push('RezensionstagPica');
 			}
+
+		if (i.abstractNote && i.abstractNote.includes("A review of")) {
+			i.tags.push('RezensionstagPica');
+		}
+
 		i.attachments = [];
 		i.complete();
 
