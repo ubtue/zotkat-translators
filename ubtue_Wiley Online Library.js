@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-05-12 09:09:19"
+	"lastUpdated": "2025-05-13 09:27:17"
 }
 
 /*
@@ -85,10 +85,12 @@ function addPages (doc, item) {
 			item.pages = pagesMatch;
 	}
 }
+
 //ubtue: write article number in $y
 function addArticleNumber (doc, item) {
 	if (item.pages && item.pages.match(/\d{5,}/)) {
 		item.notes.push('artikelID:' + item.pages);
+		delete item.pages;
 	}
 }
 
@@ -420,9 +422,9 @@ function getORCID(doc, item) {
 		let authorEntry = authorOrcidEntry.querySelector('.author-name accordion-tabbed__control, span');
 		let orcidEntry = authorOrcidEntry.querySelector('*[href^="https://orcid"]');
 		if (authorEntry && orcidEntry && orcidEntry.text && orcidEntry.text.match(/\d+-\d+-\d+-\d+x?/i)) {
-			let author = authorEntry.textContent;
+			let author = authorEntry.textContent?.replace(/\sMD|\sPhD/g, '');
 			let orcid = orcidEntry.text.match(/\d+-\d+-\d+-\d+x?/i)[0];
-			item.notes.push({note: "orcid:" + orcid + ' | ' + author});
+			item.notes.push({note: "orcid:" + orcid + ' | ' + author + ' | taken from website'});
 			item.notes = Array.from(new Set(item.notes.map(JSON.stringify))).map(JSON.parse);
 		}
 	}
