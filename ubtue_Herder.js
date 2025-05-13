@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-23 07:39:08"
+	"lastUpdated": "2025-05-13 07:38:44"
 }
 
 /*
@@ -34,7 +34,7 @@
 */
 
 function detectWeb(doc, url) {
-	if (url.match(/\/(\d+\-)*\d{4}\/[a-z]+/)) {
+	if (url.match(/(\/(\d+\-)*\d{4}\/[a-z]+)|(\/spezial\/[a-z, -]+\/\S+)/)) {
 		return "journalArticle";
 	} else if (getSearchResults(doc)) {
 		return "multiple";
@@ -104,15 +104,6 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 	translator.setDocument(doc);
 	translator.setHandler("itemDone", function (t, item) {
 		item.itemType = 'journalArticle';
-		let titleSpan = doc.querySelector('span.headline');
-
-		if (titleSpan) {
-			let mainTitleText = titleSpan.textContent.trim();
-			let prefix = titleSpan.previousElementSibling?.classList?.contains('is-vishidden') ?
-						 titleSpan.previousElementSibling.previousElementSibling?.textContent?.trim() : null;
-
-			item.title = (prefix ? `${prefix}: ` : '') + mainTitleText;
-		}
 		
 		if (extractAuthors(doc)) {
 			item.creators = [];
@@ -170,6 +161,16 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 					delete item.volume;
 				}
 			}
+		}
+
+		let titleSpan = doc.querySelector('span.headline');
+
+		if (titleSpan && !item.ISSN == "IXTH-0004") {
+			let mainTitleText = titleSpan.textContent.trim();
+			let prefix = titleSpan.previousElementSibling?.classList?.contains('is-vishidden') ?
+						 titleSpan.previousElementSibling.previousElementSibling?.textContent?.trim() : null;
+
+			item.title = (prefix ? `${prefix}: ` : '') + mainTitleText;
 		}
 		
 		item.attachments = [];
