@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-05-14 08:30:31"
+	"lastUpdated": "2025-05-14 09:28:36"
 }
 
 /*
@@ -136,7 +136,7 @@ async function scrape(doc, url = doc.location.href) {
 				}
 			} else if (elementName.match(/issn/i)) {
 				let issnMatch = tdContent?.match(/\d{4}-\d{4}/);
-				if (issnMatch?.[0]) {
+				if (issnMatch) {
 					item.ISSN = issnMatch[0];
 				}
 			} else if (elementName.match(/erste\sseite/i)) {
