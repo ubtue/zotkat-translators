@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-05-13 09:27:17"
+	"lastUpdated": "2025-05-14 09:25:15"
 }
 
 /*
@@ -422,7 +422,10 @@ function getORCID(doc, item) {
 		let authorEntry = authorOrcidEntry.querySelector('.author-name accordion-tabbed__control, span');
 		let orcidEntry = authorOrcidEntry.querySelector('*[href^="https://orcid"]');
 		if (authorEntry && orcidEntry && orcidEntry.text && orcidEntry.text.match(/\d+-\d+-\d+-\d+x?/i)) {
-			let author = authorEntry.textContent?.replace(/\sMD|\sPhD/g, '');
+			let author = authorEntry.textContent;
+			if (item.ISSN == "1466-769X") {
+				author = author.replace(/\s(BA|BScN|BSc|BSN|CEC|CHRP|CNM|CMHN|Dr\.Phil|ENC|FAAN|FCAHS|JD|MA|MD|MHH|MNSc|MNSt|MNS|MN|MPH|MSN|MScN|MSc|Nursing|PhD(\(c\))?|Ph|PMP|PNPC|\((Psych|Phil)\)|RGN|RGON|RNT|RN|RM),?/g, '')
+			}
 			let orcid = orcidEntry.text.match(/\d+-\d+-\d+-\d+x?/i)[0];
 			item.notes.push({note: "orcid:" + orcid + ' | ' + author + ' | taken from website'});
 			item.notes = Array.from(new Set(item.notes.map(JSON.stringify))).map(JSON.parse);
