@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-15 13:15:50"
+	"lastUpdated": "2025-05-15 09:59:30"
 }
 
 /*
@@ -432,7 +432,7 @@ function invokeEMTranslator(doc) {
 		if (i.ISSN == "1862-5886") {
 			i.abstractNote = i.abstractNote.replace(/\n+/g, " ");
 		}	
-		if (['2175-5841', '1853-9106', '2254-6227', '1860-8213', '2500-5413', '0717-6295', '1980-6736'].includes(i.ISSN)) {
+		if (['2175-5841', '1853-9106', '2254-6227', '1860-8213', '2500-5413', '0717-6295', '1980-6736', '1126-8557'].includes(i.ISSN)) {
 			if (ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
 				for (let alternativeAbstract of ZU.xpath(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
 					if (alternativeAbstract.value && alternativeAbstract.value != i.abstractNote) {
