@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-06-02 07:43:25"
+	"lastUpdated": "2025-06-03 12:51:38"
 }
 
 /*
@@ -550,6 +550,11 @@ function invokeEMTranslator(doc) {
 				i.abstractNote = i.abstractNote.replace(splittingString, '\\n4207 ');
 			};
 			i.abstractNote = i.abstractNote.replace(/[^\\](\n)/g, " ");
+		}
+		if (['1862-1678'].includes(i.ISSN)) {
+			if (i.abstractNote && i.abstractNote.trim() == i.title.trim()) {
+				delete i.abstractNote;
+			}
 		}
 		if (i.ISSN == "1853-9106" && i.tags) i.tags = [];
 		if (['1853-9106', '2254-6227', '1860-8213', '2500-5413'].includes(i.ISSN)) {
