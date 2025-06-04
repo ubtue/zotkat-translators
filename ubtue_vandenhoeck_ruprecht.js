@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-17 14:14:25"
+	"lastUpdated": "2025-06-04 08:49:51"
 }
 
 /*
@@ -83,7 +83,7 @@ function convertToJournal(item) {
 	];
 
 	seriesData.forEach(series => {	
-		if (item?.series == series.title || item?.bookTitle.includes(series.title)) {
+		if (item?.series == series.title || item?.bookTitle?.includes(series.title)) {
 			item.ISSN = series.ISSN;
 			item.itemType = "journalArticle";
 			if (item.volume) {
