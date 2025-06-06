@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-06-09 15:43:41"
+	"lastUpdated": "2025-06-06 09:20:36"
 }
 
 /*
@@ -134,9 +134,12 @@ function scrape(doc, url) {
 				let authorInfo = authorSectionEntry.textContent;//Z.debug(authorInfo)
 				//let orcidHref = authorSectionEntry.querySelector('.textContent');
 				if (authorInfo) {
-					let author = authorInfo.split("http")[0];//Z.debug(author)
-					let orcid = authorInfo.replace(/.*(\d{4}-\d+-\d+-\d+x?)/i, '$1').replace("Search for more papers by this author", "").trim();
-					item.notes.push({note: "orcid:" + orcid + " | author=" + author + " | taken from website"});
+					let orcidMatch = authorInfo.match(/\d{4}-\d+-\d+-\d+x?/i);
+					if (orcidMatch) {
+					let author = authorInfo.split("http")[0].trim();//Z.debug(author)
+					let orcid = orcidMatch[0].trim();
+					item.notes.push({note: "orcid:" + orcid + " | " + author + " | taken from website"});
+					}
 				}
 			}
 			//deduplicate
@@ -165,6 +168,7 @@ function scrape(doc, url) {
 		translator.translate();
 	});
 }
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
