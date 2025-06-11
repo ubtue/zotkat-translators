@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-06-06 09:20:36"
+	"lastUpdated": "2025-06-11 08:06:59"
 }
 
 /*
@@ -98,6 +98,10 @@ function scrape(doc, url) {
 		translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
 		translator.setString(text);
 		translator.setHandler("itemDone", function (obj, item) {
+			item.notes = [];
+			if (item.DOI) {
+				item.notes.push("handle:" + item.DOI);
+			}
 			// The subtitle will be neglected in RIS and is only present in
 			// the website itself. Moreover, there can be problems with
 			// encodings of apostrophs.
