@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-06-03 13:02:31"
+	"lastUpdated": "2025-06-13 13:13:12"
 }
 
 /*
@@ -349,7 +349,7 @@ function invokeEMTranslator(doc) {
 			if (pageNumberFromDC != null) i.pages = pageNumberFromDC.trim().replace(/^([^-]+)-\1$/, '$1');
  		}
 		//artikelnummer anstatt seitenzahlen
-		if (["2468-9963", "1988-4265", "2175-5841", "1980-6736"].includes(i.ISSN)) {
+		if (["2468-9963", "1988-4265", "2175-5841", "1980-6736", "2179-0019"].includes(i.ISSN) && i.pages) {
 			i.notes.push('artikelID:' + i.pages);
 			i.pages = "";
 		}
@@ -476,9 +476,9 @@ function invokeEMTranslator(doc) {
 		if (["2159-6875"].includes(i.ISSN)) {
 			if (reviewURLs.includes(i.url)) i.tags.push("RezensionstagPica");
 		}
-		if (['2617-3697', '2660-4418', '2748-6419', '1988-3269', '1804-6444', '2391-4327', '2174-0887', '2709-8435', '2296-469X', '2057-5831', '2695-4397', '2169-2289'].includes(i.ISSN)) {
+		if (['2617-3697', '2660-4418', '2748-6419', '1988-3269', '1804-6444', '2391-4327', '2174-0887', '2709-8435', '2296-469X', '2057-5831', '2695-4397', '2169-2289', '2179-0019'].includes(i.ISSN)) {
 			let articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
-			if (articleType && articleType.match(/Media reviews|Rezensionen|recensiones|Reseñas|(?:Part\s+Two:\s+)?Reviews?|Buchbesprechungen/i)) {
+			if (articleType && articleType.match(/Media reviews|Rezensionen|recensiones|Reseñas|resenhas|(?:Part\s+Two:\s+)?Reviews?|Buchbesprechungen/i)) {
 				i.tags.push("RezensionstagPica");
 			}
 		}
@@ -525,6 +525,14 @@ function invokeEMTranslator(doc) {
 				if (!i.title.match(subtitle)) {
 					i.title = i.title + ': ' + subtitle;
 				}
+			}
+		}
+		if (["2179-0019"].includes(i.ISSN) && i.abstractNote) {
+			let regexDOI = /10.\d{5}\/\d+\.\d+\.\d+\-\d+/g;
+			let abstractDOImatch = i.abstractNote.match(regexDOI);
+			if (abstractDOImatch) {
+				i.DOI = abstractDOImatch[0];
+				i.abstractNote = i.abstractNote.replace(regexDOI, '');
 			}
 		}
  		if (i.ISSN =="2183-2803") {
