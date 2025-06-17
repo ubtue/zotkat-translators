@@ -492,7 +492,7 @@ function performExport() {
 		}
 
 		//1140 Veröffentlichungsart und Inhalt
-		if (['IXTH-0006'].includes(item.ISSN)) {
+		if (['3052-685X'].includes(item.ISSN)) {
 			addLine(currentItemId, "\\n1140", "uwlx");
 		}
 
