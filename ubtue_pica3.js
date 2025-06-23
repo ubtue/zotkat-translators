@@ -8,7 +8,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 2,
-	"lastUpdated": "2025-04-25 12:16:41"
+	"lastUpdated": "2025-06-23 08:24:08"
 }
 
 // Zotero Export Translator in Pica3 Format für das Einzeln- und Mulitiupload in WinIBW
@@ -541,19 +541,19 @@ function performExport() {
 		}
 		if (item.language == "fre" || !item.language) {
 			titleStatement = titleStatement.replace(/^(Le|La|Les|Des|Un|Une) ([^@])/i, "$1 @$2");
-			titleStatement = titleStatement.replace(/^L'\s?([^@])/i, "L' @$1").replace(/^L’\s?([^@])/i, "L' @$1");
+			titleStatement = titleStatement.replace(/^L'\s?([^@])/i, "L'@$1").replace(/^L’\s?([^@])/i, "L'@$1");
 		}
 		if (item.language == "fre" || !item.language) {
 			titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])(Le|La|Les|Des|Un|Une) ([^@])/i, "„$2 @$3");
-			titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])L'\s?([^@])/i, "„L' @$2").replace(/^([\u201e]|[\u201d]|[\u201c])L’\s?([^@])/i, "„L' @$2");
+			titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])L'\s?([^@])/i, "„L'@$2").replace(/^([\u201e]|[\u201d]|[\u201c])L’\s?([^@])/i, "„L'@$2");
 		}
 		if (item.language == "ita" || !item.language) {
 			titleStatement = titleStatement.replace(/^(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "$1 @$2");
-			titleStatement = titleStatement.replace(/^L'\s?([^@])/i, "L' @$1").replace(/^L’\s?([^@])/i, "L' @$1");
+			titleStatement = titleStatement.replace(/^L'\s?([^@])/i, "L'@$1").replace(/^L’\s?([^@])/i, "L'@$1");
 		}
 		if (item.language == "ita" || !item.language) {
 			titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "„$2 @$3");
-			titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])L'\s?([^@])/i, "„L' @$2").replace(/^([\u201e]|[\u201d]|[\u201c])L’\s?([^@])/i, "„L' @$2");
+			titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])L'\s?([^@])/i, "„L'@$2").replace(/^([\u201e]|[\u201d]|[\u201c])L’\s?([^@])/i, "„L'@$2");
 		}
 		if (item.language == "por" || !item.language) {
 			titleStatement = titleStatement.replace(/^(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/i, "$1 @$2");
