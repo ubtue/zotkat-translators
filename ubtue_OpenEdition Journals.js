@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2023-11-29 14:41:10"
+	"lastUpdated": "2025-06-27 08:26:29"
 }
 
 /*
@@ -88,7 +88,7 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		}
 		
 		let section = ZU.xpathText(doc, '//div[contains(@class, "souspartie")]//span[@class="title"]');
-		if (section && section.match(/Recensions/))
+		if (section && section.match(/recensions|comptes rendus/i))
 			item.tags.push("RezensionstagPica");
 		if (item.DOI == undefined) {
 			Z.debug(ZU.xpathText(doc, '//div[@id="doi"]/a'));
@@ -114,6 +114,7 @@ function doWeb(doc, url) {
 	} else
 		invokeEmbeddedMetadataTranslator(doc, url);
 }
+
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
