@@ -2,14 +2,14 @@
 	"translatorID": "4b0cdfd0-2bb1-4cde-8535-939df5e93c92",
 	"label": "ubtue_Idunn",
 	"creator": "Helena Nebel",
-	"target": "idunn\\.no",
+	"target": "scup\\.com",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-03-31 14:59:31"
+	"lastUpdated": "2025-09-16 13:34:46"
 }
 
 /*
@@ -130,7 +130,8 @@ function postProcess(item, doc) {
 		}
 		item.notes = newNotes;
 		for (let keyWordTag of ZU.xpath(doc, '//section[@property="keywords"]/ol//a')) {
-			item.tags.push(keyWordTag.textContent);
+			if (!keyWordTag in item.tags)
+				item.tags.push(keyWordTag.textContent);
 		}
 		if (item.date == undefined || item.date == "") item.date = ZU.xpathText(doc, '//span[@property="datePublished"]').match(/\d{4}/)[0];
 		item.complete();
