@@ -2,14 +2,14 @@
 	"translatorID": "e86123a9-59a1-474a-ad01-f54fc210f6e0",
 	"label": "ubtue_TheoWeb",
 	"creator": "Helena Nebel",
-	"target": "https://www.theo-web.de/ausgaben/",
+	"target": "^https?://(www\\.)?theo-web\\.de/(ausgaben/\\d{4}/\\d+-jahrgang-\\d{4}-heft-\\d+(/.*)?|zeitschrift/ausgabe-\\d{4}-\\d{2}\\w?/?)|openjournals\\.fachportal-paedagogik\\.de/theo-web/(issue/view/\\d+|article/view/\\d+)",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2022-11-21 15:51:20"
+	"lastUpdated": "2025-09-30 11:23:12"
 }
 
 /*
@@ -36,21 +36,50 @@
 */
 
 var articleData = {};
-var date = "";
-var issue = "";
-var volume = "";
 var pagesData = {};
 var pagesList = [];
 
 function detectWeb(doc, url) {
-	if (getSearchResults(doc, true)) return "multiple";
+	if (/\/article\/view\/\d+/.test(url)) {
+		return "journalArticle";
+	} else if (/\/issue\/view\/\d+/.test(url)) {
+		return "multiple";
+	} else if (/\/ausgaben\/?$/.test(url) || /\/\d+-jahrgang-\d{4}-heft-\d+\/?$/.test(url)) {
+		if (doc.querySelector('td.th-titel')) {
+			return "multiple";
+		}
+	} else if (/\/zeitschrift\/ausgabe-\d{4}-\d{2}\w?\/?$/.test(url)) {
+		if (doc.querySelector("div.download-pdf")) {
+			return "multiple";
+		}
+	}
+	return false;
+}
+
+function normalizeUrl(url) {
+	return new URL(url, document.baseURI).href;
 }
 
 function getSearchResults(doc, checkOnly) {
-	
 	var items = {};
+
+	let articleLinks = doc.querySelectorAll('.ubhdOjsTheme_articleLinks a.ubhdOjsTheme_toTheArticle[href*="/article/view/"]');
+	if (articleLinks.length) {
+		for (let link of articleLinks) {
+			let href = link.href;
+			let titleNode = link.closest(".obj_article_summary")?.querySelector("h3");
+			let title = titleNode?.textContent?.trim();
+
+			if (href && title) {
+				if (checkOnly) return true;
+				items[href] = title;
+			}
+		}
+		if (checkOnly) return false;
+		return items;
+	}
+
 	var found = false;
-	let url = doc.URL;
 	var rows = ZU.xpath(doc, '//tr');
 	for (let row of rows) {
 		let href = ZU.xpathText(row, './/td[@class="th-titel"]/a/@href');
@@ -60,78 +89,241 @@ function getSearchResults(doc, checkOnly) {
 		found = true;
 		items[href] = title;
 		articleData[href] = row;
-		pagesData[href] = ZU.xpathText(row, './/th[@class="th-site"]').replace(/\n+|\s+/g, '');
-		pagesList.push(ZU.xpathText(row, './/th[@class="th-site"]').replace(/\n+|\s+/g, ''));
+		let pageText = ZU.xpathText(row, './/th[@class="th-site"]') || "";
+		pageText = pageText.replace(/\n+|\s+/g, '');
+		pagesData[href] = pageText;
+		pagesList.push(pageText);
 	}
 	return found ? items : false;
 }
 
 function doWeb(doc, url) {
-	if (detectWeb(doc, url) == "multiple") {
+	if (/\/article\/view\/\d+/.test(url)) {
+		invokeEmbeddedMetadataTranslator(doc, url);
+	} else if (/\/issue\/view\/\d+/.test(url)) {
+		let items = getSearchResults(doc, false);
+		Zotero.selectItems(items, function (selectedItems) {
+			if (!selectedItems) return;
+			let urls = Object.keys(selectedItems);
+			ZU.processDocuments(urls, invokeEmbeddedMetadataTranslator);
+		});
+	} else if (/\/ausgaben\/?$/.test(url) || /\/\d+-jahrgang-\d{4}-heft-\d+\/?$/.test(url)) {
 		Zotero.selectItems(getSearchResults(doc, false), function (items) {
-			if (!items) {
-				return true;
-			}
-			for (var i in items) {
-				scrape(doc, articleData[i]);
+			if (!items) return;
+			for (let i in items) {
+				scrapeNewLayout(doc, articleData[i]);
 			}
 		});
-	} else {
-		scrape(doc, url);
+	} else if (/\/zeitschrift\/ausgabe-\d{4}-\d{2}\w?\/?$/.test(url)) {
+		scrapeOldLayout(doc, url);
 	}
 }
 
-function scrape(doc, text) {
-	//Z.debug(doc);
+function scrapeNewLayout(doc, row) {
 	var item = new Zotero.Item('journalArticle');
-	item.title = ZU.xpathText(text, './td[@class="th-titel"]').trim(/\n/);
-	item.url = 'https://www.theo-web.de' + ZU.xpathText(text, './td[@class="th-titel"]/a/@href');
-	for (let creators of ZU.xpath(text, './td[@class="th-autor"]')) {
-		for (let creator of creators.textContent.split(/\s*,\s*/)) item.creators.push(ZU.cleanAuthor(creator.replace(/\s*Sr\.\s*/, ''), "author"));
+	item.title = ZU.xpathText(row, './td[@class="th-titel"]').trim();
+	item.url = 'https://www.theo-web.de' + ZU.xpathText(row, './td[@class="th-titel"]/a/@href');
+
+	for (let creatorCell of ZU.xpath(row, './td[@class="th-autor"]')) {
+		for (let creator of creatorCell.textContent.split(/\s*,\s*/)) {
+			item.creators.push(ZU.cleanAuthor(creator.replace(/\s*Sr\.\s*/, ''), "author"));
+		}
 	}
-	if (item.title.match(/^review\s+article/i)) item.tags.push('RezensionstagPica');
-	let firstPage = pagesData[ZU.xpathText(text, './td[@class="th-titel"]/a/@href')];
-	if (pagesList.indexOf(firstPage)+1 < pagesList.length) {
-		let lastPage = parseInt(pagesList[pagesList.indexOf(firstPage)+1]) - 1;
+
+	let firstPage = pagesData[ZU.xpathText(row, './td[@class="th-titel"]/a/@href')];
+	if (pagesList.indexOf(firstPage) + 1 < pagesList.length) {
+		let lastPage = parseInt(pagesList[pagesList.indexOf(firstPage) + 1]) - 1;
 		item.pages = firstPage + '-' + lastPage.toString();
+	} else {
+		item.pages = firstPage + '-';
 	}
-	else item.pages = firstPage + '-';
-	if (item.url.match(/\/\d+-jahrgang-\d{4}-heft-\d+\//) != null) {
-		let issuedInfo = item.url.match(/\/(\d+)-jahrgang-(\d{4})-heft-(\d+)\//);
-		item.volume = issuedInfo[1];
-		item.issue = issuedInfo[3];
-		item.date = issuedInfo[2];
+
+	let match = item.url.match(/\/(\d+)-jahrgang-(\d{4})-heft-(\d+)\//);
+	if (match) {
+		item.volume = match[1];
+		item.date = match[2];
+		item.issue = match[3];
 	}
-	
+
 	item.ISSN = "1863-0502";
-	item.publicationTitle = "Theo-Web";
-	ZU.doGet(item.url,
-		function (text) {
-			var parser = new DOMParser();
-			var html = parser.parseFromString(text, "text/html");
-			item.abstractNote = ZU.xpathText(html, '//meta[@name="description"]/@content');
-			let keyWords = ZU.xpathText(html, '//meta[@name="keywords"]/@content');
-			if (keyWords != null) item.tags = keyWords.split(/\s*,\s*/);
-			let doiTag = ZU.xpathText(html, '//p[@class="artikel-info"]');
-			if (doiTag != null) {
-				if (doiTag.match(/https:\/\/doi.org\/([^\s]+)/) != null) {
-					item.DOI = doiTag.match(/https:\/\/doi.org\/([^\s]+)/)[1];
+	item.publicationTitle = "Zeitschrift für Religionspädagogik. Theo-Web";
+
+	ZU.doGet(item.url, function (text) {
+		let parser = new DOMParser();
+		let html = parser.parseFromString(text, "text/html");
+		item.abstractNote = ZU.xpathText(html, '//meta[@name="description"]/@content');
+		let keywords = ZU.xpathText(html, '//meta[@name="keywords"]/@content');
+		if (keywords) {
+			item.tags = keywords.split(/\s*,\s*/);
+		}
+
+		let doiTag = ZU.xpathText(html, '//p[@class="artikel-info"]');
+		if (doiTag) {
+			let doiMatch = doiTag.match(/https:\/\/doi.org\/([^\s]+)/);
+			if (doiMatch) {
+				item.DOI = doiMatch[1];
+			}
+		}
+
+		item.complete();
+	});
+}
+
+function scrapeOldLayout(doc, url) {
+	let items = {};
+	let entries = doc.querySelectorAll("div.download-pdf");
+
+	for (let entry of entries) {
+		let text = entry.querySelector("div.spalte-rechts p")?.textContent.trim();
+		let pdfLink = entry.querySelector("a[href$='.pdf']")?.href;
+
+		if (!text || !pdfLink) continue;
+
+		if (!pdfLink.startsWith("http")) {
+			let base = (new URL(url)).origin;
+			pdfLink = base + (pdfLink.startsWith("/") ? "" : "/") + pdfLink;
+		}
+
+		let preview = text.slice(0, 120).replace(/\s+/g, " ").trim();
+		items[pdfLink] = preview;
+	}
+
+	let reviewEntries = new Set();
+
+	let h2s = Array.from(doc.querySelectorAll("h2"));
+	for (let h2 of h2s) {
+		if (h2.textContent.includes("Rezensionen")) {
+			let sibling = h2.nextElementSibling;
+			while (sibling && sibling.tagName !== "H2") {
+				if (sibling.classList.contains("download-pdf")) {
+					reviewEntries.add(sibling);
+				}
+				sibling = sibling.nextElementSibling;
+			}
+			break;
+		}
+	}
+
+	Zotero.selectItems(items, function (selectedItems) {
+		if (!selectedItems) return;
+
+		for (let pdfUrl in selectedItems) {
+			let entry = [...doc.querySelectorAll("div.download-pdf")].find(e => {
+				let link = e.querySelector("a[href$='.pdf']");
+				return link && normalizeUrl(link.href) === normalizeUrl(pdfUrl);
+			});
+			if (!entry) continue;
+
+			let text = entry.querySelector("div.spalte-rechts p")?.textContent.trim();
+			if (!text) continue;
+
+			let item = new Zotero.Item("journalArticle");
+
+			let hasAbstract = false;
+			let pagesMatch = text.match(/\(Seiten?\s*\d+([-–]\d+)?\)/i);
+			if (!pagesMatch) {
+				pagesMatch = text.match(/,?\s*Seite\s*\d+([-–]\d+)?/i);
+			} else {
+				hasAbstract = true;
+			}
+
+			if (pagesMatch) {
+				item.pages = pagesMatch[0].replace(/[^\d–\-]/g, "").trim();
+				text = text.replace(pagesMatch[0], "").trim();
+			}
+
+			let authorStr, rest;
+
+			let colonIndex = text.indexOf(":");
+			if (colonIndex !== -1) {
+				authorStr = text.substring(0, colonIndex).trim();
+				rest = text.substring(colonIndex + 1).trim();
+			} else {
+				let commaIndex = text.indexOf(",");
+				if (commaIndex !== -1) {
+					authorStr = text.substring(0, commaIndex).trim();
+					rest = text.substring(commaIndex + 1).trim();
+				} else {
+					item.title = text;
+					authorStr = null;
+					rest = null;
 				}
 			}
+
+			if (authorStr) {
+				let authors = authorStr.split(/\s*(?:\/|&| und )\s*/);
+				for (let name of authors) {
+					name = name.replace(/\.+$/, '').trim();
+					if (name) item.creators.push(ZU.cleanAuthor(name, "author"));
+				}
+			}
+
+			if (rest) {
+				if (hasAbstract) {
+					let periodIndex = rest.indexOf(". ");
+					if (periodIndex !== -1) {
+						item.title = rest.substring(0, periodIndex + 1).trim();
+						item.abstractNote = rest.substring(periodIndex + 1).trim();
+					} else {
+						item.title = rest;
+					}
+				} else {
+					item.title = rest;
+				}
+			}
+
+			item.publicationTitle = "Zeitschrift für Religionspädagogik. Theo-Web";
+			item.ISSN = "1863-0502";
+			item.url = url;
+
+			let h1 = doc.querySelector("h1");
+			if (h1) {
+				let h1Text = h1.textContent;
+
+				let volumeMatch = h1Text.match(/(\d+)\.\s*Jahrgang/i);
+				if (volumeMatch) {
+					item.volume = volumeMatch[1];
+				}
+				let yearMatch = h1Text.match(/Jahrgang\s+(\d{4})/i);
+				if (yearMatch) {
+					item.date = yearMatch[1];
+				}
+				let issueMatch = h1Text.match(/Heft\s+(\d+)/i);
+				if (issueMatch) {
+					item.issue = issueMatch[1];
+				}
+			}
+
+			let langMeta = doc.querySelector('meta[name="language"]');
+			if (langMeta) {
+				item.language = langMeta.getAttribute("content");
+			}
+
+			if (reviewEntries.has(entry)) {
+				item.notes.push({ note: "RezensionstagPica" });
+			}
+
+			item.attachments.push({
+				url: pdfUrl,
+				title: "Full Text PDF",
+				mimeType: "application/pdf"
+			});
+
+			item.complete();
+		}
+	});
+}
+
+function invokeEmbeddedMetadataTranslator(doc, url) {
+	let translator = Zotero.loadTranslator("web");
+	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
+	translator.setDocument(doc);
+	translator.setHandler("itemDone", function (t, item) {
+		item.itemType = 'journalArticle';
+		item.attachments = [];
 		item.complete();
-		});
-
-
-
-
-	
-		
-	
-
-
-	//if (item.abstractNote != null) item.abstractNote = item.abstractNote.replace(/(\n+)|(^Abstract)/g, ' ');
-	
-	
+	});
+	translator.translate();
 }
 
 /** BEGIN TEST CASES **/
