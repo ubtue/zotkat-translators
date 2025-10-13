@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-10-13 09:43:53"
+	"lastUpdated": "2025-10-13 10:14:29"
 }
 
 /*
@@ -428,7 +428,7 @@ function invokeEMTranslator(doc) {
 			}
 
 		}
-		if (['2792-260X'].includes(i.ISSN)) {
+		if (['2792-260X', '2660-955X'].includes(i.ISSN)) {
 			let abstractes = ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es")]/@content');
 			let abstracten = ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("en")]/@content');
 			if (abstractes && abstracten) {
