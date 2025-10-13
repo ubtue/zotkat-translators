@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-06-27 08:17:27"
+	"lastUpdated": "2025-10-13 13:20:28"
 }
 
 /*
@@ -158,6 +158,7 @@ function invokeEMTranslator(doc) {
 		let orcidAuthorEntryCaseF = doc.querySelectorAll('.article-main');
 		let orcidAuthorEntryCaseG = doc.querySelectorAll('.authors_info');
 		let orcidAuthorEntryCaseH = doc.querySelectorAll('ul.metadata > li');
+		let orcidAuthorEntryCaseI = doc.querySelector('div#OJP_about');
 
 		const positionTitlesToRemove = ["Prof", "Dr"];
 
@@ -339,6 +340,18 @@ function invokeEMTranslator(doc) {
 			}
 		}
 
+		if (orcidAuthorEntryCaseI) {
+			let orcidLinks = orcidAuthorEntryCaseI.querySelectorAll('a[href*="orcid.org"]');
+			for (let orcidLink of orcidLinks) {
+				let orcid = orcidLink.href.match(/\d+-\d+-\d+-\d+x?/gi)?.[0];
+				let author = ZU.xpathText(orcidLink, './preceding-sibling::span[1]');
+				if (orcid && author) {
+					addNote(orcid, author);
+				}
+			}
+		}
+		
+
  		//clean pages e.g. pages": "6.-6." > 10.25786/cjbk.v0i01-02.631; or "pages": "01-07" > 10.25786/zfbeg.v0i01-02.793
  		if (i.pages != null) i.pages = i.pages.replace('S.', '').replace(/\./g, '').replace(/^([^-]+)-\1$/, '$1').replace(/^0/g, '').replace(/-0/g, '-').replace('â€“', '-');
 
@@ -406,7 +419,7 @@ function invokeEMTranslator(doc) {
 			}
 
 		}
-		if (['2792-260X'].includes(i.ISSN)) {
+		if (['2792-260X', '2660-955X'].includes(i.ISSN)) {
 			let abstractes = ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es")]/@content');
 			let abstracten = ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("en")]/@content');
 			if (abstractes && abstracten) {
@@ -578,7 +591,7 @@ function invokeEMTranslator(doc) {
 				}
 			}
 		}
-		if (['1853-9106', '2254-6227', '1860-8213', '2500-5413', '1980-6736', '2237-6461', '3052-4989'].includes(i.ISSN)) {
+		if (['1853-9106', '2254-6227', '1860-8213', '2500-5413', '1980-6736', '2237-6461', '3052-4989', '2660-955X'].includes(i.ISSN)) {
 			if (ZU.xpathText(doc, '//meta[@name="DC.Title"]/@content')) {
 				for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt") or @*=("de")]/@content')) {
 					if (parallelTitle.value && parallelTitle.value != i.title) {
