@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-10-13 13:20:28"
+	"lastUpdated": "2025-10-14 07:47:12"
 }
 
 /*
@@ -138,6 +138,11 @@ function invokeEMTranslator(doc) {
 		if (i.publicationTitle.match(/transformatio/i)) {
 			i.ISSN = "2813-4613";
 		}
+
+		if (i.publicationTitle.match(/theologie für die praxis/i)) {
+			i.ISSN = "0939-5121";
+		}
+
  		//title in other language for pica-field 4002
  		var articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
  		if (articleType === "Artículos") {
