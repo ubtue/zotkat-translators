@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-10-14 07:47:12"
+	"lastUpdated": "2025-10-15 12:35:50"
 }
 
 /*
@@ -98,7 +98,7 @@ function invokeEMTranslator(doc) {
 			delete i.issue;
 		}
 		//replace issue number with volume number
-		if (['2182-8822', '0718-9273', '1904-8181'].includes(i.ISSN)) {
+		if (['2182-8822', '0718-9273', '1904-8181', '1822-4571'].includes(i.ISSN)) {
 			i.volume = i.issue;
 			delete i.issue;
 		}
