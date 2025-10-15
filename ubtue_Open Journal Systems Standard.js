@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-10-14 07:47:12"
+	"lastUpdated": "2025-10-15 12:46:11"
 }
 
 /*
@@ -98,7 +98,7 @@ function invokeEMTranslator(doc) {
 			delete i.issue;
 		}
 		//replace issue number with volume number
-		if (['2182-8822', '0718-9273', '1904-8181'].includes(i.ISSN)) {
+		if (['2182-8822', '0718-9273', '1904-8181', '1822-4571'].includes(i.ISSN)) {
 			i.volume = i.issue;
 			delete i.issue;
 		}
@@ -164,6 +164,7 @@ function invokeEMTranslator(doc) {
 		let orcidAuthorEntryCaseG = doc.querySelectorAll('.authors_info');
 		let orcidAuthorEntryCaseH = doc.querySelectorAll('ul.metadata > li');
 		let orcidAuthorEntryCaseI = doc.querySelector('div#OJP_about');
+		let orcidAuthorEntryCaseJ = doc.querySelectorAll('.article-details-author');
 
 		const positionTitlesToRemove = ["Prof", "Dr"];
 
@@ -354,6 +355,20 @@ function invokeEMTranslator(doc) {
 					addNote(orcid, author);
 				}
 			}
+		}
+
+		if (orcidAuthorEntryCaseJ.length) {
+			orcidAuthorEntryCaseJ.forEach(author => {
+				let nameElement = author.querySelector('.article-details-author-name');
+				let orcidElement = author.querySelector('.article-details-author-orcid a[href*="orcid.org"]');
+				if (nameElement && orcidElement) {
+					let name = nameElement.textContent.trim();
+					let orcid = orcidElement.href;
+					if (name && orcid) {
+						addNote(orcid.replace(/https?:\/\/orcid\.org\//g, ''), name);
+					}
+				}
+			});
 		}
 		
 
