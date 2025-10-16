@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-10-15 12:46:11"
+	"lastUpdated": "2025-10-16 14:08:43"
 }
 
 /*
@@ -831,6 +831,14 @@ function invokeEMTranslator(doc) {
 			if (ZU.xpath(doc, '//a[contains(@class, "pdf") and contains(text(), "OPEN ACCESS")]').length > 0) {
 				i.notes.push('LF:');
 			}
+		}
+
+		if (i.volume && i.volume.match(/\d+-\d+/)) {
+			i.volume = i.volume.replace('-', '/');
+		}
+
+		if (i.issue && i.issue.match(/\d+-\d+/)) {
+			i.issue = i.issue.replace('-', '/');
 		}
 
 		i.complete();
