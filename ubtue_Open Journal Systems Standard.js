@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-10-20 14:44:06"
+	"lastUpdated": "2025-10-20 15:27:46"
 }
 
 /*
@@ -163,7 +163,7 @@ function invokeEMTranslator(doc) {
 		let orcidAuthorEntryCaseF = doc.querySelectorAll('.article-main');
 		let orcidAuthorEntryCaseG = doc.querySelectorAll('.authors_info');
 		let orcidAuthorEntryCaseH = doc.querySelectorAll('ul.metadata > li');
-		let orcidAuthorEntryCaseI = ;
+		let orcidAuthorEntryCaseI = doc.querySelectorAll('.author');
 		let orcidAuthorEntryCaseJ = doc.querySelectorAll('.article-details-author');
 
 		const positionTitlesToRemove = ["Prof", "Dr"];
@@ -193,7 +193,7 @@ function invokeEMTranslator(doc) {
 			}
 		}
 
-		if (orcidAuthorEntryCaseA.length && ['2617-1953', '2182-8822', '2627-6062'].includes(i.ISSN)) {
+		if (orcidAuthorEntryCaseA.length && ['2617-1953', '2627-6062'].includes(i.ISSN)) {
 			for (let a of orcidAuthorEntryCaseA) {
 				let orcidTag = a.querySelector('.orcid');
 				let authorTag = a.querySelector('.author');
@@ -343,6 +343,18 @@ function invokeEMTranslator(doc) {
 				let author = ZU.trimInternal(h.innerText);
 				let orcid = ZU.trimInternal(h.innerHTML).match(/\d+-\d+-\d+-\d+x?/gi);
 				addNote(orcid, author);
+			}
+		}
+
+		if (orcidAuthorEntryCaseI.length && ['2182-8822'].includes(i.ISSN)) {
+			for (let a of orcidAuthorEntryCaseI) {
+				let authorElement = a.querySelector('strong');
+				let orcidElement = a.querySelector('.orcid');
+				if (authorElement && orcidElement) {
+					let author = authorElement.textContent.trim();
+					let orcid = orcidElement.querySelector('a[href*="orcid.org"]')?.href?.replace(/https?:\/\/orcid\.org\//g, '');
+					addNote(orcid, author);
+				}
 			}
 		}
 
