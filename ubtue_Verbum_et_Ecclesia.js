@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-10-20 15:18:55"
+	"lastUpdated": "2025-10-20 15:24:46"
 }
 
 /*
@@ -112,6 +112,8 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setHandler('itemDone', (_obj, item) => {
 		getArticleID (item, url);
 		getOrcids (doc, item);
+		
+		delete item.pages;
 		
 		item.complete();
 	});
