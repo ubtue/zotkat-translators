@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-10-16 14:14:51"
+	"lastUpdated": "2025-10-20 15:27:46"
 }
 
 /*
@@ -135,11 +135,11 @@ function invokeEMTranslator(doc) {
 			i.publicationTitle = ZU.xpathText(doc, '//meta[@name="DC.Source"]/@content');
 		}
 
-		if (i.publicationTitle.match(/transformatio/i)) {
+		if (i.publicationTitle?.match(/transformatio/i)) {
 			i.ISSN = "2813-4613";
 		}
 
-		if (i.publicationTitle.match(/theologie für die praxis/i)) {
+		if (i.publicationTitle?.match(/theologie für die praxis/i)) {
 			i.ISSN = "0939-5121";
 		}
 
@@ -163,7 +163,7 @@ function invokeEMTranslator(doc) {
 		let orcidAuthorEntryCaseF = doc.querySelectorAll('.article-main');
 		let orcidAuthorEntryCaseG = doc.querySelectorAll('.authors_info');
 		let orcidAuthorEntryCaseH = doc.querySelectorAll('ul.metadata > li');
-		let orcidAuthorEntryCaseI = doc.querySelector('div#OJP_about');
+		let orcidAuthorEntryCaseI = doc.querySelectorAll('.author');
 		let orcidAuthorEntryCaseJ = doc.querySelectorAll('.article-details-author');
 
 		const positionTitlesToRemove = ["Prof", "Dr"];
@@ -193,7 +193,7 @@ function invokeEMTranslator(doc) {
 			}
 		}
 
-		if (orcidAuthorEntryCaseA.length && ['2617-1953', '2182-8822', '2627-6062'].includes(i.ISSN)) {
+		if (orcidAuthorEntryCaseA.length && ['2617-1953', '2627-6062'].includes(i.ISSN)) {
 			for (let a of orcidAuthorEntryCaseA) {
 				let orcidTag = a.querySelector('.orcid');
 				let authorTag = a.querySelector('.author');
@@ -346,12 +346,13 @@ function invokeEMTranslator(doc) {
 			}
 		}
 
-		if (orcidAuthorEntryCaseI) {
-			let orcidLinks = orcidAuthorEntryCaseI.querySelectorAll('a[href*="orcid.org"]');
-			for (let orcidLink of orcidLinks) {
-				let orcid = orcidLink.href.match(/\d+-\d+-\d+-\d+x?/gi)?.[0];
-				let author = ZU.xpathText(orcidLink, './preceding-sibling::span[1]');
-				if (orcid && author) {
+		if (orcidAuthorEntryCaseI.length && ['2182-8822'].includes(i.ISSN)) {
+			for (let a of orcidAuthorEntryCaseI) {
+				let authorElement = a.querySelector('strong');
+				let orcidElement = a.querySelector('.orcid');
+				if (authorElement && orcidElement) {
+					let author = authorElement.textContent.trim();
+					let orcid = orcidElement.querySelector('a[href*="orcid.org"]')?.href?.replace(/https?:\/\/orcid\.org\//g, '');
 					addNote(orcid, author);
 				}
 			}
@@ -385,9 +386,6 @@ function invokeEMTranslator(doc) {
 		if (["2468-9963", "1988-4265", "2175-5841", "1980-6736", "2179-0019", "1988-3269"].includes(i.ISSN) && i.pages) {
 			i.notes.push('artikelID:' + i.pages);
 			i.pages = "";
-		}
-		if (['2074-7705'].includes(i.ISSN)) {
-			i.notes.push('artikelID:a' + i.url.slice(-4));
 		}
  		if (i.date == undefined && ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content') != undefined) {
  			i.date = ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content').substr(0,4);
@@ -881,97 +879,6 @@ function doWeb(doc, url) {
 
 /** BEGIN TEST CASES **/
 var testCases = [
-	{
-		"type": "web",
-		"url": "https://www.zwingliana.ch/index.php/zwa/article/view/2516",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Geleitwort",
-				"creators": [
-					{
-						"firstName": "Christian",
-						"lastName": "Oesterheld",
-						"creatorType": "author"
-					}
-				],
-				"date": "2018",
-				"ISSN": "0254-4407",
-				"journalAbbreviation": "Zwa",
-				"language": "en",
-				"libraryCatalog": "www.zwingliana.ch",
-				"pages": "VII-IX",
-				"publicationTitle": "Zwingliana",
-				"rights": "Copyright (c) 2019 Christian Oesterheld",
-				"url": "https://www.zwingliana.ch/index.php/zwa/article/view/2516",
-				"attachments": [],
-				"tags": [],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "http://jsri.ro/ojs/index.php/jsri/article/view/1194",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"title": "Time as a Basic Factor of the Development of Family Relationships in Slovakia",
-				"creators": [
-					{
-						"firstName": "Ladislav",
-						"lastName": "Csontos",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Rastislav",
-						"lastName": "Bednarik",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Jozef",
-						"lastName": "Å½uffa",
-						"creatorType": "author"
-					}
-				],
-				"date": "2020/06/26",
-				"ISSN": "1583-0039",
-				"abstractNote": "In the search for factors affecting the stability of marriage and family, support for the family in changing conditions of adult access to children is based on findings of its empirical research that identified selected value and religious aspects of the family. These were enriched by sociological studies of religiosity and scientific studies from the field of psychology and pedagogy. This made it possible to identify family time spent in building relationships as one of the key factors of its stability. The study also includes some aspects of religious beliefs and their implications on declared values, as well as suggestions for creation of specific pastoral plans.",
-				"issue": "56",
-				"language": "en",
-				"libraryCatalog": "jsri.ro",
-				"pages": "3-16",
-				"publicationTitle": "Journal for the Study of Religions and Ideologies",
-				"rights": "Both JSRI and the authors holds the copyright of all published materials. In addition, authors have the right to use all or part of their texts and abstracts for their own personal use and for their teaching purposes.   Authors have the right to use all or part of the text and abstract, in the preparation of derivative works, extension of the article into book-length or in other works, and the right to include the article in full or in part in a thesis or dissertation or books. Authors are kindly asked to provide acknowledgement of the original publication in JSRI, including the title of the article, the journal name, volume, issue number, page numbers, and year of publication.   For use in non-commercial situations there is no need for authors to apply for written permission from JSRI in advance.",
-				"url": "http://jsri.ro/ojs/index.php/jsri/article/view/1194",
-				"volume": "19",
-				"attachments": [],
-				"tags": [
-					{
-						"tag": "Marriage"
-					},
-					{
-						"tag": "communication"
-					},
-					{
-						"tag": "counseling"
-					},
-					{
-						"tag": "family"
-					},
-					{
-						"tag": "relationship"
-					},
-					{
-						"tag": "trust"
-					}
-				],
-				"notes": [],
-				"seeAlso": []
-			}
-		]
-	},
 	{
 		"type": "web",
 		"url": "https://ojs.reformedjournals.co.za/stj/article/view/1743",
@@ -3947,6 +3854,62 @@ var testCases = [
 						"note": "orcid:0000-0003-3465-0899 | Vasti Marais-Opperman | taken from website"
 					}
 				],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://zwingliana.ch/article/view/8692",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Johann Conrad Ulmers theologisches Vermächtnis: Seine fünf Predigten von den Heiligen Sakramenten, 1598",
+				"creators": [
+					{
+						"firstName": "Erich",
+						"lastName": "Bryner",
+						"creatorType": "author"
+					}
+				],
+				"date": "2024/11/28",
+				"DOI": "10.69871/rb7p9y75",
+				"ISSN": "2296-469X",
+				"abstractNote": "Johann Conrad Ulmer (1519–1600), a native of Schaffhausen, received his theological education in Basel, Strasbourg and Wittenberg. From 1543 to 1566 he worked as a preacher and reformer in Lohr am Main (Franconia), from 1566 to 1600 in Schaffhausen, first at the abbey church of All Saints, then in the church of St. John, and also as dean of the Schaffhausen parish. He was a highly respected and successful preacher, catechist, pastor, theological writer and church politician. His influence was so great that he is considered the second reformer and architect of the Reformed Church in Schaffhausen.He himself described his Five Sermons on the Holy Sacraments (1598) as his theological legacy. In them, he dealt with the sacraments in general, the Lord’s Supper in particular, the benefits, use and fruits of the Lord’s Supper, the misguided developments in the theology of the Lord’s Supper in the course of church history and their refutation by the Reformed theology of his time. He himself relied on the Bible, the Confessio Helvetica Posterior and other Reformed confessional writings. He polemicized sharply against the Roman Catholic and Lutheran churches, as laid down in the Council of Trent and the Formula Concordiae. Ulmer was strongly influenced by the confessional age that began in Schaffhausen around 1550.",
+				"journalAbbreviation": "Zwa",
+				"language": "de",
+				"libraryCatalog": "zwingliana.ch",
+				"pages": "121-150",
+				"publicationTitle": "Zwingliana",
+				"rights": "Copyright (c) 2024 Erich Bryner",
+				"shortTitle": "Johann Conrad Ulmers theologisches Vermächtnis",
+				"url": "https://zwingliana.ch/article/view/8692",
+				"volume": "51",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "Abendmahl"
+					},
+					{
+						"tag": "Apologetik"
+					},
+					{
+						"tag": "Johann Conrad Ulmer"
+					},
+					{
+						"tag": "Konfessionelles Zeitalter"
+					},
+					{
+						"tag": "Polemik"
+					},
+					{
+						"tag": "Predigt"
+					},
+					{
+						"tag": "Schaffhausen"
+					}
+				],
+				"notes": [],
 				"seeAlso": []
 			}
 		]
