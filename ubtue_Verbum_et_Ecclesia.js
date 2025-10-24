@@ -5,34 +5,34 @@
 	"target": "https://verbumetecclesia.org.za/index.php/ve/(article|issue)",
 	"minVersion": "5.0",
 	"maxVersion": "",
-	"priority": 100,
+	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-10-20 15:24:46"
+	"lastUpdated": "2025-10-24 14:39:52"
 }
 
 /*
-    ***** BEGIN LICENSE BLOCK *****
+	***** BEGIN LICENSE BLOCK *****
 
-    Copyright © 2025 Universitätsbibliothek Tübingen
+	Copyright © 2025 Universitätsbibliothek Tübingen
 
-    This file is part of Zotero.
+	This file is part of Zotero.
 
-    Zotero is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	Zotero is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    Zotero is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU Affero General Public License for more details.
+	Zotero is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with Zotero. If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU Affero General Public License
+	along with Zotero. If not, see <http://www.gnu.org/licenses/>.
 
-    ***** END LICENSE BLOCK *****
+	***** END LICENSE BLOCK *****
 */
 
 
@@ -47,26 +47,26 @@ function detectWeb(doc, url) {
 }
 
 function getSearchResults(doc, checkOnly) {
-    var items = {};
-    var found = false;
-    var tocTitles = doc.querySelectorAll('div.tocTitle');
-    
-    for (let tocTitle of tocTitles) {
-        let titleLink = tocTitle.querySelector('a');
-        let row = tocTitle.closest('tr');
-        let htmlLink = row ? Array.from(row.querySelectorAll('.tocGalleys a.file'))
-            .find(a => a.textContent.trim() === 'HTML') : null;
-        
-        if (titleLink && htmlLink) {
-            let href = htmlLink.href;
-            let title = titleLink.textContent.trim();
-            
-            if (checkOnly) return true;
-            found = true;
-            items[href] = title;
-        }
-    }
-    return found ? items : false;
+	var items = {};
+	var found = false;
+	var tocTitles = doc.querySelectorAll('div.tocTitle');
+	
+	for (let tocTitle of tocTitles) {
+		let titleLink = tocTitle.querySelector('a');
+		let row = tocTitle.closest('tr');
+		let htmlLink = row ? Array.from(row.querySelectorAll('.tocGalleys a.file'))
+			.find(a => a.textContent.trim() === 'HTML') : null;
+		
+		if (titleLink && htmlLink) {
+			let href = htmlLink.href;
+			let title = titleLink.textContent.trim();
+			
+			if (checkOnly) return true;
+			found = true;
+			items[href] = title;
+		}
+	}
+	return found ? items : false;
 }
 
 async function doWeb(doc, url) {
@@ -97,10 +97,10 @@ function getOrcids (doc, item) {
 }
 
 function getArticleID(item, url) {
-    let match = url.match(/\/view\/(\d{4})/);
-    if (match) {
-        item.notes.push('artikelID:a' + match[1]);
-    }
+	let match = url.match(/\/view\/(\d{4})/);
+	if (match) {
+		item.notes.push('artikelID:a' + match[1]);
+	}
 }
 
 async function scrape(doc, url = doc.location.href) {
