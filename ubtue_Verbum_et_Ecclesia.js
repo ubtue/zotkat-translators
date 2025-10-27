@@ -5,11 +5,11 @@
 	"target": "https://verbumetecclesia.org.za/index.php/ve/(article|issue)",
 	"minVersion": "5.0",
 	"maxVersion": "",
-	"priority": 99,
+	"priority": 90,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-10-24 14:39:52"
+	"lastUpdated": "2025-10-27 12:39:21"
 }
 
 /*
