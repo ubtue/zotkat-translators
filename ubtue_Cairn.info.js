@@ -2,14 +2,14 @@
 	"translatorID": "58fd3287-b8e6-4b5d-8367-0ebbd4598991",
 	"label": "ubtue_Cairn.info",
 	"creator": "Mara Spieß",
-	"target": "https://shs.cairn.info",
+	"target": "https://(droit|shs|stm).cairn.info",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 99,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-05-09 15:22:45"
+	"lastUpdated": "2025-10-28 15:13:12"
 }
 
 /*
@@ -56,7 +56,7 @@ function getSearchResults(doc, checkOnly) {
 		if (hrefElement) {
 			href = hrefElement.href + "&tab=resume";
 		}
-		let title = ZU.trimInternal(row.querySelector('h1.font-bold').textContent);
+		let title = ZU.trimInternal(row.querySelector('p.font-bold').textContent);
 		if (!href || !title) continue;
 		if (checkOnly) return true;
 		found = true;
