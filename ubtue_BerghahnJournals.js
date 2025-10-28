@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-01 13:11:25"
+	"lastUpdated": "2025-10-28 14:10:00"
 }
 
 /*
@@ -84,7 +84,7 @@ function invokeEMTranslator(doc) {
 		if (!i.date) {
 			i.date = ZU.xpathText(doc, '//meta[@name="citation_publication_date"]/@content');
 		}
-		if (ZU.xpathText(doc, '//div[@class="access-open"]')) {
+		if (doc.querySelector('div.pr-4 > div.ico-access-open')) {
 			i.notes.push('LF:');
 		}
 		if (i.abstractNote) i.abstractNote = i.abstractNote.replace(/^abstract:?\s*/i, '');
