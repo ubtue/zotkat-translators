@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-05-07 12:52:11"
+	"lastUpdated": "2025-10-28 10:06:13"
 }
 
 /*
@@ -51,7 +51,7 @@ function getSearchResults(doc, checkOnly) {
 	var found = false;
 	var rows = doc.querySelectorAll('li.pl-contents__item[data-doi*="10."]');
 	for (let row of rows) {
-		let hrefElement = row.querySelector('button.js-contents-details[data-route*="/de/10."]');
+		let hrefElement = row.querySelector('button.js-contents-details[data-route*="/de/document"]');
 		let titleElement = row.querySelector('button.pl-contents__link');
 		if (!hrefElement || !titleElement) continue;
 
@@ -108,28 +108,28 @@ async function scrape(doc, url = doc.location.href) {
 var testCases = [
 	{
 		"type": "web",
-		"url": "https://www.nomos-elibrary.de/de/10.5771/0010-3497-2023-4-471/realitaet-fiktionalitaet-virtualitaet-erkennbarkeit-als-journalistisches-problem-aus-historischer-sicht-jahrgang-56-2023-heft-4?page=1",
+		"url": "https://www.nomos-elibrary.de/de/document/view/pdf/uuid/2de3435a-e37c-36b2-9435-99f4413f3f7b?page=1",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Realität – Fiktionalität – Virtualität. Erkennbarkeit als journalistisches Problem aus historischer Sicht",
+				"title": "Virtuelle Realität im Journalismus. Potenziale und Herausforderungen der partizipativ-immersiven Dimension der Berichterstattung",
 				"creators": [
 					{
-						"firstName": "Horst",
-						"lastName": "Pöttker",
+						"firstName": "Aynur",
+						"lastName": "Sarısakaloğlu",
 						"creatorType": "author"
 					}
 				],
 				"date": "2024/01/14",
-				"DOI": "10.5771/0010-3497-2023-4-471",
+				"DOI": "10.5771/0010-3497-2023-4-460",
 				"ISSN": "0010-3497, 2198-3852",
-				"abstractNote": "Auf der erkenntnistheoretischen Grundlage eines prag- matisch-empirischen Realitätsbegriffs befasst sich der Beitrag mit der berufsethischen Norm, dass Fi…",
+				"abstractNote": "Die Einführung von virtueller Realität (VR) im Journalismus eröffnet eine partizipativ-immersive Dimension der Berichterstattung. Als eine interaktive Schnittstelle zwischen Mensch und Maschine ermöglichen VR-Technologien durch die Simulation menschlicher Sinneswahrnehmungen das Eintauchen der Rezipient:innen in synthetisch dargestellte journalistische Ereignisse. Der Beitrag bietet hierzu eine Einführung in den immersiven Journalismus, gefolgt von einer Analyse der Potenziale und Herausforderungen für die Nachrichtenproduktion und -rezeption. Es werden exemplarisch Denkanstöße zur Reflexion medienethi- scher Dimensionen der immersiven Berichterstattung angeregt und Schlussfolgerungen formuliert.",
 				"issue": "4",
 				"language": "de",
 				"libraryCatalog": "www.nomos-elibrary.de",
-				"pages": "471-480",
+				"pages": "460-470",
 				"publicationTitle": "Communicatio Socialis (ComSoc)",
-				"url": "https://www.nomos-elibrary.de/de/10.5771/0010-3497-2023-4-471/realitaet-fiktionalitaet-virtualitaet-erkennbarkeit-als-journalistisches-problem-aus-historischer-sicht-jahrgang-56-2023-heft-4",
+				"url": "https://www.nomos-elibrary.de/de/document/view/detail/uuid/2de3435a-e37c-36b2-9435-99f4413f3f7b",
 				"volume": "56",
 				"attachments": [
 					{
@@ -143,8 +143,7 @@ var testCases = [
 				],
 				"tags": [],
 				"notes": [
-					"Auf der erkenntnistheoretischen Grundlage eines prag- matisch-empirischen Realitätsbegriffs befasst sich der Beitrag mit der berufsethischen Norm, dass Fiktionales im Journalismus als solches erkennbar sein muss. Neben einer Rekonstruktion ihrer Entwicklung wird analysiert, wie die Geltung dieser Norm dadurch gefährdet wird, dass mit fortschreitender Digitalisierung Virtualität als täuschende Schein-Realität auch im Journalismus attraktiver wird. Was ist in dieser Situation zu tun? ",
-					"On the epistemological basis of a pragmatic-empirical concept of reality, the article deals with the professional ethical norm that fictional elements in journalism must be recogniz- able as such. In addition to a reconstruction of its development, the paper analyzes how the validity of this norm is endangered by the fact that, with advancing digitalization, virtuality is becoming more attractive as a deceptive illusory reality in journalism as well. What is to be done in this situation? "
+					"abs:The introduction of virtual reality (VR) in journalism opens up a participatory-immer- sive dimension of reporting. As an interactive interface between human and machine, VR technologies enable the immersion of recipients in synthetically presented journalistic events by simulating human sensory perceptions. This article offers an introduction to immersive journalism, followed by an analysis of the potentials and challenges for news production and reception. It provides examples of thought-provoking impulses for reflect- ing on the media-ethical dimensions of immersive reporting and formulates conclusions. "
 				],
 				"seeAlso": []
 			}
@@ -152,33 +151,29 @@ var testCases = [
 	},
 	{
 		"type": "web",
-		"url": "https://www.nomos-elibrary.de/de/10.5771/0588-9804-2024-3-5/gesundheit-und-heilung-ethische-theologische-und-seelsorgerische-perspektiven-jahrgang-60-2024-heft-3?page=1",
+		"url": "https://www.nomos-elibrary.de/de/document/view/pdf/uuid/c20a1014-f6be-3357-8d2c-749535de162e?page=1",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"title": "Gesundheit und Heilung – Ethische, theologische und seelsorgerische Perspektiven",
+				"title": "Sakramentalität der Welt",
 				"creators": [
 					{
-						"firstName": "Susan",
-						"lastName": "Abraham",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Stan Chu",
-						"lastName": "Ilo",
+						"firstName": "Kimberly Hope",
+						"lastName": "Belcher",
 						"creatorType": "author"
 					}
 				],
-				"date": "2024/06/24",
-				"DOI": "10.5771/0588-9804-2024-3-5",
+				"date": "2025/04/21",
+				"DOI": "10.5771/0588-9804-2025-2-117",
 				"ISSN": "0588-9804, 2943-0054",
-				"issue": "3",
+				"abstractNote": "Die Sakramente sind die göttliche Pädagogik, durch die der dreieinige Gott die Christen lehrt, die Welt zu lesen und in ihr die Gegenwart Gottes und ihre eigene Bestimmung zu finden. Diese Pädagogik geht in zwei Richtungen: Einerseits sind die Sakramente privilegierte Momente in der Heilsökonomie, die die Christen lehren, die Welt richtig zu lesen und Gottes Charakter in der geschaffenen Ordnung zu erkennen. Andererseits erhellen die Eigenschaften der Schöpfung und ihrer Beziehungen sowohl die Praxis als auch das Verständnis der Sakramente. In der wechselseitigen Dynamik, die durch die sakramentale Praxis entsteht, verkündet die Schöpfung ihren Ursprung und ihr Telos in Gott sowie ihre wechselseitige Abhängigkeit von den Menschen. Die pädagogische Bedeutung der Sakramente gab den Anstoß für die Entwicklung des Konzepts im Westen, dass sie »Zeichen der heiligen Dinge« sind, »Zeichen einer heiligen Sache, insofern es die Menschen heilig macht«, oder Symbole. Eine parallele Reihe von Traditionen betrifft die Sakramente als Pädagogik für die geistigen Sinne. Die sakramentalen Feiern der Kirche stellen eine Reihe von Beziehungen und Gegensätzen her, die den Christen dabei helfen, Gott in der Welt zu finden. Gleichzeitig ist ein Verständnis der Welt als sakramentale Natur wichtig, um zu verhindern, dass sakramentale Symbole flach und idiosynkratisch werden.",
+				"issue": "2",
 				"language": "de",
 				"libraryCatalog": "www.nomos-elibrary.de",
-				"pages": "5-8",
+				"pages": "117-124",
 				"publicationTitle": "Concilium",
-				"url": "https://www.nomos-elibrary.de/de/10.5771/0588-9804-2024-3-5/gesundheit-und-heilung-ethische-theologische-und-seelsorgerische-perspektiven-jahrgang-60-2024-heft-3",
-				"volume": "60",
+				"url": "https://www.nomos-elibrary.de/de/document/view/detail/uuid/c20a1014-f6be-3357-8d2c-749535de162e",
+				"volume": "61",
 				"attachments": [
 					{
 						"title": "Full Text PDF",
@@ -194,6 +189,71 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.nomos-elibrary.de/de/document/view/pdf/uuid/3f8137ce-539f-3ff2-ad50-5f43ce8625c0?page=1",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Partizipative Forschung in der Forensischen Psychiatrie – Chancen und Herausforderungen aus Patientensicht",
+				"creators": [
+					{
+						"firstName": "Eva",
+						"lastName": "Drewelow",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Peggy",
+						"lastName": "Walde",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Birgit",
+						"lastName": "Völlm",
+						"creatorType": "author"
+					}
+				],
+				"date": "2025/08/10",
+				"DOI": "10.1486/RP-2025-3_150",
+				"ISSN": "0724-2247, 2942-4887",
+				"issue": "3",
+				"language": "de",
+				"libraryCatalog": "www.nomos-elibrary.de",
+				"pages": "150-158",
+				"publicationTitle": "Recht & Psychiatrie",
+				"url": "https://www.nomos-elibrary.de/de/document/view/detail/uuid/3f8137ce-539f-3ff2-ad50-5f43ce8625c0",
+				"volume": "43",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.nomos-elibrary.de/de/document/view/detail/uuid/87864be1-6c18-3a6a-8801-8cb2c37afd6c",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://www.nomos-elibrary.de/de/document/view/detail/uuid/3cab01dd-bdf1-3288-a557-49384ba27cd0",
+		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://www.nomos-elibrary.de/de/document/view/detail/uuid/ebe14e62-2423-3313-8668-fa7db3f38eb5",
+		"items": "multiple"
 	}
 ]
 /** END TEST CASES **/
