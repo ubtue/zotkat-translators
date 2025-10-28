@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-05-07 12:52:11"
+	"lastUpdated": "2025-10-28 09:59:24"
 }
 
 /*
@@ -51,7 +51,7 @@ function getSearchResults(doc, checkOnly) {
 	var found = false;
 	var rows = doc.querySelectorAll('li.pl-contents__item[data-doi*="10."]');
 	for (let row of rows) {
-		let hrefElement = row.querySelector('button.js-contents-details[data-route*="/de/10."]');
+		let hrefElement = row.querySelector('button.js-contents-details[data-route*="/de/document"]');
 		let titleElement = row.querySelector('button.pl-contents__link');
 		if (!hrefElement || !titleElement) continue;
 
