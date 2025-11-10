@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-08 11:50:08"
+	"lastUpdated": "2025-11-10 09:23:40"
 }
 
 /*
@@ -58,10 +58,10 @@ function romanToInt(r) {
 		const cur = sym[r[i]];
 		const next = sym[r[i+1]];
 		if (cur < next){
-			result += next - cur 
-			i++
+			result += next - cur;
+			i++;
 		} else {
-			result += cur
+			result += cur;
 		}
 	}
 
@@ -193,8 +193,6 @@ function scrape(doc, url) {
 		item.complete();
 	}
 }
-
-
 
 /** BEGIN TEST CASES **/
 var testCases = [

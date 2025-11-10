@@ -91,10 +91,10 @@ function romanToInt(r) {
 		const cur = sym[r[i]];
 		const next = sym[r[i+1]];
 		if (cur < next){
-			result += next - cur 
-			i++
+			result += next - cur;
+			i++;
 		} else {
-			result += cur
+			result += cur;
 		}
 	}
 

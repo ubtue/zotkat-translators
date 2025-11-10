@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-11-10 08:41:10"
+	"lastUpdated": "2025-11-10 09:19:49"
 }
 
 /*
@@ -94,10 +94,10 @@ function romanToInt(r) {
 		const cur = sym[r[i]];
 		const next = sym[r[i+1]];
 		if (cur < next){
-			result += next - cur 
-			i++
+			result += next - cur;
+			i++;
 		} else {
-			result += cur
+			result += cur;
 		}
 	}
 
