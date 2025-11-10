@@ -36,33 +36,27 @@
 var reviewURLs = [];
 
 function romanToInt(r) {
-	if (r.match(/^[IVXLCM]+/i)) {
-		r = r.toUpperCase()
-    const sym = { 
-        'I': 1,
-        'V': 5,
-        'X': 10,
-        'L': 50,
-        'C': 100,
-        'D': 500,
-        'M': 1000
-    }
-    let result = 0;
-    for (i=0; i < r.length; i++){
-        const cur = sym[r[i]];
-        const next = sym[r[i+1]];
-        if (cur < next){
-            result += next - cur 
-            i++
-        } else {
-            result += cur
+    if (r.match(/^[IVXLCDM]+$/i)) {
+        r = r.toUpperCase();
+        const sym = { 
+            'I': 1, 'V': 5, 'X': 10, 'L': 50, 
+            'C': 100, 'D': 500, 'M': 1000
+        };
+        let result = 0;
+        for (let i = 0; i < r.length; i++) {
+            const cur = sym[r[i]];
+            const next = sym[r[i+1]];
+            if (cur < next) {
+                result += next - cur;
+                i++;
+            } else {
+                result += cur;
+            }
         }
+        return result; 
     }
-
-    return result; 
-	}
-	else return r;
-};
+    return r;
+}
 
 function detectWeb(doc, url) {
 	if (url.includes('/christianscholars.com/issues/')) {

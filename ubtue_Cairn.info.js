@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-10-28 15:13:12"
+	"lastUpdated": "2025-11-10 09:19:49"
 }
 
 /*
@@ -78,6 +78,29 @@ async function doWeb(doc, url) {
 	}
 }
 
+function romanToInt(r) {
+    if (r.match(/^[IVXLCDM]+$/i)) {
+        r = r.toUpperCase();
+        const sym = { 
+            'I': 1, 'V': 5, 'X': 10, 'L': 50, 
+            'C': 100, 'D': 500, 'M': 1000
+        };
+        let result = 0;
+        for (let i = 0; i < r.length; i++) {
+            const cur = sym[r[i]];
+            const next = sym[r[i+1]];
+            if (cur < next) {
+                result += next - cur;
+                i++;
+            } else {
+                result += cur;
+            }
+        }
+        return result; 
+    }
+    return r;
+}
+
 async function getAbstract(item, doc) {
 	let abstractElements = doc.querySelectorAll('#article-resume .resume .corps');
 	if (abstractElements.length > 0) {
@@ -99,6 +122,16 @@ async function scrape(doc, url = doc.location.href) {
 		//a title containing either an ISBN or a publication year followed by page numbers strongly indicates a review
 		if (item.title.match(/isbn\s+[\d\-x]+|\d{4},\s+\d+\s+p./i)) {
 			item.tags.push("RezensionstagPica");
+		}
+
+		if (!item.volume) {
+			let elements = ZU.xpath(doc, '//span[contains(text(), "Tome") or contains(text(), "Volume")]');
+			for (element of elements) {
+				let volumeElement = element.textContent.match(/\b[IVXLCDM]+\b/)
+				if (!item.volume && volumeElement) {
+					item.volume = romanToInt(volumeElement[0]);
+				}
+			}
 		}
 
 		getAbstract(item, doc);
