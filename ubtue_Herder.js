@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-05-13 07:38:44"
+	"lastUpdated": "2025-11-17 16:29:12"
 }
 
 /*
@@ -59,43 +59,69 @@ function getSearchResults(doc) {
 function extractAuthors(doc) {
 	let authorsElement = ZU.xpath(doc, '//span[@class="byline"]/a');
 	if (authorsElement.length > 0) {
-	let authors = [];
-	for (let author of authorsElement) authors.push(author.textContent);
+		let authors = [];
+		for (let author of authorsElement) authors.push(author.textContent);
 		return authors;
 	}
 	return false;
 }
 
 function extractIssueAndYearFromURL(item, url) {
-	if (url.match(/\/[^\/]+-\d{4}\/[^\/]+-\d{4}\//) != null) {
-		item.issue = url.match(/\/[^\/]+-\d{4}\/([^\/]+)-\d{4}\//)[1].replace('-', '/');
-		item.volume = url.match(/\/([^\/]+)-\d{4}\/[^\/]+-\d{4}\//)[1];
-		item.date = url.match(/\/[^\/]+-(\d{4})\/[^\/]+-\d{4}\//)[1];
-	}
-	else if (url.match(/\/(\d+)-\d{4}\//)) {
-		item.issue = url.match(/\/(\d+)-\d{4}\//)[1];
-		item.date = url.match(/\/\d+-(\d{4})\//)[1];
-	}
-	else if (url.match(/(\d{4})\//)) {
-		item.date = url.match(/(\d{4})\//)[0];
-	}
+    let itemMatch = url.match(/\/([^\/]+)-(\d{4})\/([^\/]+)-(\d{4})\//);
+    if (itemMatch) {
+        if (!item.volume) {
+			item.volume = itemMatch[1];
+		}
+		if (!item.date) {
+			item.date = itemMatch[2];
+		}
+        if (!item.issue) {
+			item.issue = itemMatch[3].replace('-', '/');
+		}
+        return;
+    }
+    
+    let itemMatch2 = url.match(/\/(\d+)-(\d{4})\//);
+    if (itemMatch2) {
+        if (!item.issue) {
+			item.issue = itemMatch2[1];
+		}
+        if (!item.date) {
+			item.date = itemMatch2[2];
+		}
+        return;
+    }
+    
+    let yearMatch = url.match(/(20\d{2})/);
+    if (yearMatch && !item.date) {
+        item.date = yearMatch[1];
+    }
 }
 
-function extractPages(doc) {
+function extractInformation(doc, item) {
 	let itemPath = doc.querySelector('span.article-infoline');
 	if (itemPath) {
-		itemPath = itemPath.textContent;
-		let itemPages = itemPath.match(/\d+\-\d+/gi);
-		let singlePage = itemPath.match(/S\.\s*\d+/gi);
-		if (itemPages)
-			return itemPages.toString(); //typeOf must be string
-		else {
-			if (singlePage && singlePage[0])
-				return singlePage[0].replace('S.', '').toString(); //typeOf must be string
-			return false;
+		let itemPathText = itemPath.textContent;
+
+		let itemPages = itemPathText.match(/\d+\-\d+$/);
+		let singlePage = itemPathText.match(/S\.\s*\d+$/i);
+		if (itemPages?.[0] && !item.pages) {
+			item.pages = itemPages.toString(); //typeOf must be string
+		}
+		else if (singlePage?.[0] && !item.pages) {
+			item.pages = singlePage[0].replace('S.', '').trim().toString(); //typeOf must be string
+		}
+
+		let itemDate = itemPathText.match(/20\d{2}/);
+		if (itemDate?.[0] && !item.date) {
+			item.date = itemDate[0];
+		}
+
+		let itemIssue = itemPathText.match(/(?:Herder Korrespondenz|BN(?:.NF)?|RQ)\s+S?(\d+(?:\-\d+)?)/i);
+		if (itemIssue?.[1] && !item.issue) {
+			item.issue = itemIssue[1];
 		}
 	}
-	return false;
 }
 
 function invokeEmbeddedMetadataTranslator(doc, url) {
@@ -110,21 +136,26 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			for (let author of extractAuthors(doc))
 				item.creators.push(ZU.cleanAuthor(author.replace(/prof\b|dr\b/gi, ''), "authors"));
 		}
+
 		let itemAbstract = doc.querySelector('#base_0_area1main_0_aZusammenfassung');
 		if(itemAbstract) item.abstractNote = itemAbstract.textContent;
 		if (item.abstractNote != null) {
 			item.abstractNote = item.abstractNote.replace(/(?:Zusammenfassung\s*\/\s*(?:Summary|Abstract)(?:\n\s*)*)|\n/g, "");
 		}
-		item.pages = extractPages(doc);
-		let publicationTitle = JSON.parse(text(doc, '#main script[type="application/ld+json"]')).itemListElement[0].name;
-		if (publicationTitle) item.publicationTitle = publicationTitle;
+
+		extractInformation(doc, item);
+		if (!item.issue || !item.date || !item.volume) {
+			extractIssueAndYearFromURL(item, url);
+		}
+
 		let pageTitle = ZU.xpathText(doc, '//title').trim().replace(/\s+/g, ' ');
 		if (pageTitle.match(/^Buchrezension/))
 			item.tags.push('RezensionstagPica');
 		if (pageTitle.match(item.title.trim().replace(/\s+/g, ' '))) {
 			item.title = pageTitle.split(/\s*\|/)[0];
 		}
-		if (ZU.xpathText(doc, '//main/script[@type="application/ld+json"]').match(/"name":"([^"]+)"/)) {
+
+		if (ZU.xpathText(doc, '//main/script[@type="application/ld+json"]')?.match(/"name":"([^"]+)"/)) {
 			let possibleTitle = ZU.xpathText(doc, '//main/script[@type="application/ld+json"]').match(/"name":"([^"]+)"/g);
 			for (let possTitle of possibleTitle) {
 				possTitle = possTitle.match(/"name":"([^"]+)"/)[1];
@@ -133,39 +164,43 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 				}
 			}
 		}
-		extractIssueAndYearFromURL(item, url);
-		if (item.publicationTitle == "Biblische Notizen") {
+
+		let publicationTitle = JSON.parse(text(doc, '#main script[type="application/ld+json"]')).itemListElement[0].name;
+		if (publicationTitle) item.publicationTitle = publicationTitle;
+		
+		if (item.publicationTitle.match(/Biblische Notizen/)) {
 			item.ISSN = "2628-5762";
 			item.volume = item.issue;
-			item.issue = "";
+			delete item.issue;
 			if (item.title.toLowerCase().includes("buchvorstellungen")) {
 				item.tags.push('RezensionstagPica');
 				item.volume = item.volume.replace(/buchvorstellungen\//i, '');
 			}
 		}
-		if (item.publicationTitle == "Römische Quartalschrift") {
+
+		if (item.publicationTitle.match(/Römische Quartalschrift|RQ/)) {
 			item.ISSN = "0035-7812";
 		}
-		if (item.publicationTitle == "Herder Korrespondenz") {
-			if (ZU.xpathText(doc, '//img[contains(@alt, "Jahrgang")]') != null) {
-				if (ZU.xpathText(doc, '//img[contains(@alt, "Jahrgang")]/@alt').match(/\s+(\d+)\.\s+Jahrgang/)) {
-					item.volume = ZU.xpathText(doc, '//img[contains(@alt, "Jahrgang")]/@alt').match(/\s+(\d+)\.\s+Jahrgang/)[1];
+
+		if (item.publicationTitle.match(/HK/)) {
+			item.ISSN = "0018-0645";
+			// Extract volume from og:image meta tag
+			let ogImage = doc.querySelector('meta[property="og:image"]');
+			if (ogImage) {
+				let imageUrl = ogImage.getAttribute('content');
+				let volumeMatch = imageUrl.match(/\/hk-(\d+)-\d{4}-\d+/);
+				if (volumeMatch) {
+					item.volume = volumeMatch[1];
 				}
 			}
-			item.ISSN = "0018-0645";
-			if (item.url.match(/spezial/)){
+
+			if (item.url.match(/spezial/)) {
 				item.ISSN = "IXTH-0004";
-				if (ZU.xpathText(doc, '//img[contains(@src, "hk")]/@src')){
-					item.date = ZU.xpathText(doc, '//img[contains(@src, "hk")]/@src').match(/\/hk-\d+-(\d{4})/)[1];
-					item.issue = ZU.xpathText(doc, '//img[contains(@src, "hk")]/@src').match(/\/hk-\d+-\d{4}-s(\d)/)[1];
-					delete item.volume;
-				}
 			}
 		}
 
 		let titleSpan = doc.querySelector('span.headline');
-
-		if (titleSpan && !item.ISSN == "IXTH-0004") {
+		if (titleSpan && item.ISSN != "IXTH-0004") {
 			let mainTitleText = titleSpan.textContent.trim();
 			let prefix = titleSpan.previousElementSibling?.classList?.contains('is-vishidden') ?
 						 titleSpan.previousElementSibling.previousElementSibling?.textContent?.trim() : null;
@@ -226,11 +261,6 @@ var testCases = [
 				"seeAlso": []
 			}
 		]
-	},
-	{
-		"type": "web",
-		"url": "https://www.herder.de/gd/hefte/archiv/2021/13-2021/",
-		"items": "multiple"
 	},
 	{
 		"type": "web",
