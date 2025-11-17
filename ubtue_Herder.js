@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-11-17 11:35:58"
+	"lastUpdated": "2025-11-17 16:29:12"
 }
 
 /*
@@ -67,62 +67,61 @@ function extractAuthors(doc) {
 }
 
 function extractIssueAndYearFromURL(item, url) {
-	if (url.match(/\/[^\/]+-\d{4}\/[^\/]+-\d{4}\//) != null) {
-		let itemIssue = url.match(/\/[^\/]+-\d{4}\/([^\/]+)-\d{4}\//);
-		if (itemIssue?.[1] && !item.issue) {
-			item.issue = itemIssue[1].replace('-', '/');
+    let itemMatch = url.match(/\/([^\/]+)-(\d{4})\/([^\/]+)-(\d{4})\//);
+    if (itemMatch) {
+        if (!item.volume) {
+			item.volume = itemMatch[1];
 		}
-		let itemVolume = url.match(/\/([^\/]+)-\d{4}\/[^\/]+-\d{4}\//);
-		if (itemVolume?.[1] && !item.volume) {
-			item.volume = itemVolume[1];
+		if (!item.date) {
+			item.date = itemMatch[2];
 		}
-		let itemDate = url.match(/\/[^\/]+-(\d{4})\/[^\/]+-\d{4}\//);
-		if (itemDate?.[1] && !item.date) {
-			item.date = itemDate[1];
+        if (!item.issue) {
+			item.issue = itemMatch[3].replace('-', '/');
 		}
-	}
-	else if (url.match(/\/(\d+)-\d{4}\//)) {
-		let itemIssue = url.match(/\/(\d+)-\d{4}\//);
-		if (itemIssue?.[1] && !item.issue) {
-			item.issue = itemIssue[1];
+        return;
+    }
+    
+    let itemMatch2 = url.match(/\/(\d+)-(\d{4})\//);
+    if (itemMatch2) {
+        if (!item.issue) {
+			item.issue = itemMatch2[1];
 		}
-		let itemDate = url.match(/\/\d+-(\d{4})\//);
-		if (itemDate?.[1] && !item.date) {
-			item.date = itemDate[1];
+        if (!item.date) {
+			item.date = itemMatch2[2];
 		}
-	}
-	else if (url.match(/(20\d{2})/)) {
-		let itemDate = url.match(/(20\d{2})/);
-		if (itemDate?.[1] && !item.date) {
-			item.date = itemDate[1];
-		}
-	}
+        return;
+    }
+    
+    let yearMatch = url.match(/(20\d{2})/);
+    if (yearMatch && !item.date) {
+        item.date = yearMatch[1];
+    }
 }
 
 function extractInformation(doc, item) {
-    let itemPath = doc.querySelector('span.article-infoline');
-    if (itemPath) {
-        let itemPathText = itemPath.textContent;
+	let itemPath = doc.querySelector('span.article-infoline');
+	if (itemPath) {
+		let itemPathText = itemPath.textContent;
 
-        let itemPages = itemPathText.match(/\d+\-\d+$/);
-        let singlePage = itemPathText.match(/S\.\s*\d+$/i);
-        if (itemPages?.[0] && !item.pages) {
-            item.pages = itemPages.toString(); //typeOf must be string
-        }
-        else if (singlePage?.[0] && !item.pages) {
-            item.pages = singlePage[0].replace('S.', '').trim().toString(); //typeOf must be string
-        }
+		let itemPages = itemPathText.match(/\d+\-\d+$/);
+		let singlePage = itemPathText.match(/S\.\s*\d+$/i);
+		if (itemPages?.[0] && !item.pages) {
+			item.pages = itemPages.toString(); //typeOf must be string
+		}
+		else if (singlePage?.[0] && !item.pages) {
+			item.pages = singlePage[0].replace('S.', '').trim().toString(); //typeOf must be string
+		}
 
-        let itemDate = itemPathText.match(/20\d{2}/);
-        if (itemDate?.[0] && !item.date) {
-            item.date = itemDate[0];
-        }
+		let itemDate = itemPathText.match(/20\d{2}/);
+		if (itemDate?.[0] && !item.date) {
+			item.date = itemDate[0];
+		}
 
-        let itemIssue = itemPathText.match(/(?:Herder Korrespondenz|BN(?:.NF)?|RQ)\s+S?(\d+(?:\-\d+)?)/i);
-        if (itemIssue?.[1] && !item.issue) {
-            item.issue = itemIssue[1];
-        }
-    }
+		let itemIssue = itemPathText.match(/(?:Herder Korrespondenz|BN(?:.NF)?|RQ)\s+S?(\d+(?:\-\d+)?)/i);
+		if (itemIssue?.[1] && !item.issue) {
+			item.issue = itemIssue[1];
+		}
+	}
 }
 
 function invokeEmbeddedMetadataTranslator(doc, url) {
