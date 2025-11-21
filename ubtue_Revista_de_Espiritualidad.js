@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-11-19 11:05:28"
+	"lastUpdated": "2025-11-21 11:53:56"
 }
 
 /*
@@ -97,7 +97,7 @@ async function doWeb(doc, url) {
 							let author = authorSpan.textContent;
 							if (author) {
 								item.creators.push(ZU.cleanAuthor(author, 'author', false));
-								item.notes.push("RezensionstagPica");
+								item.tags.push("RezensionstagPica");
 							}
 						}
 					}
