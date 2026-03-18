@@ -67,7 +67,7 @@
 // https://github.com/ubtue/zotero-enhancement-maps
 // NOTE: Most maps are loaded at startup via doExport() → ZU.doGet([...]) → populateISSNMaps()
 //       - Keys/values are usually strings ("key=value" per line).
-//       - Some maps (e.g., ISSN_to_superior_ppn.map) wrap values with "!"... "!" for direct PICA insertion.
+
 var issn_to_language_code = {};
 var issn_to_license = {};
 var issn_to_physical_form = {};
@@ -1328,8 +1328,3 @@ var ENABLE_DEBUG = false;
 if (!ENABLE_DEBUG) {
   Z.debug = function () {};
 }
-
-/** BEGIN TEST CASES **/
-var testCases = [
-]
-/** END TEST CASES **/
