@@ -8,7 +8,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 2,
-	"lastUpdated": "2026-03-20 11:03:37"
+	"lastUpdated": "2026-03-20 13:41:21"
 }
 
 /*
@@ -315,48 +315,44 @@ function getAuthorOrcid(creator, noteAuthorsToOrcids) {
 /* G. 30xx MUTATORS                                                                                                 */
 /* =============================================================================================================== */
 
+
 function updateAuthorLineToPPN(itemId, code, printIndex, ppn) {
   const payload = "!" + ppn + "!" + "$BVerfasserIn$4aut";
   const markerBackslash = code + ' ##' + printIndex + '##';
   const markerNewline = markerBackslash.replace(/\\n/, "\n");
 
-  for (let k = 0; k < itemsOutputCache[itemId].length; k++) {
-	const line = itemsOutputCache[itemId][k];
+  const buf = itemsOutputCache[itemId] || [];
+  for (let k = 0; k < buf.length; k++) {
+	const line = buf[k];
 	if (line.startsWith(markerBackslash + " ") || line.startsWith(markerNewline + " ")) {
-	  itemsOutputCache[itemId][k] =
-		(line.startsWith(markerBackslash) ? markerBackslash : markerNewline) + " " + payload;
+	  buf[k] = (line.startsWith(markerBackslash) ? markerBackslash : markerNewline) + " " + payload;
 	  return true;
 	}
   }
-  itemsOutputCache[itemId].push(markerBackslash + " " + payload);
+  // strict: DO NOT push a new 30xx if we cannot find the marker
+  Z.debug(`[WARN] 30xx marker not found for itemId=${itemId} printIndex=${printIndex} (skipping overwrite to PPN=${ppn})`);
   return false;
 }
 
 function updateAuthorLineToName(itemId, code, printIndex, authorName) {
-  // If we had an ORCID for this slot, include it on revert (no PPN case)
-  let payload;
-  try {
-	const _key = itemId + ":" + printIndex;
-	const _orcid = authorMapping && authorMapping[_key];
-	payload = _orcid
-	  ? (authorName + "$iorcid$j" + _orcid + "$BVerfasserIn$4aut")
-	  : (authorName + "$BVerfasserIn$4aut");
-  } catch (e) {
-	payload = authorName + "$BVerfasserIn$4aut";
-  }
+  const _key = itemId + ":" + printIndex;
+  const _orcid = authorMapping && authorMapping[_key];
+  const payload = _orcid
+	? (authorName + "$iorcid$j" + _orcid + "$BVerfasserIn$4aut")
+	: (authorName + "$BVerfasserIn$4aut");
 
   const markerBackslash = code + ' ##' + printIndex + '##';
   const markerNewline = markerBackslash.replace(/\\n/, "\n");
 
-  for (let k = 0; k < itemsOutputCache[itemId].length; k++) {
-	const line = itemsOutputCache[itemId][k];
+  const buf = itemsOutputCache[itemId] || [];
+  for (let k = 0; k < buf.length; k++) {
+	const line = buf[k];
 	if (line.startsWith(markerBackslash + " ") || line.startsWith(markerNewline + " ")) {
-	  itemsOutputCache[itemId][k] =
-		(line.startsWith(markerBackslash) ? markerBackslash : markerNewline) + " " + payload;
+	  buf[k] = (line.startsWith(markerBackslash) ? markerBackslash : markerNewline) + " " + payload;
 	  return true;
 	}
   }
-  itemsOutputCache[itemId].push(markerBackslash + " " + payload);
+  Z.debug(`[WARN] 30xx marker not found (revert-to-Name) for itemId=${itemId} printIndex=${printIndex} (skipping)`);
   return false;
 }
 
@@ -473,60 +469,59 @@ function queryLobidUntilUnique(queries, idx, profileOpts, onUnique, onNoUnique) 
 
 function lookupTitlePPNFromOpacByGND(gndEitherForm, onSuccess, onError) {
   try {
-    if (!gndEitherForm) return onSuccess(null);
+	if (!gndEitherForm) return onSuccess(null);
 
-    let nid = String(gndEitherForm).trim()
-      .replace(/^https?:\/\/(www\.)?d-nb\.info\/gnd\//i, '')
-      .replace(/-/g, '');
-    if (!/^[0-9]+X?$/i.test(nid)) return onSuccess(null);
+	let nid = String(gndEitherForm).trim()
+	  .replace(/^https?:\/\/(www\.)?d-nb\.info\/gnd\//i, '')
+	  .replace(/-/g, '');
+	if (!/^[0-9]+X?$/i.test(nid)) return onSuccess(null);
 
-    const base = "https://sru.k10plus.de/opac-de-627";
-    const cql = "pica.nid=" + nid; // titles linked to this GND
-    const url = base
-      + "?version=1.2&operation=searchRetrieve"
-      + "&maximumRecords=1&recordSchema=picaxml"
-      + "&query=" + encodeURIComponent(cql);
+	const base = "https://sru.k10plus.de/opac-de-627";
+	const cql  = "pica.nid=" + nid; // titles linked to this GND
+	const url  = base
+	  + "?version=1.2&operation=searchRetrieve"
+	  + "&maximumRecords=10&recordSchema=picaxml"
+	  + "&query=" + encodeURIComponent(cql);
 
-    Z.debug("KXP SRU by GND URL: " + url);
+	ZU.doGet(
+	  url,
+	  function (xml) {
+		try {
+		  // Normalize: works whether response was HTML-escaped or plain XML
+		  xml = xml.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
 
-    ZU.doGet(
-      url,
-      function (xml) {
-        try {
-          // 1) Get all 028A/028C blocks
-          const blocks = xml.match(/<datafield[^>]*tag="028[AC]"[^>]*>[\s\S]*?<\/datafield>/gi) || [];
+		  // Split into records
+		  const recs = xml.match(/<record[^>]*>[\s\S]*?<\/record>/gi) || [];
+		  let ppn = null;
 
-          // 2) Prefer the one whose $7 matches gnd/<nid>
-          let ppn = null;
-          for (const b of blocks) {
-            const hasThisNID = new RegExp(
-              `<subfield[^>]*code="7"[^>]*>\\s*[^<>]*gnd/${nid}\\s*<\\/subfield>`,
-              'i'
-            ).test(b);
-            if (hasThisNID) {
-              const m = b.match(/<subfield[^>]*code="9"[^>]*>([^<]+)<\/subfield>/i);
-              if (m) { ppn = m[1].trim(); break; }
-            }
-          }
+		  for (const rec of recs) {
+			const blocks = rec.match(/<datafield[^>]*tag="028[AC]"[^>]*>[\s\S]*?<\/datafield>/gi) || [];
+			for (const b of blocks) {
+			  const hasThisNID = new RegExp(
+				`<subfield[^>]*code="7"[^>]*>\\s*[^<>]*gnd/${nid}\\s*<\\/subfield>`,
+				'i'
+			  ).test(b);
+			  if (hasThisNID) {
+				const m9 = b.match(/<subfield[^>]*code="9"[^>]*>([^<]+)<\/subfield>/i);
+				if (m9) { ppn = m9[1].trim(); break; }
+			  }
+			}
+			if (ppn) break; // stop at first precise match
+		  }
 
-          // 3) Optional fallback: first 028[AC]$9 (if no $7 match found)
-          if (!ppn) {
-            const mAny = xml.match(/<datafield[^>]*tag="028[AC]"[^>]*>[\s\S]*?<subfield[^>]*code="9"[^>]*>([^<]+)<\/subfield>/i);
-            ppn = mAny ? mAny[1].trim() : null;
-          }
-
-          Z.debug("KXP SRU parsed 028[AC]$9 -> PPN=" + (ppn || "null") + " (gnd=" + gndEitherForm + ", nid=" + nid + ")");
-          onSuccess(ppn || null);
-        } catch (e) {
-          onError(e);
-        }
-      },
-      function (err) {
-        onError(err || new Error("SRU request failed"));
-      }
-    );
+		  // No "first $9" fallback: return null if no exact $7 match exists
+		  Z.debug("KXP SRU parsed 028[AC]$9 -> PPN=" + (ppn || "null") + " (gnd=" + gndEitherForm + ", nid=" + nid + ")");
+		  onSuccess(ppn || null);
+		} catch (e) {
+		  onError(e);
+		}
+	  },
+	  function (err) {
+		onError(err || new Error("SRU request failed"));
+	  }
+	);
   } catch (e) {
-    onError(e);
+	onError(e);
   }
 }
 
@@ -875,12 +870,20 @@ function performExport() {
 		authorSeq++;
 
 		if (authorName[0] != "!") {
-		  const authorOrcid = getAuthorOrcid(creator, _noteAuthorsToOrcids);
-		  authorMapping[currentItemId + ":" + printIndex] = authorOrcid || null;
+		  
+		const authorOrcid = getAuthorOrcid(creator, _noteAuthorsToOrcids);
+		authorMapping[currentItemId + ":" + printIndex] = authorOrcid || null;
 
-		  addLine(currentItemId,
-			code + ' ##' + printIndex + '##',
-			authorName + "$BVerfasserIn$4aut");
+		// Always pre-seed with the *name*; overwrite to !PPN! only on SRU success
+		addLine(
+		currentItemId,
+		code + ' ##' + printIndex + '##',
+		(creator.lastName + (creator.firstName ? ", " + creator.firstName : "")) + "$BVerfasserIn$4aut"
+		);
+
+		// If input was already a PPN marker (rare), skip lobid/SRU for this slot
+		if (authorName.startsWith("!")) { continue; }
+
 
 		  const threadParams = Object.freeze({
 			"currentItemId": currentItemId,
@@ -936,14 +939,6 @@ function performExport() {
 			  }
 			} catch (e) { /* keep gnd null */ }
 
-			if (gnd) {
-			  updateAuthorLineToPPN(
-				threadParams["currentItemId"],
-				threadParams["code"],
-				threadParams["printIndex"],
-				String(gnd).match(/^\d+X?/)[0]
-			  );
-			}
 
 			if (gnd) {
 			  const _itemId = threadParams["currentItemId"];
@@ -982,19 +977,19 @@ function performExport() {
 						}
 
 						Z.debug("Overwriting " + _code + " ##" + _printIndex + "## with PPN " + ppn);
+						
 						const replaced = updateAuthorLineToPPN(_itemId, _code, _printIndex, ppn);
 						Z.debug("30xx replacement success? " + replaced);
 						addOnce8910(_itemId,
-						  "$aixzom$bVerfasserIn in der Zoterovorlage [" +
-						  threadParams["authorName"] +
-						  "] einer PPN " +
-						  ppn + " maschinell zugeordnet "
+							"$aixzom$bVerfasserIn in der Zoterovorlage [" +
+							threadParams["authorName"] + "] einer PPN " + ppn + " maschinell zugeordnet "
 						);
-					  } else {
-						// No PPN → revert to personal name (this will also add $iorcid$j<id> if we captured one)
+						} else {
+						// SRU returned no PPN → keep/rewrite to Name (adds ORCID if present)
 						const reverted = updateAuthorLineToName(_itemId, _code, _printIndex, threadParams["authorName"]);
-						Z.debug("No KXP PPN found for GND " + gnd + " → reverted 30xx to personal name (" + reverted + ")");
-					  }
+						Z.debug("No KXP PPN found for GND " + gnd + " → 30xx kept/reverted to personal name (" + reverted + ")");
+						}
+
 					} catch (ex) {
 					  Z.debug("SRU success handler threw: " + ex);
 					} finally {
@@ -1339,7 +1334,7 @@ function doExport() {
 /* M. DEBUG TOGGLE                                                                                                   */
 /* =============================================================================================================== */
 
-var ENABLE_DEBUG = false;
+var ENABLE_DEBUG = true;
 if (!ENABLE_DEBUG) {
   Z.debug = function () {};
 }
