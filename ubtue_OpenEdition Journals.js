@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-06-27 08:26:29"
+	"lastUpdated": "2026-03-27 14:54:25"
 }
 
 /*
@@ -82,7 +82,7 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			}
 		}
 		//issue number as volume
-		if (item.issue && ['1972-2516', '0776-3824', '0335-5985'].includes(item.ISSN)) {
+		if (item.issue && ['1972-2516', '0776-3824', '0335-5985', '1760-5776'].includes(item.ISSN)) {
 			item.volume = item.issue;
 			delete item.issue;
 		}
