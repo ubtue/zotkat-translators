@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-04-24 07:42:16"
+	"lastUpdated": "2026-03-27 15:30:45"
 }
 
 /*
@@ -160,6 +160,10 @@ function postProcess(doc, item) {
 	}
 
 	if (!item.itemType)	item.itemType = "journalArticle";
+
+	if (item.publicationTitle.match(/journal for continental philosophy of religion/i)) {
+		item.ISSN = "2588-9613";
+	}
 }
 
 function extractErscheinungsjahr(date) {
