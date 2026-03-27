@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-10-20 15:27:46"
+	"lastUpdated": "2026-03-27 15:35:37"
 }
 
 /*
@@ -619,7 +619,7 @@ function invokeEMTranslator(doc) {
 			}
 		}
 		if (i.ISSN == "2254-6227") {
-			if (i.abstractNote.match(/^book review/i)) {
+			if (i. abstractNote && i.abstractNote.match(/^book review/i)) {
 				i.tags = [];
 				i.tags.push('RezensionstagPica');
 				i.abstractNote = "";
