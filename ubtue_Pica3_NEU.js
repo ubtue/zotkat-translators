@@ -756,6 +756,11 @@ function performExport() {
 	  item.url = null;
 	}
 
+	//1140 Veröffentlichungsart und Inhalt
+	if (['IXTH-0006'].includes(item.ISSN)) {
+		addLine(currentItemId, "\\n1140", "uwlx");
+	}
+
 	// 1500 (language code)
 	if (item.itemType == "journalArticle") {
 	  if (language_to_language_code.get(item.language)) {
