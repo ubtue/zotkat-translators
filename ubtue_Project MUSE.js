@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-03-27 15:12:42"
+	"lastUpdated": "2026-03-27 15:22:35"
 }
 
 /*
@@ -85,6 +85,15 @@ function doWeb(doc, url) {
 	}
 }
 
+function getOrcids(doc, item) {
+	let webAuthors = ZU.xpath(doc, '//li[@class="authors"]');
+	for (webAuthor of webAuthors) {
+		let author = webAuthor?.textContent?.trim()
+		let orcid = ZU.xpath(webAuthor, '//a[@class="orcid_link"]')?.[0]?.href?.replace(/.*(\d{4}-\d+-\d+-\d+x?)$/i, '$1');
+		if (author && orcid)
+		    item.notes.push({note: "orcid:" + orcid + ' | ' + author});
+	}
+}
 
 function scrape(doc) {
 	let citationURL = ZU.xpathText(doc, '//li[@class="view_citation"]//a/@href');
@@ -107,6 +116,8 @@ function scrape(doc) {
 			} else {
 				item.DOI = citationDOI;
 			}
+
+			getOrcids(doc, item);
 
 			let abstract = ZU.xpathText(doc, '//div[@class="abstract"][1]/p');
 			if (!abstract) abstract = ZU.xpathText(doc, '//div[@class="description"][1]');
