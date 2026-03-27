@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-10-28 11:04:43"
+	"lastUpdated": "2026-03-27 15:12:42"
 }
 
 /*
@@ -112,7 +112,7 @@ function scrape(doc) {
 			if (!abstract) abstract = ZU.xpathText(doc, '//div[@class="description"][1]');
 			if (!abstract) abstract = ZU.xpathText(doc, '//div[contains(@class, "card_summary") and contains(@class, "no_border")]');
 			if (abstract) {
-				item.abstractNote = abstract.replace(/^,*\s*Abstract[:,]*/, "").replace(/show (less|more)$/, "").replace(/,\s*$/, "");
+				item.abstractNote = abstract.replace(/^,*\s*Abstract[:,]*/, "").replace(/show (less|more)$/, "").replace(/,\s*$/, "").replace(/\n/g, " ");
 			}
 			let tags = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "kwd-group", " " ))]//p');			
 			if (tags) {
