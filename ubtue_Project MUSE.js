@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-10-28 11:04:43"
+	"lastUpdated": "2026-03-27 15:22:35"
 }
 
 /*
@@ -85,6 +85,15 @@ function doWeb(doc, url) {
 	}
 }
 
+function getOrcids(doc, item) {
+	let webAuthors = ZU.xpath(doc, '//li[@class="authors"]');
+	for (webAuthor of webAuthors) {
+		let author = webAuthor?.textContent?.trim()
+		let orcid = ZU.xpath(webAuthor, '//a[@class="orcid_link"]')?.[0]?.href?.replace(/.*(\d{4}-\d+-\d+-\d+x?)$/i, '$1');
+		if (author && orcid)
+		    item.notes.push({note: "orcid:" + orcid + ' | ' + author});
+	}
+}
 
 function scrape(doc) {
 	let citationURL = ZU.xpathText(doc, '//li[@class="view_citation"]//a/@href');
@@ -108,11 +117,13 @@ function scrape(doc) {
 				item.DOI = citationDOI;
 			}
 
+			getOrcids(doc, item);
+
 			let abstract = ZU.xpathText(doc, '//div[@class="abstract"][1]/p');
 			if (!abstract) abstract = ZU.xpathText(doc, '//div[@class="description"][1]');
 			if (!abstract) abstract = ZU.xpathText(doc, '//div[contains(@class, "card_summary") and contains(@class, "no_border")]');
 			if (abstract) {
-				item.abstractNote = abstract.replace(/^,*\s*Abstract[:,]*/, "").replace(/show (less|more)$/, "").replace(/,\s*$/, "");
+				item.abstractNote = abstract.replace(/^,*\s*Abstract[:,]*/, "").replace(/show (less|more)$/, "").replace(/,\s*$/, "").replace(/\n/g, " ");
 			}
 			let tags = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "kwd-group", " " ))]//p');			
 			if (tags) {

@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-10-20 15:27:46"
+	"lastUpdated": "2026-03-27 16:16:49"
 }
 
 /*
@@ -118,7 +118,7 @@ function invokeEMTranslator(doc) {
 		if (i.DOI == undefined) i.DOI = ZU.xpathText(doc, '//meta[@name="DC.Identifier.DOI"]/@content');
 		if (i.ISSN == "2521-6465") i.language = ZU.xpathText(doc, '//meta[@name="DC.Language"]/@content');
 
-		if (doc.querySelector(".subtitle")) {
+		if (doc.querySelector(".subtitle") && !['2447-7443'].includes(i.ISSN)) {
 			if (i.title.indexOf(doc.querySelector(".subtitle").textContent.trim().replace(/\s+/g, ' ')) == -1) {
  			i.title = i.title + ' ' + doc.querySelector(".subtitle").textContent.trim();
 			}
@@ -609,7 +609,7 @@ function invokeEMTranslator(doc) {
 				}
 			}
 		}
-		if (['1853-9106', '2254-6227', '1860-8213', '2500-5413', '1980-6736', '2237-6461', '3052-4989', '2660-955X', '2660-955X'].includes(i.ISSN)) {
+		if (['1853-9106', '2254-6227', '1860-8213', '2500-5413', '1980-6736', '2237-6461', '3052-4989', '2660-955X', '2660-955X', '2447-7443'].includes(i.ISSN)) {
 			if (ZU.xpathText(doc, '//meta[@name="DC.Title"]/@content')) {
 				for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt") or @*=("de")]/@content')) {
 					if (parallelTitle.value && parallelTitle.value != i.title) {
@@ -619,7 +619,7 @@ function invokeEMTranslator(doc) {
 			}
 		}
 		if (i.ISSN == "2254-6227") {
-			if (i.abstractNote.match(/^book review/i)) {
+			if (i. abstractNote && i.abstractNote.match(/^book review/i)) {
 				i.tags = [];
 				i.tags.push('RezensionstagPica');
 				i.abstractNote = "";
