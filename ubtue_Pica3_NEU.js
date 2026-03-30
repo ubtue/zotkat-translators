@@ -8,7 +8,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 2,
-	"lastUpdated": "2026-03-20 13:41:21"
+	"lastUpdated": "2026-03-30 07:25:57"
 }
 
 /*
@@ -757,8 +757,8 @@ function performExport() {
 	}
 
 	//1140 Veröffentlichungsart und Inhalt
-	if (['IXTH-0006'].includes(item.ISSN)) {
-		addLine(currentItemId, "\\n1140", "uwlx");
+	if (['3052-685X'].includes(item.ISSN)) {
+		addLine(currentItemId, "\n1140", "uwlx");
 	}
 
 	// 1500 (language code)
