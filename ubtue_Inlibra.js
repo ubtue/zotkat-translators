@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-03-30 10:32:24"
+	"lastUpdated": "2026-03-30 10:35:00"
 }
 
 /*
@@ -119,10 +119,10 @@ async function scrape(doc, url = doc.location.href) {
 			item.creators.forEach((creator) => {
 				if (creator && typeof creator === 'object') {
 					if (creator.firstName) {
-						creator.firstName = creator.firstName.replace(/,$/, '').trim();
+						creator.firstName = creator.firstName.replace(/(,|:)$/, '').trim();
 					}
 					if (creator.lastName) {
-						creator.lastName = creator.lastName.replace(/,$/, '').trim();
+						creator.lastName = creator.lastName.replace(/(,|:)$/, '').trim();
 					}
 				}
 			});
