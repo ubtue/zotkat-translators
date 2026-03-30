@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-03-30 09:57:29"
+	"lastUpdated": "2026-03-30 10:26:57"
 }
 
 /*
@@ -116,22 +116,16 @@ async function scrape(doc, url = doc.location.href) {
 
 		// clean authors (trailing commas)
 		if (item.creators) {
-			for (let i = 0; i < item.creators.length; i++) {
-				let creator = item.creators[i];
+			item.creators.forEach((creator) => {
 				if (creator && typeof creator === 'object') {
-					// Clean trailing punctuation from names
 					if (creator.firstName) {
 						creator.firstName = creator.firstName.replace(/,$/, '').trim();
 					}
 					if (creator.lastName) {
 						creator.lastName = creator.lastName.replace(/,$/, '').trim();
 					}
-					// Ensure creatorType is set
-					if (!creator.creatorType) {
-						creator.creatorType = 'author';
-					}
 				}
-			}
+			});
 		}
 
 		item.complete();
