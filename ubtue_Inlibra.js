@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-03-30 10:26:57"
+	"lastUpdated": "2026-03-30 10:32:24"
 }
 
 /*
@@ -135,5 +135,124 @@ async function scrape(doc, url = doc.location.href) {
 
 /** BEGIN TEST CASES **/
 var testCases = [
+	{
+		"type": "web",
+		"url": "https://www.inlibra.com/de/document/view/pdf/uuid/3087c118-7d7d-3328-a5d1-743ccfecfac4?page=1&toc=5857297",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Demokratie in der Krise: Gesellschaften, Kirche und Theologie",
+				"creators": [
+					{
+						"lastName": "Schickendantz",
+						"firstName": "Carlos",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Ferracci",
+						"firstName": "Luca",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Hagedorn",
+						"firstName": "Jonas",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Lado",
+						"firstName": "Ludovic",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Wood",
+						"firstName": "Richard",
+						"creatorType": "author"
+					}
+				],
+				"date": "2026",
+				"DOI": "10.5771/0588-9804-2026-1-5",
+				"ISSN": "2943-0054",
+				"issue": "1",
+				"language": "de",
+				"libraryCatalog": "ubtue_Inlibra",
+				"pages": "5-8",
+				"publicationTitle": "Concilium",
+				"shortTitle": "Demokratie in der Krise",
+				"url": "https://doi.org/10.5771/0588-9804-2026-1-5",
+				"volume": "62",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.inlibra.com/de/document/view/pdf/uuid/de52f85c-87e5-317f-a517-09c7ec9e9423?page=1&toc=4570347",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "»Euthanasie«-Verbrechen und Rechtsprechung Die Verstrickung der Justiz in die NS-Krankenmorde",
+				"creators": [
+					{
+						"lastName": "Harms",
+						"firstName": "Ingo",
+						"creatorType": "author"
+					}
+				],
+				"date": "2025",
+				"DOI": "10.1486/RP-2025-3_142",
+				"ISSN": "2942-4887",
+				"issue": "3",
+				"language": "de",
+				"libraryCatalog": "ubtue_Inlibra",
+				"pages": "142-149",
+				"publicationTitle": "Recht & Psychiatrie",
+				"url": "https://doi.org/10.1486/RP-2025-3_142",
+				"volume": "43",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://www.inlibra.com/de/document/view/pdf/uuid/a027a609-a8fb-35d4-87ed-2e6bbfc33adc?page=1&toc=4691208",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Die Ethik der Lücke. Alter, Geschlecht und Sichtbarkeit in der Filmproduktion",
+				"creators": [
+					{
+						"lastName": "Radziwill",
+						"firstName": "Sophie",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Stüwe",
+						"firstName": "Julia",
+						"creatorType": "author"
+					}
+				],
+				"date": "2025",
+				"DOI": "10.5771/0010-3497-2025-4-499",
+				"ISSN": "2198-3852",
+				"issue": "4",
+				"language": "de",
+				"libraryCatalog": "ubtue_Inlibra",
+				"pages": "499-510",
+				"publicationTitle": "Communicatio Socialis (ComSoc)",
+				"url": "https://doi.org/10.5771/0010-3497-2025-4-499",
+				"volume": "58",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	}
 ]
 /** END TEST CASES **/
