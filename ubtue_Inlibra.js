@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-03-30 10:35:00"
+	"lastUpdated": "2026-03-31 09:36:06"
 }
 
 /*
@@ -83,18 +83,31 @@ async function doWeb(doc, url) {
 	}
 }
 
-// ISSN mapping for journals (case-insensitive lookup)
-let JOURNAL_ISSN_MAP = {
-	"communicatio socialis (comsoc)": "2198-3852",
-	"communicatio socialis": "2198-3852",
-	"recht & psychiatrie": "2942-4887",
-	"concilium": "2943-0054"
-};
+// ISSN mapping for journals
+const JOURNAL_ISSN_MAP = new Map([
+	["communicatio socialis (comsoc)", "2198-3852"],
+	["communicatio socialis", "2198-3852"], 
+	["recht & psychiatrie", "2942-4887"],
+	["concilium", "2943-0054"]
+]);
 
-// Create lowercase mapping for case-insensitive lookup
-let JOURNAL_ISSN_MAP_LOWER = {};
-for (let title in JOURNAL_ISSN_MAP) {
-	JOURNAL_ISSN_MAP_LOWER[title.toLowerCase()] = JOURNAL_ISSN_MAP[title];
+// ISSN lookup based on publication title (case insensitive)
+function getISSNOrNotMapped(item) {
+   let issn;
+   if (item.publicationTitle) 
+       issn = JOURNAL_ISSN_MAP.get(item.publicationTitle.toLowerCase());
+   return issn ? issn : "ISSN not mapped";
+}
+
+// clean authors (trailing commas)
+function cleanAuthors(item) {
+	if (item.creators) {
+		item.creators = item.creators.map(c => ({
+			...c,
+			firstName: c.firstName?.trim().replace(/(,|:)$/, '') ?? "",
+			lastName: c.lastName?.trim().replace(/(,|:)$/, '') ?? ""
+		}));
+	}
 }
 
 async function scrape(doc, url = doc.location.href) {
@@ -105,28 +118,8 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setString(risText);
 	translator.setHandler('itemDone', (_obj, item) => {
 
-		// Add ISSN lookup based on publication title
-		if (item.publicationTitle) {
-			let lowerTitle = item.publicationTitle.toLowerCase();
-			let issn = JOURNAL_ISSN_MAP_LOWER[lowerTitle];
-			if (issn) {
-				item.ISSN = issn;
-			}
-		}
-
-		// clean authors (trailing commas)
-		if (item.creators) {
-			item.creators.forEach((creator) => {
-				if (creator && typeof creator === 'object') {
-					if (creator.firstName) {
-						creator.firstName = creator.firstName.replace(/(,|:)$/, '').trim();
-					}
-					if (creator.lastName) {
-						creator.lastName = creator.lastName.replace(/(,|:)$/, '').trim();
-					}
-				}
-			});
-		}
+		item.ISSN = getISSNOrNotMapped(item);
+		cleanAuthors(item);
 
 		item.complete();
 	});
