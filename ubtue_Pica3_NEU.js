@@ -8,7 +8,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 2,
-	"lastUpdated": "2026-03-30 07:25:57"
+	"lastUpdated": "2026-03-31 08:20:35"
 }
 
 /*
@@ -1236,31 +1236,51 @@ function performExport() {
 		  }
 		}
 	  }
-
-	  // Exportkopf (E*, 7100, 8012 + optional 7133 appended via 'localURL')
-	  if (institution_retrieve_sign == "") {
-		if (SsgField == "NABZ") {
-		  addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 ixzs$aixzo$aNABZ' + localURL, "");
-		} else {
-		  addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 ixzs$aixzo' + localURL, "");
+		//Abrufzeichen für Retrokat "ixrk" --> 8910
+		var ixrkIxtheo = "";
+		if (item.tags) {
+			for (let i in item.tags) {
+				if (item.tags[i].tag.includes('ixrk')) {
+					ixrkIxtheo = "$aixrk";
+				}
+			}
 		}
-	  } else if (institution_retrieve_sign == "inzo") {
-		if (SsgField == "NABZ") {
-		  addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 inzs$ainzo$aNABZ' + localURL, "");
-		} else {
-		  addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 inzs$ainzo' + localURL, "");
+		//Abrufzeichen für Retrokat "ixrk" --> 8910
+		var rwrkRelbib = "";
+		if (item.tags) {
+			for (let i in item.tags) {
+				if (item.tags[i].tag.includes('rwrk')) {
+					rwrkRelbib = "$arwrk";
+				}
+			}
 		}
-	  } else if (institution_retrieve_sign == "krzo") {
-		if (SsgField == "NABZ") {
-		  addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 krzo$aNABZ' + localURL, "");
-		} else {
-		  addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 krzo' + localURL, "");
+		if (institution_retrieve_sign == "") {
+			if (SsgField == "NABZ") {
+				addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 ixzs$aixzo$aNABZ' + ixrkIxtheo + rwrkRelbib + localURL, ""); 
+			}
+			else addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 ixzs$aixzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
 		}
-	  } else if (institution_retrieve_sign == "itbk") {
-		addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 itbk$aixrk$aixzs$aixzo' + localURL, "");
-	  } else if (institution_retrieve_sign == "tojs") {
-		addLine(currentItemId, '\nE* l01\n4801 Der Zugriff ist kostenfrei möglich\n7100 $B21\n8012 fauf$auwzs$atojs' + localURL, "");
-	  }
+		else if (institution_retrieve_sign == "inzo") {
+			if (SsgField == "NABZ") {
+				addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 inzs$ainzo$aNABZ' + ixrkIxtheo + rwrkRelbib + localURL, ""); 
+			}
+			else addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 inzs$ainzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
+		}
+		else if (institution_retrieve_sign == "krzo") {
+			if (SsgField == "NABZ") {
+				addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 krzo$aNABZ' + ixrkIxtheo + rwrkRelbib + localURL, ""); 
+			}
+			else addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 krzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
+		}
+		else if (institution_retrieve_sign == "itbk") {
+				addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 itbk$aixzs$aixzo' + ixrkIxtheo + rwrkRelbib + localURL, ""); 
+		}
+		else if (institution_retrieve_sign == "zojs") {
+				addLine(currentItemId, '\nE* l01\n4801 Der Zugriff ist kostenfrei möglich\n7100 $B21\n8012 fauf$auwzs$azojs' + ixrkIxtheo + rwrkRelbib + localURL, "");
+		}
+		else if (institution_retrieve_sign == "tojs") {
+				addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 tojs$aixzs$aixzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
+		}
 
 	  // 5520 (IxTheo subjects from Zotero tags)
 	  for (i = 0; i < item.tags.length; i++) {
