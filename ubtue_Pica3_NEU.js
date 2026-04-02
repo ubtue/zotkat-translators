@@ -8,7 +8,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 2,
-	"lastUpdated": "2026-03-30 07:25:57"
+	"lastUpdated": "2026-04-02 11:44:30"
 }
 
 /*
@@ -30,43 +30,51 @@
 /* ===========================================================================================
    OVERVIEW
    -------------------------------------------------------------------------------------------
-   This translator exports Zotero items to PICA3 blocks for WinIBW (K10plus). While exporting,
-   it optionally enriches authors via lobid→GND unique matching and then resolves to a K10plus
-   PPN via SRU. The logic is fully asynchronous and concurrency-safe:
+   This translator exports Zotero items to PICA3 blocks for WinIBW (K10plus). During export it
+   can enrich author 30xx fields by linking them to K10plus PPNs via a GND-based workflow.
 
+   High-level flow per item:
    1) performExport()
-	  - Iterates items, builds PICA fields, and for each author:
-		(a) pre-seeds the correct 30xx line with the personal name,
-		(b) starts an async lobid "unique" lookup (using name + filters),
-		(c) if lobid resolves to a single GND, runs an SRU call to K10plus (pica.nid=<GND>)
-			to get a PPN and replaces the pre-seeded 30xx with "!PPN!$BVerfasserIn$4aut".
-		(d) A false-positive PPN blocklist can force a revert back to the personal name.
+      - Iterates items, builds PICA fields, and for each author slot (3000/3010...):
+        (a) Pre-seed 30xx with the personal name (and optional ORCID), using a temporary marker
+            " ##NNN##" so it can be overwritten in-place later.
+        (b) Run GND reconciliation against reconcile.gnd.network (Reconciliation Service API,
+            "queries=" POST) to obtain candidate GND IDs for the name. The service may return a
+            single confident auto-match (match:true) or multiple candidates.
+        (c) OPTION A (strict profession whitelist):
+            We maintain a curated whitelist of allowed professions using map files:
+              - profession_for_lookup_zotkat.map      (SSG=1)
+              - profession_for_lookup_ssg0_zotkat.map (SSG=0)
+            Because reconciliation is semi-automated and match:true does not guarantee that
+            additional properties were enforced as strict boolean filters, we verify profession
+            explicitly before accepting any candidate:
+              - Call reconcile.gnd.network Data Extension ("extend=" POST) for the candidate(s)
+              - Inspect professionOrOccupation
+              - Accept only if the candidate has at least one profession in the whitelist
+            If the profession check fails, keep the pre-seeded personal name in 30xx.
+        (d) If a candidate is accepted in (c), resolve GND → K10plus PPN via SRU
+            (pica.nid=<GND>) and overwrite the pre-seeded 30xx with:
+              !PPN!$BVerfasserIn$4aut
+            The "PPN-Lookup-False-Positive.map" can veto known bad PPNs and force a revert back
+            to the personal name.
 
-   2) Thread tracking & final write:
-	  - runningThreadCount (RTC) is incremented for each async task and decremented when it
-		finishes. Only when RTC reaches 0 do we write all accumulated item blocks to output.
+   Concurrency model & final write:
+   - All network requests (reconcile queries, reconcile extend, SRU) are asynchronous.
+   - runningThreadCount (RTC) is incremented when an async branch starts and decremented when it
+     finishes. Only when RTC reaches 0 do we flush all buffered output via WriteItems().
+   - itemsOutputCache buffers per-item output lines. We never reorder 30xx markers; we overwrite
+     the pre-seeded marker line in-place when a PPN is accepted.
 
-   3) Output buffering:
-	  - itemsOutputCache holds all lines for each item; WriteItems() flushes once, emitting
-		WinIBW "open editor" / "insertText(...)" / "press Enter" for each item in batch mode.
-
-   Important invariants:
-   - The "threadParams" object is snapped per author (const + freeze) so any callback uses
-	 the correct author slot (printIndex) even when the outer loop advances.
-   - _ppnLookupState/_sruOutstanding per (itemId:printIndex) prevent duplicate SRU work.
-   - The "PPN-Lookup-False-Positive.map" can veto a PPN (or also a GND if you add that check)
-	 to avoid known bad matches.
-
+   Important invariants / safety guards:
+   - The "threadParams" object is frozen per author slot so callbacks always update the correct
+     30xx marker (printIndex), even after the outer loops advance.
+   - _ppnLookupState/_sruOutstanding per (itemId:printIndex) prevent duplicate SRU lookups and
+     ensure RTC accounting remains correct (no double-decrement on late callbacks).
 =========================================================================================== */
 
 /* =============================================================================================================== */
 /* B. MAPPING TABLES & GLOBAL CONFIG                                                                                */
 /* =============================================================================================================== */
-
-// Mapping tables that get populated with the entries from their corresponding map files in the Github repo
-// https://github.com/ubtue/zotero-enhancement-maps
-// NOTE: Most maps are loaded at startup via doExport() → ZU.doGet([...]) → populateISSNMaps()
-//       - Keys/values are usually strings ("key=value" per line).
 
 var issn_to_language_code = {};
 var issn_to_license = {};
@@ -81,23 +89,31 @@ var publication_title_to_physical_form = {};
 var issn_to_institution = {};
 var issn_to_collection_code = {};
 
-// Profession maps (team-editable)
-//  - profession_for_lookup_zotkat.map           → used when SSG=1
-//  - profession_for_lookup_ssg0_zotkat.map      → used when SSG=0
-// Both maps provide professionOrOccupation.id URIs to narrow lobid person queries by vocation.
-var profession_to_gndids = {};          // label -> "uri,uri,uri" (SSG=1 bucket)
-var profession_to_gndids_ssg0 = {};     // label -> "uri,uri,uri" (SSG=0 bucket)
+// Profession maps (team-editable) — used as a STRICT whitelist (Option A)
+//   - profession_for_lookup_zotkat.map      → SSG=1 profession allow-list
+//   - profession_for_lookup_ssg0_zotkat.map → SSG=0 profession allow-list
+//
+// Map format: key = human label (e.g., "Theologe"), value = comma-separated GND profession IDs
+// (either full URIs "https://d-nb.info/gnd/..." or short IDs like "4059756-8").
+// We normalize values to short IDs via normalizeGndId().
+//
+// Important: the reconciliation query step is heuristic (ranked candidates). We therefore do NOT
+// assume these profession IDs are enforced as strict filters by the match endpoint. Instead we
+// enforce them by verifying professionOrOccupation via reconcile.gnd.network "extend=" before
+// accepting a candidate (Option A).
+var profession_to_gndids = new Map();      // SSG=1 allow-list map (label → ids)
+var profession_to_gndids_ssg0 = new Map(); // SSG=0 allow-list map (label → ids)
 
 // PPN blocklist (false positives):
-// If SRU returns a PPN that appears here, we revert 30xx back to the personal name instead of linking.
-// The file "PPN-Lookup-False-Positive.map" is expected to contain "PPN=reason" (or "PPN=1").
-var ppn_false_positive = new Map()
+// Initialized empty and replaced at startup from "PPN-Lookup-False-Positive.map" (Map keys = PPN).
+// If SRU returns a PPN in this blocklist, we keep/revert to the personal name instead of linking.
+var ppn_false_positive = new Map();
 
 // Repository base URL (kept empty; URLs below are absolute). The value can be used as an optional prefix.
 var zts_enhancement_repo_url = '';
 var downloaded_map_files = 0;
 // Map file count guard: adjust when adding/removing a URL in doExport().
-// map = 15 total.
+// map = 17 total.
 var max_map_files = 15;
 
 // Mapping JournalTitle>Language (fallback examples)
@@ -200,7 +216,6 @@ function populateISSNMaps(mapData, url) {
 	default:
 	  throw "Unknown map file: " + mapFilename;
   }
-
   downloaded_map_files += 1;
 }
 
@@ -259,6 +274,14 @@ function EscapeNonASCIICharacters(unescaped_string) {
   return escaped_string;
 }
 
+// addLine() is a generic output sanitizer:
+// - normalizes quotes,
+// - strips known internal markers,
+// - does minor cleanup of common URL/artifact patterns.
+//
+// IMPORTANT: Because this applies global replacements, do not rely on addLine() to filter semantic
+// control tags (e.g., RezensionstagPica). Filter such tags before calling addLine() (see 5520 loop).
+
 function addLine(itemid, code, value) {
   if (value == undefined) {
 	value = "Für Feld " + code.replace(/\n/, '') + " wurde kein Eintrag hinterlegt";
@@ -272,7 +295,9 @@ function addLine(itemid, code, value) {
 	.replace('|f|Book Reviews, Book Review', '|f|Book Review')
 	.replace('https://doi.org/https://doi.org/', 'https://doi.org/')
 	.replace(/@\s/, '@')
-	.replace('abs1:', '').replace('doi:https://doi.org/', '').replace('handle:https://hdl.handle.net/', '');
+	.replace('abs1:', '')
+	.replace('doi:https://doi.org/', '')
+	.replace('handle:https://hdl.handle.net/', '');
   itemsOutputCache[itemid].push(line);
 }
 
@@ -357,7 +382,7 @@ function updateAuthorLineToName(itemId, code, printIndex, authorName) {
 }
 
 /* =============================================================================================================== */
-/* H. LOBID HELPERS                                                                                                 */
+/* H. gnd reconcile service HELPERS                                                                                                 */
 /* =============================================================================================================== */
 
 function _normalizePreferredName(name) { return String(name || '').trim(); }
@@ -371,11 +396,9 @@ function _toAscii(s) {
 }
 
 function buildNameQueries(authorName) {
-  const norm = _normalizePreferredName(authorName);
-  const asciiQuoted = '"' + _toAscii(norm).replace(/"/g, '\\"') + '"';
-  return [
-	{ label: "ascii", q: `preferredName.ascii:${asciiQuoted} OR variantName.ascii:${asciiQuoted}` }
-  ];
+  // Reconciliation expects the plain label to match, not a fielded ES query.
+  const s = _normalizePreferredName(authorName); // e.g., "Schramke, Mona"
+  return [{ label: "q", q: s }];
 }
 
 function _allGndIdsFromMap(mapObj) {
@@ -392,76 +415,317 @@ function _allGndIdsFromMap(mapObj) {
   return Array.from(new Set(ids));
 }
 
-function buildLobidUrlFromQuery(q, opts) {
-  const base = "https://lobid.org/gnd/search";
-  const size = (opts && opts.size) ? opts.size : 2;
-  const ids = (opts && Array.isArray(opts.professionIds)) ? opts.professionIds : [];
-  const birthYearFrom = (opts && typeof opts.birthYearFrom !== "undefined")
-	? parseInt(opts.birthYearFrom, 10)
-	: 1920;
-
-  let filterParts = ["+(type:Person)"];
-  if (ids.length > 0) {
-	const orList = ids.map(pid => `"${pid}"`).join(" OR ");
-	filterParts.push(`+(professionOrOccupation.id:(${orList}))`);
-  }
-  if (!isNaN(birthYearFrom)) {
-	filterParts.push(`+(dateOfBirth:[${birthYearFrom} TO *])`);
-  }
-  const filter = encodeURIComponent(filterParts.join(" "));
-
-  return base
-	+ "?q=" + encodeURIComponent(q)
-	+ "&filter=" + filter
-	+ "&size=" + encodeURIComponent(String(size))
-	+ "&format=json";
+// The profession maps may contain either full URIs (https://d-nb.info/gnd/...) or short IDs
+// (e.g., 4059756-8). normalizeGndId() standardizes both formats to the short ID used in
+// reconcile.gnd.network "extend" responses.
+function _allProfessionUrisFromMapValues(mapObj) {
+  const uris = [];
+  try {
+    if (mapObj && typeof mapObj.forEach === "function") {
+      mapObj.forEach(function (val /*, key */) {
+        String(val)
+          .split(/\s*,\s*|\s*;\s*|\s*\|\s*/)
+          .forEach(u => { if (u) uris.push(u); });
+      });
+    }
+  } catch (e) { /* ignore */ }
+  return Array.from(new Set(uris));
 }
 
-function queryLobidUntilUnique(queries, idx, profileOpts, onUnique, onNoUnique) {
+function normalizeGndId(x) {
+  // Accept either short IDs like "4059756-8" or full URIs like "https://d-nb.info/gnd/4059756-8"
+  return String(x || "")
+    .trim()
+    .replace(/^https?:\/\/d-nb\.info\/gnd\//i, "");
+}
+
+/* ===========================================================================================
+   GND RECONCILIATION (reconcile.gnd.network)
+   -------------------------------------------------------------------------------------------
+   We use https://reconcile.gnd.network to match author name strings to GND identifiers.
+   The lobid-gnd API documentation (lobid is operated by hbz) recommends this endpoint for
+   matching / reconciling use cases. [1](https://www.elastic.co/docs/manage-data/data-store/mapping)[2](https://discuss.elastic.co/t/partial-date-search-on-date-of-birth-fields/206023)
+
+   The service follows the OpenRefine / Reconciliation Service API model:
+   - Input: query string + optional type + optional property/value hints
+   - Output: ranked candidates {id, name, score, match, type}
+   Candidate retrieval and scoring are heuristic and service-defined; properties may be used as
+   hints rather than strict boolean filters. 
+
+   (A) Candidate retrieval ("queries=" POST)
+       Request (form field "queries"):
+         {
+           "q1": {
+             "query": "Lastname, Firstname",
+             "type": "DifferentiatedPerson",
+             "properties": [
+               { "pid": "professionOrOccupation", "v": { "id": "4059756-8" } }
+             ]
+           }
+         }
+
+       Meaning:
+         - query:      main label to match (our authorName string)
+         - type:       restricts candidates to a class (e.g., persons only)
+         - properties: optional hints (service may or may not treat them as strict filters)
+
+       Response (q1.result is ranked):
+         {
+           "q1": {
+             "result": [
+               { "id": "123...", "name": "Lastname, Firstname", "score": 78.0, "match": false, "type": [...] },
+               ...
+             ]
+           }
+         }
+
+         - id:    candidate identifier in the service's id-space (GND id without URI prefix)
+         - score: similarity/confidence score used for ranking (scale is service-specific)
+         - match: service auto-match decision (true only when the service is confident)
+
+   (B) Data Extension ("extend=" POST)
+       Used to fetch authoritative properties for candidate ids (e.g., professions).
+       Request (form field "extend"):
+         {
+           "ids": ["123...", "456..."],
+           "properties": [ { "id": "professionOrOccupation" } ]
+         }
+
+       Response returns rows[<id>] with values for requested properties.
+
+   Option A (strict profession whitelist used by this translator):
+     - We do NOT assume that (A) enforces profession constraints strictly.
+     - Therefore we verify professionOrOccupation via (B) before accepting any candidate:
+         * If match:true gives one candidate → still check professions via extend.
+         * If match:true is absent → extend all candidates, filter by whitelist, accept only if one remains.
+=========================================================================================== */
+
+
+function reconcileExtend(ids, propertyIds, onSuccess, onError) {
+  try {
+    const endpoint = "https://reconcile.gnd.network";
+    const extendObj = {
+      ids: (ids || []).map(String),
+      properties: (propertyIds || []).map(id => ({ id: id }))
+    };
+    const payload = "extend=" + encodeURIComponent(JSON.stringify(extendObj));
+
+    ZU.doPost(
+      endpoint,
+      payload,
+      function (text) {
+        try {
+          const data = JSON.parse(text);
+          return onSuccess(data);
+        } catch (e) {
+          return onError(e);
+        }
+      },
+      function (e) { onError(e || new Error("extend request failed")); },
+      { "Content-Type": "application/x-www-form-urlencoded" }
+    );
+  } catch (e) {
+    onError(e);
+  }
+}
+
+function candidateHasAnyProfessionViaExtend(candidateId, profSet, onYes, onNo) {
+  // candidateId: string like "1028581203"
+  // profSet: Set of normalized profession IDs like "4059756-8"
+  const cid = String(candidateId || "").trim();
+  if (!cid || !profSet || profSet.size === 0) return onNo();
+
+  reconcileExtend(
+    [cid],
+    ["professionOrOccupation"],
+    function (ext) {
+      try {
+        const rows = ext && ext.rows ? ext.rows : {};
+        const row = rows[cid];
+        if (!row) return onNo();
+
+        const po = row.professionOrOccupation;
+        const arr = Array.isArray(po) ? po : [];
+
+        const candProfIds = arr
+          .map(o => normalizeGndId(o && o.id))
+          .filter(Boolean);
+
+        const ok = candProfIds.some(pid => profSet.has(pid));
+        return ok ? onYes() : onNo();
+      } catch (e) {
+        Z.debug("candidateHasAnyProfessionViaExtend error: " + e);
+        return onNo();
+      }
+    },
+    function (e) {
+      Z.debug("candidateHasAnyProfessionViaExtend extend error: " + e);
+      return onNo();
+    }
+  );
+}
+
+function _reconcileGndSingle(authorName, typeId, profIds, onSuccess, onNoUnique, onError) {
+  const endpoint = "https://reconcile.gnd.network";
+
+  // Normalize profession IDs once
+  const profSet = new Set(
+    (Array.isArray(profIds) ? profIds : [])
+      .map(normalizeGndId)
+      .filter(Boolean)
+  );
+
+  // We still SEND profession properties as hints (harmless),
+  // but Option A does NOT trust them; it validates via extend.
+  const props = Array.from(profSet)
+    .slice(0, 20)
+    .map(id => ({ pid: "professionOrOccupation", v: { id: id } }));
+
+  const q = { q1: { query: authorName, type: (typeId || "DifferentiatedPerson"), properties: props } };
+  const payload = "queries=" + encodeURIComponent(JSON.stringify(q));
+
+  Z.debug("reconcile call: " + endpoint + " payload=" + JSON.stringify(q));
+
+  ZU.doPost(
+    endpoint,
+    payload,
+    function (text) {
+      try {
+        const data = JSON.parse(text);
+        const res = (data && data.q1 && Array.isArray(data.q1.result)) ? data.q1.result : [];
+        if (!res.length) return onNoUnique();
+
+        const matches = res.filter(c => c && c.match === true);
+        Z.debug("reconcile candidates=" + res.length + " matches=true count=" + matches.length);
+
+        // ============ OPTION A RULE ============
+        // If we have profession constraints, we ALWAYS validate via extend before accepting.
+        const mustCheckProfession = (profSet.size > 0);
+
+        // Case 1: Exactly one match:true — previously you accepted immediately.
+        // Now: accept ONLY if profession check passes (when constraints exist).
+        if (matches.length === 1) {
+          const cid = String(matches[0].id || "").trim();
+          if (!cid) return onNoUnique();
+
+          if (!mustCheckProfession) {
+            // No profession constraints configured → keep old behavior
+            return onSuccess({ gndIdentifier: cid, id: "https://d-nb.info/gnd/" + cid });
+          }
+
+          return candidateHasAnyProfessionViaExtend(
+            cid,
+            profSet,
+            function () {
+              // profession ok
+              return onSuccess({ gndIdentifier: cid, id: "https://d-nb.info/gnd/" + cid });
+            },
+            function () {
+              // profession mismatch → treat as no-unique
+              Z.debug("Option A: match:true but profession mismatch → reject");
+              return onNoUnique();
+            }
+          );
+        }
+
+        // Case 2: No match:true — use extend to filter candidates by profession
+        // and accept ONLY if filtering yields exactly one.
+        if (matches.length === 0 && mustCheckProfession) {
+          const candidateIds = res.map(c => String(c && c.id || "")).filter(Boolean);
+
+          return reconcileExtend(
+            candidateIds,
+            ["professionOrOccupation"],
+            function (ext) {
+              try {
+                const rows = ext && ext.rows ? ext.rows : {};
+                const keep = [];
+
+                for (const cand of res) {
+                  const cid = String(cand && cand.id || "");
+                  const row = rows[cid];
+                  if (!row) continue;
+
+                  const po = row.professionOrOccupation;
+                  const arr = Array.isArray(po) ? po : [];
+
+                  const candProfIds = arr
+                    .map(o => normalizeGndId(o && o.id))
+                    .filter(Boolean);
+
+                  const ok = candProfIds.some(pid => profSet.has(pid));
+                  if (ok) keep.push(cand);
+                }
+
+                Z.debug("Option A extend profession filter: kept=" + keep.length + " of " + res.length);
+
+                if (keep.length === 1) {
+                  const cid = String(keep[0].id || "").trim();
+                  if (cid) return onSuccess({ gndIdentifier: cid, id: "https://d-nb.info/gnd/" + cid });
+                }
+                return onNoUnique();
+              } catch (e) {
+                Z.debug("Option A extend filter error: " + e);
+                return onNoUnique();
+              }
+            },
+            function (e) {
+              Z.debug("Option A extend request error: " + e);
+              return onNoUnique();
+            }
+          );
+        }
+
+        // Case 3: multiple match:true (or no profession constraints + no unique match:true)
+        return onNoUnique();
+      } catch (e) {
+        return onError(e);
+      }
+    },
+    function (e) { onError(e || new Error("Reconciliation request failed")); },
+    { "Content-Type": "application/x-www-form-urlencoded" }
+  );
+}
+
+function queryReconcileUntilUnique(queries, idx, profileOpts, onUnique, onNoUnique) {
+  if (!queries || !Array.isArray(queries) || !queries.length) {
+    return onNoUnique && onNoUnique();
+  }
   if (!queries._state) queries._state = { done: false };
   const state = queries._state;
   if (state.done) return;
   if (idx >= queries.length) { state.done = true; return onNoUnique(); }
 
-  const url = buildLobidUrlFromQuery(queries[idx].q, {
-	size: 2,
-	professionIds: (profileOpts && profileOpts.professionIds) || [],
-	birthYearFrom: (profileOpts && profileOpts.birthYearFrom) || undefined
-  });
+  const q      = queries[idx];
+  const typeId = (profileOpts && profileOpts.typeId) || "Person";
+  const profUris = (profileOpts && Array.isArray(profileOpts.professionUris)) ? profileOpts.professionUris : [];
 
-  Z.debug("lobid unique-try [" + queries[idx].label + "]: " + url);
+  Z.debug('reconcile unique-try [' + (q.label || ('q' + idx)) + ']: query="' + q.q
+    + '", type=' + typeId + ', props(uris)=' + profUris.length);
 
-  ZU.doGet(
-	url,
-	function (responseText) {
-	  if (state.done) return;
-	  try {
-		const data = JSON.parse(responseText);
-		const members = Array.isArray(data.member) ? data.member : [];
-		const total = (typeof data.totalItems === "number") ? data.totalItems : members.length;
-
-		Z.debug("lobid unique-try [" + queries[idx].label + "] totalItems=" + total);
-
-		if (total === 1 && members.length === 1) {
-		  state.done = true; return onUnique(members[0]);
-		} else if (total === 0) {
-		  if (idx + 1 < queries.length) return queryLobidUntilUnique(queries, idx + 1, profileOpts, onUnique, onNoUnique);
-		  state.done = true; return onNoUnique();
-		} else {
-		  state.done = true; return onNoUnique();
-		}
-	  } catch (e) {
-		if (idx + 1 < queries.length) return queryLobidUntilUnique(queries, idx + 1, profileOpts, onUnique, onNoUnique);
-		state.done = true; return onNoUnique();
-	  }
-	},
-	function () {
-	  if (state.done) return;
-	  if (idx + 1 < queries.length) return queryLobidUntilUnique(queries, idx + 1, profileOpts, onUnique, onNoUnique);
-	  state.done = true; return onNoUnique();
-	}
+  _reconcileGndSingle(
+    q.q,
+    typeId,
+    profUris,
+    function onBest(candidate) {
+      if (state.done) return;
+      state.done = true;
+      onUnique(candidate);
+    },
+    function onNone() {
+      if (state.done) return;
+      if (idx + 1 < queries.length) return queryReconcileUntilUnique(queries, idx + 1, profileOpts, onUnique, onNoUnique);
+      state.done = true; return onNoUnique();
+    },
+    function onErr(e) {
+      Z.debug("reconcile error: " + e);
+      if (state.done) return;
+      if (idx + 1 < queries.length) return queryReconcileUntilUnique(queries, idx + 1, profileOpts, onUnique, onNoUnique);
+      state.done = true; return onNoUnique();
+    }
   );
 }
+
 
 /* =============================================================================================================== */
 /* I. SRU HELPER                                                                                                     */
@@ -756,6 +1020,16 @@ function performExport() {
 	  item.url = null;
 	}
 
+	var localURL = "";		
+	if (item.url && item.url.match(/research.ebsco.com/) && physicalForm === "O") {
+		localURL = "\\n7133 " + item.url + "$xH$3Volltext$4ZZ$534";
+		item.url = null;		
+	}
+	if (item.DOI && institution_retrieve_sign == "zojs") {
+		localURL = "\\n7133 " + "https://doi.org/" + item.DOI;
+		item.url = null;
+	}
+
 	//1140 Veröffentlichungsart und Inhalt
 	if (['3052-685X'].includes(item.ISSN)) {
 		addLine(currentItemId, "\n1140", "uwlx");
@@ -817,48 +1091,62 @@ function performExport() {
 	  titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])(El|La|Los|Las|Un|Una|Unas) ([^@])/i, "„$2 @$3");
 	}
 
-	// --- AUTHOR LOOP (pre-seed, lobid, SRU) --------------------------------
+	// --- AUTHOR LOOP (pre-seed, reconcile, extend-verify, SRU) -------------------------------
 	/* ===========================================================================================
-	   5) TIMELINE EXAMPLES
-	   -------------------------------------------------------------------------------------------
-	   Legend:
-		 ++  = _bump(+1, ...)     --  = _bump(-1, ...)
-		 RTC = runningThreadCount (value AFTER the bump)
-		 WriteItems() is called once when RTC reaches 0 (and _finalExportLogged is still false).
+	AUTHOR ENRICHMENT TIMELINE (CURRENT VERSION)
+	-------------------------------------------------------------------------------------------
+	Legend:
+		++  = _bump(+1, ...)     --  = _bump(-1, ...)
+		RTC = runningThreadCount (value AFTER the bump)
+		WriteItems() runs exactly once when RTC reaches 0.
 
-	   A) Unique lobid → SRU success (PPN accepted)
-		  Start: RTC=1
-		  ++ lobid:start                          → RTC=2
-			(lobid unique)
-			++ sru:start                          → RTC=3
-			  SRU success (PPN found & not blocklisted)
-			  finally: -- sru:done                → RTC=2
-		  -- lobid:done                           → RTC=1
-		  -- main:done performExport              → RTC=0  → WriteItems()
+	A) Reconcile match:true + profession OK → SRU success (PPN accepted)
+		Start: RTC=1
+		++ reconcile:start                   → RTC=2
+			reconcile: queries=...            (reconcile.gnd.network; type=Person/DifferentiatedPerson)
+			result: exactly one match:true
+			++ extend:start                   → RTC=3
+				extend: verify professionOrOccupation against profession whitelist
+				(Option A: required even when match:true)
+				-- extend:done                 → RTC=2
+			++ sru:start                      → RTC=3
+				SRU success → overwrite 30xx marker to !PPN!
+				-- sru:done                   → RTC=2
+		-- reconcile:done                    → RTC=1
+		-- main:done performExport           → RTC=0 → WriteItems()
 
-	   B) Unique lobid → SRU null / SRU error / PPN blocklisted
-		  (revert 30xx to Name and, if captured, include $iorcid$j<ID>)
-		  Start: RTC=1
-		  ++ lobid:start                          → RTC=2
-			(lobid unique)
-			++ sru:start                          → RTC=3
-			  SRU null OR SRU error OR blocklist
-			  finally: -- sru:done / -- sru:fail  → RTC=2
-		  -- lobid:done                           → RTC=1
-		  -- main:done performExport              → RTC=0  → WriteItems()
+	B) Reconcile match:true but profession mismatch → reject (keep personal name)
+		Start: RTC=1
+		++ reconcile:start                   → RTC=2
+			result: exactly one match:true
+			++ extend:start                   → RTC=3
+				extend shows profession not in whitelist
+				-- extend:done                 → RTC=2
+			(no SRU)
+		-- reconcile:done                    → RTC=1
+		-- main:done performExport           → RTC=0 → WriteItems()
 
-	   C) No-unique lobid (SRU not started; keep Name and, if captured, include $iorcid$j<ID>)
-		  Start: RTC=1
-		  ++ lobid:start                          → RTC=2
-			(no-unique)
-		  -- lobid:done                           → RTC=1
-		  -- main:done performExport              → RTC=0  → WriteItems()
+	C) No match:true → extend-filter candidates by profession → accept only if exactly one remains
+		Start: RTC=1
+		++ reconcile:start                   → RTC=2
+			result: candidates, match:true count = 0
+			++ extend:start                   → RTC=3
+				extend: filter candidates by profession whitelist
+				if exactly one remains → accept; else reject
+				-- extend:done                 → RTC=2
+			(if accepted) ++ sru:start        → RTC=3
+				-- sru:done                   → RTC=2
+		-- reconcile:done                    → RTC=1
+		-- main:done performExport           → RTC=0 → WriteItems()
 
-	   Note on SRU "late error":
-		 If both SRU success and a late error callback arrive, only the FIRST closes the SRU branch.
-		 The SECOND sees _sruOutstanding[key] === false and logs "late error ignored", so no
-		 double-decrement occurs and RTC accounting remains correct.
+	Notes:
+	- Reconciliation returns ranked candidates and (optionally) match:true. Because matching is heuristic
+	and properties are not guaranteed to be strict boolean filters, we enforce professions explicitly
+	via Data Extension (extend=) before accepting a candidate (Option A). 
+	- For matching/reconciling use cases, lobid-gnd recommends using https://reconcile.gnd.network rather
+	than treating the general search API as a matching engine. [1](https://www.elastic.co/docs/manage-data/data-store/mapping)[2](https://discuss.elastic.co/t/partial-date-search-on-date-of-birth-fields/206023)
 	=========================================================================================== */
+
 	var authorSeq = 0;
 	const _noteAuthorsToOrcids = createNoteAuthorsToOrcidsMap(item);
 
@@ -898,171 +1186,165 @@ function performExport() {
 			"printIndex": printIndex
 		  });
 
-		  _bump(1, "lobid:start auth=" + authorName);
-
 		  let _lobidClosed = false;
 		  function _endLobidOnce(reason) {
 			if (_lobidClosed) { Z.debug("lobid already finished (" + reason + ")"); return; }
 			_lobidClosed = true; _bump(-1, reason); finishIfIdle();
 		  }
 
-		  // profession filter selection
-		  let profIds = [];
-		  if (institution_retrieve_sign === "krzo") {
-			profIds = [];
-		  } else if (String(SsgField || "").match(/^0(\b|$)/)) {
-			profIds = _allGndIdsFromMap(profession_to_gndids_ssg0);
-		  } else if (String(SsgField || "") === "1") {
-			profIds = _allGndIdsFromMap(profession_to_gndids);
-		  } else {
-			profIds = [];
-		  }
-		  Z.debug("Profession URIs applied: " + profIds.length + " (inst=" + institution_retrieve_sign + ", SSG=" + SsgField + ")");
+		  // profession filter selection → for reconciliation we pass URIs (map VALUES)
+			let profUris = [];
+			if (institution_retrieve_sign === "krzo") {
+			profUris = [];
+			} else if (String(SsgField || "").match(/^0(\b|$)/)) {
+			profUris = _allProfessionUrisFromMapValues(profession_to_gndids_ssg0); // Option A helper
+			} else if (String(SsgField || "") === "1") {
+			profUris = _allProfessionUrisFromMapValues(profession_to_gndids);      // Option A helper
+			} else {
+			profUris = [];
+			}
+			Z.debug("Profession URIs applied: " + profUris.length + " (inst=" + institution_retrieve_sign + ", SSG=" + SsgField + ")");
 
-		  const _queries = buildNameQueries(authorName);
-		  let _lobidResolved = false;
+		const _queries = buildNameQueries(authorName);
+		let _reconcileResolved = false;
 
-		  function _safeOnUnique(member) {
-			if (_lobidResolved) return; _lobidResolved = true;
+		function _safeOnUnique(member) {
+		if (_reconcileResolved) return; _reconcileResolved = true;
+
+		Z.debug(
+			"reconcile onUnique -> name=" + threadParams["authorName"] +
+			", printIndex=" + threadParams["printIndex"] +
+			", code=" + threadParams["code"] +
+			", gnd=" + (member.gndIdentifier || member.id)
+		);
+
+		var gnd = null;
+		try {
+			if (member.gndIdentifier) gnd = member.gndIdentifier;
+			if (!gnd && (member.id || member['@id'])) {
+			var idUrl = member.id || member['@id'];
+			var m = idUrl && idUrl.match(/\/gnd\/([0-9X-]+)$/);
+			if (m) gnd = m[1].replace(/-/g, '');
+			}
+		} catch (e) { /* keep gnd null */ }
+
+		if (gnd) {
+			const _itemId = threadParams["currentItemId"];
+			const _printIndex = threadParams["printIndex"];
+			const _code = threadParams["code"];
+			const _key = _itemId + ":" + _printIndex;
+
+			if (_ppnLookupState[_key] === "inflight" || _ppnLookupState[_key] === "done") {
+			Z.debug("KXP SRU skipped (duplicate) for key " + _key + " (state=" + _ppnLookupState[_key] + ")");
+			} else {
+			_ppnLookupState[_key] = "inflight";
+			_sruOutstanding[_key] = true;
 
 			Z.debug(
-			  "lobid onUnique -> name=" + threadParams["authorName"] +
-			  ", printIndex=" + threadParams["printIndex"] +
-			  ", code=" + threadParams["code"] +
-			  ", gnd=" + (member.gndIdentifier || member.id || member['@id'])
+				"SRU prepare key=" + _key +
+				" (itemId=" + _itemId +
+				", printIndex=" + _printIndex +
+				", name=" + threadParams["authorName"] + ")"
 			);
 
-			var gnd = null;
-			try {
-			  if (member.gndIdentifier) {
-				gnd = Array.isArray(member.gndIdentifier) ? member.gndIdentifier[0] : member.gndIdentifier;
-			  }
-			  if (!gnd && (member.id || member['@id'])) {
-				var idUrl = member.id || member['@id'];
-				var m = idUrl && idUrl.match(/\/gnd\/([0-9X-]+)$/);
-				if (m) gnd = m[1].replace(/-/g, '');
-			  }
-			} catch (e) { /* keep gnd null */ }
+			_bump(1, "sru:start key=" + _key + " gnd=" + gnd);
+			lookupTitlePPNFromOpacByGND(gnd,
+				function (ppn) {
+				try {
+					_ppnLookupState[_key] = "done";
+					Z.debug("KXP PPN found for GND " + gnd + ": " + ppn);
 
-
-			if (gnd) {
-			  const _itemId = threadParams["currentItemId"];
-			  const _printIndex = threadParams["printIndex"];
-			  const _code = threadParams["code"];
-			  const _key = _itemId + ":" + _printIndex;
-
-			  if (_ppnLookupState[_key] === "inflight" || _ppnLookupState[_key] === "done") {
-				Z.debug("KXP SRU skipped (duplicate) for key " + _key + " (state=" + _ppnLookupState[_key] + ")");
-			  } else {
-				_ppnLookupState[_key] = "inflight";
-				_sruOutstanding[_key] = true;
-
-				Z.debug(
-				  "SRU prepare key=" + _key +
-				  " (itemId=" + _itemId +
-				  ", printIndex=" + _printIndex +
-				  ", name=" + threadParams["authorName"] + ")"
-				)
-
-				_bump(1, "sru:start key=" + _key + " gnd=" + gnd);
-				lookupTitlePPNFromOpacByGND(gnd,
-				  function (ppn) {
-					// Always close SRU thread even if something throws inside (finally block)
-					try {
-					  _ppnLookupState[_key] = "done";
-					  Z.debug("KXP PPN found for GND " + gnd + ": " + ppn);
-
-					  if (ppn) {
-						// FALSE-POSITIVE guard
-						if (ppn_false_positive && (ppn_false_positive.has(ppn))) {
-						  Z.debug("PPN " + ppn + " is flagged in PPN-Lookup-False-Positive.map → revert to personal name");
-						  const reverted = updateAuthorLineToName(_itemId, _code, _printIndex, threadParams["authorName"]);
-						  Z.debug("Reverted 30xx to personal name due to PPN blocklist (" + reverted + ")");
-						  return; // finally{} will still run and close the SRU thread
-						}
-
-						Z.debug("Overwriting " + _code + " ##" + _printIndex + "## with PPN " + ppn);
-						
-						const replaced = updateAuthorLineToPPN(_itemId, _code, _printIndex, ppn);
-						Z.debug("30xx replacement success? " + replaced);
-						addOnce8910(_itemId,
-							"$aixzom$bVerfasserIn in der Zoterovorlage [" +
-							threadParams["authorName"] + "] einer PPN " + ppn + " maschinell zugeordnet "
-						);
-						} else {
-						// SRU returned no PPN → keep/rewrite to Name (adds ORCID if present)
+					if (ppn) {
+					if (ppn_false_positive && (ppn_false_positive.has(ppn))) {
+						Z.debug("PPN " + ppn + " is blocklisted → revert to personal name");
 						const reverted = updateAuthorLineToName(_itemId, _code, _printIndex, threadParams["authorName"]);
-						Z.debug("No KXP PPN found for GND " + gnd + " → 30xx kept/reverted to personal name (" + reverted + ")");
-						}
-
-					} catch (ex) {
-					  Z.debug("SRU success handler threw: " + ex);
-					} finally {
-					  if (_sruOutstanding[_key]) {
-						_sruOutstanding[_key] = false;
-						_bump(-1, "sru:done key=" + _key);
-						finishIfIdle();
-					  } else {
-						Z.debug("SRU done already closed for key " + _key);
-					  }
+						Z.debug("Reverted 30xx to personal name due to PPN blocklist (" + reverted + ")");
+						return;
 					}
-				  },
-				  function (e) {
-					// Also close here in a finally, guarded by _sruOutstanding[_key]
-					try {
-					  if (_ppnLookupState[_key] !== "done") {
-						_ppnLookupState[_key] = "failed";
-						Z.debug("KXP SRU by GND failed for " + gnd + ": " + e);
-						const reverted = updateAuthorLineToName(_itemId, _code, _printIndex, threadParams["authorName"]);
-						Z.debug("SRU failed → reverted 30xx to personal name (" + reverted + ")");
-					  } else {
-						Z.debug("KXP SRU late error ignored (already resolved) for key " + _key);
-					  }
-					} finally {
-					  if (_sruOutstanding[_key]) {
-						_sruOutstanding[_key] = false;
-						_bump(-1, "sru:fail key=" + _key);
-						finishIfIdle();
-					  }
+					Z.debug("Overwriting " + _code + " ##" + _printIndex + "## with PPN " + ppn);
+					const replaced = updateAuthorLineToPPN(_itemId, _code, _printIndex, ppn);
+					Z.debug("30xx replacement success? " + replaced);
+					addOnce8910(_itemId,
+						"$aixzom$bVerfasserIn in der Zoterovorlage [" +
+						threadParams["authorName"] + "] einer PPN " + ppn + " maschinell zugeordnet "
+					);
+					} else {
+					const reverted = updateAuthorLineToName(_itemId, _code, _printIndex, threadParams["authorName"]);
+					Z.debug("No KXP PPN found for GND " + gnd + " → 30xx kept/reverted to personal name (" + reverted + ")");
 					}
-				  }
-				);
-			  }
+				} catch (ex) {
+					Z.debug("SRU success handler threw: " + ex);
+				} finally {
+					if (_sruOutstanding[_key]) {
+					_sruOutstanding[_key] = false;
+					_bump(-1, "sru:done key=" + _key);
+					finishIfIdle();
+					} else {
+					Z.debug("SRU done already closed for key " + _key);
+					}
+				}
+				},
+				function (e) {
+				try {
+					if (_ppnLookupState[_key] !== "done") {
+					_ppnLookupState[_key] = "failed";
+					Z.debug("KXP SRU by GND failed for " + gnd + ": " + e);
+					const reverted = updateAuthorLineToName(_itemId, _code, _printIndex, threadParams["authorName"]);
+					Z.debug("SRU failed → reverted 30xx to personal name (" + reverted + ")");
+					} else {
+					Z.debug("KXP SRU late error ignored (already resolved) for key " + _key);
+					}
+				} finally {
+					if (_sruOutstanding[_key]) {
+					_sruOutstanding[_key] = false;
+					_bump(-1, "sru:fail key=" + _key);
+					finishIfIdle();
+					}
+				}
+				}
+			);
 			}
+		}
 
-			_endLobidOnce("lobid:done auth=" + threadParams["authorName"]);
-		  }
+		_endReconcileOnce("reconcile:done auth=" + threadParams["authorName"]);
+		}
 
-		  function _safeOnNoUnique() {
-			if (_lobidResolved) return;
-			_lobidResolved = true;
+		function _safeOnNoUnique() {
+		if (_reconcileResolved) return; _reconcileResolved = true;
 
-			// If lobid is not unique (totalItems != 1), we keep the personal name.
-			// BUT: if an ORCID was captured for this author slot, include it now.
-			try {
-			  const _itemId = threadParams["currentItemId"];
-			  const _printIndex = threadParams["printIndex"];
-			  const _code = threadParams["code"];
-			  const _name = threadParams["authorName"];
+		try {
+			const _itemId = threadParams["currentItemId"];
+			const _printIndex = threadParams["printIndex"];
+			const _code = threadParams["code"];
+			const _name = threadParams["authorName"];
+			const changed = updateAuthorLineToName(_itemId, _code, _printIndex, _name);
+			Z.debug("reconcile no-unique → 30xx kept as personal name (ORCID included if available): " + changed);
+		} catch (e) {
+			Z.debug("reconcile no-unique handler threw: " + e);
+		}
 
-			  // This reuses the same revert function that adds $iorcid$j<id> when present
-			  const changed = updateAuthorLineToName(_itemId, _code, _printIndex, _name);
-			  Z.debug("lobid no-unique → 30xx kept as personal name (ORCID included if available): " + changed);
-			} catch (e) {
-			  Z.debug("lobid no-unique handler threw: " + e);
-			}
+		_endReconcileOnce("reconcile:done (no-unique) auth=" + threadParams["authorName"]);
+		}
 
-			_endLobidOnce("lobid:done (no-unique) auth=" + threadParams["authorName"]);
-		  }
+		// Start reconciliation (sequential variants)
+		_bump(1, "reconcile:start auth=" + authorName);
 
-		  // Sequential unique-match lookup (professionIds as computed above)
-		  queryLobidUntilUnique(
-			_queries,
-			0,
-			{ professionIds: profIds, birthYearFrom: undefined /* optional lower bound */ },
-			_safeOnUnique,
-			_safeOnNoUnique
-		  );
+		let _reconcileClosed = false;
+		function _endReconcileOnce(reason) {
+		if (_reconcileClosed) { Z.debug("reconcile already finished (" + reason + ")"); return; }
+		_reconcileClosed = true; _bump(-1, reason); finishIfIdle();
+		}
+
+		queryReconcileUntilUnique(
+		_queries,
+		0,
+		{
+			typeId: "DifferentiatedPerson",           // as requested
+			professionUris: profUris          // literals from map KEYS, e.g., "Theologe", "Theologin"
+		},
+		_safeOnUnique,
+		_safeOnNoUnique
+		);
 		}
 	  }
 	}
@@ -1236,36 +1518,69 @@ function performExport() {
 		  }
 		}
 	  }
+		//Abrufzeichen für Retrokat "ixrk" --> 8012
+		var ixrkIxtheo = "";
+		if (item.tags) {
+			for (let i in item.tags) {
+				if (item.tags[i].tag.includes('ixrk')) {
+					ixrkIxtheo = "$aixrk";
+				}
+			}
+		}
+		//Abrufzeichen für Retrokat "ixrk" --> 8012
+		var rwrkRelbib = "";
+		if (item.tags) {
+			for (let i in item.tags) {
+				if (item.tags[i].tag.includes('rwrk')) {
+					rwrkRelbib = "$arwrk";
+				}
+			}
+		}
+		if (institution_retrieve_sign == "") {
+			if (SsgField == "NABZ") {
+				addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 ixzs$aixzo$aNABZ' + ixrkIxtheo + rwrkRelbib + localURL, ""); 
+			}
+			else addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 ixzs$aixzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
+		}
+		else if (institution_retrieve_sign == "inzo") {
+			if (SsgField == "NABZ") {
+				addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 inzs$ainzo$aNABZ' + ixrkIxtheo + rwrkRelbib + localURL, ""); 
+			}
+			else addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 inzs$ainzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
+		}
+		else if (institution_retrieve_sign == "krzo") {
+			if (SsgField == "NABZ") {
+				addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 krzo$aNABZ' + ixrkIxtheo + rwrkRelbib + localURL, ""); 
+			}
+			else addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 krzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
+		}
+		else if (institution_retrieve_sign == "itbk") {
+				addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 itbk$aixzs$aixzo' + ixrkIxtheo + rwrkRelbib + localURL, ""); 
+		}
+		else if (institution_retrieve_sign == "zojs") {
+				addLine(currentItemId, '\nE* l01\n4801 Der Zugriff ist kostenfrei möglich\n7100 $B21\n8012 fauf$auwzs$azojs' + ixrkIxtheo + rwrkRelbib + localURL, "");
+		}
+		else if (institution_retrieve_sign == "tojs") {
+				addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 tojs$aixzs$aixzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
+		}
 
-	  // Exportkopf (E*, 7100, 8012 + optional 7133 appended via 'localURL')
-	  if (institution_retrieve_sign == "") {
-		if (SsgField == "NABZ") {
-		  addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 ixzs$aixzo$aNABZ' + localURL, "");
-		} else {
-		  addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 ixzs$aixzo' + localURL, "");
-		}
-	  } else if (institution_retrieve_sign == "inzo") {
-		if (SsgField == "NABZ") {
-		  addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 inzs$ainzo$aNABZ' + localURL, "");
-		} else {
-		  addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 inzs$ainzo' + localURL, "");
-		}
-	  } else if (institution_retrieve_sign == "krzo") {
-		if (SsgField == "NABZ") {
-		  addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 krzo$aNABZ' + localURL, "");
-		} else {
-		  addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 krzo' + localURL, "");
-		}
-	  } else if (institution_retrieve_sign == "itbk") {
-		addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 itbk$aixrk$aixzs$aixzo' + localURL, "");
-	  } else if (institution_retrieve_sign == "tojs") {
-		addLine(currentItemId, '\nE* l01\n4801 Der Zugriff ist kostenfrei möglich\n7100 $B21\n8012 fauf$auwzs$atojs' + localURL, "");
-	  }
+		// 5520 (IxTheo subjects from Zotero tags) — skip internal/control tags
+		for (i = 0; i < item.tags.length; i++) {
+		const rawTag = (item.tags[i] && item.tags[i].tag) ? String(item.tags[i].tag) : "";
+		let tag = ZU.unescapeHTML(rawTag).replace(/\s?--\s?/g, '; ').trim();
 
-	  // 5520 (IxTheo subjects from Zotero tags)
-	  for (i = 0; i < item.tags.length; i++) {
-		addLine(currentItemId, "\n5520", " " + ZU.unescapeHTML(item.tags[i].tag.replace(/\s?--\s?/g, '; ')));
-	  }
+		// Skip empty tags
+		if (!tag) continue;
+
+		// Skip internal workflow markers handled elsewhere
+		if (/^(ixrk|rwrk)$/i.test(tag)) continue;
+
+		// Skip tags that are used as control markers (1131 etc.)
+		if (/^RezensionstagPica$/i.test(tag)) continue;
+		if (/^Book\s*reviews?$/i.test(tag)) continue;
+
+		addLine(currentItemId, "\n5520", tag);
+		}
 
 	  // 6700++ (IxTheo-Notation via notes_to_ixtheo_notations map)
 	  if (item.notes) {
@@ -1339,10 +1654,14 @@ function doExport() {
 /* M. DEBUG TOGGLE                                                                                                   */
 /* =============================================================================================================== */
 
-var ENABLE_DEBUG = true;
+var ENABLE_DEBUG = false;
 if (!ENABLE_DEBUG) {
   Z.debug = function () {};
 }
+
+// DEBUG toggles for reconciliation (set to "" to disable verbose logging)
+var DEBUG_RECONCILE_VERBOSE = false;
+var DEBUG_RECONCILE_ONLY_NAME = "";
 
 /** BEGIN TEST CASES **/
 var testCases = [
