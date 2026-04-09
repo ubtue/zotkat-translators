@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-03-30 10:13:50"
+	"lastUpdated": "2026-04-09 13:47:33"
 }
 
 /*
@@ -334,7 +334,9 @@ function invokeEMTranslator(doc) {
 			for (let g of orcidAuthorEntryCaseG) {
 				let author = ZU.trimInternal(g.innerText);
 				let orcid = ZU.trimInternal(g.innerHTML).match(/\d+-\d+-\d+-\d+x?/gi);
-				addNote(orcid, author);
+				if (author && orcid) {
+					addNote(orcid, author);
+				}
 			}
 		}
 
