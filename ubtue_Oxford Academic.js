@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-11-25 11:36:59"
+	"lastUpdated": "2026-04-09 10:38:24"
 }
 
 /*
@@ -57,6 +57,21 @@ function getSearchResults(doc) {
 	return found ? items : false;
 }
 
+// ISSN mapping for journals
+const JOURNAL_ISSN_MAP = new Map([
+	["christian bioethics", "1744-4195"],
+	["christian bioethics: non-ecumenical studies in medical morality", "1744-4195"],
+	["sociology of religion", "1069-4404"]
+]);
+
+// ISSN lookup based on publication title (case insensitive)
+function getISSNOrNotMapped(i) {
+   let issn;
+   if (i.publicationTitle) 
+       issn = JOURNAL_ISSN_MAP.get(i.publicationTitle.toLowerCase());
+   return issn ? issn : "ISSN not mapped";
+}
+
 function invokeEmbeddedMetadataTranslator(doc, url) {
 	var translator = Zotero.loadTranslator("web");
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
@@ -97,6 +112,9 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			}
 		}
 		i.url = i.url.match(/dx.doi.org/) && i.DOI ? "" : i.url;
+		if (!i.ISSN) {
+			i.ISSN = getISSNOrNotMapped(i);
+		}
 		i.complete();
 	});
 	translator.translate();
