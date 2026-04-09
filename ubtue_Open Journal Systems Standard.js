@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-03-30 10:13:50"
+	"lastUpdated": "2026-04-09 14:21:14"
 }
 
 /*
@@ -334,7 +334,9 @@ function invokeEMTranslator(doc) {
 			for (let g of orcidAuthorEntryCaseG) {
 				let author = ZU.trimInternal(g.innerText);
 				let orcid = ZU.trimInternal(g.innerHTML).match(/\d+-\d+-\d+-\d+x?/gi);
-				addNote(orcid, author);
+				if (author && orcid) {
+					addNote(orcid, author);
+				}
 			}
 		}
 
@@ -387,6 +389,22 @@ function invokeEMTranslator(doc) {
 			i.notes.push('artikelID:' + i.pages);
 			i.pages = "";
 		}
+		//artikelID und Seitenzahlen im Format "1-20, e292601"
+		if (["2447-7443"].includes(i.ISSN)) {
+			let pageCitation = ZU.xpathText(doc, '//meta[@name="DC.Identifier.pageNumber"]/@content');
+			if (pageCitation) {
+				delete i.pages;
+				let articleID = pageCitation.match(/e\d+/);
+				if (articleID) {
+					i.notes.push('artikelID:' + articleID);
+				}
+				let pageNumbers = pageCitation.match(/^(\d+(?:-\d+)?),/);
+				if (pageNumbers) {
+					i.pages = pageNumbers[1];
+				}
+			}
+		}
+
  		if (i.date == undefined && ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content') != undefined) {
  			i.date = ZU.xpathText(doc, '//meta[@name="DC.Date.issued"]/@content').substr(0,4);
 
