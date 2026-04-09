@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-03-27 15:43:37"
+	"lastUpdated": "2026-04-09 14:46:49"
 }
 
 /*
@@ -162,15 +162,25 @@ function postProcess(doc, item) {
 	if (!item.itemType)	item.itemType = "journalArticle";
 
 	if (!item.ISSN) {
-		if (item.publicationTitle.match(/journal for continental philosophy of religion/i)) {
-		item.ISSN = "2588-9613";
+			item.ISSN = getISSNOrNotMapped(item);
 		}
-		if (item.publicationTitle.match(/muqarnas online/i)) {
-		item.ISSN = "2211-8993";
-		}
-	}
 
 	
+}
+
+// ISSN mapping for journals
+const JOURNAL_ISSN_MAP = new Map([
+	["journal for continental philosophy of religion", "2588-9613"],
+	["muqarnas online", "2211-8993"], 
+	["zutot", "1875-0214"]
+]);
+
+// ISSN lookup based on publication title (case insensitive)
+function getISSNOrNotMapped(item) {
+   let issn;
+   if (item.publicationTitle) 
+       issn = JOURNAL_ISSN_MAP.get(item.publicationTitle.toLowerCase());
+   return issn ? issn : "ISSN not mapped";
 }
 
 function extractErscheinungsjahr(date) {
