@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-03-27 15:22:35"
+	"lastUpdated": "2026-04-10 11:40:30"
 }
 
 /*
@@ -91,7 +91,7 @@ function getOrcids(doc, item) {
 		let author = webAuthor?.textContent?.trim()
 		let orcid = ZU.xpath(webAuthor, '//a[@class="orcid_link"]')?.[0]?.href?.replace(/.*(\d{4}-\d+-\d+-\d+x?)$/i, '$1');
 		if (author && orcid)
-		    item.notes.push({note: "orcid:" + orcid + ' | ' + author});
+			item.notes.push({note: "orcid:" + orcid + ' | ' + author});
 	}
 }
 
@@ -138,7 +138,7 @@ function scrape(doc) {
 			if (item.pages && item.pages.split('-').length > 1) {
 				if (item.pages.split('-')[0] == item.pages.split('-')[1]) item.pages = item.pages.split('-')[0];
 			}
-			if (ZU.xpathText(doc, '//div[@class="cell label"][contains(text(),"Open Access")]/following-sibling::div[contains(text(),"Yes")]')) {
+			if (ZU.xpathText(doc, '//*[@class="cell label"][contains(text(),"Open Access")]/following-sibling::*[contains(text(),"Yes")]')) {
 				item.notes.push('LF:');
 			}
 			if (!item.issue) {
