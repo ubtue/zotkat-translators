@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-04-10 14:07:08"
+	"lastUpdated": "2026-04-13 12:08:06"
 }
 
 /*
@@ -59,19 +59,22 @@ function getSearchResults(doc) {
 function getOrcid(item, doc) {
     let authors = doc.getElementById('authors');
     if (authors) { 
-        let authorIDlist = authors.querySelector('ul.authorid-list');
-        if (authorIDlist) {
+        let authorIDlists = authors.querySelectorAll('ul.authorid-list'); 
+        authorIDlists.forEach(authorIDlist => {
             let authorOrcid = authorIDlist.querySelector('a[href*="https://orcid.org/"]');
             if (authorOrcid) {
-                let authorLink = authorIDlist.parentElement.querySelector('h3 a');
-				if (authorLink) {
-					let authorName = authorLink.textContent.trim();
-					if (authorName) {
-						item.notes.push('orcid: ' + authorOrcid.href + ' | ' + authorName + ' | taken from website');
-					}
-				}  
-            }                                                                    
-        }
+                let authorLink = authorIDlist.previousElementSibling;
+                if (authorLink && authorLink.tagName === 'H3') {
+                    let nameLink = authorLink.querySelector('a');
+                    if (nameLink) {
+                        let authorName = nameLink.textContent.trim();
+                        if (authorName) {
+                            item.notes.push('orcid: ' + authorOrcid.href + ' | ' + authorName + ' | taken from website');
+                        }
+                    }
+                }    
+            }
+        });
     }
 }
 
