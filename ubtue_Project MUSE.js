@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-04-10 11:40:30"
+	"lastUpdated": "2026-04-13 12:51:19"
 }
 
 /*
@@ -138,7 +138,7 @@ function scrape(doc) {
 			if (item.pages && item.pages.split('-').length > 1) {
 				if (item.pages.split('-')[0] == item.pages.split('-')[1]) item.pages = item.pages.split('-')[0];
 			}
-			if (ZU.xpathText(doc, '//*[@class="cell label"][contains(text(),"Open Access")]/following-sibling::*[contains(text(),"Yes")]')) {
+			if (ZU.xpathText(doc, '//tr[@class="details_row"]/th[@class="cell label"][contains(text(),"Open Access")]/following-sibling::td[contains(text(),"Yes")]')) {
 				item.notes.push('LF:');
 			}
 			if (!item.issue) {
