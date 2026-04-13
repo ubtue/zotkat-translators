@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-03-27 14:54:25"
+	"lastUpdated": "2026-04-13 12:08:06"
 }
 
 /*
@@ -56,6 +56,28 @@ function getSearchResults(doc) {
 	return found ? items : false;
 }
 
+function getOrcid(item, doc) {
+    let authors = doc.getElementById('authors');
+    if (authors) { 
+        let authorIDlists = authors.querySelectorAll('ul.authorid-list'); 
+        authorIDlists.forEach(authorIDlist => {
+            let authorOrcid = authorIDlist.querySelector('a[href*="https://orcid.org/"]');
+            if (authorOrcid) {
+                let authorLink = authorIDlist.previousElementSibling;
+                if (authorLink && authorLink.tagName === 'H3') {
+                    let nameLink = authorLink.querySelector('a');
+                    if (nameLink) {
+                        let authorName = nameLink.textContent.trim();
+                        if (authorName) {
+                            item.notes.push('orcid: ' + authorOrcid.href + ' | ' + authorName + ' | taken from website');
+                        }
+                    }
+                }    
+            }
+        });
+    }
+}
+
 function invokeEmbeddedMetadataTranslator(doc, url) {
 	let translator = Zotero.loadTranslator("web");
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
@@ -81,6 +103,7 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 				item.issue = issueAndVol[2];
 			}
 		}
+		getOrcid(item, doc);
 		//issue number as volume
 		if (item.issue && ['1972-2516', '0776-3824', '0335-5985', '1760-5776'].includes(item.ISSN)) {
 			item.volume = item.issue;

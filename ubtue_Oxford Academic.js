@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-04-09 10:38:24"
+	"lastUpdated": "2026-04-10 12:15:14"
 }
 
 /*
@@ -68,7 +68,7 @@ const JOURNAL_ISSN_MAP = new Map([
 function getISSNOrNotMapped(i) {
    let issn;
    if (i.publicationTitle) 
-       issn = JOURNAL_ISSN_MAP.get(i.publicationTitle.toLowerCase());
+	   issn = JOURNAL_ISSN_MAP.get(i.publicationTitle.toLowerCase());
    return issn ? issn : "ISSN not mapped";
 }
 
@@ -82,8 +82,8 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		if (abstractText) i.abstractNote = abstractText;
 		var tagreview = ZU.xpathText(doc, '//*[(@id = "ContentTab")]//a');
 		if (tagreview) {
-			if (tagreview.match(/Reviews|Book Reviews/i)) delete i.abstractNote;
-			if (tagreview.match(/Reviews|Book Reviews/i)) i.tags.push('RezensionstagPica');
+			if (tagreview.match(/Reviews|Book Reviews?/i)) delete i.abstractNote;
+			if (tagreview.match(/Reviews|Book Reviews?/i)) i.tags.push('RezensionstagPica');
 		}
 		
 		if (ZU.xpathText(doc, '//i[@class="icon-availability_open"]/@title') != null) {
