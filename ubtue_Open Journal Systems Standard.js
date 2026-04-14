@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-04-09 14:21:14"
+	"lastUpdated": "2026-04-14 15:00:27"
 }
 
 /*
@@ -367,7 +367,7 @@ function invokeEMTranslator(doc) {
 				if (nameElement && orcidElement) {
 					let name = nameElement.textContent.trim();
 					let orcid = orcidElement.href;
-					if (name && orcid) {
+					if (name && orcid && !i.notes.some(note => note.note.includes(orcidElement.href.replace(/https?:\/\/orcid\.org\//g, '')))) {
 						addNote(orcid.replace(/https?:\/\/orcid\.org\//g, ''), name);
 					}
 				}
