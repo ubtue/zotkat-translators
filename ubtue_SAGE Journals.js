@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-27 14:55:11"
+	"lastUpdated": "2026-04-15 10:19:08"
 }
 
 /*
@@ -179,18 +179,23 @@ function scrape(doc, url) {
 			// Workaround to address address weird incorrect multiple extraction by both querySelectorAll and xpath
 			// So, let's deduplicate...
 			item.notes = Array.from(new Set(item.notes.map(JSON.stringify))).map(JSON.parse);
+			// replace faulty abstract from RIS with a better version the from the source code
+			let abstractSource = ZU.xpathText(doc, '//div[@id="abstracts"]//section[@id="abstract"]');
+			if (abstractSource) {
+				item.abstractNote = abstractSource.replace(/^abstract/i, '');
+			}
 			// ubtue: extract translated and other abstracts from the different xpath
 			var ubtueabstract = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "abstractInFull", " " ))]');
 			var otherabstract = ZU.xpathText(doc, '//article//div[contains(@class, "tabs-translated-abstract")]/p');
 			var abstract = ZU.xpathText(doc, '//article//div[contains(@class, "abstractSection")]/p');
 			if (abstract) {
-				item.abstractNote = abstract;
+				item.notes.push({note: "abs:" + abstract});
 			}
 			if (otherabstract) {
 				item.notes.push({note: "abs:" + otherabstract.replace(/^Résumé/, '')});
 			} 
 			else if (ubtueabstract) {
-				item.abstractNote = ubtueabstract;
+				item.notes.push({note: "abs:" + ubtueabstract});
 			}
 			var tagentry = ZU.xpathText(doc, '//kwd-group[1] | //*[contains(concat( " ", @class, " " ), concat( " ", "hlFld-KeywordText", " " ))]');
 			if (tagentry) {
