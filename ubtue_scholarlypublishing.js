@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-22 12:12:57"
+	"lastUpdated": "2026-04-21 11:55:33"
 }
 
 /*
@@ -92,7 +92,7 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 				let authorInfoname = ZU.xpath(authorInfoCard, '//div[@class="info-card-name"]');
 				let name = authorInfoname[0].textContent.trim();
 				let orcid = authorInfoCard.innerHTML.match(orcidRegex);
-				i.notes.push({note: name + ' | orcid:' + orcid + ' | taken from website'});
+				i.notes.push({note: 'orcid:' + orcid + ' | ' + name + ' | taken from website'});
 			}
 
 		}
@@ -117,8 +117,6 @@ function doWeb(doc, url) {
 	} else
 		invokeEmbeddedMetadataTranslator(doc, url);
 }
-
-
 
 /** BEGIN TEST CASES **/
 var testCases = [
