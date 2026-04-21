@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-04-21 11:55:33"
+	"lastUpdated": "2026-04-21 12:27:00"
 }
 
 /*
@@ -44,7 +44,7 @@ function getSearchResults(doc, checkOnly) {
   let items = {};
   let found = false;
   
-  rows = ZU.xpath(doc, '//h5[contains(@class,"item-title")]/a');
+  rows = ZU.xpath(doc, '//div[contains(@class,"al-article-items")]/h3[contains(@class,"item-title")]/a');
   for (let row of rows) {
 	if (row.href.match(/\/article\//)) {
 	let href = ZU.xpathText(row, './@href');
