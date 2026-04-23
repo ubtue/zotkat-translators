@@ -8,7 +8,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 2,
-	"lastUpdated": "2026-04-02 11:44:30"
+	"lastUpdated": "2026-04-23 09:40:25"
 }
 
 /*
@@ -726,7 +726,6 @@ function queryReconcileUntilUnique(queries, idx, profileOpts, onUnique, onNoUniq
   );
 }
 
-
 /* =============================================================================================================== */
 /* I. SRU HELPER                                                                                                     */
 /* =============================================================================================================== */
@@ -746,7 +745,7 @@ function lookupTitlePPNFromOpacByGND(gndEitherForm, onSuccess, onError) {
 	  + "?version=1.2&operation=searchRetrieve"
 	  + "&maximumRecords=10&recordSchema=picaxml"
 	  + "&query=" + encodeURIComponent(cql);
-
+		Z.debug("[SRU] url=" + url + "  (gnd=" + gndEitherForm + ", nid=" + nid + ", cql=" + cql + ")");
 	ZU.doGet(
 	  url,
 	  function (xml) {
@@ -789,6 +788,222 @@ function lookupTitlePPNFromOpacByGND(gndEitherForm, onSuccess, onError) {
   }
 }
 
+/* =============================================================================================================== */
+/* I2. unAPI PERSON CHECK (060R heuristic guard)                                                                     */
+/* =============================================================================================================== */
+
+/**
+ * Build unAPI URL for a given PPN (person record).
+ *
+ * We fetch the K10plus "pp" (Personendaten) format via unAPI for a PPN found by SRU.
+ * Example (human readable):
+ *   https://unapi.k10plus.de/?id=opac-de-627!xpn=online:ppn:<PPN>&format=pp
+ *
+ * NOTE:
+ * - In the JS source code we must use '&format=pp' (NOT '&amp;format=pp').
+ * - We URL-encode the full id parameter for safety.
+ */
+function buildUnapiUrlForPpn(ppn) {
+  const id = "opac-de-627!xpn=online:ppn:" + String(ppn || "").trim();
+  return "https://unapi.k10plus.de/?id=" + encodeURIComponent(id) + "&format=pp";
+}
+
+/**
+ * Parse field 060R from unAPI "pp" text.
+ *
+ * Background:
+ * - unAPI "pp" output is a plain-text (line-based) representation of a PICA record.
+ * - Subfields may be encoded either as:
+ *     "$a ... $b ..."   (common in some exports)
+ *   or
+ *     "ƒa ... ƒb ..."   (WinIBW/PICA-style subfield marker, U+0192)
+ * - Therefore we treat BOTH "$" and "ƒ" as subfield delimiters.
+ *
+ * Returns:
+ * {
+ *   has060R: boolean,          // at least one 060R line exists 
+ *   hasB: boolean,             // any $b / ƒb present in 060R (end of timespan) -> reject e.g. https://unapi.k10plus.de/?id=opac-de-627!xpn%3Donline:ppn:630198322&format=pp
+ *   yearsA: number[],          // extracted 4-digit years from $a / ƒa (begin of timespan)
+ *   hasCentury20or21: boolean  // true if $d / ƒd contains century markers 20 or 21 (e.g. "20./21. Jh.") e.g. https://unapi.k10plus.de/?id=opac-de-627!xpn%3Donline:ppn:859724557&format=pp
+ * }
+ *
+ * Heuristic meaning of subfields:
+ * - 060R $a / ƒa : Beginn einer Zeitspanne (e.g. 1959)
+ * - 060R $b / ƒb : Ende einer Zeitspanne   (if present -> do NOT match; typically implies death/end)
+ * - 060R $d / ƒd : Century notation        (e.g. "20./21. Jh.") counts as positive evidence
+ */
+function parse060RFromPp(ppText) {
+  const text = String(ppText || "");
+  const lines = text.split(/\r?\n/);
+
+  let has060R = false;
+  let hasB = false;
+  const yearsA = [];
+  let hasCentury20or21 = false;
+
+  /**
+   * Extract all subfield payloads for a given code from one line.
+   * Supports both "$a..." and "ƒa..."
+   */
+  function extractSubfields(line, code) {
+    // Capture occurrences like "$a...." or "ƒa...." until next "$x"/"ƒx" or end of line
+    const re = new RegExp(`[\\$ƒ]${code}([^\\$ƒ]*)`, "g");
+    const out = [];
+    let m;
+    while ((m = re.exec(line)) !== null) {
+      out.push((m[1] || "").trim());
+    }
+    return out;
+  }
+
+  /**
+   * Detect "20./21. Jh." style century indications in a $d/ƒd chunk.
+   *
+   * Typical examples:
+   *   "20. Jh."
+   *   "21. Jh."
+   *   "20./21. Jh."
+   *   "20/21 Jh"
+   *   "20.-21. Jh."
+   *
+   * We accept if we see 20 or 21 as a standalone 2-digit number NOT part of a 4-digit year.
+   * (Avoid matching "2021" by disallowing a following digit.)
+   */
+  function chunkHas20or21Century(chunk) {
+    const s = String(chunk || "");
+    return /(^|[^\d])(20|21)(?!\d)/.test(s);
+  }
+
+  for (const lineRaw of lines) {
+    const line = String(lineRaw || "");
+
+    // unAPI pp lines typically begin with the field code
+    if (!line.startsWith("060R")) continue;
+
+    has060R = true;
+
+    // Rule: If ANY $b / ƒb exists in 060R -> reject later
+    const bChunks = extractSubfields(line, "b");
+    if (bChunks.length > 0) {
+      // Even if empty, presence of the subfield marker is considered a strong "end of timespan" signal.
+      hasB = true;
+    }
+
+    // Extract years from $a / ƒa (begin of timespan)
+    const aChunks = extractSubfields(line, "a");
+    for (const chunk of aChunks) {
+      const yr = String(chunk).match(/(\d{4})/);
+      if (yr) yearsA.push(parseInt(yr[1], 10));
+    }
+
+    // New rule: Century evidence from $d / ƒd counts as positive evidence if it includes 20 or 21
+    const dChunks = extractSubfields(line, "d");
+    for (const chunk of dChunks) {
+      if (chunkHas20or21Century(chunk)) {
+        hasCentury20or21 = true;
+      }
+    }
+  }
+
+  return { has060R, hasB, yearsA, hasCentury20or21 };
+}
+
+/**
+ * Verify a candidate PPN via unAPI using the 060R heuristic.
+ *
+ * Decision rules (strict, conservative):
+ * 1) 060R must exist. If missing -> reject.
+ * 2) If 060R contains an end-of-timespan subfield ($b / ƒb) -> reject.
+ * 3) Accept if either:
+ *    a) 060R $a / ƒa contains a 4-digit year and max(year) > minYear (default 1930),
+ *       OR
+ *    b) 060R $d / ƒd contains century markers "20" or "21" (e.g. "20./21. Jh.").
+ *
+ * Rationale:
+ * - Prevent linking to very old historical persons (e.g., 16th century).
+ * - Prevent linking when an "end of timespan" is present (likely deceased).
+ * - Allow modern-century-only records that express time by century (20./21. Jh.) instead of a year.
+ *
+ * IMPORTANT:
+ * - This function is guarded so onPass/onReject are called ONLY ONCE.
+ *   (ZU.doGet can otherwise lead to rare double-callback situations in some environments.)
+ */
+function verifyPpnBy060R(ppn, minYear, onPass, onReject) {
+  const _ppn = String(ppn || "").trim();
+  if (!_ppn) return onReject("no-ppn");
+
+  // one-shot guard (prevents accept+reject double-callbacks)
+  let done = false;
+  function passOnce(meta) {
+    if (done) return;
+    done = true;
+    onPass(meta);
+  }
+  function rejectOnce(reason) {
+    if (done) return;
+    done = true;
+    onReject(reason);
+  }
+
+  const threshold = (minYear == null) ? 1930 : Number(minYear);
+  const url = buildUnapiUrlForPpn(_ppn);
+
+  Z.debug("[unAPI] check 060R ppn=" + _ppn + " url=" + url);
+
+  ZU.doGet(
+    url,
+    function (ppText) {
+      try {
+        const info = parse060RFromPp(ppText);
+
+        if (!info.has060R) {
+          Z.debug("[unAPI] reject ppn=" + _ppn + " reason=no-060R");
+          return rejectOnce("no-060R");
+        }
+
+        // Rule 2: If any $b/ƒb exists -> reject
+        if (info.hasB) {
+          Z.debug("[unAPI] reject ppn=" + _ppn + " reason=060R-has-$b");
+          return rejectOnce("has-$b");
+        }
+
+        // Rule 3a: Accept if $a year exists and is modern enough
+        let maxA = null;
+        if (info.yearsA && info.yearsA.length) {
+          maxA = Math.max.apply(null, info.yearsA);
+        }
+
+        if (maxA != null && maxA > threshold) {
+          Z.debug("[unAPI] accept ppn=" + _ppn + " 060R$a maxYear=" + maxA + " > " + threshold);
+          return passOnce({ maxA: maxA, yearsA: info.yearsA });
+        }
+
+        // Rule 3b: Accept if century evidence indicates 20./21. Jh.
+        if (info.hasCentury20or21) {
+          Z.debug("[unAPI] accept ppn=" + _ppn + " reason=060R$d century 20/21 Jh.");
+          return passOnce({ maxA: maxA, yearsA: info.yearsA, byCentury: true });
+        }
+
+        // Otherwise reject (no acceptable temporal evidence)
+        if (maxA == null) {
+          Z.debug("[unAPI] reject ppn=" + _ppn + " reason=060R-no-$a-year-and-no-century");
+          return rejectOnce("no-$a-year-and-no-century");
+        }
+
+        Z.debug("[unAPI] reject ppn=" + _ppn + " reason=060R$a-year-too-old maxYear=" + maxA);
+        return rejectOnce("year-too-old:" + maxA);
+
+      } catch (e) {
+        Z.debug("[unAPI] reject ppn=" + _ppn + " reason=parse-error err=" + e);
+        return rejectOnce("parse-error");
+      }
+    },
+    function (err) {
+      Z.debug("[unAPI] reject ppn=" + _ppn + " reason=request-failed err=" + err);
+      return rejectOnce("request-failed");
+    }
+  );
+}
 /* =============================================================================================================== */
 /* J. WRITE-OUT (FINAL FLUSH)                                                                                        */
 /* =============================================================================================================== */
@@ -1248,61 +1463,115 @@ function performExport() {
 			);
 
 			_bump(1, "sru:start key=" + _key + " gnd=" + gnd);
-			lookupTitlePPNFromOpacByGND(gnd,
+			lookupTitlePPNFromOpacByGND(
+				gnd,
 				function (ppn) {
-				try {
+					// SRU success callback (PPN may be null)
 					_ppnLookupState[_key] = "done";
 					Z.debug("KXP PPN found for GND " + gnd + ": " + ppn);
 
-					if (ppn) {
-					if (ppn_false_positive && (ppn_false_positive.has(ppn))) {
+					// Finalize SRU thread exactly once (we keep SRU "open" until unAPI finishes)
+					let _finalized = false;
+					function finalizeSru(reason) {
+					if (_finalized) return;
+					_finalized = true;
+
+					if (_sruOutstanding[_key]) {
+						_sruOutstanding[_key] = false;
+						_bump(-1, reason || ("sru:done key=" + _key));
+						finishIfIdle();
+					} else {
+						Z.debug("SRU done already closed for key " + _key);
+					}
+					}
+
+					try {
+					// 1) No PPN from SRU → keep/revert to name and close SRU thread
+					if (!ppn) {
+						const reverted = updateAuthorLineToName(_itemId, _code, _printIndex, threadParams["authorName"]);
+						Z.debug("No KXP PPN found for GND " + gnd + " → 30xx kept/reverted to personal name (" + reverted + ")");
+						return finalizeSru("sru:done (no-ppn) key=" + _key);
+					}
+
+					// 2) PPN blocklist → revert and close SRU thread (no unAPI call)
+					if (ppn_false_positive && ppn_false_positive.has(ppn)) {
 						Z.debug("PPN " + ppn + " is blocklisted → revert to personal name");
 						const reverted = updateAuthorLineToName(_itemId, _code, _printIndex, threadParams["authorName"]);
 						Z.debug("Reverted 30xx to personal name due to PPN blocklist (" + reverted + ")");
-						return;
+						return finalizeSru("sru:done (blocklisted) key=" + _key);
 					}
-					Z.debug("Overwriting " + _code + " ##" + _printIndex + "## with PPN " + ppn);
-					const replaced = updateAuthorLineToPPN(_itemId, _code, _printIndex, ppn);
-					Z.debug("30xx replacement success? " + replaced);
-					addOnce8910(_itemId,
-						"$aixzom$bVerfasserIn in der Zoterovorlage [" +
-						threadParams["authorName"] + "] einer PPN " + ppn + " maschinell zugeordnet "
+
+					// 3) NEW: verify via unAPI (060R rules) BEFORE accepting PPN
+					verifyPpnBy060R(
+						ppn,
+						1930,
+						function onPass(meta) {
+						try {
+							Z.debug("PPN " + ppn + " passed 060R heuristic → overwrite 30xx");
+							Z.debug("Overwriting " + _code + " ##" + _printIndex + "## with PPN " + ppn);
+
+							const replaced = updateAuthorLineToPPN(_itemId, _code, _printIndex, ppn);
+							Z.debug("30xx replacement success? " + replaced);
+
+							addOnce8910(
+							_itemId,
+							"$aixzom$bVerfasserIn in der Zoterovorlage [" +
+								threadParams["authorName"] + "] einer PPN " + ppn +
+								" maschinell zugeordnet (060R ok, max $a=" + ((meta && meta.maxA) || "?") + ") "
+							);
+						} catch (ex) {
+							Z.debug("unAPI pass handler threw: " + ex);
+							const reverted = updateAuthorLineToName(_itemId, _code, _printIndex, threadParams["authorName"]);
+							Z.debug("Error after unAPI pass → reverted to personal name (" + reverted + ")");
+						} finally {
+							finalizeSru("sru:done (unapi-pass) key=" + _key);
+						}
+						},
+						function onReject(reason) {
+						try {
+							Z.debug("PPN " + ppn + " rejected by 060R heuristic reason=" + reason + " → revert to personal name");
+							const reverted = updateAuthorLineToName(_itemId, _code, _printIndex, threadParams["authorName"]);
+							Z.debug("Reverted 30xx to personal name due to 060R heuristic (" + reverted + ")");
+						} finally {
+							finalizeSru("sru:done (unapi-reject:" + reason + ") key=" + _key);
+						}
+						}
 					);
-					} else {
-					const reverted = updateAuthorLineToName(_itemId, _code, _printIndex, threadParams["authorName"]);
-					Z.debug("No KXP PPN found for GND " + gnd + " → 30xx kept/reverted to personal name (" + reverted + ")");
-					}
-				} catch (ex) {
+
+					// IMPORTANT: Do NOT finalize here. finalizeSru happens inside unAPI callbacks.
+					return;
+
+					} catch (ex) {
 					Z.debug("SRU success handler threw: " + ex);
-				} finally {
-					if (_sruOutstanding[_key]) {
-					_sruOutstanding[_key] = false;
-					_bump(-1, "sru:done key=" + _key);
-					finishIfIdle();
-					} else {
-					Z.debug("SRU done already closed for key " + _key);
+					const reverted = updateAuthorLineToName(_itemId, _code, _printIndex, threadParams["authorName"]);
+					Z.debug("SRU handler exception → reverted (" + reverted + ")");
+					return finalizeSru("sru:done (exception) key=" + _key);
 					}
-				}
 				},
+
 				function (e) {
-				try {
-					if (_ppnLookupState[_key] !== "done") {
+					// SRU error callback
+					// CRITICAL FIX: if SRU already succeeded, ignore late error WITHOUT decrementing RTC
+					if (_ppnLookupState[_key] === "done") {
+					Z.debug("KXP SRU late error ignored (already resolved) for key " + _key);
+					return; // <-- do NOT _bump(-1) here
+					}
+
+					try {
 					_ppnLookupState[_key] = "failed";
 					Z.debug("KXP SRU by GND failed for " + gnd + ": " + e);
+
 					const reverted = updateAuthorLineToName(_itemId, _code, _printIndex, threadParams["authorName"]);
 					Z.debug("SRU failed → reverted 30xx to personal name (" + reverted + ")");
-					} else {
-					Z.debug("KXP SRU late error ignored (already resolved) for key " + _key);
-					}
-				} finally {
+					} finally {
 					if (_sruOutstanding[_key]) {
-					_sruOutstanding[_key] = false;
-					_bump(-1, "sru:fail key=" + _key);
-					finishIfIdle();
+						_sruOutstanding[_key] = false;
+						_bump(-1, "sru:fail key=" + _key);
+						finishIfIdle();
+					}
 					}
 				}
-				}
-			);
+				);
 			}
 		}
 
