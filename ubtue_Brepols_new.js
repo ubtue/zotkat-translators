@@ -9,30 +9,30 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-04-10 10:21:38"
+	"lastUpdated": "2026-04-23 11:32:18"
 }
 
 /*
-    ***** BEGIN LICENSE BLOCK *****
+	***** BEGIN LICENSE BLOCK *****
 
-    Copyright © 2026 Universitätsbibliothek Tübingen
+	Copyright © 2026 Universitätsbibliothek Tübingen
 
-    This file is part of Zotero.
+	This file is part of Zotero.
 
-    Zotero is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	Zotero is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    Zotero is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU Affero General Public License for more details.
+	Zotero is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with Zotero. If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU Affero General Public License
+	along with Zotero. If not, see <http://www.gnu.org/licenses/>.
 
-    ***** END LICENSE BLOCK *****
+	***** END LICENSE BLOCK *****
 */
 
 
@@ -88,9 +88,17 @@ async function scrape(doc, url = doc.location.href) {
 			item.tags.push('RezensionstagPica');
 		}
 
-		// Abstractbereinigung
+		// Abstractbereinigung und -aufteilung
 		if (item.abstractNote) {
-			item.abstractNote = item.abstractNote.replace(/^abstract/i, '');
+			let abstracts = item.abstractNote.split(/abstract/i);
+			if (abstracts) {
+				abstracts.forEach(abstract => {
+				item.notes.push('abs:' + abstract.replace(/abstract/i, ''));
+				delete item.abstractNote; 
+				})
+			} else {
+				item.abstractNote = item.abstractNote.replace(/^abstract/i, '');
+			}	
 		}
 
 		// Open Access Artikel
