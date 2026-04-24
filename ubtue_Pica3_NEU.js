@@ -8,7 +8,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 2,
-	"lastUpdated": "2026-04-24 12:24:47"
+	"lastUpdated": "2026-04-24 12:27:00"
 }
 
 /*
@@ -1517,7 +1517,7 @@ function performExport() {
 							_itemId,
 							"$aixzom$bVerfasserIn in der Zoterovorlage [" +
 								threadParams["authorName"] + "] einer PPN " + ppn +
-								" maschinell zugeordnet" + ((meta && meta.maxA) || "?") + ") "
+								" maschinell zugeordnet"
 							);
 						} catch (ex) {
 							Z.debug("unAPI pass handler threw: " + ex);
