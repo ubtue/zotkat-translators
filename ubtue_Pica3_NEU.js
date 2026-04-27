@@ -8,7 +8,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 2,
-	"lastUpdated": "2026-04-24 12:27:00"
+	"lastUpdated": "2026-04-27 09:51:58"
 }
 
 /*
@@ -35,41 +35,41 @@
 
    High-level flow per item:
    1) performExport()
-      - Iterates items, builds PICA fields, and for each author slot (3000/3010...):
-        (a) Pre-seed 30xx with the personal name (and optional ORCID), using a temporary marker
-            " ##NNN##" so it can be overwritten in-place later.
-        (b) Run GND reconciliation against reconcile.gnd.network (Reconciliation Service API,
-            "queries=" POST) to obtain candidate GND IDs for the name. The service may return a
-            single confident auto-match (match:true) or multiple candidates.
-        (c) OPTION A (strict profession whitelist):
-            We maintain a curated whitelist of allowed professions using map files:
-              - profession_for_lookup_zotkat.map      (SSG=1)
-              - profession_for_lookup_ssg0_zotkat.map (SSG=0)
-            Because reconciliation is semi-automated and match:true does not guarantee that
-            additional properties were enforced as strict boolean filters, we verify profession
-            explicitly before accepting any candidate:
-              - Call reconcile.gnd.network Data Extension ("extend=" POST) for the candidate(s)
-              - Inspect professionOrOccupation
-              - Accept only if the candidate has at least one profession in the whitelist
-            If the profession check fails, keep the pre-seeded personal name in 30xx.
-        (d) If a candidate is accepted in (c), resolve GND → K10plus PPN via SRU
-            (pica.nid=<GND>) and overwrite the pre-seeded 30xx with:
-              !PPN!$BVerfasserIn$4aut
-            The "PPN-Lookup-False-Positive.map" can veto known bad PPNs and force a revert back
-            to the personal name.
+	  - Iterates items, builds PICA fields, and for each author slot (3000/3010...):
+		(a) Pre-seed 30xx with the personal name (and optional ORCID), using a temporary marker
+			" ##NNN##" so it can be overwritten in-place later.
+		(b) Run GND reconciliation against reconcile.gnd.network (Reconciliation Service API,
+			"queries=" POST) to obtain candidate GND IDs for the name. The service may return a
+			single confident auto-match (match:true) or multiple candidates.
+		(c) OPTION A (strict profession whitelist):
+			We maintain a curated whitelist of allowed professions using map files:
+			  - profession_for_lookup_zotkat.map      (SSG=1)
+			  - profession_for_lookup_ssg0_zotkat.map (SSG=0)
+			Because reconciliation is semi-automated and match:true does not guarantee that
+			additional properties were enforced as strict boolean filters, we verify profession
+			explicitly before accepting any candidate:
+			  - Call reconcile.gnd.network Data Extension ("extend=" POST) for the candidate(s)
+			  - Inspect professionOrOccupation
+			  - Accept only if the candidate has at least one profession in the whitelist
+			If the profession check fails, keep the pre-seeded personal name in 30xx.
+		(d) If a candidate is accepted in (c), resolve GND → K10plus PPN via SRU
+			(pica.nid=<GND>) and overwrite the pre-seeded 30xx with:
+			  !PPN!$BVerfasserIn$4aut
+			The "PPN-Lookup-False-Positive.map" can veto known bad PPNs and force a revert back
+			to the personal name.
 
    Concurrency model & final write:
    - All network requests (reconcile queries, reconcile extend, SRU) are asynchronous.
    - runningThreadCount (RTC) is incremented when an async branch starts and decremented when it
-     finishes. Only when RTC reaches 0 do we flush all buffered output via WriteItems().
+	 finishes. Only when RTC reaches 0 do we flush all buffered output via WriteItems().
    - itemsOutputCache buffers per-item output lines. We never reorder 30xx markers; we overwrite
-     the pre-seeded marker line in-place when a PPN is accepted.
+	 the pre-seeded marker line in-place when a PPN is accepted.
 
    Important invariants / safety guards:
    - The "threadParams" object is frozen per author slot so callbacks always update the correct
-     30xx marker (printIndex), even after the outer loops advance.
+	 30xx marker (printIndex), even after the outer loops advance.
    - _ppnLookupState/_sruOutstanding per (itemId:printIndex) prevent duplicate SRU lookups and
-     ensure RTC accounting remains correct (no double-decrement on late callbacks).
+	 ensure RTC accounting remains correct (no double-decrement on late callbacks).
 =========================================================================================== */
 
 /* =============================================================================================================== */
@@ -421,13 +421,13 @@ function _allGndIdsFromMap(mapObj) {
 function _allProfessionUrisFromMapValues(mapObj) {
   const uris = [];
   try {
-    if (mapObj && typeof mapObj.forEach === "function") {
-      mapObj.forEach(function (val /*, key */) {
-        String(val)
-          .split(/\s*,\s*|\s*;\s*|\s*\|\s*/)
-          .forEach(u => { if (u) uris.push(u); });
-      });
-    }
+	if (mapObj && typeof mapObj.forEach === "function") {
+	  mapObj.forEach(function (val /*, key */) {
+		String(val)
+		  .split(/\s*,\s*|\s*;\s*|\s*\|\s*/)
+		  .forEach(u => { if (u) uris.push(u); });
+	  });
+	}
   } catch (e) { /* ignore */ }
   return Array.from(new Set(uris));
 }
@@ -435,8 +435,8 @@ function _allProfessionUrisFromMapValues(mapObj) {
 function normalizeGndId(x) {
   // Accept either short IDs like "4059756-8" or full URIs like "https://d-nb.info/gnd/4059756-8"
   return String(x || "")
-    .trim()
-    .replace(/^https?:\/\/d-nb\.info\/gnd\//i, "");
+	.trim()
+	.replace(/^https?:\/\/d-nb\.info\/gnd\//i, "");
 }
 
 /* ===========================================================================================
@@ -453,79 +453,79 @@ function normalizeGndId(x) {
    hints rather than strict boolean filters. 
 
    (A) Candidate retrieval ("queries=" POST)
-       Request (form field "queries"):
-         {
-           "q1": {
-             "query": "Lastname, Firstname",
-             "type": "DifferentiatedPerson",
-             "properties": [
-               { "pid": "professionOrOccupation", "v": { "id": "4059756-8" } }
-             ]
-           }
-         }
+	   Request (form field "queries"):
+		 {
+		   "q1": {
+			 "query": "Lastname, Firstname",
+			 "type": "DifferentiatedPerson",
+			 "properties": [
+			   { "pid": "professionOrOccupation", "v": { "id": "4059756-8" } }
+			 ]
+		   }
+		 }
 
-       Meaning:
-         - query:      main label to match (our authorName string)
-         - type:       restricts candidates to a class (e.g., persons only)
-         - properties: optional hints (service may or may not treat them as strict filters)
+	   Meaning:
+		 - query:      main label to match (our authorName string)
+		 - type:       restricts candidates to a class (e.g., persons only)
+		 - properties: optional hints (service may or may not treat them as strict filters)
 
-       Response (q1.result is ranked):
-         {
-           "q1": {
-             "result": [
-               { "id": "123...", "name": "Lastname, Firstname", "score": 78.0, "match": false, "type": [...] },
-               ...
-             ]
-           }
-         }
+	   Response (q1.result is ranked):
+		 {
+		   "q1": {
+			 "result": [
+			   { "id": "123...", "name": "Lastname, Firstname", "score": 78.0, "match": false, "type": [...] },
+			   ...
+			 ]
+		   }
+		 }
 
-         - id:    candidate identifier in the service's id-space (GND id without URI prefix)
-         - score: similarity/confidence score used for ranking (scale is service-specific)
-         - match: service auto-match decision (true only when the service is confident)
+		 - id:    candidate identifier in the service's id-space (GND id without URI prefix)
+		 - score: similarity/confidence score used for ranking (scale is service-specific)
+		 - match: service auto-match decision (true only when the service is confident)
 
    (B) Data Extension ("extend=" POST)
-       Used to fetch authoritative properties for candidate ids (e.g., professions).
-       Request (form field "extend"):
-         {
-           "ids": ["123...", "456..."],
-           "properties": [ { "id": "professionOrOccupation" } ]
-         }
+	   Used to fetch authoritative properties for candidate ids (e.g., professions).
+	   Request (form field "extend"):
+		 {
+		   "ids": ["123...", "456..."],
+		   "properties": [ { "id": "professionOrOccupation" } ]
+		 }
 
-       Response returns rows[<id>] with values for requested properties.
+	   Response returns rows[<id>] with values for requested properties.
 
    Option A (strict profession whitelist used by this translator):
-     - We do NOT assume that (A) enforces profession constraints strictly.
-     - Therefore we verify professionOrOccupation via (B) before accepting any candidate:
-         * If match:true gives one candidate → still check professions via extend.
-         * If match:true is absent → extend all candidates, filter by whitelist, accept only if one remains.
+	 - We do NOT assume that (A) enforces profession constraints strictly.
+	 - Therefore we verify professionOrOccupation via (B) before accepting any candidate:
+		 * If match:true gives one candidate → still check professions via extend.
+		 * If match:true is absent → extend all candidates, filter by whitelist, accept only if one remains.
 =========================================================================================== */
 
 
 function reconcileExtend(ids, propertyIds, onSuccess, onError) {
   try {
-    const endpoint = "https://reconcile.gnd.network";
-    const extendObj = {
-      ids: (ids || []).map(String),
-      properties: (propertyIds || []).map(id => ({ id: id }))
-    };
-    const payload = "extend=" + encodeURIComponent(JSON.stringify(extendObj));
+	const endpoint = "https://reconcile.gnd.network";
+	const extendObj = {
+	  ids: (ids || []).map(String),
+	  properties: (propertyIds || []).map(id => ({ id: id }))
+	};
+	const payload = "extend=" + encodeURIComponent(JSON.stringify(extendObj));
 
-    ZU.doPost(
-      endpoint,
-      payload,
-      function (text) {
-        try {
-          const data = JSON.parse(text);
-          return onSuccess(data);
-        } catch (e) {
-          return onError(e);
-        }
-      },
-      function (e) { onError(e || new Error("extend request failed")); },
-      { "Content-Type": "application/x-www-form-urlencoded" }
-    );
+	ZU.doPost(
+	  endpoint,
+	  payload,
+	  function (text) {
+		try {
+		  const data = JSON.parse(text);
+		  return onSuccess(data);
+		} catch (e) {
+		  return onError(e);
+		}
+	  },
+	  function (e) { onError(e || new Error("extend request failed")); },
+	  { "Content-Type": "application/x-www-form-urlencoded" }
+	);
   } catch (e) {
-    onError(e);
+	onError(e);
   }
 }
 
@@ -536,160 +536,184 @@ function candidateHasAnyProfessionViaExtend(candidateId, profSet, onYes, onNo) {
   if (!cid || !profSet || profSet.size === 0) return onNo();
 
   reconcileExtend(
-    [cid],
-    ["professionOrOccupation"],
-    function (ext) {
-      try {
-        const rows = ext && ext.rows ? ext.rows : {};
-        const row = rows[cid];
-        if (!row) return onNo();
+	[cid],
+	["professionOrOccupation"],
+	function (ext) {
+	  try {
+		const rows = ext && ext.rows ? ext.rows : {};
+		const row = rows[cid];
+		if (!row) return onNo();
 
-        const po = row.professionOrOccupation;
-        const arr = Array.isArray(po) ? po : [];
+		const po = row.professionOrOccupation;
+		const arr = Array.isArray(po) ? po : [];
 
-        const candProfIds = arr
-          .map(o => normalizeGndId(o && o.id))
-          .filter(Boolean);
+		const candProfIds = arr
+		  .map(o => normalizeGndId(o && o.id))
+		  .filter(Boolean);
 
-        const ok = candProfIds.some(pid => profSet.has(pid));
-        return ok ? onYes() : onNo();
-      } catch (e) {
-        Z.debug("candidateHasAnyProfessionViaExtend error: " + e);
-        return onNo();
-      }
-    },
-    function (e) {
-      Z.debug("candidateHasAnyProfessionViaExtend extend error: " + e);
-      return onNo();
-    }
+		const ok = candProfIds.some(pid => profSet.has(pid));
+		return ok ? onYes() : onNo();
+	  } catch (e) {
+		Z.debug("candidateHasAnyProfessionViaExtend error: " + e);
+		return onNo();
+	  }
+	},
+	function (e) {
+	  Z.debug("candidateHasAnyProfessionViaExtend extend error: " + e);
+	  return onNo();
+	}
   );
 }
+
+// Reconciliation acceptance threshold: ignore low-score candidates completely
+var RECONCILE_SCORE_THRESHOLD = 70.0;
 
 function _reconcileGndSingle(authorName, typeId, profIds, onSuccess, onNoUnique, onError) {
   const endpoint = "https://reconcile.gnd.network";
 
   // Normalize profession IDs once
   const profSet = new Set(
-    (Array.isArray(profIds) ? profIds : [])
-      .map(normalizeGndId)
-      .filter(Boolean)
+	(Array.isArray(profIds) ? profIds : [])
+	  .map(normalizeGndId)
+	  .filter(Boolean)
   );
 
   // We still SEND profession properties as hints (harmless),
   // but Option A does NOT trust them; it validates via extend.
   const props = Array.from(profSet)
-    .slice(0, 20)
-    .map(id => ({ pid: "professionOrOccupation", v: { id: id } }));
+	.slice(0, 20)
+	.map(id => ({ pid: "professionOrOccupation", v: { id: id } }));
 
   const q = { q1: { query: authorName, type: (typeId || "DifferentiatedPerson"), properties: props } };
   const payload = "queries=" + encodeURIComponent(JSON.stringify(q));
 
-  Z.debug("reconcile call: " + endpoint + " payload=" + JSON.stringify(q));
-
+  //Z.debug("reconcile call: " + endpoint + " payload=" + JSON.stringify(q));
+  //Z.debug("reconcile call: " + "https://lobid.org/gnd/reconcile/?queries=" + JSON.stringify(q));
   ZU.doPost(
-    endpoint,
-    payload,
-    function (text) {
-      try {
-        const data = JSON.parse(text);
-        const res = (data && data.q1 && Array.isArray(data.q1.result)) ? data.q1.result : [];
-        if (!res.length) return onNoUnique();
+	endpoint,
+	payload,
+	function (text) {
+	  try {
+		const data = JSON.parse(text);
+		
+		const res = (data && data.q1 && Array.isArray(data.q1.result)) ? data.q1.result : [];
+		if (!res.length) return onNoUnique();
 
-        const matches = res.filter(c => c && c.match === true);
-        Z.debug("reconcile candidates=" + res.length + " matches=true count=" + matches.length);
+		const threshold = (typeof RECONCILE_SCORE_THRESHOLD === "number") ? RECONCILE_SCORE_THRESHOLD : 80.0;
 
-        // ============ OPTION A RULE ============
-        // If we have profession constraints, we ALWAYS validate via extend before accepting.
-        const mustCheckProfession = (profSet.size > 0);
+		// Normalize score (some services might omit it)
+		function scoreOf(c) {
+		const s = (c && typeof c.score === "number") ? c.score : 0;
+		return s;
+		}
 
-        // Case 1: Exactly one match:true — previously you accepted immediately.
-        // Now: accept ONLY if profession check passes (when constraints exist).
-        if (matches.length === 1) {
-          const cid = String(matches[0].id || "").trim();
-          if (!cid) return onNoUnique();
+		// 1) Apply score gate first
+		const above = res.filter(c => scoreOf(c) >= threshold);
 
-          if (!mustCheckProfession) {
-            // No profession constraints configured → keep old behavior
-            return onSuccess({ gndIdentifier: cid, id: "https://d-nb.info/gnd/" + cid });
-          }
+		// Debug visibility
+		Z.debug("reconcile candidates=" + res.length
+		+ " | aboveScore>=" + threshold + "=" + above.length
+		+ " | match:true total=" + res.filter(c => c && c.match === true).length
+		+ " | match:true above=" + above.filter(c => c && c.match === true).length);
 
-          return candidateHasAnyProfessionViaExtend(
-            cid,
-            profSet,
-            function () {
-              // profession ok
-              return onSuccess({ gndIdentifier: cid, id: "https://d-nb.info/gnd/" + cid });
-            },
-            function () {
-              // profession mismatch → treat as no-unique
-              Z.debug("Option A: match:true but profession mismatch → reject");
-              return onNoUnique();
-            }
-          );
-        }
+		// If nothing meets threshold -> treat as no-unique immediately
+		if (!above.length) return onNoUnique();
 
-        // Case 2: No match:true — use extend to filter candidates by profession
-        // and accept ONLY if filtering yields exactly one.
-        if (matches.length === 0 && mustCheckProfession) {
-          const candidateIds = res.map(c => String(c && c.id || "")).filter(Boolean);
+		// 2) Restrict match:true to those above threshold
+		const matches = above.filter(c => c && c.match === true);
 
-          return reconcileExtend(
-            candidateIds,
-            ["professionOrOccupation"],
-            function (ext) {
-              try {
-                const rows = ext && ext.rows ? ext.rows : {};
-                const keep = [];
+		// If exactly one match:true above threshold => candidate is that one (still verify profession if configured)
+		if (matches.length === 1) {
+		const cid = String(matches[0].id || "").trim();
+		if (!cid) return onNoUnique();
 
-                for (const cand of res) {
-                  const cid = String(cand && cand.id || "");
-                  const row = rows[cid];
-                  if (!row) continue;
+		// If no profession constraints, accept directly
+		const mustCheckProfession = (profSet.size > 0);
+		if (!mustCheckProfession) {
+			return onSuccess({ gndIdentifier: cid, id: "https://d-nb.info/gnd/" + cid });
+		}
 
-                  const po = row.professionOrOccupation;
-                  const arr = Array.isArray(po) ? po : [];
+		// Profession check via extend
+		return candidateHasAnyProfessionViaExtend(
+			cid,
+			profSet,
+			function () { return onSuccess({ gndIdentifier: cid, id: "https://d-nb.info/gnd/" + cid }); },
+			function () { return onNoUnique(); }
+		);
+		}
 
-                  const candProfIds = arr
-                    .map(o => normalizeGndId(o && o.id))
-                    .filter(Boolean);
+		// 3) No (or multiple) match:true above threshold:
+		//    Use profession filtering on the *score-gated* candidates only.
+		const mustCheckProfession = (profSet.size > 0);
 
-                  const ok = candProfIds.some(pid => profSet.has(pid));
-                  if (ok) keep.push(cand);
-                }
+		if (mustCheckProfession) {
+		const candidateIds = above.map(c => String(c && c.id || "")).filter(Boolean);
 
-                Z.debug("Option A extend profession filter: kept=" + keep.length + " of " + res.length);
+		return reconcileExtend(
+			candidateIds,
+			["professionOrOccupation"],
+			function (ext) {
+			try {
+				const rows = ext && ext.rows ? ext.rows : {};
+				const keep = [];
 
-                if (keep.length === 1) {
-                  const cid = String(keep[0].id || "").trim();
-                  if (cid) return onSuccess({ gndIdentifier: cid, id: "https://d-nb.info/gnd/" + cid });
-                }
-                return onNoUnique();
-              } catch (e) {
-                Z.debug("Option A extend filter error: " + e);
-                return onNoUnique();
-              }
-            },
-            function (e) {
-              Z.debug("Option A extend request error: " + e);
-              return onNoUnique();
-            }
-          );
-        }
+				for (const cand of above) {
+				const cid = String(cand && cand.id || "");
+				const row = rows[cid];
+				if (!row) continue;
 
-        // Case 3: multiple match:true (or no profession constraints + no unique match:true)
-        return onNoUnique();
-      } catch (e) {
-        return onError(e);
-      }
-    },
-    function (e) { onError(e || new Error("Reconciliation request failed")); },
-    { "Content-Type": "application/x-www-form-urlencoded" }
+				const po = row.professionOrOccupation;
+				const arr = Array.isArray(po) ? po : [];
+
+				const candProfIds = arr
+					.map(o => normalizeGndId(o && o.id))
+					.filter(Boolean);
+
+				const ok = candProfIds.some(pid => profSet.has(pid));
+				if (ok) keep.push(cand);
+				}
+
+				Z.debug("Option A score-gated extend profession filter: kept=" + keep.length
+				+ " of " + above.length + " (threshold=" + threshold + ")");
+
+				// Accept only if exactly one remains
+				if (keep.length === 1) {
+				const cid = String(keep[0].id || "").trim();
+				if (cid) return onSuccess({ gndIdentifier: cid, id: "https://d-nb.info/gnd/" + cid });
+				}
+				return onNoUnique();
+			} catch (e) {
+				Z.debug("Option A score-gated extend filter error: " + e);
+				return onNoUnique();
+			}
+			},
+			function (e) {
+			Z.debug("Option A score-gated extend request error: " + e);
+			return onNoUnique();
+			}
+		);
+		}
+
+		// 4) If there is no profession gate configured:
+		//    - If exactly one candidate is above threshold, accept it
+		//    - Else treat as no-unique (avoid guessing)
+		if (above.length === 1) {
+		const cid = String(above[0].id || "").trim();
+		if (cid) return onSuccess({ gndIdentifier: cid, id: "https://d-nb.info/gnd/" + cid });
+		}
+		return onNoUnique();
+	  } catch (e) {
+		return onError(e);
+	  }
+	},
+	function (e) { onError(e || new Error("Reconciliation request failed")); },
+	{ "Content-Type": "application/x-www-form-urlencoded" }
   );
 }
 
 function queryReconcileUntilUnique(queries, idx, profileOpts, onUnique, onNoUnique) {
   if (!queries || !Array.isArray(queries) || !queries.length) {
-    return onNoUnique && onNoUnique();
+	return onNoUnique && onNoUnique();
   }
   if (!queries._state) queries._state = { done: false };
   const state = queries._state;
@@ -701,28 +725,28 @@ function queryReconcileUntilUnique(queries, idx, profileOpts, onUnique, onNoUniq
   const profUris = (profileOpts && Array.isArray(profileOpts.professionUris)) ? profileOpts.professionUris : [];
 
   Z.debug('reconcile unique-try [' + (q.label || ('q' + idx)) + ']: query="' + q.q
-    + '", type=' + typeId + ', props(uris)=' + profUris.length);
+	+ '", type=' + typeId + ', props(uris)=' + profUris.length);
 
   _reconcileGndSingle(
-    q.q,
-    typeId,
-    profUris,
-    function onBest(candidate) {
-      if (state.done) return;
-      state.done = true;
-      onUnique(candidate);
-    },
-    function onNone() {
-      if (state.done) return;
-      if (idx + 1 < queries.length) return queryReconcileUntilUnique(queries, idx + 1, profileOpts, onUnique, onNoUnique);
-      state.done = true; return onNoUnique();
-    },
-    function onErr(e) {
-      Z.debug("reconcile error: " + e);
-      if (state.done) return;
-      if (idx + 1 < queries.length) return queryReconcileUntilUnique(queries, idx + 1, profileOpts, onUnique, onNoUnique);
-      state.done = true; return onNoUnique();
-    }
+	q.q,
+	typeId,
+	profUris,
+	function onBest(candidate) {
+	  if (state.done) return;
+	  state.done = true;
+	  onUnique(candidate);
+	},
+	function onNone() {
+	  if (state.done) return;
+	  if (idx + 1 < queries.length) return queryReconcileUntilUnique(queries, idx + 1, profileOpts, onUnique, onNoUnique);
+	  state.done = true; return onNoUnique();
+	},
+	function onErr(e) {
+	  Z.debug("reconcile error: " + e);
+	  if (state.done) return;
+	  if (idx + 1 < queries.length) return queryReconcileUntilUnique(queries, idx + 1, profileOpts, onUnique, onNoUnique);
+	  state.done = true; return onNoUnique();
+	}
   );
 }
 
@@ -846,14 +870,14 @@ function parse060RFromPp(ppText) {
    * Supports both "$a..." and "ƒa..."
    */
   function extractSubfields(line, code) {
-    // Capture occurrences like "$a...." or "ƒa...." until next "$x"/"ƒx" or end of line
-    const re = new RegExp(`[\\$ƒ]${code}([^\\$ƒ]*)`, "g");
-    const out = [];
-    let m;
-    while ((m = re.exec(line)) !== null) {
-      out.push((m[1] || "").trim());
-    }
-    return out;
+	// Capture occurrences like "$a...." or "ƒa...." until next "$x"/"ƒx" or end of line
+	const re = new RegExp(`[\\$ƒ]${code}([^\\$ƒ]*)`, "g");
+	const out = [];
+	let m;
+	while ((m = re.exec(line)) !== null) {
+	  out.push((m[1] || "").trim());
+	}
+	return out;
   }
 
   /**
@@ -870,39 +894,39 @@ function parse060RFromPp(ppText) {
    * (Avoid matching "2021" by disallowing a following digit.)
    */
   function chunkHas20or21Century(chunk) {
-    const s = String(chunk || "");
-    return /(^|[^\d])(20|21)(?!\d)/.test(s);
+	const s = String(chunk || "");
+	return /(^|[^\d])(20|21)(?!\d)/.test(s);
   }
 
   for (const lineRaw of lines) {
-    const line = String(lineRaw || "");
+	const line = String(lineRaw || "");
 
-    // unAPI pp lines typically begin with the field code
-    if (!line.startsWith("060R")) continue;
+	// unAPI pp lines typically begin with the field code
+	if (!line.startsWith("060R")) continue;
 
-    has060R = true;
+	has060R = true;
 
-    // Rule: If ANY $b / ƒb exists in 060R -> reject later
-    const bChunks = extractSubfields(line, "b");
-    if (bChunks.length > 0) {
-      // Even if empty, presence of the subfield marker is considered a strong "end of timespan" signal.
-      hasB = true;
-    }
+	// Rule: If ANY $b / ƒb exists in 060R -> reject later
+	const bChunks = extractSubfields(line, "b");
+	if (bChunks.length > 0) {
+	  // Even if empty, presence of the subfield marker is considered a strong "end of timespan" signal.
+	  hasB = true;
+	}
 
-    // Extract years from $a / ƒa (begin of timespan)
-    const aChunks = extractSubfields(line, "a");
-    for (const chunk of aChunks) {
-      const yr = String(chunk).match(/(\d{4})/);
-      if (yr) yearsA.push(parseInt(yr[1], 10));
-    }
+	// Extract years from $a / ƒa (begin of timespan)
+	const aChunks = extractSubfields(line, "a");
+	for (const chunk of aChunks) {
+	  const yr = String(chunk).match(/(\d{4})/);
+	  if (yr) yearsA.push(parseInt(yr[1], 10));
+	}
 
-    // New rule: Century evidence from $d / ƒd counts as positive evidence if it includes 20 or 21
-    const dChunks = extractSubfields(line, "d");
-    for (const chunk of dChunks) {
-      if (chunkHas20or21Century(chunk)) {
-        hasCentury20or21 = true;
-      }
-    }
+	// New rule: Century evidence from $d / ƒd counts as positive evidence if it includes 20 or 21
+	const dChunks = extractSubfields(line, "d");
+	for (const chunk of dChunks) {
+	  if (chunkHas20or21Century(chunk)) {
+		hasCentury20or21 = true;
+	  }
+	}
   }
 
   return { has060R, hasB, yearsA, hasCentury20or21 };
@@ -935,14 +959,14 @@ function verifyPpnBy060R(ppn, minYear, onPass, onReject) {
   // one-shot guard (prevents accept+reject double-callbacks)
   let done = false;
   function passOnce(meta) {
-    if (done) return;
-    done = true;
-    onPass(meta);
+	if (done) return;
+	done = true;
+	onPass(meta);
   }
   function rejectOnce(reason) {
-    if (done) return;
-    done = true;
-    onReject(reason);
+	if (done) return;
+	done = true;
+	onReject(reason);
   }
 
   const threshold = (minYear == null) ? 1930 : Number(minYear);
@@ -951,57 +975,57 @@ function verifyPpnBy060R(ppn, minYear, onPass, onReject) {
   Z.debug("[unAPI] check 060R ppn=" + _ppn + " url=" + url);
 
   ZU.doGet(
-    url,
-    function (ppText) {
-      try {
-        const info = parse060RFromPp(ppText);
+	url,
+	function (ppText) {
+	  try {
+		const info = parse060RFromPp(ppText);
 
-        if (!info.has060R) {
-          Z.debug("[unAPI] reject ppn=" + _ppn + " reason=no-060R");
-          return rejectOnce("no-060R");
-        }
+		if (!info.has060R) {
+		  Z.debug("[unAPI] reject ppn=" + _ppn + " reason=no-060R");
+		  return rejectOnce("no-060R");
+		}
 
-        // Rule 2: If any $b/ƒb exists -> reject
-        if (info.hasB) {
-          Z.debug("[unAPI] reject ppn=" + _ppn + " reason=060R-has-$b");
-          return rejectOnce("has-$b");
-        }
+		// Rule 2: If any $b/ƒb exists -> reject
+		if (info.hasB) {
+		  Z.debug("[unAPI] reject ppn=" + _ppn + " reason=060R-has-$b");
+		  return rejectOnce("has-$b");
+		}
 
-        // Rule 3a: Accept if $a year exists and is modern enough
-        let maxA = null;
-        if (info.yearsA && info.yearsA.length) {
-          maxA = Math.max.apply(null, info.yearsA);
-        }
+		// Rule 3a: Accept if $a year exists and is modern enough
+		let maxA = null;
+		if (info.yearsA && info.yearsA.length) {
+		  maxA = Math.max.apply(null, info.yearsA);
+		}
 
-        if (maxA != null && maxA > threshold) {
-          Z.debug("[unAPI] accept ppn=" + _ppn + " 060R$a maxYear=" + maxA + " > " + threshold);
-          return passOnce({ maxA: maxA, yearsA: info.yearsA });
-        }
+		if (maxA != null && maxA > threshold) {
+		  Z.debug("[unAPI] accept ppn=" + _ppn + " 060R$a maxYear=" + maxA + " > " + threshold);
+		  return passOnce({ maxA: maxA, yearsA: info.yearsA });
+		}
 
-        // Rule 3b: Accept if century evidence indicates 20./21. Jh.
-        if (info.hasCentury20or21) {
-          Z.debug("[unAPI] accept ppn=" + _ppn + " reason=060R$d century 20/21 Jh.");
-          return passOnce({ maxA: maxA, yearsA: info.yearsA, byCentury: true });
-        }
+		// Rule 3b: Accept if century evidence indicates 20./21. Jh.
+		if (info.hasCentury20or21) {
+		  Z.debug("[unAPI] accept ppn=" + _ppn + " reason=060R$d century 20/21 Jh.");
+		  return passOnce({ maxA: maxA, yearsA: info.yearsA, byCentury: true });
+		}
 
-        // Otherwise reject (no acceptable temporal evidence)
-        if (maxA == null) {
-          Z.debug("[unAPI] reject ppn=" + _ppn + " reason=060R-no-$a-year-and-no-century");
-          return rejectOnce("no-$a-year-and-no-century");
-        }
+		// Otherwise reject (no acceptable temporal evidence)
+		if (maxA == null) {
+		  Z.debug("[unAPI] reject ppn=" + _ppn + " reason=060R-no-$a-year-and-no-century");
+		  return rejectOnce("no-$a-year-and-no-century");
+		}
 
-        Z.debug("[unAPI] reject ppn=" + _ppn + " reason=060R$a-year-too-old maxYear=" + maxA);
-        return rejectOnce("year-too-old:" + maxA);
+		Z.debug("[unAPI] reject ppn=" + _ppn + " reason=060R$a-year-too-old maxYear=" + maxA);
+		return rejectOnce("year-too-old:" + maxA);
 
-      } catch (e) {
-        Z.debug("[unAPI] reject ppn=" + _ppn + " reason=parse-error err=" + e);
-        return rejectOnce("parse-error");
-      }
-    },
-    function (err) {
-      Z.debug("[unAPI] reject ppn=" + _ppn + " reason=request-failed err=" + err);
-      return rejectOnce("request-failed");
-    }
+	  } catch (e) {
+		Z.debug("[unAPI] reject ppn=" + _ppn + " reason=parse-error err=" + e);
+		return rejectOnce("parse-error");
+	  }
+	},
+	function (err) {
+	  Z.debug("[unAPI] reject ppn=" + _ppn + " reason=request-failed err=" + err);
+	  return rejectOnce("request-failed");
+	}
   );
 }
 /* =============================================================================================================== */
@@ -1923,7 +1947,7 @@ function doExport() {
 /* M. DEBUG TOGGLE                                                                                                   */
 /* =============================================================================================================== */
 
-var ENABLE_DEBUG = false;
+var ENABLE_DEBUG = true;
 if (!ENABLE_DEBUG) {
   Z.debug = function () {};
 }
