@@ -8,7 +8,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 2,
-	"lastUpdated": "2026-04-27 09:51:58"
+	"lastUpdated": "2026-04-28 19:57:54"
 }
 
 /*
@@ -28,7 +28,7 @@
  */
 
 /* ===========================================================================================
-   OVERVIEW
+   A. OVERVIEW
    -------------------------------------------------------------------------------------------
    This translator exports Zotero items to PICA3 blocks for WinIBW (K10plus). During export it
    can enrich author 30xx fields by linking them to K10plus PPNs via a GND-based workflow.
@@ -38,42 +38,45 @@
 	  - Iterates items, builds PICA fields, and for each author slot (3000/3010...):
 		(a) Pre-seed 30xx with the personal name (and optional ORCID), using a temporary marker
 			" ##NNN##" so it can be overwritten in-place later.
-		(b) Run GND reconciliation against reconcile.gnd.network (Reconciliation Service API,
-			"queries=" POST) to obtain candidate GND IDs for the name. The service may return a
-			single confident auto-match (match:true) or multiple candidates.
-		(c) OPTION A (strict profession whitelist):
-			We maintain a curated whitelist of allowed professions using map files:
-			  - profession_for_lookup_zotkat.map      (SSG=1)
-			  - profession_for_lookup_ssg0_zotkat.map (SSG=0)
-			Because reconciliation is semi-automated and match:true does not guarantee that
-			additional properties were enforced as strict boolean filters, we verify profession
-			explicitly before accepting any candidate:
-			  - Call reconcile.gnd.network Data Extension ("extend=" POST) for the candidate(s)
-			  - Inspect professionOrOccupation
-			  - Accept only if the candidate has at least one profession in the whitelist
-			If the profession check fails, keep the pre-seeded personal name in 30xx.
-		(d) If a candidate is accepted in (c), resolve GND → K10plus PPN via SRU
-			(pica.nid=<GND>) and overwrite the pre-seeded 30xx with:
+		(b) Build a GND candidate list via reconcile.gnd.network (Reconciliation Service API).
+			IMPORTANT: We do NOT require reconciliation to yield a single unique match.
+			We only use reconciliation to generate a ranked candidate set.
+		(c) Candidate list selection depends on SSG:
+			- If SSG is SSG0 or SSG1 or SSG 0$a1:
+				* apply STRICT profession whitelist filtering via reconcile "extend="
+				* forward all filtered GND candidates (capped) to SRU->unAPI
+			- If NOT SSG0/SSG1 (e.g., NABZ, 2,1, empty, other):
+				* do NOT use profession hints/filters
+				* forward Top-N (e.g., Top-3) ranked GND candidates to SRU->unAPI
+		(d) For each forwarded GND candidate, resolve GND → K10plus PPN via SRU
+			(query pica.nid=<GND>). Collect PPN candidates across all GNDs.
+			Apply the PPN blocklist (PPN-Lookup-False-Positive.map) before validation.
+		(e) unAPI final validation (decides uniqueness):
+			For each remaining PPN candidate, fetch the person record via unAPI (format=pp) and validate:
+			  - 028A strict name match (surname + given name, normalized)
+			  - 060R temporal plausibility guard:
+				  reject if 060R has $b (end-of-timespan),
+				  accept strong if 060R$a >= threshold (default 1930) OR 060R$d indicates 20/21 century,
+				  accept weak if 060R missing (only if final unique).
+			Only if EXACTLY ONE PPN passes unAPI validation do we overwrite the 30xx marker to:
 			  !PPN!$BVerfasserIn$4aut
-			The "PPN-Lookup-False-Positive.map" can veto known bad PPNs and force a revert back
-			to the personal name.
+			Otherwise we keep the original personal name in 30xx.
 
    Concurrency model & final write:
-   - All network requests (reconcile queries, reconcile extend, SRU) are asynchronous.
+   - Network requests are asynchronous (reconcile queries, reconcile extend, SRU, unAPI).
    - runningThreadCount (RTC) is incremented when an async branch starts and decremented when it
 	 finishes. Only when RTC reaches 0 do we flush all buffered output via WriteItems().
    - itemsOutputCache buffers per-item output lines. We never reorder 30xx markers; we overwrite
 	 the pre-seeded marker line in-place when a PPN is accepted.
 
-   Important invariants / safety guards:
-   - The "threadParams" object is frozen per author slot so callbacks always update the correct
-	 30xx marker (printIndex), even after the outer loops advance.
-   - _ppnLookupState/_sruOutstanding per (itemId:printIndex) prevent duplicate SRU lookups and
-	 ensure RTC accounting remains correct (no double-decrement on late callbacks).
+   Safety/invariants:
+   - threadParams is frozen per author slot so callbacks update the correct marker (printIndex).
+   - SRU fan-out must be guarded against double-callback situations (rare late error/success);
+	 we count each SRU request only once and ignore late callbacks.
 =========================================================================================== */
 
 /* =============================================================================================================== */
-/* B. MAPPING TABLES & GLOBAL CONFIG                                                                                */
+/* B. MAPPING TABLES & GLOBAL CONFIG                                                                               */
 /* =============================================================================================================== */
 
 var issn_to_language_code = {};
@@ -89,18 +92,20 @@ var publication_title_to_physical_form = {};
 var issn_to_institution = {};
 var issn_to_collection_code = {};
 
-// Profession maps (team-editable) — used as a STRICT whitelist (Option A)
+// Profession maps (team-editable) — used as a STRICT whitelist for candidate filtering (SSG0/SSG1)
 //   - profession_for_lookup_zotkat.map      → SSG=1 profession allow-list
 //   - profession_for_lookup_ssg0_zotkat.map → SSG=0 profession allow-list
 //
 // Map format: key = human label (e.g., "Theologe"), value = comma-separated GND profession IDs
 // (either full URIs "https://d-nb.info/gnd/..." or short IDs like "4059756-8").
-// We normalize values to short IDs via normalizeGndId().
 //
-// Important: the reconciliation query step is heuristic (ranked candidates). We therefore do NOT
-// assume these profession IDs are enforced as strict filters by the match endpoint. Instead we
-// enforce them by verifying professionOrOccupation via reconcile.gnd.network "extend=" before
-// accepting a candidate (Option A).
+// IMPORTANT (current pipeline):
+// - Reconciliation is used ONLY to generate a ranked candidate list (not to decide uniqueness).
+// - If SSG is SSG0 or SSG1, we enforce profession constraints STRICTLY via reconcile "extend="
+//   (professionOrOccupation must intersect the whitelist) and forward the filtered candidates to SRU->unAPI.
+// - If NOT SSG0/SSG1 (e.g., NABZ, 2,1, empty, other), we skip profession filtering and forward Top-N
+//   candidates to SRU->unAPI.
+// - Final uniqueness is decided later by unAPI validation (028A name + 060R temporal guard).
 var profession_to_gndids = new Map();      // SSG=1 allow-list map (label → ids)
 var profession_to_gndids_ssg0 = new Map(); // SSG=0 allow-list map (label → ids)
 
@@ -113,7 +118,7 @@ var ppn_false_positive = new Map();
 var zts_enhancement_repo_url = '';
 var downloaded_map_files = 0;
 // Map file count guard: adjust when adding/removing a URL in doExport().
-// map = 17 total.
+// map = 15 total.
 var max_map_files = 15;
 
 // Mapping JournalTitle>Language (fallback examples)
@@ -130,7 +135,7 @@ var cataloguingStatus = "n"; // 0500 Position 3
 var cataloguingStatusO = "n";// 0500 Position 3
 
 /* =============================================================================================================== */
-/* C. MAP LOADER: populateISSNMaps                                                                                  */
+/* C. MAP LOADER: populateISSNMaps                                                                                 */
 /* =============================================================================================================== */
 
 function populateISSNMaps(mapData, url) {
@@ -202,14 +207,12 @@ function populateISSNMaps(mapData, url) {
 	case "ISSN_to_Institution_zotkat.map":
 	  issn_to_institution = temp;
 	  break;
-	// Profession maps (vocation filters for lobid person matches)
 	case "profession_for_lookup_zotkat.map":
 	  profession_to_gndids = temp;
 	  break;
 	case "profession_for_lookup_ssg0_zotkat.map":
 	  profession_to_gndids_ssg0 = temp;
 	  break;
-	// PPN blocklist: keys are PPNs.
 	case "PPN-Lookup-False-Positive.map":
 	  ppn_false_positive = temp;
 	  break;
@@ -220,7 +223,7 @@ function populateISSNMaps(mapData, url) {
 }
 
 /* =============================================================================================================== */
-/* D. ASYNC + OUTPUT INFRASTRUCTURE                                                                                 */
+/* D. ASYNC + OUTPUT INFRASTRUCTURE                                                                                */
 /* =============================================================================================================== */
 
 var runningThreadCount = 1;  // Start at 1 to keep the pipeline open until performExport() schedules everything.
@@ -245,7 +248,7 @@ function finishIfIdle() {
 }
 
 /* =============================================================================================================== */
-/* E. LOW-LEVEL UTILITIES                                                                                           */
+/* E. LOW-LEVEL UTILITIES                                                                                          */
 /* =============================================================================================================== */
 
 // Add 8910 once per identical payload (per item)
@@ -302,7 +305,7 @@ function addLine(itemid, code, value) {
 }
 
 /* =============================================================================================================== */
-/* F. ORCID HELPERS                                                                                                 */
+/* F. ORCID HELPERS                                                                                                */
 /* =============================================================================================================== */
 
 function createNoteAuthorsToOrcidsMap(item) {
@@ -337,7 +340,7 @@ function getAuthorOrcid(creator, noteAuthorsToOrcids) {
 }
 
 /* =============================================================================================================== */
-/* G. 30xx MUTATORS                                                                                                 */
+/* G. 30xx MUTATORS                                                                                                */
 /* =============================================================================================================== */
 
 
@@ -382,7 +385,7 @@ function updateAuthorLineToName(itemId, code, printIndex, authorName) {
 }
 
 /* =============================================================================================================== */
-/* H. gnd reconcile service HELPERS                                                                                                 */
+/* H. gnd reconcile service HELPERS                                                                                */
 /* =============================================================================================================== */
 
 function _normalizePreferredName(name) { return String(name || '').trim(); }
@@ -438,19 +441,16 @@ function normalizeGndId(x) {
 	.trim()
 	.replace(/^https?:\/\/d-nb\.info\/gnd\//i, "");
 }
-
 /* ===========================================================================================
    GND RECONCILIATION (reconcile.gnd.network)
    -------------------------------------------------------------------------------------------
-   We use https://reconcile.gnd.network to match author name strings to GND identifiers.
-   The lobid-gnd API documentation (lobid is operated by hbz) recommends this endpoint for
-   matching / reconciling use cases. [1](https://www.elastic.co/docs/manage-data/data-store/mapping)[2](https://discuss.elastic.co/t/partial-date-search-on-date-of-birth-fields/206023)
+   We use https://reconcile.gnd.network to obtain a ranked set of candidate GND identifiers for
+   an author name string. The service follows the OpenRefine / Reconciliation Service API model.
 
-   The service follows the OpenRefine / Reconciliation Service API model:
-   - Input: query string + optional type + optional property/value hints
-   - Output: ranked candidates {id, name, score, match, type}
-   Candidate retrieval and scoring are heuristic and service-defined; properties may be used as
-   hints rather than strict boolean filters. 
+   IMPORTANT CHANGE vs older versions of this translator:
+   - We do NOT require reconciliation to return a unique match.
+   - Reconciliation only provides candidate generation (ranked list).
+   - Final uniqueness is decided later by SRU (PPN expansion) + unAPI validation.
 
    (A) Candidate retrieval ("queries=" POST)
 	   Request (form field "queries"):
@@ -464,42 +464,29 @@ function normalizeGndId(x) {
 		   }
 		 }
 
-	   Meaning:
-		 - query:      main label to match (our authorName string)
-		 - type:       restricts candidates to a class (e.g., persons only)
-		 - properties: optional hints (service may or may not treat them as strict filters)
+	   Notes:
+	   - query: main label to match (our authorName string)
+	   - type: restrict candidates to a class (we use DifferentiatedPerson)
+	   - properties: optional hints (may influence ranking; not guaranteed strict)
 
-	   Response (q1.result is ranked):
-		 {
-		   "q1": {
-			 "result": [
-			   { "id": "123...", "name": "Lastname, Firstname", "score": 78.0, "match": false, "type": [...] },
-			   ...
-			 ]
-		   }
-		 }
+   (B) Data Extension ("extend=" POST) - STRICT profession whitelist enforcement (SSG0/SSG1 only)
+	   We do NOT trust profession hints from (A) as strict filters. If profession filtering is enabled,
+	   we explicitly fetch authoritative professions via "extend=" and filter candidates by a whitelist.
 
-		 - id:    candidate identifier in the service's id-space (GND id without URI prefix)
-		 - score: similarity/confidence score used for ranking (scale is service-specific)
-		 - match: service auto-match decision (true only when the service is confident)
-
-   (B) Data Extension ("extend=" POST)
-	   Used to fetch authoritative properties for candidate ids (e.g., professions).
 	   Request (form field "extend"):
 		 {
-		   "ids": ["123...", "456..."],
+		   "ids": ["<cand1>", "<cand2>", ...],
 		   "properties": [ { "id": "professionOrOccupation" } ]
 		 }
 
-	   Response returns rows[<id>] with values for requested properties.
+	   Result:
+	   - For SSG0/SSG1: keep all candidates that intersect the whitelist (capped to maxWithProfession)
+	   - For non-SSG0/SSG1: skip extension filtering and forward Top-N ranked candidates (maxNoProfession)
 
-   Option A (strict profession whitelist used by this translator):
-	 - We do NOT assume that (A) enforces profession constraints strictly.
-	 - Therefore we verify professionOrOccupation via (B) before accepting any candidate:
-		 * If match:true gives one candidate → still check professions via extend.
-		 * If match:true is absent → extend all candidates, filter by whitelist, accept only if one remains.
+   Output of reconcile step in this translator:
+   - Array of GND candidate IDs (not a single selected ID)
+   - This list is forwarded to SRU->unAPI for final decision.
 =========================================================================================== */
-
 
 function reconcileExtend(ids, propertyIds, onSuccess, onError) {
   try {
@@ -565,203 +552,234 @@ function candidateHasAnyProfessionViaExtend(candidateId, profSet, onYes, onNo) {
   );
 }
 
-// Reconciliation acceptance threshold: ignore low-score candidates completely
-var RECONCILE_SCORE_THRESHOLD = 70.0;
+function reconcileCandidates(authorName, profileOpts, onDone, onError) {
+  try {
+	const endpoint = "https://reconcile.gnd.network";
+	const typeId = (profileOpts && profileOpts.typeId) || "DifferentiatedPerson";
+	const profUris = (profileOpts && Array.isArray(profileOpts.professionUris)) ? profileOpts.professionUris : [];
+	const maxNoProf = (profileOpts && profileOpts.maxCandidatesNoProfession) || 3;
+	const maxWithProf = (profileOpts && profileOpts.maxCandidatesWithProfession) || 10;
 
-function _reconcileGndSingle(authorName, typeId, profIds, onSuccess, onNoUnique, onError) {
-  const endpoint = "https://reconcile.gnd.network";
+	// Normalize profession IDs to short ids (extend returns short ids)
+	const profSet = new Set(profUris.map(normalizeGndId).filter(Boolean));
 
-  // Normalize profession IDs once
-  const profSet = new Set(
-	(Array.isArray(profIds) ? profIds : [])
-	  .map(normalizeGndId)
-	  .filter(Boolean)
-  );
+	// still send profession hints (harmless)
+	const props = Array.from(profSet).slice(0, 20).map(id => ({ pid: "professionOrOccupation", v: { id: id } }));
+	const q = { q1: { query: authorName, type: typeId, properties: props } };
+	const payload = "queries=" + encodeURIComponent(JSON.stringify(q));
 
-  // We still SEND profession properties as hints (harmless),
-  // but Option A does NOT trust them; it validates via extend.
-  const props = Array.from(profSet)
-	.slice(0, 20)
-	.map(id => ({ pid: "professionOrOccupation", v: { id: id } }));
+	Z.debug("reconcileCandidates call: " + endpoint + " payload=" + JSON.stringify(q));
 
-  const q = { q1: { query: authorName, type: (typeId || "DifferentiatedPerson"), properties: props } };
-  const payload = "queries=" + encodeURIComponent(JSON.stringify(q));
+	ZU.doPost(
+	  endpoint,
+	  payload,
+	  function (text) {
+		let res = [];
+		try {
+		  const data = JSON.parse(text);
+		  res = (data && data.q1 && Array.isArray(data.q1.result)) ? data.q1.result : [];
+		} catch (e) {
+		  return onError(e);
+		}
+		if (!res.length) return onDone([]);
 
-  //Z.debug("reconcile call: " + endpoint + " payload=" + JSON.stringify(q));
-  //Z.debug("reconcile call: " + "https://lobid.org/gnd/reconcile/?queries=" + JSON.stringify(q));
-  ZU.doPost(
-	endpoint,
-	payload,
-	function (text) {
-	  try {
-		const data = JSON.parse(text);
-		
-		const res = (data && data.q1 && Array.isArray(data.q1.result)) ? data.q1.result : [];
-		if (!res.length) return onNoUnique();
+		// Prefer persons (DifferentiatedPerson) but keep order as returned (ranked)
+		const personRes = res.filter(c => {
+		  const t = (c && Array.isArray(c.type)) ? c.type : [];
+		  return t.some(x => (x && x.id) === "DifferentiatedPerson");
+		});
 
-		const threshold = (typeof RECONCILE_SCORE_THRESHOLD === "number") ? RECONCILE_SCORE_THRESHOLD : 80.0;
-
-		// Normalize score (some services might omit it)
-		function scoreOf(c) {
-		const s = (c && typeof c.score === "number") ? c.score : 0;
-		return s;
+		// If no profession filter is requested: return top N candidates (persons preferred)
+		if (profSet.size === 0) {
+		  const baseList = personRes.length ? personRes : res;
+		  const ids = baseList.map(c => String(c && c.id || "")).filter(Boolean).slice(0, maxNoProf);
+		  return onDone(ids);
 		}
 
-		// 1) Apply score gate first
-		const above = res.filter(c => scoreOf(c) >= threshold);
-
-		// Debug visibility
-		Z.debug("reconcile candidates=" + res.length
-		+ " | aboveScore>=" + threshold + "=" + above.length
-		+ " | match:true total=" + res.filter(c => c && c.match === true).length
-		+ " | match:true above=" + above.filter(c => c && c.match === true).length);
-
-		// If nothing meets threshold -> treat as no-unique immediately
-		if (!above.length) return onNoUnique();
-
-		// 2) Restrict match:true to those above threshold
-		const matches = above.filter(c => c && c.match === true);
-
-		// If exactly one match:true above threshold => candidate is that one (still verify profession if configured)
-		if (matches.length === 1) {
-		const cid = String(matches[0].id || "").trim();
-		if (!cid) return onNoUnique();
-
-		// If no profession constraints, accept directly
-		const mustCheckProfession = (profSet.size > 0);
-		if (!mustCheckProfession) {
-			return onSuccess({ gndIdentifier: cid, id: "https://d-nb.info/gnd/" + cid });
-		}
-
-		// Profession check via extend
-		return candidateHasAnyProfessionViaExtend(
-			cid,
-			profSet,
-			function () { return onSuccess({ gndIdentifier: cid, id: "https://d-nb.info/gnd/" + cid }); },
-			function () { return onNoUnique(); }
-		);
-		}
-
-		// 3) No (or multiple) match:true above threshold:
-		//    Use profession filtering on the *score-gated* candidates only.
-		const mustCheckProfession = (profSet.size > 0);
-
-		if (mustCheckProfession) {
-		const candidateIds = above.map(c => String(c && c.id || "")).filter(Boolean);
+		// Profession filter requested: extend all candidate ids, keep those that intersect whitelist
+		const candIds = (personRes.length ? personRes : res)
+		  .map(c => String(c && c.id || ""))
+		  .filter(Boolean);
 
 		return reconcileExtend(
-			candidateIds,
-			["professionOrOccupation"],
-			function (ext) {
+		  candIds,
+		  ["professionOrOccupation"],
+		  function (ext) {
 			try {
-				const rows = ext && ext.rows ? ext.rows : {};
-				const keep = [];
+			  const rows = ext && ext.rows ? ext.rows : {};
+			  const keep = [];
 
-				for (const cand of above) {
-				const cid = String(cand && cand.id || "");
+			  for (const cid of candIds) {
 				const row = rows[cid];
 				if (!row) continue;
 
 				const po = row.professionOrOccupation;
 				const arr = Array.isArray(po) ? po : [];
+				const candProfIds = arr.map(o => normalizeGndId(o && o.id)).filter(Boolean);
 
-				const candProfIds = arr
-					.map(o => normalizeGndId(o && o.id))
-					.filter(Boolean);
-
-				const ok = candProfIds.some(pid => profSet.has(pid));
-				if (ok) keep.push(cand);
+				if (candProfIds.some(pid => profSet.has(pid))) {
+				  keep.push(cid);
 				}
+			  }
 
-				Z.debug("Option A score-gated extend profession filter: kept=" + keep.length
-				+ " of " + above.length + " (threshold=" + threshold + ")");
-
-				// Accept only if exactly one remains
-				if (keep.length === 1) {
-				const cid = String(keep[0].id || "").trim();
-				if (cid) return onSuccess({ gndIdentifier: cid, id: "https://d-nb.info/gnd/" + cid });
-				}
-				return onNoUnique();
+			  Z.debug("reconcileCandidates profession filter: kept=" + keep.length + " of " + candIds.length);
+			  return onDone(keep.slice(0, maxWithProf));
 			} catch (e) {
-				Z.debug("Option A score-gated extend filter error: " + e);
-				return onNoUnique();
+			  return onError(e);
 			}
-			},
-			function (e) {
-			Z.debug("Option A score-gated extend request error: " + e);
-			return onNoUnique();
-			}
+		  },
+		  function (e) { return onError(e || new Error("extend failed")); }
 		);
-		}
-
-		// 4) If there is no profession gate configured:
-		//    - If exactly one candidate is above threshold, accept it
-		//    - Else treat as no-unique (avoid guessing)
-		if (above.length === 1) {
-		const cid = String(above[0].id || "").trim();
-		if (cid) return onSuccess({ gndIdentifier: cid, id: "https://d-nb.info/gnd/" + cid });
-		}
-		return onNoUnique();
-	  } catch (e) {
-		return onError(e);
-	  }
-	},
-	function (e) { onError(e || new Error("Reconciliation request failed")); },
-	{ "Content-Type": "application/x-www-form-urlencoded" }
-  );
+	  },
+	  function (e) { onError(e || new Error("Reconciliation request failed")); },
+	  { "Content-Type": "application/x-www-form-urlencoded" }
+	);
+  } catch (e) {
+	onError(e);
+  }
 }
 
-function queryReconcileUntilUnique(queries, idx, profileOpts, onUnique, onNoUnique) {
-  if (!queries || !Array.isArray(queries) || !queries.length) {
-	return onNoUnique && onNoUnique();
+function processGndCandidatesToUniquePpn(gndCandidates, threadParams, finalizeReconcile) {
+  const itemId = threadParams.currentItemId;
+  const printIndex = threadParams.printIndex;
+  const code = threadParams.code;
+  const authorName = threadParams.authorName;
+
+  const gnds = (gndCandidates || []).map(String).filter(Boolean);
+  if (!gnds.length) {
+	updateAuthorLineToName(itemId, code, printIndex, authorName);
+	return finalizeReconcile("reconcile:done (no-gnd-candidates) auth=" + authorName);
   }
-  if (!queries._state) queries._state = { done: false };
-  const state = queries._state;
-  if (state.done) return;
-  if (idx >= queries.length) { state.done = true; return onNoUnique(); }
 
-  const q      = queries[idx];
-  const typeId = (profileOpts && profileOpts.typeId) || "Person";
-  const profUris = (profileOpts && Array.isArray(profileOpts.professionUris)) ? profileOpts.professionUris : [];
+  // 1) SRU phase: collect PPNs from ALL GND candidates
+  const ppnSet = new Set();
+  let pending = gnds.length;
 
-  Z.debug('reconcile unique-try [' + (q.label || ('q' + idx)) + ']: query="' + q.q
-	+ '", type=' + typeId + ', props(uris)=' + profUris.length);
+  function finishSruPhase() {
+	// apply blocklist + dedup
+	const ppns = Array.from(ppnSet).filter(ppn => !(ppn_false_positive && ppn_false_positive.has(ppn)));
 
-  _reconcileGndSingle(
-	q.q,
-	typeId,
-	profUris,
-	function onBest(candidate) {
-	  if (state.done) return;
-	  state.done = true;
-	  onUnique(candidate);
-	},
-	function onNone() {
-	  if (state.done) return;
-	  if (idx + 1 < queries.length) return queryReconcileUntilUnique(queries, idx + 1, profileOpts, onUnique, onNoUnique);
-	  state.done = true; return onNoUnique();
-	},
-	function onErr(e) {
-	  Z.debug("reconcile error: " + e);
-	  if (state.done) return;
-	  if (idx + 1 < queries.length) return queryReconcileUntilUnique(queries, idx + 1, profileOpts, onUnique, onNoUnique);
-	  state.done = true; return onNoUnique();
+	if (!ppns.length) {
+	  updateAuthorLineToName(itemId, code, printIndex, authorName);
+	  return finalizeReconcile("reconcile:done (no-ppn-after-sru) auth=" + authorName);
 	}
-  );
+
+	// 2) unAPI phase: validate all PPNs; accept only if exactly 1 ok
+	const ok = [];
+	let i = 0;
+
+	function nextPpn() {
+	  if (i >= ppns.length) {
+		if (ok.length === 1) {
+		  const chosen = ok[0];
+		  updateAuthorLineToPPN(itemId, code, printIndex, chosen.ppn);
+
+		  addOnce8910(
+			itemId,
+			"$aixzom$bVerfasserIn in der Zoterovorlage [" + authorName + "] einer PPN " + chosen.ppn + " maschinell zugeordnet"
+		  );
+
+		  if (chosen.review) {
+			addOnce8910(
+			  itemId,
+			  "$aixzom$bPPN " + chosen.ppn + " automatisch zugeordnet, aber 060R fehlt – bitte prüfen"
+			);
+		  }
+
+		  return finalizeReconcile("reconcile:done (unique-after-unapi) auth=" + authorName);
+		}
+
+		updateAuthorLineToName(itemId, code, printIndex, authorName);
+		return finalizeReconcile("reconcile:done (not-unique-after-unapi ok=" + ok.length + ") auth=" + authorName);
+	  }
+
+	  const ppn = ppns[i++];
+	  verifyPpnByUnapi028Aand060R(ppn, authorName, 1930, function (ver) {
+		if (ver && ver.ok) {
+		  ok.push({
+			ppn: ppn,
+			strength: ver.strength || "strong",
+			review: !!ver.review,
+			reviewReason: ver.reviewReason
+		  });
+		}
+		nextPpn();
+	  });
+	}
+
+	nextPpn();
+  }
+
+  // Launch SRU lookups for each GND (ONE-SHOT per request)
+	gnds.forEach(function (gnd) {
+	let finishedThisGnd = false;
+
+	function finishOnce() {
+		if (finishedThisGnd) return;
+		finishedThisGnd = true;
+		pending -= 1;
+		if (pending === 0) finishSruPhase();
+	}
+
+	lookupTitlePPNFromOpacByGND(
+		gnd,
+		function (ppnList) {
+		if (finishedThisGnd) return; // ignore late success
+		const list = Array.isArray(ppnList) ? ppnList : [];
+		list.forEach(function (p) { if (p) ppnSet.add(String(p)); });
+		finishOnce();
+		},
+		function (_err) {
+		if (finishedThisGnd) return; // ignore late error
+		finishOnce();
+		}
+	);
+	});
 }
 
 /* =============================================================================================================== */
-/* I. SRU HELPER                                                                                                     */
+/* SSG CLASSIFICATION / SSG-KLASSIFIKATION                                                                          */
+/* =============================================================================================================== */
+/*
+  EN: Normalize and classify SSG values from maps. Variants may include "0$a1", "2,1", "NABZ", etc.
+      We treat:
+        - SSG0: "0" and "0..." (e.g. "0$a1")
+        - SSG1: only exact "1"
+        - NONE: everything else (including "NABZ" and "2,1")
+*/
+
+function classifySsgField(SsgField) {
+  const s = String(SsgField || "").trim().toUpperCase();
+
+  // leer/undefiniert
+  if (!s) return "NONE";
+
+  // Sonderfälle wie NABZ immer "NONE"
+  if (s.includes("NABZ")) return "NONE";
+
+  // SSG0: "0" oder "0$a1" oder allgemein "0..." (z.B. "0$a1")
+  // (wenn du noch andere 0-Varianten erwartest, ist startsWith("0") korrekt)
+  if (s === "0" || s.startsWith("0$") || s.startsWith("0")) return "SSG0";
+
+  // SSG1: nur wenn es wirklich exakt "1" ist
+  // (wichtig: "2,1" soll NICHT als SSG1 zählen)
+  if (s === "1") return "SSG1";
+
+  // alles andere (z.B. "2,1", "2", "krimdok", etc.)
+  return "NONE";
+}
+/* =============================================================================================================== */
+/* I. SRU HELPER                                                                                                   */
 /* =============================================================================================================== */
 
 function lookupTitlePPNFromOpacByGND(gndEitherForm, onSuccess, onError) {
   try {
-	if (!gndEitherForm) return onSuccess(null);
+	if (!gndEitherForm) return onSuccess([]);
 
 	let nid = String(gndEitherForm).trim()
 	  .replace(/^https?:\/\/(www\.)?d-nb\.info\/gnd\//i, '')
 	  .replace(/-/g, '');
-	if (!/^[0-9]+X?$/i.test(nid)) return onSuccess(null);
+	if (!/^[0-9]+X?$/i.test(nid)) return onSuccess([]);
 
 	const base = "https://sru.k10plus.de/opac-de-627";
 	const cql  = "pica.nid=" + nid; // titles linked to this GND
@@ -770,6 +788,7 @@ function lookupTitlePPNFromOpacByGND(gndEitherForm, onSuccess, onError) {
 	  + "&maximumRecords=10&recordSchema=picaxml"
 	  + "&query=" + encodeURIComponent(cql);
 		Z.debug("[SRU] url=" + url + "  (gnd=" + gndEitherForm + ", nid=" + nid + ", cql=" + cql + ")");
+	
 	ZU.doGet(
 	  url,
 	  function (xml) {
@@ -779,7 +798,7 @@ function lookupTitlePPNFromOpacByGND(gndEitherForm, onSuccess, onError) {
 
 		  // Split into records
 		  const recs = xml.match(/<record[^>]*>[\s\S]*?<\/record>/gi) || [];
-		  let ppn = null;
+		  const candidates = [];
 
 		  for (const rec of recs) {
 			const blocks = rec.match(/<datafield[^>]*tag="028[AC]"[^>]*>[\s\S]*?<\/datafield>/gi) || [];
@@ -788,17 +807,23 @@ function lookupTitlePPNFromOpacByGND(gndEitherForm, onSuccess, onError) {
 				`<subfield[^>]*code="7"[^>]*>\\s*[^<>]*gnd/${nid}\\s*<\\/subfield>`,
 				'i'
 			  ).test(b);
-			  if (hasThisNID) {
-				const m9 = b.match(/<subfield[^>]*code="9"[^>]*>([^<]+)<\/subfield>/i);
-				if (m9) { ppn = m9[1].trim(); break; }
+			  if (!hasThisNID) continue;
+
+			  const m9 = b.match(/<subfield[^>]*code="9"[^>]*>([^<]+)<\/subfield>/i);
+				
+			  if (m9) {
+				const ppn = String(m9[1] || "").trim();
+				if (ppn) candidates.push(ppn);
 			  }
 			}
-			if (ppn) break; // stop at first precise match
 		  }
 
-		  // No "first $9" fallback: return null if no exact $7 match exists
-		  Z.debug("KXP SRU parsed 028[AC]$9 -> PPN=" + (ppn || "null") + " (gnd=" + gndEitherForm + ", nid=" + nid + ")");
-		  onSuccess(ppn || null);
+		  // De-duplicate, preserve order
+		  const seen = new Set();
+		  const uniq = candidates.filter(p => (seen.has(p) ? false : (seen.add(p), true)));
+
+		  Z.debug("KXP SRU 028[AC]$9 candidates => " + JSON.stringify(uniq) + " (nid=" + nid + ")");
+		  onSuccess(uniq);
 		} catch (e) {
 		  onError(e);
 		}
@@ -813,19 +838,29 @@ function lookupTitlePPNFromOpacByGND(gndEitherForm, onSuccess, onError) {
 }
 
 /* =============================================================================================================== */
-/* I2. unAPI PERSON CHECK (060R heuristic guard)                                                                     */
+/* J. unAPI PERSON VALIDATION (K10plus pp format) / unAPI-PERSONENVALIDIERUNG                                         */
 /* =============================================================================================================== */
+/*
+  EN:
+  - unAPI provides person records in "pp" (plain-text, line-based PICA).
+  - We validate candidate PPNs by:
+      1) Strict name check using 028A ($a surname, $d given name)
+      2) Temporal plausibility guard using 060R (time span / century)
+  - Final uniqueness in the pipeline is decided after unAPI: only if exactly ONE candidate passes.
+
+  DE:
+  - unAPI liefert Personensätze im Format "pp" (Text, zeilenbasiert, PICA).
+  - Validierung von PPN-Kandidaten über:
+      1) striktes Namensmatching (028A)
+      2) Zeit-/Plausibilitätsprüfung (060R)
+*/
 
 /**
- * Build unAPI URL for a given PPN (person record).
- *
- * We fetch the K10plus "pp" (Personendaten) format via unAPI for a PPN found by SRU.
- * Example (human readable):
- *   https://unapi.k10plus.de/?id=opac-de-627!xpn=online:ppn:<PPN>&format=pp
+ * Build unAPI URL for a given PPN (person record, format=pp).
  *
  * NOTE:
- * - In the JS source code we must use '&format=pp' (NOT '&amp;format=pp').
- * - We URL-encode the full id parameter for safety.
+ * - This is an HTTP URL; use "&format=pp" (NOT the HTML escaped "&amp;format=pp").
+ * - We URL-encode the full "id=" parameter.
  */
 function buildUnapiUrlForPpn(ppn) {
   const id = "opac-de-627!xpn=online:ppn:" + String(ppn || "").trim();
@@ -833,28 +868,75 @@ function buildUnapiUrlForPpn(ppn) {
 }
 
 /**
- * Parse field 060R from unAPI "pp" text.
+ * Token normalizer used for strict name matching:
+ * - lowercase, remove diacritics, normalize whitespace
+ * - keep letters, digits, spaces and hyphens
+ */
+function _normToken(s) {
+  return String(s || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/ß/g, "ss")
+    .replace(/[^\p{L}\p{N}\s-]+/gu, "")
+    .replace(/\s+/g, " ");
+}
+
+/**
+ * Parse 028A name variants from unAPI "pp" output.
+ * 028A subfields:
+ * - $a / ƒa : surname
+ * - $d / ƒd : given name
  *
- * Background:
- * - unAPI "pp" output is a plain-text (line-based) representation of a PICA record.
- * - Subfields may be encoded either as:
- *     "$a ... $b ..."   (common in some exports)
- *   or
- *     "ƒa ... ƒb ..."   (WinIBW/PICA-style subfield marker, U+0192)
- * - Therefore we treat BOTH "$" and "ƒ" as subfield delimiters.
+ * Returns array of normalized variants: [{surname:"...", given:"..."}]
+ */
+function parse028AFromPp(ppText) {
+  const text = String(ppText || "");
+  const lines = text.split(/\r?\n/);
+  const variants = [];
+
+  function extractSubfields(line, code) {
+    const re = new RegExp(`[\\$ƒ]${code}([^\\$ƒ]*)`, "g");
+    const out = [];
+    let m;
+    while ((m = re.exec(line)) !== null) out.push((m[1] || "").trim());
+    return out;
+  }
+
+  for (const raw of lines) {
+    const line = String(raw || "");
+    if (!line.startsWith("028A")) continue;
+
+    const surs = extractSubfields(line, "a");
+    const giv  = extractSubfields(line, "d");
+
+    for (const s of surs) {
+      if (giv.length) {
+        for (const g of giv) variants.push({ surname: _normToken(s), given: _normToken(g) });
+      } else {
+        variants.push({ surname: _normToken(s), given: "" });
+      }
+    }
+  }
+  return variants;
+}
+
+/**
+ * Parse 060R temporal information from unAPI "pp" output.
+ *
+ * Subfields (heuristics used by this translator):
+ * - 060R $a / ƒa : begin of timespan (often a year like 1978, 1959, ...)
+ * - 060R $b / ƒb : end of timespan   (if present -> reject; typically historical/deceased)
+ * - 060R $d / ƒd : century notation  (accept if indicates 20th/21st century)
  *
  * Returns:
  * {
- *   has060R: boolean,          // at least one 060R line exists 
- *   hasB: boolean,             // any $b / ƒb present in 060R (end of timespan) -> reject e.g. https://unapi.k10plus.de/?id=opac-de-627!xpn%3Donline:ppn:630198322&format=pp
- *   yearsA: number[],          // extracted 4-digit years from $a / ƒa (begin of timespan)
- *   hasCentury20or21: boolean  // true if $d / ƒd contains century markers 20 or 21 (e.g. "20./21. Jh.") e.g. https://unapi.k10plus.de/?id=opac-de-627!xpn%3Donline:ppn:859724557&format=pp
+ *   has060R: boolean,
+ *   hasB: boolean,
+ *   yearsA: number[],
+ *   hasCentury20or21: boolean
  * }
- *
- * Heuristic meaning of subfields:
- * - 060R $a / ƒa : Beginn einer Zeitspanne (e.g. 1959)
- * - 060R $b / ƒb : Ende einer Zeitspanne   (if present -> do NOT match; typically implies death/end)
- * - 060R $d / ƒd : Century notation        (e.g. "20./21. Jh.") counts as positive evidence
  */
 function parse060RFromPp(ppText) {
   const text = String(ppText || "");
@@ -865,171 +947,112 @@ function parse060RFromPp(ppText) {
   const yearsA = [];
   let hasCentury20or21 = false;
 
-  /**
-   * Extract all subfield payloads for a given code from one line.
-   * Supports both "$a..." and "ƒa..."
-   */
   function extractSubfields(line, code) {
-	// Capture occurrences like "$a...." or "ƒa...." until next "$x"/"ƒx" or end of line
-	const re = new RegExp(`[\\$ƒ]${code}([^\\$ƒ]*)`, "g");
-	const out = [];
-	let m;
-	while ((m = re.exec(line)) !== null) {
-	  out.push((m[1] || "").trim());
-	}
-	return out;
+    const re = new RegExp(`[\\$ƒ]${code}([^\\$ƒ]*)`, "g");
+    const out = [];
+    let m;
+    while ((m = re.exec(line)) !== null) out.push((m[1] || "").trim());
+    return out;
   }
 
-  /**
-   * Detect "20./21. Jh." style century indications in a $d/ƒd chunk.
-   *
-   * Typical examples:
-   *   "20. Jh."
-   *   "21. Jh."
-   *   "20./21. Jh."
-   *   "20/21 Jh"
-   *   "20.-21. Jh."
-   *
-   * We accept if we see 20 or 21 as a standalone 2-digit number NOT part of a 4-digit year.
-   * (Avoid matching "2021" by disallowing a following digit.)
-   */
   function chunkHas20or21Century(chunk) {
-	const s = String(chunk || "");
-	return /(^|[^\d])(20|21)(?!\d)/.test(s);
+    const s = String(chunk || "");
+    return /(^|[^\d])(20|21)(?!\d)/.test(s);
   }
 
-  for (const lineRaw of lines) {
-	const line = String(lineRaw || "");
+  for (const raw of lines) {
+    const line = String(raw || "");
+    if (!line.startsWith("060R")) continue;
 
-	// unAPI pp lines typically begin with the field code
-	if (!line.startsWith("060R")) continue;
+    has060R = true;
 
-	has060R = true;
+    if (extractSubfields(line, "b").length > 0) hasB = true;
 
-	// Rule: If ANY $b / ƒb exists in 060R -> reject later
-	const bChunks = extractSubfields(line, "b");
-	if (bChunks.length > 0) {
-	  // Even if empty, presence of the subfield marker is considered a strong "end of timespan" signal.
-	  hasB = true;
-	}
+    for (const chunk of extractSubfields(line, "a")) {
+      const m = String(chunk).match(/(\d{4})/);
+      if (m) yearsA.push(parseInt(m[1], 10));
+    }
 
-	// Extract years from $a / ƒa (begin of timespan)
-	const aChunks = extractSubfields(line, "a");
-	for (const chunk of aChunks) {
-	  const yr = String(chunk).match(/(\d{4})/);
-	  if (yr) yearsA.push(parseInt(yr[1], 10));
-	}
-
-	// New rule: Century evidence from $d / ƒd counts as positive evidence if it includes 20 or 21
-	const dChunks = extractSubfields(line, "d");
-	for (const chunk of dChunks) {
-	  if (chunkHas20or21Century(chunk)) {
-		hasCentury20or21 = true;
-	  }
-	}
+    for (const chunk of extractSubfields(line, "d")) {
+      if (chunkHas20or21Century(chunk)) hasCentury20or21 = true;
+    }
   }
 
   return { has060R, hasB, yearsA, hasCentury20or21 };
 }
 
 /**
- * Verify a candidate PPN via unAPI using the 060R heuristic.
- *
- * Decision rules (strict, conservative):
- * 1) 060R must exist. If missing -> reject.
- * 2) If 060R contains an end-of-timespan subfield ($b / ƒb) -> reject.
- * 3) Accept if either:
- *    a) 060R $a / ƒa contains a 4-digit year and max(year) > minYear (default 1930),
- *       OR
- *    b) 060R $d / ƒd contains century markers "20" or "21" (e.g. "20./21. Jh.").
- *
- * Rationale:
- * - Prevent linking to very old historical persons (e.g., 16th century).
- * - Prevent linking when an "end of timespan" is present (likely deceased).
- * - Allow modern-century-only records that express time by century (20./21. Jh.) instead of a year.
- *
- * IMPORTANT:
- * - This function is guarded so onPass/onReject are called ONLY ONCE.
- *   (ZU.doGet can otherwise lead to rare double-callback situations in some environments.)
+ * Strict name match:
+ * - Input is expected as "Surname, Given"
+ * - We require exact normalized match of BOTH surname and full given name.
  */
-function verifyPpnBy060R(ppn, minYear, onPass, onReject) {
-  const _ppn = String(ppn || "").trim();
-  if (!_ppn) return onReject("no-ppn");
+function strictNameMatches(authorNameSurnameCommaGiven, variants028A) {
+  const parts = String(authorNameSurnameCommaGiven || "").split(",");
+  const inSurname = _normToken(parts[0] || "");
+  const inGiven   = _normToken((parts[1] || "").trim());
 
-  // one-shot guard (prevents accept+reject double-callbacks)
+  if (!inSurname || !inGiven) return false;
+
+  for (const v of (variants028A || [])) {
+    if (!v) continue;
+    if (v.surname !== inSurname) continue;
+    if ((v.given || "") === inGiven) return true;
+  }
+  return false;
+}
+
+/**
+ * Validate a candidate PPN via unAPI using:
+ * - 028A strict name match
+ * - 060R temporal plausibility guard
+ *
+ * Result object:
+ * - ok:true,  strength:"strong" : name ok + temporal evidence ok
+ * - ok:true,  strength:"weak"   : name ok + 060R missing (accept but mark for review)
+ * - ok:false                   : reject (name mismatch, old/historic, request/parse error, etc.)
+ */
+function verifyPpnByUnapi028Aand060R(ppn, authorName, minYear, onResult) {
+  const _ppn = String(ppn || "").trim();
+  if (!_ppn) return onResult({ ok: false, reason: "no-ppn" });
+
   let done = false;
-  function passOnce(meta) {
-	if (done) return;
-	done = true;
-	onPass(meta);
-  }
-  function rejectOnce(reason) {
-	if (done) return;
-	done = true;
-	onReject(reason);
-  }
+  function once(obj) { if (done) return; done = true; onResult(obj); }
 
   const threshold = (minYear == null) ? 1930 : Number(minYear);
   const url = buildUnapiUrlForPpn(_ppn);
 
-  Z.debug("[unAPI] check 060R ppn=" + _ppn + " url=" + url);
-
   ZU.doGet(
-	url,
-	function (ppText) {
-	  try {
-		const info = parse060RFromPp(ppText);
+    url,
+    function (ppText) {
+      try {
+        const v028 = parse028AFromPp(ppText);
+        const nameOk = strictNameMatches(authorName, v028);
+        if (!nameOk) return once({ ok: false, reason: "name-mismatch" });
 
-		if (!info.has060R) {
-		  Z.debug("[unAPI] reject ppn=" + _ppn + " reason=no-060R");
-		  return rejectOnce("no-060R");
-		}
+        const info = parse060RFromPp(ppText);
 
-		// Rule 2: If any $b/ƒb exists -> reject
-		if (info.hasB) {
-		  Z.debug("[unAPI] reject ppn=" + _ppn + " reason=060R-has-$b");
-		  return rejectOnce("has-$b");
-		}
+        if (!info.has060R) return once({ ok: true, strength: "weak", review: true, reviewReason: "060R_MISSING" });
+        if (info.hasB) return once({ ok: false, reason: "060R-has-b" });
 
-		// Rule 3a: Accept if $a year exists and is modern enough
-		let maxA = null;
-		if (info.yearsA && info.yearsA.length) {
-		  maxA = Math.max.apply(null, info.yearsA);
-		}
+        let maxA = null;
+        if (info.yearsA && info.yearsA.length) maxA = Math.max.apply(null, info.yearsA);
+        if (maxA != null && maxA >= threshold) return once({ ok: true, strength: "strong", maxA: maxA });
 
-		if (maxA != null && maxA > threshold) {
-		  Z.debug("[unAPI] accept ppn=" + _ppn + " 060R$a maxYear=" + maxA + " > " + threshold);
-		  return passOnce({ maxA: maxA, yearsA: info.yearsA });
-		}
+        if (info.hasCentury20or21) return once({ ok: true, strength: "strong", byCentury: true });
 
-		// Rule 3b: Accept if century evidence indicates 20./21. Jh.
-		if (info.hasCentury20or21) {
-		  Z.debug("[unAPI] accept ppn=" + _ppn + " reason=060R$d century 20/21 Jh.");
-		  return passOnce({ maxA: maxA, yearsA: info.yearsA, byCentury: true });
-		}
-
-		// Otherwise reject (no acceptable temporal evidence)
-		if (maxA == null) {
-		  Z.debug("[unAPI] reject ppn=" + _ppn + " reason=060R-no-$a-year-and-no-century");
-		  return rejectOnce("no-$a-year-and-no-century");
-		}
-
-		Z.debug("[unAPI] reject ppn=" + _ppn + " reason=060R$a-year-too-old maxYear=" + maxA);
-		return rejectOnce("year-too-old:" + maxA);
-
-	  } catch (e) {
-		Z.debug("[unAPI] reject ppn=" + _ppn + " reason=parse-error err=" + e);
-		return rejectOnce("parse-error");
-	  }
-	},
-	function (err) {
-	  Z.debug("[unAPI] reject ppn=" + _ppn + " reason=request-failed err=" + err);
-	  return rejectOnce("request-failed");
-	}
+        return once({ ok: false, reason: "060R-too-old-or-unknown" });
+      } catch (e) {
+        return once({ ok: false, reason: "parse-error:" + e });
+      }
+    },
+    function (err) {
+      return once({ ok: false, reason: "unapi-failed:" + (err || "unknown") });
+    }
   );
 }
+
 /* =============================================================================================================== */
-/* J. WRITE-OUT (FINAL FLUSH)                                                                                        */
+/* K. WRITE-OUT (FINAL FLUSH)                                                                                       */
 /* =============================================================================================================== */
 
 function WriteItems() {
@@ -1099,7 +1122,7 @@ function WriteItems() {
 }
 
 /* =============================================================================================================== */
-/* K. MAIN EXPORT PIPELINE                                                                                           */
+/* L. MAIN EXPORT PIPELINE                                                                                          */
 /* =============================================================================================================== */
 
 function performExport() {
@@ -1330,60 +1353,29 @@ function performExport() {
 	  titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])(El|La|Los|Las|Un|Una|Unas) ([^@])/i, "„$2 @$3");
 	}
 
-	// --- AUTHOR LOOP (pre-seed, reconcile, extend-verify, SRU) -------------------------------
 	/* ===========================================================================================
-	AUTHOR ENRICHMENT TIMELINE (CURRENT VERSION)
-	-------------------------------------------------------------------------------------------
-	Legend:
-		++  = _bump(+1, ...)     --  = _bump(-1, ...)
-		RTC = runningThreadCount (value AFTER the bump)
-		WriteItems() runs exactly once when RTC reaches 0.
+   AUTHOR ENRICHMENT TIMELINE (CURRENT VERSION) / AUTOREN-ANREICHERUNG (AKTUELLE VERSION)
+   -------------------------------------------------------------------------------------------
+   EN:
+   - Reconciliation is used ONLY to generate a ranked candidate list (GND IDs).
+   - If SSG is SSG0 or SSG1, we apply a strict profession whitelist via reconcile "extend=".
+	 Otherwise (e.g. NABZ, 2,1, empty, other) we do NOT apply profession filtering and forward
+	 only the Top-N (e.g. Top-3) candidates.
+   - Final uniqueness is decided AFTER SRU and unAPI:
+	   GND candidates -> SRU (PPN expansion) -> unAPI (028A name + 060R time check)
+	 Only if exactly ONE PPN passes unAPI validation do we link the author line to that PPN.
 
-	A) Reconcile match:true + profession OK → SRU success (PPN accepted)
-		Start: RTC=1
-		++ reconcile:start                   → RTC=2
-			reconcile: queries=...            (reconcile.gnd.network; type=Person/DifferentiatedPerson)
-			result: exactly one match:true
-			++ extend:start                   → RTC=3
-				extend: verify professionOrOccupation against profession whitelist
-				(Option A: required even when match:true)
-				-- extend:done                 → RTC=2
-			++ sru:start                      → RTC=3
-				SRU success → overwrite 30xx marker to !PPN!
-				-- sru:done                   → RTC=2
-		-- reconcile:done                    → RTC=1
-		-- main:done performExport           → RTC=0 → WriteItems()
+   DE:
+   - Reconciliation dient NUR zur Erzeugung einer gerankten Kandidatenliste (GND-IDs).
+   - Bei SSG0 oder SSG1 wird ein strikter Berufs-Whitelist-Filter via reconcile "extend=" angewendet.
+	 In allen anderen Fällen (z.B. NABZ, 2,1, leer, sonstige Werte) werden KEINE Berufsfilter genutzt
+	 und nur die Top-N (z.B. Top-3) Kandidaten weitergegeben.
+   - Die finale Eindeutigkeit wird ERST NACH SRU und unAPI entschieden:
+	   GND-Kandidaten -> SRU (PPN-Ermittlung) -> unAPI (028A Name + 060R Zeitprüfung)
+	 Nur wenn GENAU EINE PPN die unAPI-Prüfung besteht, wird die 30xx-Zeile auf diese PPN verknüpft.
 
-	B) Reconcile match:true but profession mismatch → reject (keep personal name)
-		Start: RTC=1
-		++ reconcile:start                   → RTC=2
-			result: exactly one match:true
-			++ extend:start                   → RTC=3
-				extend shows profession not in whitelist
-				-- extend:done                 → RTC=2
-			(no SRU)
-		-- reconcile:done                    → RTC=1
-		-- main:done performExport           → RTC=0 → WriteItems()
-
-	C) No match:true → extend-filter candidates by profession → accept only if exactly one remains
-		Start: RTC=1
-		++ reconcile:start                   → RTC=2
-			result: candidates, match:true count = 0
-			++ extend:start                   → RTC=3
-				extend: filter candidates by profession whitelist
-				if exactly one remains → accept; else reject
-				-- extend:done                 → RTC=2
-			(if accepted) ++ sru:start        → RTC=3
-				-- sru:done                   → RTC=2
-		-- reconcile:done                    → RTC=1
-		-- main:done performExport           → RTC=0 → WriteItems()
-
-	Notes:
-	- Reconciliation returns ranked candidates and (optionally) match:true. Because matching is heuristic
-	and properties are not guaranteed to be strict boolean filters, we enforce professions explicitly
-	via Data Extension (extend=) before accepting a candidate (Option A). 
-	- For matching/reconciling use cases, lobid-gnd recommends using https://reconcile.gnd.network rather
-	than treating the general search API as a matching engine. [1](https://www.elastic.co/docs/manage-data/data-store/mapping)[2](https://discuss.elastic.co/t/partial-date-search-on-date-of-birth-fields/206023)
+   RTC/Async (both):
+   - runningThreadCount (RTC) tracks async work; WriteItems() runs when RTC returns to 0.
 	=========================================================================================== */
 
 	var authorSeq = 0;
@@ -1432,20 +1424,33 @@ function performExport() {
 		  }
 
 		  // profession filter selection → for reconciliation we pass URIs (map VALUES)
-			let profUris = [];
-			if (institution_retrieve_sign === "krzo") {
-			profUris = [];
-			} else if (String(SsgField || "").match(/^0(\b|$)/)) {
-			profUris = _allProfessionUrisFromMapValues(profession_to_gndids_ssg0); // Option A helper
-			} else if (String(SsgField || "") === "1") {
-			profUris = _allProfessionUrisFromMapValues(profession_to_gndids);      // Option A helper
-			} else {
-			profUris = [];
-			}
-			Z.debug("Profession URIs applied: " + profUris.length + " (inst=" + institution_retrieve_sign + ", SSG=" + SsgField + ")");
+		let profUris = [];
+		const ssgClass = classifySsgField(SsgField);
 
+		// optionaler Override für spezielle Instanzen, falls gewünscht
+		if (institution_retrieve_sign === "krzo") {
+		profUris = [];
+		} else if (ssgClass === "SSG0") {
+		profUris = _allProfessionUrisFromMapValues(profession_to_gndids_ssg0);
+		} else if (ssgClass === "SSG1") {
+		profUris = _allProfessionUrisFromMapValues(profession_to_gndids);
+		} else {
+		// NONE: ohne Profession (Top-3 später)
+		profUris = [];
+		}
+
+		Z.debug("SSG raw=" + (SsgField || "") + " classify=" + ssgClass + " -> professionUris=" + profUris.length);
 		const _queries = buildNameQueries(authorName);
 		let _reconcileResolved = false;
+
+		let _reconcileClosed = false;
+		function _endReconcileOnce(reason) {
+		if (_reconcileClosed) { Z.debug("reconcile already finished (" + reason + ")"); return; }
+		_reconcileClosed = true;
+		_bump(-1, reason);
+		finishIfIdle();
+		}
+		
 
 		function _safeOnUnique(member) {
 		if (_reconcileResolved) return; _reconcileResolved = true;
@@ -1489,87 +1494,106 @@ function performExport() {
 			_bump(1, "sru:start key=" + _key + " gnd=" + gnd);
 			lookupTitlePPNFromOpacByGND(
 				gnd,
-				function (ppn) {
-					// SRU success callback (PPN may be null)
+				function (ppnList) {
+					// SRU success callback (PPN list)
 					_ppnLookupState[_key] = "done";
-					Z.debug("KXP PPN found for GND " + gnd + ": " + ppn);
+					Z.debug("KXP PPN candidates for GND " + gnd + ": " + JSON.stringify(ppnList));
 
-					// Finalize SRU thread exactly once (we keep SRU "open" until unAPI finishes)
 					let _finalized = false;
 					function finalizeSru(reason) {
-					if (_finalized) return;
-					_finalized = true;
-
-					if (_sruOutstanding[_key]) {
+						if (_finalized) return;
+						_finalized = true;
+						if (_sruOutstanding[_key]) {
 						_sruOutstanding[_key] = false;
 						_bump(-1, reason || ("sru:done key=" + _key));
 						finishIfIdle();
-					} else {
+						} else {
 						Z.debug("SRU done already closed for key " + _key);
-					}
+						}
 					}
 
 					try {
-					// 1) No PPN from SRU → keep/revert to name and close SRU thread
-					if (!ppn) {
+						// 1) No PPN candidates
+						if (!ppnList || !ppnList.length) {
 						const reverted = updateAuthorLineToName(_itemId, _code, _printIndex, threadParams["authorName"]);
-						Z.debug("No KXP PPN found for GND " + gnd + " → 30xx kept/reverted to personal name (" + reverted + ")");
-						return finalizeSru("sru:done (no-ppn) key=" + _key);
-					}
+						Z.debug("No KXP PPN candidates for GND " + gnd + " -> kept name (" + reverted + ")");
+						return finalizeSru("sru:done (no-ppn-candidates) key=" + _key);
+						}
 
-					// 2) PPN blocklist → revert and close SRU thread (no unAPI call)
-					if (ppn_false_positive && ppn_false_positive.has(ppn)) {
-						Z.debug("PPN " + ppn + " is blocklisted → revert to personal name");
+						// 2) Remove blocklisted PPNs first
+						const filtered = ppnList.filter(p => !(ppn_false_positive && ppn_false_positive.has(p)));
+						const seen2 = new Set();
+						const filteredUniq = filtered.filter(p => (seen2.has(p) ? false : (seen2.add(p), true)));
+
+						if (!filteredUniq.length) {
+						Z.debug("All PPN candidates are blocklisted -> revert to personal name");
 						const reverted = updateAuthorLineToName(_itemId, _code, _printIndex, threadParams["authorName"]);
-						Z.debug("Reverted 30xx to personal name due to PPN blocklist (" + reverted + ")");
-						return finalizeSru("sru:done (blocklisted) key=" + _key);
-					}
+						Z.debug("Reverted due to blocklist (" + reverted + ")");
+						return finalizeSru("sru:done (all-blocklisted) key=" + _key);
+						}
 
-					// 3) NEW: verify via unAPI (060R rules) BEFORE accepting PPN
-					verifyPpnBy060R(
-						ppn,
-						1930,
-						function onPass(meta) {
-						try {
-							Z.debug("PPN " + ppn + " passed 060R heuristic → overwrite 30xx");
-							Z.debug("Overwriting " + _code + " ##" + _printIndex + "## with PPN " + ppn);
+						// 3) unAPI-check all remaining candidates; accept only if exactly 1 ok
+						const ok = []; // each: {ppn, strength, review}
+						let idx = 0;
+
+						function next() {
+						if (idx >= filteredUniq.length) {
+							if (ok.length === 1) {
+							const chosen = ok[0];
+							const ppn = chosen.ppn;
+
+							Z.debug("Unique unAPI-validated PPN => " + ppn + " strength=" + chosen.strength);
 
 							const replaced = updateAuthorLineToPPN(_itemId, _code, _printIndex, ppn);
 							Z.debug("30xx replacement success? " + replaced);
 
 							addOnce8910(
-							_itemId,
-							"$aixzom$bVerfasserIn in der Zoterovorlage [" +
-								threadParams["authorName"] + "] einer PPN " + ppn +
-								" maschinell zugeordnet"
+								_itemId,
+								"$aixzom$bVerfasserIn in der Zoterovorlage [" +
+								threadParams["authorName"] + "] einer PPN " + ppn + " maschinell zugeordnet"
 							);
-						} catch (ex) {
-							Z.debug("unAPI pass handler threw: " + ex);
-							const reverted = updateAuthorLineToName(_itemId, _code, _printIndex, threadParams["authorName"]);
-							Z.debug("Error after unAPI pass → reverted to personal name (" + reverted + ")");
-						} finally {
-							finalizeSru("sru:done (unapi-pass) key=" + _key);
-						}
-						},
-						function onReject(reason) {
-						try {
-							Z.debug("PPN " + ppn + " rejected by 060R heuristic reason=" + reason + " → revert to personal name");
-							const reverted = updateAuthorLineToName(_itemId, _code, _printIndex, threadParams["authorName"]);
-							Z.debug("Reverted 30xx to personal name due to 060R heuristic (" + reverted + ")");
-						} finally {
-							finalizeSru("sru:done (unapi-reject:" + reason + ") key=" + _key);
-						}
-						}
-					);
 
-					// IMPORTANT: Do NOT finalize here. finalizeSru happens inside unAPI callbacks.
-					return;
+							// Option B: if 060R missing -> add "please review" note
+							if (chosen.review) {
+								addOnce8910(
+								_itemId,
+								"$aixzom$bPPN " + ppn + " automatisch zugeordnet, aber 060R fehlt – bitte prüfen"
+								);
+							}
+
+							return finalizeSru("sru:done (unapi-unique-" + chosen.strength + ") key=" + _key);
+							}
+							Z.debug("unAPI ok candidates: " + ok.map(x => x.ppn + ":" + x.strength).join(", "));
+							// not unique or none -> revert to name
+							Z.debug("unAPI result not unique (ok=" + ok.length + ") -> revert to personal name");
+							const reverted = updateAuthorLineToName(_itemId, _code, _printIndex, threadParams["authorName"]);
+							Z.debug("Reverted due to non-unique unAPI result (" + reverted + ")");
+							return finalizeSru("sru:done (unapi-not-unique) key=" + _key);
+						}
+
+						const ppn = filteredUniq[idx++];
+						verifyPpnByUnapi028Aand060R(ppn, threadParams["authorName"], 1930, function (ver) {
+							Z.debug("[unAPI] decision ppn=" + ppn + " => " + JSON.stringify(ver));
+							if (ver && ver.ok) {
+							ok.push({
+								ppn: ppn,
+								strength: ver.strength || "strong",
+								review: !!ver.review,
+								reviewReason: ver.reviewReason
+							});
+							}
+							next();
+						});
+						}
+
+						next();
+						return; // finalize happens inside next()
 
 					} catch (ex) {
-					Z.debug("SRU success handler threw: " + ex);
-					const reverted = updateAuthorLineToName(_itemId, _code, _printIndex, threadParams["authorName"]);
-					Z.debug("SRU handler exception → reverted (" + reverted + ")");
-					return finalizeSru("sru:done (exception) key=" + _key);
+						Z.debug("SRU success handler threw: " + ex);
+						const reverted = updateAuthorLineToName(_itemId, _code, _printIndex, threadParams["authorName"]);
+						Z.debug("Exception -> reverted (" + reverted + ")");
+						return finalizeSru("sru:done (exception) key=" + _key);
 					}
 				},
 
@@ -1599,44 +1623,28 @@ function performExport() {
 			}
 		}
 
-		_endReconcileOnce("reconcile:done auth=" + threadParams["authorName"]);
-		}
-
-		function _safeOnNoUnique() {
-		if (_reconcileResolved) return; _reconcileResolved = true;
-
-		try {
-			const _itemId = threadParams["currentItemId"];
-			const _printIndex = threadParams["printIndex"];
-			const _code = threadParams["code"];
-			const _name = threadParams["authorName"];
-			const changed = updateAuthorLineToName(_itemId, _code, _printIndex, _name);
-			Z.debug("reconcile no-unique → 30xx kept as personal name (ORCID included if available): " + changed);
-		} catch (e) {
-			Z.debug("reconcile no-unique handler threw: " + e);
-		}
-
-		_endReconcileOnce("reconcile:done (no-unique) auth=" + threadParams["authorName"]);
 		}
 
 		// Start reconciliation (sequential variants)
 		_bump(1, "reconcile:start auth=" + authorName);
 
-		let _reconcileClosed = false;
-		function _endReconcileOnce(reason) {
-		if (_reconcileClosed) { Z.debug("reconcile already finished (" + reason + ")"); return; }
-		_reconcileClosed = true; _bump(-1, reason); finishIfIdle();
-		}
-
-		queryReconcileUntilUnique(
-		_queries,
-		0,
+		reconcileCandidates(
+		authorName,
 		{
-			typeId: "DifferentiatedPerson",           // as requested
-			professionUris: profUris          // literals from map KEYS, e.g., "Theologe", "Theologin"
+			typeId: "DifferentiatedPerson",
+			professionUris: profUris,
+			maxCandidatesNoProfession: 3,
+			maxCandidatesWithProfession: 10
 		},
-		_safeOnUnique,
-		_safeOnNoUnique
+		function (gndCandidates) {
+			// pass candidates to SRU->unAPI, final decision there
+			processGndCandidatesToUniquePpn(gndCandidates, threadParams, _endReconcileOnce);
+		},
+		function (e) {
+			Z.debug("reconcileCandidates error: " + e);
+			updateAuthorLineToName(threadParams["currentItemId"], threadParams["code"], threadParams["printIndex"], threadParams["authorName"]);
+			_endReconcileOnce("reconcile:done (error) auth=" + threadParams["authorName"]);
+		}
 		);
 		}
 	  }
@@ -1902,7 +1910,7 @@ function performExport() {
 }
 
 /* =============================================================================================================== */
-/* L. BOOTSTRAP                                                                                                      */
+/* M. BOOTSTRAP                                                                                                    */
 /* =============================================================================================================== */
 
 function doExport() {
@@ -1944,7 +1952,7 @@ function doExport() {
 }
 
 /* =============================================================================================================== */
-/* M. DEBUG TOGGLE                                                                                                   */
+/* O. DEBUG TOGGLE                                                                                                 */
 /* =============================================================================================================== */
 
 var ENABLE_DEBUG = true;
