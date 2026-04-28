@@ -8,7 +8,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 2,
-	"lastUpdated": "2026-04-28 19:57:54"
+	"lastUpdated": "2026-04-28 20:07:30"
 }
 
 /*
@@ -1955,7 +1955,7 @@ function doExport() {
 /* O. DEBUG TOGGLE                                                                                                 */
 /* =============================================================================================================== */
 
-var ENABLE_DEBUG = true;
+var ENABLE_DEBUG = false;
 if (!ENABLE_DEBUG) {
   Z.debug = function () {};
 }
