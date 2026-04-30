@@ -5,11 +5,11 @@
 	"target": "https://austriaca.at/",
 	"minVersion": "5.0",
 	"maxVersion": "",
-	"priority": 100,
+	"priority": 90,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-04-30 15:13:51"
+	"lastUpdated": "2026-04-30 15:15:10"
 }
 
 /*
