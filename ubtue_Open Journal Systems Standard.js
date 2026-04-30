@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-04-14 15:00:27"
+	"lastUpdated": "2026-04-30 13:31:02"
 }
 
 /*
@@ -502,8 +502,11 @@ function invokeEMTranslator(doc) {
 		if (['2175-5841'].includes(i.ISSN)) {
 			let volumeIssueEntry = ZU.xpathText(doc, '//*[@class="breadcrumb"]');
  			if (volumeIssueEntry) {
- 				i.volume = volumeIssueEntry.trim().match(/v\.\s+(\d{2}),\s+n\.\s+(\d{2})/i)[1];
-				i.issue = volumeIssueEntry.trim().match(/v\.\s+(\d{2}),\s+n\.\s+(\d{2})/i)[2];
+				let match = volumeIssueEntry.trim().match(/v\.\s+(\d{2}),\s+n\.\s+(\d{2})/i);
+				if (match) {
+					i.volume = match[1];
+					i.issue = match[2];
+				}
 			}
 			let subtitle = ZU.xpathText(doc, '//h1/small');
 			if (subtitle) {
