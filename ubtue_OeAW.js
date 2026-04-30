@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-27 14:23:51"
+	"lastUpdated": "2026-04-30 15:13:51"
 }
 
 /*
@@ -88,6 +88,21 @@ function getOrcids(doc, item) {
 	})
 }
 
+function getKeywords(doc, item) {
+    let keywordElement = doc.querySelector('div.keywords2 > p');
+    if (keywordElement) {
+        let keywordText = keywordElement.textContent;
+        let cleanText = keywordText.replace(/^Keywords:\s*/i, '');
+        let keywords = cleanText.split(/[;,]/);
+        keywords.forEach(keyword => {
+            let trimmedKeyword = keyword.trim();
+            if (trimmedKeyword) {
+                item.tags.push(trimmedKeyword);
+            }
+        });
+    }
+}
+
 async function scrape(doc, url = doc.location.href) {
 	let translator = Zotero.loadTranslator('web');
 	// Embedded Metadata
@@ -95,8 +110,9 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setDocument(doc);
 	
 	translator.setHandler('itemDone', (_obj, item) => {
-		getOrcids(doc, item);
 		item.tags = [];
+		getOrcids(doc, item);
+		getKeywords(doc, item);
 		if (item.title.match(/Rezensionen/)) {
 			item.notes.push('LF:');
 			item.tags.push('RezensionstagPica');
