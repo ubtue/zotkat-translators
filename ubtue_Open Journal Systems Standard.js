@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-04-30 13:31:02"
+	"lastUpdated": "2026-05-11 10:16:24"
 }
 
 /*
@@ -348,7 +348,7 @@ function invokeEMTranslator(doc) {
 			}
 		}
 
-		if (orcidAuthorEntryCaseI.length && ['2182-8822'].includes(i.ISSN)) {
+		if (orcidAuthorEntryCaseI.length && ['2182-8822', '2175-5841'].includes(i.ISSN)) {
 			for (let a of orcidAuthorEntryCaseI) {
 				let authorElement = a.querySelector('strong');
 				let orcidElement = a.querySelector('.orcid');
@@ -528,7 +528,7 @@ function invokeEMTranslator(doc) {
 		if (["2159-6875"].includes(i.ISSN)) {
 			if (reviewURLs.includes(i.url)) i.tags.push("RezensionstagPica");
 		}
-		if (['2617-3697', '2660-4418', '2748-6419', '1988-3269', '1804-6444', '2391-4327', '2174-0887', '2709-8435', '2296-469X', '2057-5831', '2695-4397', '2169-2289', '2179-0019', '2254-6227'].includes(i.ISSN)) {
+		if (['2617-3697', '2660-4418', '2748-6419', '1988-3269', '1804-6444', '2391-4327', '2174-0887', '2709-8435', '2296-469X', '2057-5831', '2695-4397', '2169-2289', '2179-0019', '2254-6227', '2175-5841'].includes(i.ISSN)) {
 			let articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
 			if (articleType && articleType.match(/Media reviews|Rezensionen|recensiones|Reseñas|resenhas|(?:Part\s+Two:\s+)?Reviews?|Buchbesprechungen/i)) {
 				i.tags.push("RezensionstagPica");
