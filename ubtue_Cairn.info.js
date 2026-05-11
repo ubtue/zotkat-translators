@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-11-10 09:19:49"
+	"lastUpdated": "2026-05-11 11:40:48"
 }
 
 /*
@@ -79,29 +79,30 @@ async function doWeb(doc, url) {
 }
 
 function romanToInt(r) {
-    if (r.match(/^[IVXLCDM]+$/i)) {
-        r = r.toUpperCase();
-        const sym = { 
-            'I': 1, 'V': 5, 'X': 10, 'L': 50, 
-            'C': 100, 'D': 500, 'M': 1000
-        };
-        let result = 0;
-        for (let i = 0; i < r.length; i++) {
-            const cur = sym[r[i]];
-            const next = sym[r[i+1]];
-            if (cur < next) {
-                result += next - cur;
-                i++;
-            } else {
-                result += cur;
-            }
-        }
-        return result; 
-    }
-    return r;
+	if (r.match(/^[IVXLCDM]+$/i)) {
+		r = r.toUpperCase();
+		const sym = { 
+			'I': 1, 'V': 5, 'X': 10, 'L': 50, 
+			'C': 100, 'D': 500, 'M': 1000
+		};
+		let result = 0;
+		for (let i = 0; i < r.length; i++) {
+			const cur = sym[r[i]];
+			const next = sym[r[i+1]];
+			if (cur < next) {
+				result += next - cur;
+				i++;
+			} else {
+				result += cur;
+			}
+		}
+		return result; 
+	}
+	return r;
 }
 
 async function getAbstract(item, doc) {
+	delete item.abstractNote; 
 	let abstractElements = doc.querySelectorAll('#article-resume .resume .corps');
 	if (abstractElements.length > 0) {
 		abstractElements.forEach(abstract => {
