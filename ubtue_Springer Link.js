@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-05-12 08:42:36"
+	"lastUpdated": "2026-05-12 08:53:48"
 }
 
 /*
@@ -69,8 +69,7 @@ function getResultList(doc) {
 		'//div[@class="toc"]/ol//li[contains(@class,"toc-item")]/p[@class="title"]/a',
 		'//li[@class="c-list-group__item"]//h3/a',
 		'//h3[@class="c-card-open__heading"]/a',
-		'//h3[@class="app-card-open__heading"]/a',
-		'//h2[@class="app-card-open__heading"]/a'
+		'//*[self::h2 or self::h3][@class="app-card-open__heading"]/a'
 	];
 
 	let results = [];
