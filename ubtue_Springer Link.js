@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-09-13 07:16:24"
+	"lastUpdated": "2026-05-12 08:53:48"
 }
 
 /*
@@ -31,7 +31,7 @@
  */
 
 function detectWeb(doc, url) {
-	var action = url.match(/^https?:\/\/[^/]+\/([^/?#]+)/);
+	var action = url.match(/^https?:\/\/[^\/]+\/([^\/?#]+)/);
 	if (!action) return false;
 	if (!doc.head || !doc.head.getElementsByTagName('meta').length) {
 		Z.debug("Springer Link: No head or meta tags");
@@ -62,23 +62,23 @@ function detectWeb(doc, url) {
 }
 
 function getResultList(doc) {
-    const xpaths = [
-        '//ol[@class="content-item-list"]/li/*[self::h3 or self::h2]/a',
-        '//div[@class="toc"]/ol//div[contains(@class,"toc-item")]/h3/a',
-        '//div[@class="book-toc-container"]/ol//div[contains(@class,"content-type-list__meta")]/div/a',
-        '//div[@class="toc"]/ol//li[contains(@class,"toc-item")]/p[@class="title"]/a',
-        '//li[@class="c-list-group__item"]//h3/a',
-        '//h3[@class="c-card-open__heading"]/a',
-        '//h3[@class="app-card-open__heading"]/a'
-    ];
+	const xpaths = [
+		'//ol[@class="content-item-list"]/li/*[self::h3 or self::h2]/a',
+		'//div[@class="toc"]/ol//div[contains(@class,"toc-item")]/h3/a',
+		'//div[@class="book-toc-container"]/ol//div[contains(@class,"content-type-list__meta")]/div/a',
+		'//div[@class="toc"]/ol//li[contains(@class,"toc-item")]/p[@class="title"]/a',
+		'//li[@class="c-list-group__item"]//h3/a',
+		'//h3[@class="c-card-open__heading"]/a',
+		'//*[self::h2 or self::h3][@class="app-card-open__heading"]/a'
+	];
 
-    let results = [];
-    for (const xpath of xpaths) {
-        results = ZU.xpath(doc, xpath);
-        if (results.length) break;  // Stop if any results are found
-    }
-    
-    return results;
+	let results = [];
+	for (const xpath of xpaths) {
+		results = ZU.xpath(doc, xpath);
+		if (results.length) break;  // Stop if any results are found
+	}
+	
+	return results;
 }
 
 
