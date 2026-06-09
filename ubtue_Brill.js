@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-04-09 14:46:49"
+	"lastUpdated": "2026-06-09 09:43:18"
 }
 
 /*
@@ -143,9 +143,9 @@ function postProcess(doc, item) {
 	// mark articles as "LF" (MARC=856 |z|kostenfrei), that are published as open access	
 	let openAccessTag = text(doc, '.has-license span');
 	if (openAccessTag && openAccessTag.match(/open\s+access/gi)) item.notes.push({note: 'LF:'});
-  // mark articles as "LF" (MARC=856 |z|kostenfrei), that are free accessible e.g. conference report 10.30965/25890433-04902001 
-	let freeAccess = text(doc, '.color-access-free');
-	if (freeAccess && freeAccess.match(/(free|freier)\s+(access|zugang)/gi)) item.notes.push('LF:');
+	// mark articles as "LF" (MARC=856 |z|kostenfrei), that are free accessible e.g. conference report 10.30965/25890433-04902001 or article 10.1163/25899201-bja10036
+	let openAccessTag2 = doc.querySelector('.color-access-open, .color-access-free ');
+	if (openAccessTag2) item.notes.push('LF:');
 	if (!item.itemType)	item.itemType = "journalArticle";
 	for (let tag of ZU.xpath(doc, '//meta[@property="article:tag"]/@content')) {
 		if (!item.tags.includes(tag.textContent)) item.tags.push(tag.textContent);
@@ -179,7 +179,7 @@ const JOURNAL_ISSN_MAP = new Map([
 function getISSNOrNotMapped(item) {
    let issn;
    if (item.publicationTitle) 
-       issn = JOURNAL_ISSN_MAP.get(item.publicationTitle.toLowerCase());
+	   issn = JOURNAL_ISSN_MAP.get(item.publicationTitle.toLowerCase());
    return issn ? issn : "ISSN not mapped";
 }
 
