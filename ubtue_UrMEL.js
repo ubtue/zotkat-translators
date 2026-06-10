@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-06-10 09:36:43"
+	"lastUpdated": "2026-06-10 09:45:28"
 }
 
 /*
@@ -114,5 +114,46 @@ async function scrape(doc, url = doc.location.href) {
 
 /** BEGIN TEST CASES **/
 var testCases = [
+	{
+		"type": "web",
+		"url": "https://zs.thulb.uni-jena.de/receive/jportal_jparticle_01539707",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Mehr als Seelenbegleitung und Kreuzrittermetaphorik : Zur Rolle Christlicher Ethik in öffentlichen Diskursen",
+				"creators": [
+					{
+						"firstName": "Thomas",
+						"lastName": "Laubach",
+						"creatorType": "author"
+					}
+				],
+				"date": "2026",
+				"DOI": "10.24403/jp.1539707",
+				"ISSN": "3052-5535",
+				"abstractNote": "Zeitschriften-Portal, Journal-Portal",
+				"issue": "1",
+				"libraryCatalog": "zs.thulb.uni-jena.de",
+				"pages": "2-14",
+				"publicationTitle": "Theologie der Gegenwart",
+				"shortTitle": "Mehr als Seelenbegleitung und Kreuzrittermetaphorik",
+				"url": "https://zs.thulb.uni-jena.de/receive/jportal_jparticle_01539707",
+				"volume": "69",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	}
 ]
 /** END TEST CASES **/
