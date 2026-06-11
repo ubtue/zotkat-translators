@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-06-10 09:45:28"
+	"lastUpdated": "2026-06-11 10:16:36"
 }
 
 /*
@@ -100,6 +100,7 @@ async function scrape(doc, url = doc.location.href) {
 	
 	translator.setHandler('itemDone', (_obj, item) => {
 		item.tags = [];
+		delete item.abstractNote;
 		if (item.publicationTitle && item.publicationTitle.match(/Theologie der Gegenwart/i)) {
 			item.ISSN = '3052-5535';
 		}
