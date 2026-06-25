@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-04-14 14:19:09"
+	"lastUpdated": "2026-06-25 16:13:33"
 }
 
 /*
@@ -117,6 +117,14 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			Z.debug(ZU.xpathText(doc, '//div[@id="doi"]/a'));
 			if (ZU.xpathText(doc, '//div[@id="doi"]/a') != null) item.DOI = ZU.xpathText(doc, '//div[@id="doi"]/a').replace(/https?:\/\/doi.org\//, "");
 		}
+
+		if (['0035-1423'].includes(item.ISSN)) {
+			let volumeElement = ZU.xpath(doc, '//meta[@name="prism.number"]')[0];
+			if (volumeElement) {
+				item.volume = volumeElement.getAttribute('content');
+			}
+		}
+		
 		item.complete();
 	});
 	translator.translate();
