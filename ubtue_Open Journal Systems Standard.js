@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-06-22 08:12:49"
+	"lastUpdated": "2026-06-24 13:31:43"
 }
 
 /*
@@ -91,16 +91,6 @@ function invokeEMTranslator(doc) {
 		//article URL and review tag for Journal of the AOS
 		if (i.ISSN == "2169-2289") {
 			i.url = ZU.xpathText(doc, '//meta[@name="DC.Identifier.URI"]/@content');
-		}
-		//replace issue number with volume number for certain journals and delete year
-		if (i.ISSN == "2297-6469") {
-			i.volume = i.issue.split(/\/\d{4}/i)[0];
-			delete i.issue;
-		}
-		//replace issue number with volume number
-		if (['2182-8822', '0718-9273', '1904-8181', '1822-4571', '2974-7309'].includes(i.ISSN)) {
-			i.volume = i.issue;
-			delete i.issue;
 		}
 
 		if (['2296-469X'].includes(i.ISSN)) {
@@ -860,6 +850,17 @@ function invokeEMTranslator(doc) {
 
 		if (i.issue && i.issue.match(/\d+-\d+/)) {
 			i.issue = i.issue.replace('-', '/');
+		}
+
+		//replace issue number with volume number for certain journals and delete year
+		if (i.ISSN == "2297-6469") {
+			i.volume = i.issue.split(/\/\d{4}/i)[0];
+			delete i.issue;
+		}
+		//replace issue number with volume number
+		if (['2182-8822', '0718-9273', '1904-8181', '1822-4571', '2974-7309'].includes(i.ISSN)) {
+			i.volume = i.issue;
+			delete i.issue;
 		}
 
 		i.complete();
