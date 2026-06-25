@@ -1,15 +1,15 @@
 {
-    "translatorID": "0c5a7d92-1a1e-407f-a139-d68abbac163c",
-    "label": "Liverpool University Press Online",
-    "creator": "Madeesh Kannan",
-    "target": "^https?:\/\/online.liverpooluniversitypress.co.uk\/((doi)|(toc))\/",
-    "minVersion": "3.0",
-    "maxVersion": "",
-    "priority": 90,
-    "inRepository": false,
-    "translatorType": 4,
-    "browserSupport": "gcsibv",
-    "lastUpdated": "2019-03-22 13:14:00"
+	"translatorID": "0c5a7d92-1a1e-407f-a139-d68abbac163c",
+	"label": "ubtue_Liverpool University Press Online",
+	"creator": "Madeesh Kannan",
+	"target": "^https?://www.liverpooluniversitypress.co.uk/((doi)|(toc))/",
+	"minVersion": "3.0",
+	"maxVersion": "",
+	"priority": 100,
+	"inRepository": true,
+	"translatorType": 4,
+	"browserSupport": "gcsibv",
+	"lastUpdated": "2025-04-11 09:03:23"
 }
 
 /*
@@ -35,18 +35,18 @@
 
 
 function detectWeb(doc, url) {
-    if (url.match(/\/toc\//))
-        return "multiple";
-    else {
-        // placeholder, filled in by the Atypon translator
-        return "journalArticle";
-    }
+	if (url.match(/\/toc\//))
+		return "multiple";
+	else {
+		// placeholder, filled in by the Atypon translator
+		return "journalArticle";
+	}
 }
 
 function getSearchResults(doc) {
 	var items = {};
 	var found = false;
-	var rows = ZU.xpath(doc, '//div[contains(@class, "art_title")]//a')
+	var rows = ZU.xpath(doc, '//h5[contains(@class, "issue-item__title")]/a');
 	for (let i=0; i<rows.length; i++) {
 		let href = rows[i].href;
 		let title = ZU.trimInternal(rows[i].textContent);
@@ -58,24 +58,25 @@ function getSearchResults(doc) {
 }
 
 function postProcess(doc, item) {
-    item.abstractNote = ZU.xpathText(doc, '//div[contains(@class, "abstractInFull")]//p[not(@class="summary-title")]');
-    item.tags = ZU.xpath(doc, '//div[@class= "abstractKeywords"]//a').map(x => x.textContent.trim());
+	item.abstractNote = ZU.xpathText(doc, '//div[contains(@class, "abstractInFull")]//p[not(@class="summary-title")]');
+	item.tags = ZU.xpath(doc, '//div[@class= "abstractKeywords"]//a').map(x => x.textContent.trim());
 
-    item.complete();
+	item.complete();
 }
 
 function invokeAtyponTranslator(doc) {
-    var translator = Zotero.loadTranslator("web");
-    translator.setTranslator("5af42734-7cd5-4c69-97fc-bc406999bdba");
-    translator.setDocument(doc);
-    translator.setHandler("itemDone", function (t, i) {
-        postProcess(doc, i);
-    });
-    translator.translate();
+	var translator = Zotero.loadTranslator("web");
+	//translator.setTranslator("5af42734-7cd5-4c69-97fc-bc406999bdba");
+	translator.setTranslator("5bf42734-7cd5-4c69-97fc-bc406999bdba");
+	translator.setDocument(doc);
+	translator.setHandler("itemDone", function (t, i) {
+		postProcess(doc, i);
+	});
+	translator.translate();
 }
 
 function doWeb(doc, url) {
-    if (detectWeb(doc, url) === "multiple") {
+	if (detectWeb(doc, url) === "multiple") {
 		Zotero.selectItems(getSearchResults(doc), function (items) {
 			if (!items) {
 				return true;
@@ -87,5 +88,10 @@ function doWeb(doc, url) {
 			ZU.processDocuments(articles, invokeAtyponTranslator);
 		});
 	} else
-        invokeAtyponTranslator(doc, url);
+		invokeAtyponTranslator(doc, url);
 }
+
+/** BEGIN TEST CASES **/
+var testCases = [
+]
+/** END TEST CASES **/
