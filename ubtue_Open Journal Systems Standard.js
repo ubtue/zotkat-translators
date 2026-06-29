@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-06-24 13:31:43"
+	"lastUpdated": "2026-06-29 10:28:07"
 }
 
 /*
@@ -828,6 +828,20 @@ function invokeEMTranslator(doc) {
 			}
 		}
 
+		if (['2519-5425'].includes(i.ISSN)) {
+			if (i.abstractNote) {
+				let match = i.abstractNote.match(/key\s+words?:\s*(.+)/i);
+				if (match) {
+					let keywords = match[1]
+					.split(/[,;]/)
+					.map((k) => k.trim().replace(/\.$/, ''))
+					.filter(Boolean);
+					
+					i.tags.push(...keywords);
+				}
+			}
+		}
+
 		if (['1918-610X'].includes(i.ISSN)) {
 			i.creators = i.creators.filter(creator => !(
 				(creator.firstName.toLowerCase() === "the" &&
@@ -858,7 +872,7 @@ function invokeEMTranslator(doc) {
 			delete i.issue;
 		}
 		//replace issue number with volume number
-		if (['2182-8822', '0718-9273', '1904-8181', '1822-4571', '2974-7309'].includes(i.ISSN)) {
+		if (['2182-8822', '0718-9273', '1904-8181', '1822-4571', '2974-7309', '2519-5425'].includes(i.ISSN)) {
 			i.volume = i.issue;
 			delete i.issue;
 		}
