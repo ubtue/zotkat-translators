@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-05-12 08:53:48"
+	"lastUpdated": "2026-07-03 08:37:09"
 }
 
 /*
@@ -285,6 +285,10 @@ function postprocessWithEmbeddedMetadataTranslator(doc, originalItem) {
 	translator.setHandler("itemDone", function (t, extractedMetadata) {
 		originalItem.pages = extractedMetadata.pages;
 
+		if (originalItem.ISSN == "1572-8684") {
+			delete originalItem.pages;
+		}
+
 		originalItem.complete();
 	});
 	translator.translate();
@@ -309,6 +313,11 @@ function scrape(doc, url) {
 				title: "Springer Full Text PDF",
 				mimeType: "application/pdf"
 			});
+
+			if (item.ISSN == "1572-8684" && item.pages) {
+				item.notes.push("artikelID:" + item.pages);
+				delete item.pages;
+			}
 
 			if (shouldPostprocessWithEmbeddedMetadata(item)) postprocessWithEmbeddedMetadataTranslator(doc, item);
 			else item.complete();
