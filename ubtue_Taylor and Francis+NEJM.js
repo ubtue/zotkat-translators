@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-10 13:51:24"
+	"lastUpdated": "2026-07-03 11:34:40"
 }
 
 /*
@@ -159,7 +159,7 @@ function scrape(doc, url) {
 					//ubtue:normalizing page numbers
 					if (item.pages) {
 						item.pages = item.pages.replace("–", "-");
-						pagesMatch = item.pages.match(/^(\d+)-(\d+)$/);
+						pagesMatch = item.pages.match(/^(\d+|[ivxlcdm]+)-(\d+|[ivxlcdm]+)$/i);
 						if (pagesMatch[1] == pagesMatch[2]) {
 							item.pages = pagesMatch[1];
 						}
