@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-04-10 12:15:14"
+	"lastUpdated": "2026-07-03 07:18:25"
 }
 
 /*
@@ -61,7 +61,12 @@ function getSearchResults(doc) {
 const JOURNAL_ISSN_MAP = new Map([
 	["christian bioethics", "1744-4195"],
 	["christian bioethics: non-ecumenical studies in medical morality", "1744-4195"],
-	["sociology of religion", "1069-4404"]
+	["sociology of religion", "1069-4404"],
+	["the journal of theological studies", "1477-4607"],
+	["journal of the american academy of religion", "1477-4585"],
+	["journal of semitic studies", "1477-8556"],
+	["holocaust and genocide studies", "1476-7937"],
+	["journal of church and state", "2040-4867"]
 ]);
 
 // ISSN lookup based on publication title (case insensitive)
