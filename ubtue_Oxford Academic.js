@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-07-06 13:35:11"
+	"lastUpdated": "2026-07-06 13:37:09"
 }
 
 /*
@@ -133,6 +133,10 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		i.url = i.url.match(/dx.doi.org/) && i.DOI ? "" : i.url;
 		if (!i.ISSN) {
 			i.ISSN = getISSNOrNotMapped(i);
+		}
+
+		if (i.DOI && i.ISSN === "0021-969X") {
+			i.notes.push('artikelID:' + i.DOI.replace(/.*\//, ''));
 		}
 
 		i.complete();
