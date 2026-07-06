@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-07-03 07:18:25"
+	"lastUpdated": "2026-07-06 13:35:11"
 }
 
 /*
@@ -77,6 +77,22 @@ function getISSNOrNotMapped(i) {
    return issn ? issn : "ISSN not mapped";
 }
 
+// Extract dataLayer from script tag
+function getDataLayer(doc) {
+	let scriptText = ZU.xpathText(doc, '//script[contains(text(), "dataLayer")]');
+	if (scriptText) {
+		let match = scriptText.match(/var\s+dataLayer\s*=\s*(\[.*?\]);/s);
+		if (match) {
+			try {
+				return JSON.parse(match[1]);
+			} catch(e) {
+				return null;
+			}
+		}
+	}
+	return null;
+}
+
 function invokeEmbeddedMetadataTranslator(doc, url) {
 	var translator = Zotero.loadTranslator("web");
 	translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
@@ -91,16 +107,14 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 			if (tagreview.match(/Reviews|Book Reviews?/i)) i.tags.push('RezensionstagPica');
 		}
 		
-		if (ZU.xpathText(doc, '//i[@class="icon-availability_open"]/@title') != null) {
-			if (ZU.xpathText(doc, '//i[@class="icon-availability_open"]/@title').match(/open access/i)) {
+		// Check for open access from dataLayer
+		let dataLayer = getDataLayer(doc);
+		if (dataLayer && dataLayer[0] && dataLayer[0].access_type) {
+			if (dataLayer[0].access_type.match(/open access|free/i)) {
 				i.notes.push("LF:");
 			}
 		}
-		else if (ZU.xpathText(doc, '//i[@class="icon-availability_free"]/@title') != null) {
-			if (ZU.xpathText(doc, '//i[@class="icon-availability_free"]/@title').match(/free/i)) {
-				i.notes.push("LF:");
-			}
-		}
+
 		let orcid = 'lala';
 		let author_information_tags = ZU.xpath(doc, '//div[contains(@class,"authorInfo_OUP_ArticleTop_Info_Widget")]');
 		for (let a = 0; a < author_information_tags.length; a++) {
@@ -120,6 +134,7 @@ function invokeEmbeddedMetadataTranslator(doc, url) {
 		if (!i.ISSN) {
 			i.ISSN = getISSNOrNotMapped(i);
 		}
+
 		i.complete();
 	});
 	translator.translate();
