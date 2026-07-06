@@ -8,7 +8,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 2,
-	"lastUpdated": "2026-04-28 20:07:30"
+	"lastUpdated": "2026-07-06 12:47:54"
 }
 
 /*
@@ -742,10 +742,10 @@ function processGndCandidatesToUniquePpn(gndCandidates, threadParams, finalizeRe
 /* =============================================================================================================== */
 /*
   EN: Normalize and classify SSG values from maps. Variants may include "0$a1", "2,1", "NABZ", etc.
-      We treat:
-        - SSG0: "0" and "0..." (e.g. "0$a1")
-        - SSG1: only exact "1"
-        - NONE: everything else (including "NABZ" and "2,1")
+	  We treat:
+		- SSG0: "0" and "0..." (e.g. "0$a1")
+		- SSG1: only exact "1"
+		- NONE: everything else (including "NABZ" and "2,1")
 */
 
 function classifySsgField(SsgField) {
@@ -844,15 +844,15 @@ function lookupTitlePPNFromOpacByGND(gndEitherForm, onSuccess, onError) {
   EN:
   - unAPI provides person records in "pp" (plain-text, line-based PICA).
   - We validate candidate PPNs by:
-      1) Strict name check using 028A ($a surname, $d given name)
-      2) Temporal plausibility guard using 060R (time span / century)
+	  1) Strict name check using 028A ($a surname, $d given name)
+	  2) Temporal plausibility guard using 060R (time span / century)
   - Final uniqueness in the pipeline is decided after unAPI: only if exactly ONE candidate passes.
 
   DE:
   - unAPI liefert Personensätze im Format "pp" (Text, zeilenbasiert, PICA).
   - Validierung von PPN-Kandidaten über:
-      1) striktes Namensmatching (028A)
-      2) Zeit-/Plausibilitätsprüfung (060R)
+	  1) striktes Namensmatching (028A)
+	  2) Zeit-/Plausibilitätsprüfung (060R)
 */
 
 /**
@@ -874,13 +874,13 @@ function buildUnapiUrlForPpn(ppn) {
  */
 function _normToken(s) {
   return String(s || "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/ß/g, "ss")
-    .replace(/[^\p{L}\p{N}\s-]+/gu, "")
-    .replace(/\s+/g, " ");
+	.trim()
+	.toLowerCase()
+	.normalize("NFKD")
+	.replace(/[\u0300-\u036f]/g, "")
+	.replace(/ß/g, "ss")
+	.replace(/[^\p{L}\p{N}\s-]+/gu, "")
+	.replace(/\s+/g, " ");
 }
 
 /**
@@ -897,27 +897,27 @@ function parse028AFromPp(ppText) {
   const variants = [];
 
   function extractSubfields(line, code) {
-    const re = new RegExp(`[\\$ƒ]${code}([^\\$ƒ]*)`, "g");
-    const out = [];
-    let m;
-    while ((m = re.exec(line)) !== null) out.push((m[1] || "").trim());
-    return out;
+	const re = new RegExp(`[\\$ƒ]${code}([^\\$ƒ]*)`, "g");
+	const out = [];
+	let m;
+	while ((m = re.exec(line)) !== null) out.push((m[1] || "").trim());
+	return out;
   }
 
   for (const raw of lines) {
-    const line = String(raw || "");
-    if (!line.startsWith("028A")) continue;
+	const line = String(raw || "");
+	if (!line.startsWith("028A")) continue;
 
-    const surs = extractSubfields(line, "a");
-    const giv  = extractSubfields(line, "d");
+	const surs = extractSubfields(line, "a");
+	const giv  = extractSubfields(line, "d");
 
-    for (const s of surs) {
-      if (giv.length) {
-        for (const g of giv) variants.push({ surname: _normToken(s), given: _normToken(g) });
-      } else {
-        variants.push({ surname: _normToken(s), given: "" });
-      }
-    }
+	for (const s of surs) {
+	  if (giv.length) {
+		for (const g of giv) variants.push({ surname: _normToken(s), given: _normToken(g) });
+	  } else {
+		variants.push({ surname: _normToken(s), given: "" });
+	  }
+	}
   }
   return variants;
 }
@@ -948,34 +948,34 @@ function parse060RFromPp(ppText) {
   let hasCentury20or21 = false;
 
   function extractSubfields(line, code) {
-    const re = new RegExp(`[\\$ƒ]${code}([^\\$ƒ]*)`, "g");
-    const out = [];
-    let m;
-    while ((m = re.exec(line)) !== null) out.push((m[1] || "").trim());
-    return out;
+	const re = new RegExp(`[\\$ƒ]${code}([^\\$ƒ]*)`, "g");
+	const out = [];
+	let m;
+	while ((m = re.exec(line)) !== null) out.push((m[1] || "").trim());
+	return out;
   }
 
   function chunkHas20or21Century(chunk) {
-    const s = String(chunk || "");
-    return /(^|[^\d])(20|21)(?!\d)/.test(s);
+	const s = String(chunk || "");
+	return /(^|[^\d])(20|21)(?!\d)/.test(s);
   }
 
   for (const raw of lines) {
-    const line = String(raw || "");
-    if (!line.startsWith("060R")) continue;
+	const line = String(raw || "");
+	if (!line.startsWith("060R")) continue;
 
-    has060R = true;
+	has060R = true;
 
-    if (extractSubfields(line, "b").length > 0) hasB = true;
+	if (extractSubfields(line, "b").length > 0) hasB = true;
 
-    for (const chunk of extractSubfields(line, "a")) {
-      const m = String(chunk).match(/(\d{4})/);
-      if (m) yearsA.push(parseInt(m[1], 10));
-    }
+	for (const chunk of extractSubfields(line, "a")) {
+	  const m = String(chunk).match(/(\d{4})/);
+	  if (m) yearsA.push(parseInt(m[1], 10));
+	}
 
-    for (const chunk of extractSubfields(line, "d")) {
-      if (chunkHas20or21Century(chunk)) hasCentury20or21 = true;
-    }
+	for (const chunk of extractSubfields(line, "d")) {
+	  if (chunkHas20or21Century(chunk)) hasCentury20or21 = true;
+	}
   }
 
   return { has060R, hasB, yearsA, hasCentury20or21 };
@@ -994,9 +994,9 @@ function strictNameMatches(authorNameSurnameCommaGiven, variants028A) {
   if (!inSurname || !inGiven) return false;
 
   for (const v of (variants028A || [])) {
-    if (!v) continue;
-    if (v.surname !== inSurname) continue;
-    if ((v.given || "") === inGiven) return true;
+	if (!v) continue;
+	if (v.surname !== inSurname) continue;
+	if ((v.given || "") === inGiven) return true;
   }
   return false;
 }
@@ -1022,32 +1022,32 @@ function verifyPpnByUnapi028Aand060R(ppn, authorName, minYear, onResult) {
   const url = buildUnapiUrlForPpn(_ppn);
 
   ZU.doGet(
-    url,
-    function (ppText) {
-      try {
-        const v028 = parse028AFromPp(ppText);
-        const nameOk = strictNameMatches(authorName, v028);
-        if (!nameOk) return once({ ok: false, reason: "name-mismatch" });
+	url,
+	function (ppText) {
+	  try {
+		const v028 = parse028AFromPp(ppText);
+		const nameOk = strictNameMatches(authorName, v028);
+		if (!nameOk) return once({ ok: false, reason: "name-mismatch" });
 
-        const info = parse060RFromPp(ppText);
+		const info = parse060RFromPp(ppText);
 
-        if (!info.has060R) return once({ ok: true, strength: "weak", review: true, reviewReason: "060R_MISSING" });
-        if (info.hasB) return once({ ok: false, reason: "060R-has-b" });
+		if (!info.has060R) return once({ ok: true, strength: "weak", review: true, reviewReason: "060R_MISSING" });
+		if (info.hasB) return once({ ok: false, reason: "060R-has-b" });
 
-        let maxA = null;
-        if (info.yearsA && info.yearsA.length) maxA = Math.max.apply(null, info.yearsA);
-        if (maxA != null && maxA >= threshold) return once({ ok: true, strength: "strong", maxA: maxA });
+		let maxA = null;
+		if (info.yearsA && info.yearsA.length) maxA = Math.max.apply(null, info.yearsA);
+		if (maxA != null && maxA >= threshold) return once({ ok: true, strength: "strong", maxA: maxA });
 
-        if (info.hasCentury20or21) return once({ ok: true, strength: "strong", byCentury: true });
+		if (info.hasCentury20or21) return once({ ok: true, strength: "strong", byCentury: true });
 
-        return once({ ok: false, reason: "060R-too-old-or-unknown" });
-      } catch (e) {
-        return once({ ok: false, reason: "parse-error:" + e });
-      }
-    },
-    function (err) {
-      return once({ ok: false, reason: "unapi-failed:" + (err || "unknown") });
-    }
+		return once({ ok: false, reason: "060R-too-old-or-unknown" });
+	  } catch (e) {
+		return once({ ok: false, reason: "parse-error:" + e });
+	  }
+	},
+	function (err) {
+	  return once({ ok: false, reason: "unapi-failed:" + (err || "unknown") });
+	}
   );
 }
 
@@ -1280,15 +1280,17 @@ function performExport() {
 	if (item.DOI && institution_retrieve_sign == "tojs") {
 	  localURL = "\n7133 " + "https://doi.org/" + item.DOI;
 	  item.url = null;
-	}
-
-	var localURL = "";		
+	}	
 	if (item.url && item.url.match(/research.ebsco.com/) && physicalForm === "O") {
-		localURL = "\\n7133 " + item.url + "$xH$3Volltext$4ZZ$534";
+		localURL = "\n7133 " + item.url + "$xH$3Volltext$4ZZ$534";
 		item.url = null;		
 	}
 	if (item.DOI && institution_retrieve_sign == "zojs") {
-		localURL = "\\n7133 " + "https://doi.org/" + item.DOI;
+		localURL = "\n7133 " + "https://doi.org/" + item.DOI;
+		item.url = null;
+	}
+	if (item.url && item.url.match(/access.heinonline/) && physicalForm === "O") {
+		localURL = "\n7133 " + item.url + "$xG$3Volltext$4ZZ$534";
 		item.url = null;
 	}
 
