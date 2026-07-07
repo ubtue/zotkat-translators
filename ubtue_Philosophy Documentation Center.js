@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-04-30 13:54:21"
+	"lastUpdated": "2026-07-07 11:28:31"
 }
 
 /*
@@ -56,16 +56,13 @@ function getSearchResults(doc, url) {
 		items[href] = title;
 	}
 	if (!found) {
-		//rows = ZU.xpath(doc, '//tr[td[a[@class="rl_anchor"]]]');
 		rows = ZU.xpath(doc, '//a[@class="rl_anchor"]');
 		titles = ZU.xpathText(doc, '//span[@class="title"]/label').trim().split('\n');
 		if (rows[0]) {
 			let name = rows[0].name.match(/[^_]+/)[0];
 			for (let i=0; i<rows.length; i++) {
-				//let row = rows[i].innerHTML;
 				let row = rows[i].name;
-				//let href = "https://www.pdcnet.org/collection/"+row.match(/a href="(show[^"]+)/)[1];
-				let href = "https://www.pdcnet.org/"+name+"/content/"+row;
+				let href = "https://www.pdcnet.org/pdc/bvdb.nsf/purchase26?openform&fp="+name+"&id="+row;
 				let title = titles[i].trim();
 				if (!href || !title) continue;
 				found = true;
@@ -106,12 +103,20 @@ function scrape(doc, url) {
 			i.creators.push(ZU.cleanAuthor(author, "author", true));
 		}
 
-		let orcidAuthors = ZU.xpath(doc, '//div[contains(@id, "articleInfo")]')[0].innerHTML.match(/>[^<]+<a\shref=[^<]+</g);
-		for (let j in orcidAuthors) {
-			let orcidAuthor = orcidAuthors[j].match(/^>([^<]+)</)[1];
-			if (orcidAuthors[j].match(/orcid\.org\/\d{4}-\d{4}-\d{4}-\d{4}/)) {
-				let orcid = orcidAuthors[j].match(/orcid\.org\/(\d{4}-\d{4}-\d{4}-\d{3}(?:\d|X|x))/)[1];
-				i.notes.push("orcid:" + orcid + " | " + orcidAuthor + " | taken from website");
+		let orcidAuthors = ZU.xpath(doc, '//div[contains(@id, "articleInfo")]');
+		if (Array.isArray(orcidAuthors) && orcidAuthors.length) {
+			for (let j = 0; j < orcidAuthors.length; j++) {
+				let authorNode = orcidAuthors[j];
+				let html = authorNode?.innerHTML || '';
+
+				let authorMatch = html.match(/^>([^<]+)</);
+				let orcidMatch = html.match(/orcid\.org\/(\d{4}-\d{4}-\d{4}-\d{3}(?:\d|X|x))/);
+
+				if (authorMatch && orcidMatch) {
+					i.notes.push(
+						"orcid:" + orcidMatch[1] + " | " + authorMatch[1] + " | taken from website"
+					);
+				}
 			}
 		}
 
