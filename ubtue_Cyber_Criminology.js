@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-07-14 14:31:22"
+	"lastUpdated": "2026-07-14 14:43:06"
 }
 
 /*
@@ -71,12 +71,10 @@ async function doWeb(doc, url) {
 	let infoElements = doc.querySelectorAll('section.article_section > div.heading_block > p');
 	for (let e of infoElements) {
 		let text = ZU.trimInternal(e.textContent);
-		if (text.startsWith("Volume:")) {
-			let volumeMatch = text.match(/volume:\s*(\d+)\s*issue:\s*(\d+)/i);
-			if (volumeMatch) {
+		let volumeMatch = text.match(/volume:\s*(\d+)\s*issue:\s*(\d+)/i);
+		if (volumeMatch) {
 				item.volume = volumeMatch[1];
 				item.issue = volumeMatch[2];
-			}
 		}
 		else if (/^\w+-\w+\s+\d{4}$/.test(text)) {
 			item.date = text.match(/\d{4}/)?.[0];
