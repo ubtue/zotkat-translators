@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-05-14 09:25:15"
+	"lastUpdated": "2026-07-14 11:38:59"
 }
 
 /*
@@ -216,6 +216,7 @@ function scrapeEM(doc, url) {
 		}
 		if (item.issue != undefined) item.issue = item.issue.replace(/-/g, "/");
 		item.title = item.title.replace(/\*+$/, '').replace(/℡/g, 'tel');
+		item.title = ZU.cleanTags(item.title);
 		
 		item.complete();
 	});
@@ -400,6 +401,7 @@ function scrapeBibTeX(doc, url) {
 				}
 			}
 			item.title = item.title.replace(/\*+$/, '').replace(/℡/g, 'tel');
+			item.title = ZU.cleanTags(item.title);
 			
 			item.complete();
 		});
