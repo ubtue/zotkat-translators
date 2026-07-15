@@ -9,13 +9,13 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-05-15 15:37:15"
+	"lastUpdated": "2026-07-15 08:05:38"
 }
 
 /*
 	***** BEGIN LICENSE BLOCK *****
 
-	Copyright © 2022 YOUR_NAME <- TODO
+	Copyright © 2022 Universitätsbibliothek Tübingen
 
 	This file is part of Zotero.
 
@@ -37,20 +37,21 @@
 
 
 function detectWeb(doc, url) {
-	if (url.includes('/issue-view')) {
-		return 'multiple';
-	} 
+	if (url.includes('/issue-view') && getSearchResults(doc, true)) {
+		return "multiple";
+	}
 	return false;
 }
 
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = doc.querySelectorAll('.article_title');
+	var rows = doc.querySelectorAll(".single_article");
 	for (let row of rows) {
-		let anchor = row.querySelector('a');
-		let href = anchor ? anchor.getAttribute('href').slice(0, -2) : null;
-		let title = ZU.trimInternal(row.textContent);
+		let anchor = row.querySelector(".article_title a");
+		if (!anchor) continue;
+		let href = anchor.href;
+		let title = ZU.trimInternal(anchor.textContent);
 		if (!href || !title) continue;
 		if (checkOnly) return true;
 		found = true;
@@ -60,38 +61,61 @@ function getSearchResults(doc, checkOnly) {
 }
 
 async function doWeb(doc, url) {
-	if (detectWeb(doc, url) == 'multiple') {
-		let items = await Zotero.selectItems(getSearchResults(doc, false));
-		if (!items) return;
-		for (let url of Object.keys(items)) {
-			await scrape(await requestDocument(url));
+
+	let selected = await Zotero.selectItems(getSearchResults(doc, false));
+	if (!selected) return;
+
+	let item = new Zotero.Item("journalArticle");
+
+	// issue metadata
+	let infoElements = doc.querySelectorAll('section.article_section > div.heading_block > p');
+	for (let e of infoElements) {
+		let text = ZU.trimInternal(e.textContent);
+		let volumeMatch = text.match(/volume:\s*(\d+)\s*issue:\s*(\d+)/i);
+		if (volumeMatch) {
+				item.volume = volumeMatch[1];
+				item.issue = volumeMatch[2];
+		}
+		else if (/^\w+-\w+\s+\d{4}$/.test(text)) {
+			item.date = text.match(/\d{4}/)?.[0];
+		}
+		else {
+			item.publicationTitle = text;
 		}
 	}
-	else {
-		await scrape(doc, url);
+	if (item.publicationTitle?.match(/International\s*Journal\s*of\s*Cyber\s*Criminology/i)) {
+		item.ISSN = "0974-2891";
 	}
-}
 
 
-async function scrape(doc, url = doc.location.href) {
-	let translator = Zotero.loadTranslator('web');
-	// Embedded Metadata
-	translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48');
-	translator.setDocument(doc);
-	
-	translator.setHandler('itemDone', (_obj, item) => {
-		if (item.publicationTitle == "International Journal of Cyber Criminology")
-		    item.ISSN = "0974-2891";
-		let abstractCandidate = ZU.xpathText(doc, '//*[@class="item abstract"]');
-		if (abstractCandidate)  
-		    item.abstractNote = ZU.trimInternal(abstractCandidate).replace(/^Abstract\s*/, "");
+	// article metadata
+	let articles = doc.querySelectorAll(".single_article");
+	for (let article of articles) {
+		let anchor = article.querySelector(".article_title a");
+		if (!anchor) continue;
+
+		// only import if user has selected article
+		if (!(anchor.href in selected)) continue;
+
+		item.title = ZU.trimInternal(anchor.textContent);
+		item.url = anchor.href;
+
+		// authors
+		let authorText = article.querySelector(".article_author")?.textContent;
+		if (authorText) {
+			let authors = authorText.split(",");
+			for (let author of authors) {
+				author = ZU.trimInternal(author);
+				if (author) {
+					item.creators.push(
+						ZU.cleanAuthor(author, "author", false)
+					);
+				}
+			}
+		}
+
 		item.complete();
-	});
-
-	let em = await translator.getTranslatorObject();
-	
-	
-	await em.doWeb(doc, url);
+	}
 }
 
 /** BEGIN TEST CASES **/
