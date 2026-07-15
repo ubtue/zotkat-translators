@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-07-15 10:05:44"
+	"lastUpdated": "2026-07-15 11:26:12"
 }
 
 /*
@@ -113,6 +113,9 @@ function invokeEMTranslator(doc) {
  			i.title = i.title + ' ' + doc.querySelector(".subtitle").textContent.trim();
 			}
  		}
+		if (i.publicationTitle?.match(/transformatio/i)) {
+			i.ISSN = "2813-4613";
+		}
  		if (['1804-6444', '1018-1539', '1860-8213', '2813-4613'].includes(i.ISSN)) {
  			let subTitle = ZU.xpathText(doc, '//article[@class="article-details"]//h1[@class="page-header"]/small');
  			if (subTitle) {
@@ -123,10 +126,6 @@ function invokeEMTranslator(doc) {
 		if (i.ISSN == "2293-7374") {
 			i.title = i.title.replace( '| Renaissance and Reformation', '');
 			i.publicationTitle = ZU.xpathText(doc, '//meta[@name="DC.Source"]/@content');
-		}
-
-		if (i.publicationTitle?.match(/transformatio/i)) {
-			i.ISSN = "2813-4613";
 		}
 
 		if (i.publicationTitle?.match(/theologie für die praxis/i)) {

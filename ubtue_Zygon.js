@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-18 11:23:45"
+	"lastUpdated": "2026-07-15 11:50:53"
 }
 
 /*
@@ -79,16 +79,20 @@ function extractOrcid(doc, item) {
 	for (orcid_tag of ZU.xpath(doc, '//meta[@name="citation_author_orcid"]')){
 		let previous_author_tag = orcid_tag.previousElementSibling;
 		if (previous_author_tag.name == 'citation_author') {
+			let orcid = orcid_tag.content?.replace(/https?:\/\/orcid\.org\//i, '');
 			let author_name = previous_author_tag.content;
-			let orcid = orcid_tag.content;
-			item.notes.push({note: "orcid:" + orcid + ' | ' + author_name + ' | ' + "taken from website"});
+			if (orcid && author_name) {
+				item.notes.push({note: "orcid:" + orcid + ' | ' + author_name + ' | ' + "taken from website"});
+			}
 		}
 	}
 	if (!item.notes.some(obj => obj.note.startsWith('orcid'))) {
 		for (orcid_element of ZU.xpath(doc, '//a[contains(@href, "orcid")]')) {
 			let orcid = orcid_element.href.match(/\d{4}-\d{4}-\d{4}-\d{3}[0-9X]/i);
-			let author_name = orcid_element.previousSibling.textContent.trim()
-			item.notes.push({note: "orcid:" + orcid[0] + ' | ' + author_name + ' | ' + "taken from website"});
+			let author_name = orcid_element.parentElement?.querySelector('span[itemprop="name"]')?.textContent;
+			if (orcid && author_name) {
+				item.notes.push({note: "orcid:" + orcid[0] + ' | ' + author_name + ' | ' + "taken from website"});
+			}
 		}
 	}
 }
