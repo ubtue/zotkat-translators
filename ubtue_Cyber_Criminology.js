@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-07-14 14:43:06"
+	"lastUpdated": "2026-07-15 08:02:17"
 }
 
 /*
@@ -67,7 +67,7 @@ async function doWeb(doc, url) {
 
 	let item = new Zotero.Item("journalArticle");
 
-	// Issuemetadaten
+	// issue metadata
 	let infoElements = doc.querySelectorAll('section.article_section > div.heading_block > p');
 	for (let e of infoElements) {
 		let text = ZU.trimInternal(e.textContent);
@@ -88,19 +88,19 @@ async function doWeb(doc, url) {
 	}
 
 
-	// Artikelmetadaten
+	// article metadata
 	let articles = doc.querySelectorAll(".single_article");
 	for (let article of articles) {
 		let anchor = article.querySelector(".article_title a");
 		if (!anchor) continue;
 
-		// Nur importieren, wenn der Benutzer diesen Artikel ausgewählt hat
+		// only import if user has selected article
 		if (!(anchor.href in selected)) continue;
 
 		item.title = ZU.trimInternal(anchor.textContent);
 		item.url = anchor.href;
 
-		// Autoren
+		// authors
 		let authorText = article.querySelector(".article_author")?.textContent;
 		if (authorText) {
 			let authors = authorText.split(",");
