@@ -9,13 +9,13 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-01-31 14:18:18"
+	"lastUpdated": "2026-07-15 15:48:41"
 }
 
 /*
 	***** BEGIN LICENSE BLOCK *****
 
-	Copyright © 2024 Mara Spieß
+	Copyright © 2024 Universitätsbibliothek Tübingen
 
 	This file is part of Zotero.
 
@@ -26,7 +26,7 @@
 
 	Zotero is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	MERCHANTIBILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	GNU Affero General Public License for more details.
 
 	You should have received a copy of the GNU Affero General Public License
@@ -46,10 +46,11 @@ function detectWeb(doc, url) {
 	return false;
 }
 
+
 function getSearchResults(doc, checkOnly) {
-	var items = {};
-	var found = false;
-	var rows = doc.querySelectorAll('h2.issue-item__title > a[href*="/doi/"]');
+	let items = {};
+	let found = false;
+	let rows = doc.querySelectorAll('h2.issue-item__title > a[href*="/doi/"]');
 	for (let row of rows) {
 		let href = row.href;
 		let title = ZU.trimInternal(row.textContent);
@@ -61,12 +62,15 @@ function getSearchResults(doc, checkOnly) {
 	return found ? items : false;
 }
 
+
 async function doWeb(doc, url) {
-	if (detectWeb(doc, url) == 'multiple') {
+	if (detectWeb(doc, url) == "multiple") {
 		let items = await Zotero.selectItems(getSearchResults(doc, false));
 		if (!items) return;
-		for (let url of Object.keys(items)) {
-			await scrape(await requestDocument(url));
+
+		for (let articleURL of Object.keys(items)) {
+			let articleDoc = await requestDocument(articleURL);
+			await scrape(articleDoc, articleURL);
 		}
 	}
 	else {
@@ -74,66 +78,142 @@ async function doWeb(doc, url) {
 	}
 }
 
-function extractAndAssign(selector, property, doc, item) {
-	let element = doc.querySelector('span.' + selector);
-	if (element) {
-		item[property] = element.textContent.trim();
-	}
-}
-
-function mapTitleIssn(publicationTitle) {
-	let publicationTitleToIssn = {
-		'Toronto Journal of Theology': '1918-6371',
-		'Canadian Journal of Criminology and Criminal Justice': '1707-7753',
-	};
-	return publicationTitleToIssn[publicationTitle] || null;
-}
 
 async function scrape(doc, url = doc.location.href) {
-	let translator = Zotero.loadTranslator('web');
-	// Embedded Metadata
-	translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48');
-	translator.setDocument(doc);
-	
+	let DOI = url.match(/\/doi\/(?:abs\/)?(.+)$/);
+	if (!DOI) {
+		Z.debug("No DOI found");
+		return;
+	}
+	DOI = DOI[1];
+
+	// RIS data via crossref API https://www.crossref.org/documentation/retrieve-metadata/content-negotiation/
+	let risURL = `https://api.crossref.org/v1/works/${encodeURIComponent(DOI)}/transform`;
+	let risText = await requestText(risURL, {
+		headers: {
+			Accept: 'application/x-research-info-systems'
+		}
+	});
+
+	let translator = Zotero.loadTranslator('import');
+	// RIS translator
+	translator.setTranslator('32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7');
+	translator.setString(risText);
 	translator.setHandler('itemDone', (_obj, item) => {
 
-		extractAndAssign('volume', 'volume', doc, item);
-		extractAndAssign('issue', 'issue', doc, item);
-		extractAndAssign('page', 'pages', doc, item);
-
-		let metaElementDoi = doc.querySelector('meta[name="publication_doi"]');
-		if (metaElementDoi) {
-			item.DOI = metaElementDoi.getAttribute('content');
+		if (item.title?.match(/book reviews|recensions de livres/i)) {
+			item.tags.push("RezensionstagPica");
 		}
 
-		let metaElementReview = doc.querySelector('meta[name="dc.Type"]');
-		if (metaElementReview && metaElementReview.getAttribute('content').match(/book-review/i)) {
-			item.tags.push('RezensionstagPica');
-		}
-		
-		if (item.ISSN == '1707-7753' && item.title.match(/book reviews|recensions de livres/i)) {
-			item.tags.push('RezensionstagPica');
-		}
-		
-		let issn = mapTitleIssn(item.publicationTitle);
-		if (issn) {
-			item.ISSN = issn;
-		}
-
-		let openAccessIcon = doc.querySelector('i.icon-access-open[title="Open access"]');
-		if (openAccessIcon) {
-			item.notes.push("LF:");
-		}
+		item.url = item.url.replace(/https?:\/\/dx\./, 'https://');
 		
 		item.complete();
 	});
 
-	let em = await translator.getTranslatorObject();
-
-	await em.doWeb(doc, url);
+	await translator.translate();
 }
 
 /** BEGIN TEST CASES **/
 var testCases = [
+	{
+		"type": "web",
+		"url": "https://utppublishing.com/doi/10.3138/tjt.1.2.286",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Book Reviews",
+				"creators": [
+					{
+						"lastName": "Kloppenborg",
+						"firstName": "John",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Kloppenborg",
+						"firstName": "John",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Richardson",
+						"firstName": "Peter",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Steinhauser",
+						"firstName": "Michael",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "LaPorte",
+						"firstName": "Jean-Marc",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Hick",
+						"firstName": "John",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Farris",
+						"firstName": "James",
+						"creatorType": "author"
+					},
+					{
+						"lastName": "Demson",
+						"firstName": "David",
+						"creatorType": "author"
+					}
+				],
+				"date": "September 1, 1985",
+				"DOI": "10.3138/tjt.1.2.286",
+				"ISSN": "0826-9831",
+				"issue": "2",
+				"libraryCatalog": "ubtue_University of Toronto Press",
+				"pages": "286-300",
+				"publicationTitle": "Toronto Journal of Theology",
+				"url": "https://doi.org/10.3138/tjt.1.2.286",
+				"volume": "1",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "RezensionstagPica"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://utppublishing.com/doi/10.3138/tjt.1.2.227",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Moral Woman and Immoral Society: Schleiermacher on Female and Male",
+				"creators": [
+					{
+						"lastName": "Nicol",
+						"firstName": "Iain",
+						"creatorType": "author"
+					}
+				],
+				"date": "September 1, 1985",
+				"DOI": "10.3138/tjt.1.2.227",
+				"ISSN": "0826-9831",
+				"issue": "2",
+				"libraryCatalog": "ubtue_University of Toronto Press",
+				"pages": "227-241",
+				"publicationTitle": "Toronto Journal of Theology",
+				"shortTitle": "Moral Woman and Immoral Society",
+				"url": "https://doi.org/10.3138/tjt.1.2.227",
+				"volume": "1",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	}
 ]
 /** END TEST CASES **/
