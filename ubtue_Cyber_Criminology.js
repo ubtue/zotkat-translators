@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-07-15 08:02:17"
+	"lastUpdated": "2026-07-15 08:05:38"
 }
 
 /*
@@ -83,7 +83,7 @@ async function doWeb(doc, url) {
 			item.publicationTitle = text;
 		}
 	}
-	if (item.publicationTitle && item.publicationTitle.match(/International\s*Journal\s*of\s*Cyber\s*Criminology/i)) {
+	if (item.publicationTitle?.match(/International\s*Journal\s*of\s*Cyber\s*Criminology/i)) {
 		item.ISSN = "0974-2891";
 	}
 
