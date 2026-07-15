@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-06-29 10:28:07"
+	"lastUpdated": "2026-07-15 10:05:44"
 }
 
 /*
@@ -607,6 +607,7 @@ function invokeEMTranslator(doc) {
 			if (i.abstractNote && i.abstractNote.trim() == i.title.trim()) {
 				delete i.abstractNote;
 			}
+			i.abstractNote = i.abstractNote.replace(/&nbsp;|\n/g, '');
 			let articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
 			if (articleType.match(/rezensionen\s*-\s*themenheft/i)) {
 				i.tags.push("RezensionstagPica");
