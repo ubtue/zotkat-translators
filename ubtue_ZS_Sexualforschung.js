@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-10-20 13:09:02"
+	"lastUpdated": "2026-07-16 12:54:36"
 }
 
 /*
@@ -49,10 +49,9 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = doc.querySelectorAll('h2 > a.articleTitle[href*="/abstract/"]');
+	var rows = doc.querySelectorAll('a.articleTitle[href*="/abstract/"]');
 	for (let row of rows) {
 		let href = row.href;
-		Z.debug(href)
 		let title = ZU.trimInternal(row.textContent);
 		if (!href || !title) continue;
 		if (checkOnly) return true;
@@ -76,9 +75,10 @@ async function doWeb(doc, url) {
 }
 
 async function scrape(doc, url = doc.location.href) {
+	
 	let translator = Zotero.loadTranslator('web');
 	// Embedded Metadata
-	translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab7b48');
+	translator.setTranslator('951c027d-74ac-47d4-a107-9c3069ab28ae');
 	translator.setDocument(doc);
 	
 	translator.setHandler('itemDone', (_obj, item) => {
