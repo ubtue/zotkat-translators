@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-07-16 09:23:41"
+	"lastUpdated": "2026-07-16 09:43:59"
 }
 
 /*
@@ -266,13 +266,16 @@ function invokeEMTranslator(doc) {
 
 		if (orcidAuthorEntryCaseB.length) {
 			for (let b of orcidAuthorEntryCaseB) {
-				if (b.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
-					let orcid = b.innerHTML.match(/<a href="https?:\/\/orcid\.org\/([^"]+)/);
-					let nameMatch = b.innerHTML.match(/<span class="name">([^<]+)<\/span>/);
-					
-					if (orcid && nameMatch) {
-						let name = nameMatch[1];
-						addNote(orcid[1], ZU.trimInternal(name));
+				let nameEl = b.querySelector('.name');
+				let orcidLink = b.querySelector('a[href*="orcid.org"]');
+
+				if (nameEl && orcidLink) {
+					let name = nameEl.textContent.trim().replace(/\[autor\/in\]/i, '');
+					let href = orcidLink.getAttribute('href');
+					let orcid = href.match(/orcid\.org\/([^/]+)/i)?.[1];
+
+					if (orcid && name) {
+						addNote(orcid, ZU.trimInternal(name));
 					}
 				}
 			}
