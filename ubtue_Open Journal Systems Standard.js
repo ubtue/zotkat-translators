@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-07-16 09:14:03"
+	"lastUpdated": "2026-07-16 09:23:41"
 }
 
 /*
@@ -584,6 +584,12 @@ function invokeEMTranslator(doc) {
  				i.abstractNote = abstract;
  			}
  		}
+		if (['2943-7970'].includes(i.ISSN)) {
+			let englishAbstract = ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("en")]/@content');
+			if (englishAbstract) {
+				i.notes.push(englishAbstract);
+			}
+		}
 		if (i.ISSN == '2660-4418') {
 			if (i.abstractNote.indexOf("\nReferences\n") !== -1) {
 			i.abstractNote = i.abstractNote.substring(0, i.abstractNote.indexOf("\nReferences\n"));
