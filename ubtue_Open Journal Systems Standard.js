@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-07-15 11:26:12"
+	"lastUpdated": "2026-07-16 09:43:59"
 }
 
 /*
@@ -266,13 +266,16 @@ function invokeEMTranslator(doc) {
 
 		if (orcidAuthorEntryCaseB.length) {
 			for (let b of orcidAuthorEntryCaseB) {
-				if (b.innerText.match(/\d+-\d+-\d+-\d+x?/gi)) {
-					let orcid = b.innerHTML.match(/<a href="https?:\/\/orcid\.org\/([^"]+)/);
-					let nameMatch = b.innerHTML.match(/<span class="name">([^<]+)<\/span>/);
-					
-					if (orcid && nameMatch) {
-						let name = nameMatch[1];
-						addNote(orcid[1], ZU.trimInternal(name));
+				let nameEl = b.querySelector('.name');
+				let orcidLink = b.querySelector('a[href*="orcid.org"]');
+
+				if (nameEl && orcidLink) {
+					let name = nameEl.textContent.trim().replace(/\[autor\/in\]/i, '');
+					let href = orcidLink.getAttribute('href');
+					let orcid = href.match(/orcid\.org\/([^/]+)/i)?.[1];
+
+					if (orcid && name) {
+						addNote(orcid, ZU.trimInternal(name));
 					}
 				}
 			}
@@ -367,7 +370,7 @@ function invokeEMTranslator(doc) {
 		
 
  		//clean pages e.g. pages": "6.-6." > 10.25786/cjbk.v0i01-02.631; or "pages": "01-07" > 10.25786/zfbeg.v0i01-02.793
- 		if (i.pages != null) i.pages = i.pages.replace('S.', '').replace(/\./g, '').replace(/^([^-]+)-\1$/, '$1').replace(/^0/g, '').replace(/-0/g, '-').replace('â€“', '-');
+ 		if (i.pages != null) i.pages = i.pages.replace('S.', '').replace(/\./g, '').replace(/^([^-]+)-\1$/, '$1').replace(/^0/g, '').replace(/-0/g, '-').replace('â€“', '-').replace(/\s*\(§\)/, '');
 
  		if (i.pages == undefined) {
 			let pageNumberFromDC = ZU.xpathText(doc, '//meta[@name="DC.Identifier.pageNumber"]/@content');
@@ -584,6 +587,12 @@ function invokeEMTranslator(doc) {
  				i.abstractNote = abstract;
  			}
  		}
+		if (['2943-7970'].includes(i.ISSN)) {
+			let englishAbstract = ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("en")]/@content');
+			if (englishAbstract) {
+				i.notes.push(englishAbstract);
+			}
+		}
 		if (i.ISSN == '2660-4418') {
 			if (i.abstractNote.indexOf("\nReferences\n") !== -1) {
 			i.abstractNote = i.abstractNote.substring(0, i.abstractNote.indexOf("\nReferences\n"));
