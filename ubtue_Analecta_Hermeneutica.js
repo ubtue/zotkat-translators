@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-07-13 07:23:50"
+	"lastUpdated": "2026-07-17 07:27:08"
 }
 
 /*
@@ -142,10 +142,28 @@ function getAuthors(link) {
 	.filter(Boolean);
 }
 
+function removeAuthorFromTitle(link) {
+	let title = ZU.trimInternal(link.textContent);
+	let cleaned_title = title;
+	let italicSpans = [...link.querySelectorAll('span[style*="font-style:italic"]')];
+
+	let lastItalic = italicSpans.length
+		? italicSpans[italicSpans.length - 1]
+		: null;
+
+	let authorFromHTML = lastItalic
+		? ZU.trimInternal(lastItalic.textContent)
+		: "";
+	if (authorFromHTML && title.endsWith(authorFromHTML)) {
+		cleaned_title = title.slice(0, -authorFromHTML.length).trim();
+	}
+	return cleaned_title
+}
+
 async function scrape(doc, link, context = {}) {
   const pdfUrl = link.href;
   const item = new Zotero.Item("journalArticle");
-  item.title = ZU.trimInternal(link.textContent);
+  item.title = ZU.trimInternal(removeAuthorFromTitle(link));
   item.url = pdfUrl;
   item.attachments.push({ url: pdfUrl, title: "Full Text PDF", mimeType: "application/pdf" });
 
@@ -193,7 +211,8 @@ async function scrape(doc, link, context = {}) {
 
 	if (extracted.author) {
 		for (entry in extracted.author) {
-			item.creators.push(ZU.cleanAuthor(extracted.author[entry].name, "author"));
+			if (item.title && item.title.includes(extracted.author[entry].name)) continue;
+			item.creators.push(ZU.cleanAuthor(extracted.author[entry].name.replace(/\d/, ''), "author"));
 			if (extracted.author[entry].orcid != "")
 				extracted.author[entry].orcid? item.notes.push({note: "orcid:" + extracted.author[entry].orcid + ' | ' + extracted.author[entry].name + ' | taken from website'}) : item.notes.push({note: "orcid:" + extracted.author[entry].orcid + ' | '});
 		}
