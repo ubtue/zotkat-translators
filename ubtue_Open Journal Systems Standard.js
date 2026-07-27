@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-07-16 09:43:59"
+	"lastUpdated": "2026-07-27 12:17:00"
 }
 
 /*
@@ -619,6 +619,12 @@ function invokeEMTranslator(doc) {
 			let articleType = ZU.xpathText(doc, '//meta[@name="DC.Type.articleType"]/@content');
 			if (articleType.match(/rezensionen\s*-\s*themenheft/i)) {
 				i.tags.push("RezensionstagPica");
+			}
+		}
+		if (['2177-952X'].includes(i.ISSN)) {
+			let abstractSection = ZU.xpathText(doc, '//section[@class="item abstract"]/p');
+			if (abstractSection && !i.abstractNote) {
+				i.abstractNote = abstractSection;
 			}
 		}
 		if (i.ISSN == "1853-9106" && i.tags) i.tags = [];
