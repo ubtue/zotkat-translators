@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-02-10 10:48:15"
+	"lastUpdated": "2026-07-27 13:14:22"
 }
 
 /*
@@ -56,8 +56,10 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = ZU.xpath(doc,
-		'//li[@class="title"]//a[contains(@href, "/article/") or contains(@href, "/product/") or contains(@href, "/books/")]'
+	let rows = doc.querySelectorAll(
+		'li.title > h3 > a[href*="/article/"], ' +
+		'li.title > h3 > a[href*="/product/"], ' +	
+		'li.title > h3 > a[href*="/books/"]'
 	);
 	for (var i = 0; i < rows.length; i++) {
 		var href = rows[i].href;
@@ -164,7 +166,7 @@ function scrape(doc, url) {
 			if (item.pages) {
 				if (item.pages.split('-')[0] == item.pages.split('-')[1]) item.pages = item.pages.split('-')[0];
 			}
-			if (item.ISSN.match(/0022-0469|1469-7637/)) {
+			if (item.ISSN && item.ISSN.match(/0022-0469|1469-7637/)) {
 				item.tags = [];
 			}	
 			if (ZU.xpathText(doc, '//dd[@class="col content" and contains(., "Book Review")]') != null) {
@@ -176,7 +178,7 @@ function scrape(doc, url) {
 			let keywordsEntry = ZU.xpath(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "keywords", " " ))]');
 			if (item.tags) {
 				if (keywordsEntry != null) {
-					if (item.ISSN.match(/0362-1529/g)) {
+					if (item.ISSN && item.ISSN.match(/0362-1529/g)) {
 						let tagsSplit = keywordsEntry[0].innerText.split('\n');
 							item.tags = tagsSplit.slice(tagsSplit.findIndex(a => a !== 'Keywords'));
 					}
