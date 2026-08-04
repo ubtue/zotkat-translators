@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-08-04 15:38:57"
+	"lastUpdated": "2026-08-04 15:41:28"
 }
 
 /*
@@ -112,5 +112,56 @@ async function scrape(doc, url = doc.location.href) {
 
 /** BEGIN TEST CASES **/
 var testCases = [
+	{
+		"type": "web",
+		"url": "https://www.philosophy-of-religion.eu/article-view.php?id=4440",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Philosophical Reflections on the Interplay of Music and Religious Beliefs: European Sacred Music in Intercultural Education",
+				"creators": [
+					{
+						"firstName": "Xitong",
+						"lastName": "Wang",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Chenyang",
+						"lastName": "Wang",
+						"creatorType": "author"
+					}
+				],
+				"DOI": "https://doi.org/10.24204/ejpr.2025.4440",
+				"ISSN": "1689-8311",
+				"abstractNote": "The study of the emotion-inducing function of music education is an important part of the basic theoretical research of music education, which influences the positioning of the basic nature and value attributes of music education, and at the same time, it also plays a practical role in the teaching practice of music education. In this paper, music education plays the role of “healthy psychology” with the help of the characteristic of “emotionality”. It takes music as a means of inducing individual emotions, and explores the ways of inducing and measuring emotions in specific music emotion-inducing operations. In the experimental process of inducing emotions by European religious music, the non-linear and non-smooth EEG signals were decomposed into a series of eigenmodal functions with different oscillation frequencies using the empirical modal decomposition adaptively. Then, multi-dimensional information such as waveform difference, phase difference, and normalized energy of the eigenmodal functions are extracted as emotional features. Based on the extracted features, SVM is utilized for emotion recognition. In terms of the mean values of emotion evoking intensity of religious music, “sense of calm” (M=5.51) evoked the highest intensity, followed by “sense of transcendence” (M=5.4). “Nostalgia” (M=5.13) evoked a slightly weaker intensity, and ‘Power’ (M=4.26) had the lowest intensity, while religious music evoked significantly more emotions than secular music (p<0.05). This study provides an important foundation and theoretical support for the application of European religious music to cross-cultural music education based on endogenous emotion analysis of EEG.",
+				"libraryCatalog": "ubtue_EJ_Philosophy_Religion",
+				"shortTitle": "Philosophical Reflections on the Interplay of Music and Religious Beliefs",
+				"url": "https://www.philosophy-of-religion.eu/article-view.php?id=4440",
+				"attachments": [],
+				"tags": [
+					{
+						"tag": "EEG Signal"
+					},
+					{
+						"tag": "Emotion Evocation"
+					},
+					{
+						"tag": "Empirical Modal Decomposition"
+					},
+					{
+						"tag": "Music Education"
+					},
+					{
+						"tag": "SVM"
+					},
+					{
+						"tag": "Sign Modal Function"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	}
 ]
 /** END TEST CASES **/
