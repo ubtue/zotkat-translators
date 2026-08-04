@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-06-04 08:49:51"
+	"lastUpdated": "2026-08-04 13:47:21"
 }
 
 /*
@@ -87,7 +87,7 @@ function convertToJournal(item) {
 			item.ISSN = series.ISSN;
 			item.itemType = "journalArticle";
 			if (item.volume) {
-				item.volume = item.volume.replace(/band\s+(\d+)(?:,\s+jahr\s+\d{4})?/i, '$1');
+				item.volume = item.volume.replace(/^(?:band\s+)+0*([1-9]\d*)(?:,\s+jahr\s+\d{4})?$/i, '$1');
 			} else if (item.bookTitle) {
 				item.volume = item.bookTitle.match(/band\s+(\d{2})/i)?.[1];
 			}
@@ -106,7 +106,7 @@ function scrape(doc, url) {
 	ZU.processDocuments(citationurl, function(citationDoc){
 		var filename = citationDoc.evaluate('//form//input[@name="downloadFileName"]', citationDoc, null, XPathResult.ANY_TYPE, null).iterateNext().value;
 		var get = '/action/downloadCitation';
-		//to dwonload also abstract in RIS "&include=abs"	
+		//to download also abstract in RIS "&include=abs"	
 		var post = 'doi=' + doi + '&downloadFileName=' + filename + '&format=ris&direct=true&include=abs&include=cit';
 		ZU.doPost(get, post, function (text) {
 			var translator = Zotero.loadTranslator("import");
@@ -169,12 +169,12 @@ function scrape(doc, url) {
 							item.itemType = "journalArticle";
 							item.DOI = ZU.xpathText(doc, "//meta[@scheme='doi']/@content");
 							if (item.volume != undefined) {
-							if (item.volume.match(/\d+/) != null) {
-								item.volume = item.volume.match(/\d+/)[0];
-							}
-							item.ISSN = "2567-9384";
-							item.publicationTitle = "Jahrbuch der Religionspädagogik (JRP)";
-							item.title = ZU.xpathText(doc, '//title').replace(/\s+\|\s+Jahrbuch\s+der\s+Religionspädagogik\s+\(JRP\)$/, '');
+								if (item.volume.match(/\d+/) != null) {
+									item.volume = item.volume.match(/\d+/)[0];
+								}
+								item.ISSN = "2567-9384";
+								item.publicationTitle = "Jahrbuch der Religionspädagogik (JRP)";
+								item.title = ZU.xpathText(doc, '//title').replace(/\s+\|\s+Jahrbuch\s+der\s+Religionspädagogik\s+\(JRP\)$/, '');
 							}
 						}
 						let splitIndex = item.title.indexOf("| Jahrbuch der Religionspädagogik (JRP)");
