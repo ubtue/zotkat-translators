@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-07-17 07:27:08"
+	"lastUpdated": "2026-08-03 11:52:27"
 }
 
 /*
@@ -46,8 +46,9 @@ function getSearchResults(doc, checkOnly) {
   const links = doc.querySelectorAll('a[href$=".pdf"]');
   if (!links.length) return false;
   for (let link of links) {
-	const title = ZU.trimInternal(link.textContent);
+	let title = ZU.trimInternal(link.textContent);
 	if (!title || /Download the Complete Volume/i.test(title)) continue;
+	if (/Read the Paper/i.test(title)) title = "Editor's Introduction";
 	if (checkOnly) return true;
 	items[link.href] = {
 	  title,
@@ -144,6 +145,7 @@ function getAuthors(link) {
 
 function removeAuthorFromTitle(link) {
 	let title = ZU.trimInternal(link.textContent);
+	if (/Read the Paper/i.test(title)) title = "Editor's Introduction";
 	let cleaned_title = title;
 	let italicSpans = [...link.querySelectorAll('span[style*="font-style:italic"]')];
 
