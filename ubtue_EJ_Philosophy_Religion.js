@@ -9,30 +9,30 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-08-04 15:41:28"
+	"lastUpdated": "2026-08-05 13:13:49"
 }
 
 /*
-    ***** BEGIN LICENSE BLOCK *****
+	***** BEGIN LICENSE BLOCK *****
 
-    Copyright © 2026 Universitätsbibliothek Tübingen
+	Copyright © 2026 Universitätsbibliothek Tübingen
 
-    This file is part of Zotero.
+	This file is part of Zotero.
 
-    Zotero is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	Zotero is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    Zotero is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU Affero General Public License for more details.
+	Zotero is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with Zotero. If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU Affero General Public License
+	along with Zotero. If not, see <http://www.gnu.org/licenses/>.
 
-    ***** END LICENSE BLOCK *****
+	***** END LICENSE BLOCK *****
 */
 
 
@@ -80,24 +80,26 @@ async function scrape(doc, url = doc.location.href) {
 	item.ISSN = "1689-8311";
 
 	let titleElement = doc.querySelector('div.entry__article > h3');
-	item.title = ZU.capitalizeTitle(titleElement?.textContent, true);
+	if (titleElement) {
+		item.title = ZU.capitalizeTitle(titleElement.textContent, true);
 
-	let node = titleElement.nextElementSibling;
-	while (
-		node &&
-		node.tagName === "P" &&
-		node.querySelector("b")?.textContent.trim() !== "DOI:"
-	) {
-		let author = node.querySelector("b")?.textContent.trim();
-		if (author) {
-			item.creators.push(ZU.cleanAuthor(author, "author", false));
+		let node = titleElement.nextElementSibling;
+		while (
+			node &&
+			node.tagName === "P" &&
+			node.querySelector("b")?.textContent.trim() !== "DOI:"
+		) {
+			let author = node.querySelector("b")?.textContent.trim();
+			if (author) {
+				item.creators.push(ZU.cleanAuthor(author, "author", false));
+			}
+			node = node.nextElementSibling;
 		}
-		node = node.nextElementSibling;
 	}
 
-	item.DOI = doc.querySelector('a[href*="doi.org/10."]');
+	item.DOI = doc.querySelector('a[href*="doi.org/10."]')?.textContent;
 	
-	item.abstractNote = doc.querySelector('div.intro').textContent.replace(/abstract|\t/gi, '');
+	item.abstractNote = doc.querySelector('div.intro')?.textContent?.replace(/abstract|\t/gi, '');
 
 	keywords = ZU.xpathText(doc, "//p[b[normalize-space()='Keywords:']]");
 	if (keywords) {
