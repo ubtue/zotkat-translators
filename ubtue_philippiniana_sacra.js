@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-08-03 08:37:40"
+	"lastUpdated": "2026-08-12 13:45:34"
 }
 
 /*
@@ -176,7 +176,7 @@ async function scrape(block, doc) {
 
 	let volumeMatch = header.match(/Vol\.?\s+([A-Z0-9]+)/i);
 	let issueMatch = header.match(/Issue\s+No\.?\s+(\d+)/i);
-	let yearMatch = header.match(/(\d{4})\s/);
+	let yearMatch = header.match(/\s(\d{4})\s*/);
 	let volume = volumeMatch ? volumeMatch[1] : "";
 	item.volume = romanToInt(volume);
 	item.issue  = issueMatch ? issueMatch[1] : "";
