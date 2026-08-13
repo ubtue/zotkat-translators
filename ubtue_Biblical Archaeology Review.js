@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-06-26 13:05:50"
+	"lastUpdated": "2026-08-13 08:39:24"
 }
 
 /*
@@ -84,17 +84,17 @@ async function scrape(doc, url = doc.location.href) {
 		if (item.title.match(/-\s?The\s?BAS\s?Library/)) item.title = item.title.replace(/-\s?The\s?BAS\s?Library/i, '');
 		let authorString = ZU.xpathText(doc, '//*[contains(@href, "https://library.biblicalarchaeology.org/auth")]');
 		if (authorString) {
+			item.creators = []
 			if (authorString.indexOf(",")>-1) {
-			item.creators = [];
-			let authors = ZU.trimInternal(authorString).split(",");
-				for (let author of authors) {
-					let fullName = ZU.trimInternal(author);
+				let authors = ZU.trimInternal(authorString).split(",");
+					for (let author of authors) {
+						let fullName = ZU.trimInternal(author);
+						item.creators.push(ZU.cleanAuthor(fullName, "author"));
+					}
+				}	
+				else {
+					let fullName = ZU.trimInternal(authorString);
 					item.creators.push(ZU.cleanAuthor(fullName, "author"));
-				}
-			}	
-			else {
-				let fullName = ZU.trimInternal(authorString);
-				item.creators.push(ZU.cleanAuthor(fullName, "author"));
 			}
 		}
 		item.publicationTitle = "Biblical Archaeology Review";
