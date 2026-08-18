@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-18 16:21:26"
+	"lastUpdated": "2026-08-18 08:12:07"
 }
 
 /*
@@ -44,6 +44,7 @@ function detectWeb(doc, url) {
 	
 	if (generator.startsWith('Open ')
 		&& (url.includes('/search/search')
+			|| url.includes('/issue/')
 			|| doc.querySelector('.obj_issue_toc .cmp_article_list')
 			|| doc.querySelector('#content > .tocArticle')
 			|| doc.querySelector('div.issue-toc'))) {
@@ -69,7 +70,7 @@ function detectWeb(doc, url) {
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = doc.querySelectorAll('.title a[href*="/view/"], .title a[href*="/catalog/"], .tocTitle a[href*="/view/"], .tocTitle a[href*="/catalog/"], .media-heading > a[href*="/view/"]');
+	var rows = doc.querySelectorAll('.title a[href*="/view/"], .title a[href*="/catalog/"], .tocTitle a[href*="/view/"], .tocTitle a[href*="/catalog/"], .media-heading > a[href*="/view/"], .ih-article__title > a[href*="/view/"]');
 	for (let row of rows) {
 		let href = row.href;
 		let title = ZU.trimInternal(row.textContent);
@@ -96,31 +97,31 @@ function getSearchResults(doc, checkOnly) {
 }
 
 function doWeb(doc, url) {
-    if (detectWeb(doc, url) == "multiple") {
-        Zotero.selectItems(getSearchResults(doc, false), function (items) {
-            if (items) {
-                let urls = Object.keys(items);
-                ZU.processDocuments(urls, function (doc) {
-                    let itemUrl = doc.location.href;
-                    var urlParts = itemUrl.match(/(.+\/[^/]+\/view\/)([^/]+)\/[^/]+/);
-                    if (urlParts) { // PDF view
-                        ZU.processDocuments(urlParts[1] + urlParts[2], scrape);
-                    } else { // Article view
-                        scrape(doc, itemUrl);
-                    }
-                });
-            }
-        });
-    } else {
-        // In OJS 3, up to at least version 3.1.1-2, the PDF view does not
-        // include metadata, so we must get it from the article landing page.
-        var urlParts = url.match(/(.+\/[^/]+\/view\/)([^/]+)\/[^/]+/);
-        if (urlParts) { // PDF view
-            ZU.processDocuments(urlParts[1] + urlParts[2], scrape);
-        } else { // Article view
-            scrape(doc, url);
-        }
-    }
+	if (detectWeb(doc, url) == "multiple") {
+		Zotero.selectItems(getSearchResults(doc, false), function (items) {
+			if (items) {
+				let urls = Object.keys(items);
+				ZU.processDocuments(urls, function (doc) {
+					let itemUrl = doc.location.href;
+					var urlParts = itemUrl.match(/(.+\/[^/]+\/view\/)([^/]+)\/[^/]+/);
+					if (urlParts) { // PDF view
+						ZU.processDocuments(urlParts[1] + urlParts[2], scrape);
+					} else { // Article view
+						scrape(doc, itemUrl);
+					}
+				});
+			}
+		});
+	} else {
+		// In OJS 3, up to at least version 3.1.1-2, the PDF view does not
+		// include metadata, so we must get it from the article landing page.
+		var urlParts = url.match(/(.+\/[^/]+\/view\/)([^/]+)\/[^/]+/);
+		if (urlParts) { // PDF view
+			ZU.processDocuments(urlParts[1] + urlParts[2], scrape);
+		} else { // Article view
+			scrape(doc, url);
+		}
+	}
 }
 
 function scrape(doc, url) {
