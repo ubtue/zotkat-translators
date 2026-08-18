@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-08-12 13:26:28"
+	"lastUpdated": "2026-08-18 07:11:16"
 }
 
 /*
@@ -44,21 +44,21 @@ function detectWeb(doc, url) {
 }
 
 function extractAuthors(link) {
-    let li = link.closest('li');
-    if (!li) return [];
-    let text = ZU.trimInternal(li.textContent);
-    let title = ZU.trimInternal(link.textContent);
-    let remainder = text.replace(title, '').trim();
-    let match = remainder.match(/^by\s+(.+)$/i);
-    if (!match) return [];
-    let authorsText = match[1].trim();
-    authorsText = authorsText.replace(/\s+and\s+/gi, ', ').replace("Ma.", "");
-    let authors = authorsText
-        .split(/,\s+(?!(?:Jr\.?|Sr\.?|CM\.?)$)/i)
-        .map(a => a.trim())
-        .filter(Boolean);
+	let li = link.closest('li');
+	if (!li) return [];
+	let text = ZU.trimInternal(li.textContent);
+	let title = ZU.trimInternal(link.textContent);
+	let remainder = text.replace(title, '').trim();
+	let match = remainder.match(/^by\s+(.+)$/i);
+	if (!match) return [];
+	let authorsText = match[1].trim();
+	authorsText = authorsText.replace(/\s+and\s+/gi, ', ').replace("Ma.", "");
+	let authors = authorsText
+		.split(/,\s+(?!(?:Jr\.?|Sr\.?|CM\.?)$)/i)
+		.map(a => a.trim())
+		.filter(Boolean);
 
-    return authors;
+	return authors;
 }
 
 function getSearchResults(doc, checkOnly) {
@@ -72,7 +72,7 @@ function getSearchResults(doc, checkOnly) {
 		found = true;
 		items[link.href] = {
 			title,
-			link,
+			href: link.href,
 			authors: extractAuthors(link)
 		};
 	}
@@ -80,20 +80,22 @@ function getSearchResults(doc, checkOnly) {
 }
 
 async function doWeb(doc, url) {
-	if (detectWeb(doc, url) == 'multiple') {
-		let items = await Zotero.selectItems(getSearchResults(doc, false));
-		if (!items) return;
-		const results = getSearchResults(doc, false)
-		for (let url of Object.keys(items)) {
-			await scrape(results[url]);
-		}
+	const results = getSearchResults(doc, false);
+	const selectItems = {};
+	for (let href in results) {
+		selectItems[href] = results[href].title;
+	}
+	const selected = await Zotero.selectItems(selectItems);
+	if (!selected) return;
+	for (let href of Object.keys(selected)) {
+		await scrape(results[href]);
 	}
 }
 
 async function scrape(data) {
 	const item = new Zotero.Item("journalArticle");
 	item.title = data.title;
-	item.url = data.link.href;
+	item.url = data.href;
 	for (let author of data.authors) {
 		let suffixMatch = author.match(/^(.*),?\s*(Jr\.?|Sr\.?|CM\.?)$/i);
 		if (suffixMatch) {
@@ -113,7 +115,7 @@ async function scrape(data) {
 	let site = 'hapag';
 	try {
 		const params = new URLSearchParams();
-		params.append('url', data.link.href);
+		params.append('url', data.href);
 		params.append('site', site);
 		extracted = await fetch(PYMUPDF_SERVER_ADDRESS, {
 			'method': "POST",
