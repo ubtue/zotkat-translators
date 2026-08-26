@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-08-26 12:49:58"
+	"lastUpdated": "2026-08-26 13:25:38"
 }
 
 /*
@@ -95,6 +95,20 @@ function getKeywords(doc, item) {
 	} 
 }
 
+function getOrcids(doc, item) {
+	let orcidElements = doc.querySelectorAll('a[href*="https://orcid.org/"]');
+	orcidElements.forEach(orcidElement => {
+		let href = orcidElement.getAttribute('href');
+		if (href) {
+			let orcid = href.match(/\d{4}-\d{4}-\d{4}-\d{3}[\dX]/i);
+			let authorName = orcidElement.parentElement?.textContent.trim();
+			if (orcid && authorName) {
+				item.notes.push({note: 'orcid: ' + orcid + ' | ' + authorName + ' | ' + 'taken from website'});
+			}
+		}	
+	})
+}
+
 async function scrape(doc, url = doc.location.href) {
 	let translator = Zotero.loadTranslator('web');
 	// Embedded Metadata
@@ -119,6 +133,7 @@ async function scrape(doc, url = doc.location.href) {
 
 		getParallelTitle(doc, item);
 		getKeywords(doc, item);
+		getOrcids(doc, item);
 		
 		item.complete();
 	});
