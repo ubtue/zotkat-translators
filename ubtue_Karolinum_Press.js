@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-20 08:33:24"
+	"lastUpdated": "2026-08-26 12:49:58"
 }
 
 /*
@@ -104,6 +104,8 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setHandler('itemDone', (_obj, item) => {
 		if (item.publicationTitle.match(/communio viatorum/i)) {
 			item.ISSN = "0010-3713";
+		} else if (item.publicationTitle.match(/AUC THEOLOGICA/i)) {
+			item.ISSN = "2336-3398";
 		}
 
 		let doiElement = doc.querySelector('a[href*="https://doi.org/"]');
