@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-08-26 13:25:38"
+	"lastUpdated": "2026-08-26 13:29:58"
 }
 
 /*
@@ -127,7 +127,7 @@ async function scrape(doc, url = doc.location.href) {
 			item.DOI = doiElement.textContent.replace('https://doi.org/', '');
 		}
 
-		if (item.title.match(/^book review/i)) {
+		if (item.title.match(/^book\s*review/i) || item.abstractNote.match(/^book\s*review/i)) {
 			item.tags.push('RezensionstagPica');
 		}
 
