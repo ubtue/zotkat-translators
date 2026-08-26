@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-08-26 11:54:46"
+	"lastUpdated": "2026-08-26 11:57:57"
 }
 
 /*
@@ -342,7 +342,7 @@ function invokeEMTranslator(doc) {
 			}
 		}
 
-		if (orcidAuthorEntryCaseI.length && ['2182-8822', '2175-5841'].includes(i.ISSN)) {
+		if (orcidAuthorEntryCaseI.length && ['2182-8822', '2175-5841','1983-2478'].includes(i.ISSN)) {
 			for (let a of orcidAuthorEntryCaseI) {
 				let authorElement = a.querySelector('strong');
 				let orcidElement = a.querySelector('.orcid');
