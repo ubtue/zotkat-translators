@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-20 08:33:24"
+	"lastUpdated": "2026-08-26 13:36:38"
 }
 
 /*
@@ -95,6 +95,20 @@ function getKeywords(doc, item) {
 	} 
 }
 
+function getOrcids(doc, item) {
+	let orcidElements = doc.querySelectorAll('a[href*="https://orcid.org/"]');
+	orcidElements.forEach(orcidElement => {
+		let href = orcidElement.getAttribute('href');
+		if (href) {
+			let orcid = href.match(/\d{4}-\d{4}-\d{4}-\d{3}[\dX]/i);
+			let authorName = orcidElement.parentElement?.textContent.trim();
+			if (orcid && authorName) {
+				item.notes.push({note: 'orcid: ' + orcid + ' | ' + authorName + ' | ' + 'taken from website'});
+			}
+		}	
+	})
+}
+
 async function scrape(doc, url = doc.location.href) {
 	let translator = Zotero.loadTranslator('web');
 	// Embedded Metadata
@@ -104,6 +118,8 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setHandler('itemDone', (_obj, item) => {
 		if (item.publicationTitle.match(/communio viatorum/i)) {
 			item.ISSN = "0010-3713";
+		} else if (item.publicationTitle.match(/AUC THEOLOGICA/i)) {
+			item.ISSN = "2336-3398";
 		}
 
 		let doiElement = doc.querySelector('a[href*="https://doi.org/"]');
@@ -111,12 +127,19 @@ async function scrape(doc, url = doc.location.href) {
 			item.DOI = doiElement.textContent.replace('https://doi.org/', '');
 		}
 
-		if (item.title.match(/^book review/i)) {
+		if (item.title.match(/^book\s*review/i) || item.abstractNote.match(/^book\s*review/i)) {
 			item.tags.push('RezensionstagPica');
 		}
 
 		getParallelTitle(doc, item);
 		getKeywords(doc, item);
+		getOrcids(doc, item);
+
+		const cleanedCreators = item.creators.filter(
+			creator => !(creator.creatorType === "author" && creator.firstName === undefined)
+		);
+
+		item.creators = cleanedCreators;
 		
 		item.complete();
 	});
