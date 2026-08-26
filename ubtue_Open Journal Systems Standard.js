@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-08-26 11:57:57"
+	"lastUpdated": "2026-08-26 12:01:15"
 }
 
 /*
@@ -379,7 +379,7 @@ function invokeEMTranslator(doc) {
 			if (pageNumberFromDC != null) i.pages = pageNumberFromDC.trim().replace(/^([^-]+)-\1$/, '$1');
  		}
 		//artikelnummer anstatt seitenzahlen
-		if (["2468-9963", "1988-4265", "2175-5841", "1980-6736", "2179-0019", "1988-3269"].includes(i.ISSN) && i.pages) {
+		if (["2468-9963", "1988-4265", "2175-5841", "1980-6736", "2179-0019", "1988-3269","1983-2478"].includes(i.ISSN) && i.pages) {
 			i.notes.push('artikelID:' + i.pages);
 			i.pages = "";
 		}
