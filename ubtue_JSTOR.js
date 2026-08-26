@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-08-26 12:19:39"
+	"lastUpdated": "2026-08-26 12:33:10"
 }
 
 /*
@@ -89,7 +89,7 @@ function getKeyWords(item) {
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = ZU.xpath(doc, '//ul[@class="visuallyhidden"]/li//li[1]/a');
+	var rows = doc.querySelectorAll('jdp-pharos-link[href*="/stable/"]');
 	for (let row of rows) {
 		let href = row.getAttribute('href');
 		let title = ZU.trimInternal(row.textContent);
