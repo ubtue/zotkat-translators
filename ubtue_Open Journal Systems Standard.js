@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-07-27 12:17:00"
+	"lastUpdated": "2026-08-26 12:01:15"
 }
 
 /*
@@ -342,7 +342,7 @@ function invokeEMTranslator(doc) {
 			}
 		}
 
-		if (orcidAuthorEntryCaseI.length && ['2182-8822', '2175-5841'].includes(i.ISSN)) {
+		if (orcidAuthorEntryCaseI.length && ['2182-8822', '2175-5841','1983-2478'].includes(i.ISSN)) {
 			for (let a of orcidAuthorEntryCaseI) {
 				let authorElement = a.querySelector('strong');
 				let orcidElement = a.querySelector('.orcid');
@@ -379,7 +379,7 @@ function invokeEMTranslator(doc) {
 			if (pageNumberFromDC != null) i.pages = pageNumberFromDC.trim().replace(/^([^-]+)-\1$/, '$1');
  		}
 		//artikelnummer anstatt seitenzahlen
-		if (["2468-9963", "1988-4265", "2175-5841", "1980-6736", "2179-0019", "1988-3269"].includes(i.ISSN) && i.pages) {
+		if (["2468-9963", "1988-4265", "2175-5841", "1980-6736", "2179-0019", "1988-3269","1983-2478"].includes(i.ISSN) && i.pages) {
 			i.notes.push('artikelID:' + i.pages);
 			i.pages = "";
 		}
@@ -475,7 +475,7 @@ function invokeEMTranslator(doc) {
 		if (i.ISSN == "1862-5886") {
 			i.abstractNote = i.abstractNote.replace(/\n+/g, " ");
 		}	
-		if (['2175-5841', '1853-9106', '2254-6227', '1860-8213', '2500-5413', '0717-6295', '1980-6736', '1126-8557', '3052-4989', '2974-7309'].includes(i.ISSN)) {
+		if (['2175-5841', '1853-9106', '2254-6227', '1860-8213', '2500-5413', '0717-6295', '1980-6736', '1126-8557', '3052-4989', '2974-7309','1983-2478'].includes(i.ISSN)) {
 			if (ZU.xpathText(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
 				for (let alternativeAbstract of ZU.xpath(doc, '//meta[@name="DC.Description"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt")]/@content')) {
 					if (alternativeAbstract.value && alternativeAbstract.value != i.abstractNote) {
@@ -637,7 +637,7 @@ function invokeEMTranslator(doc) {
 				}
 			}
 		}
-		if (['1853-9106', '2254-6227', '1860-8213', '2500-5413', '1980-6736', '2237-6461', '3052-4989', '2660-955X', '2660-955X', '2447-7443', '2974-7309'].includes(i.ISSN)) {
+		if (['1853-9106', '2254-6227', '1860-8213', '2500-5413', '1980-6736', '2237-6461', '3052-4989', '2660-955X', '2660-955X', '2447-7443', '2974-7309','1983-2478'].includes(i.ISSN)) {
 			if (ZU.xpathText(doc, '//meta[@name="DC.Title"]/@content')) {
 				for (let parallelTitle of ZU.xpath(doc, '//meta[@name="DC.Title.Alternative"][@*=("es") or @*=("en") or @*=("fr") or @*=("it") or @*=("pt") or @*=("de")]/@content')) {
 					if (parallelTitle.value && parallelTitle.value != i.title) {
