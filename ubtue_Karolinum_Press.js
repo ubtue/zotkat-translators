@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-08-26 13:29:58"
+	"lastUpdated": "2026-08-26 13:36:38"
 }
 
 /*
@@ -134,6 +134,12 @@ async function scrape(doc, url = doc.location.href) {
 		getParallelTitle(doc, item);
 		getKeywords(doc, item);
 		getOrcids(doc, item);
+
+		const cleanedCreators = item.creators.filter(
+			creator => !(creator.creatorType === "author" && creator.firstName === undefined)
+		);
+
+		item.creators = cleanedCreators;
 		
 		item.complete();
 	});
