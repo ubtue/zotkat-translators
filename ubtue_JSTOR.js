@@ -5,11 +5,11 @@
 	"target": "^https?://([^/]+\\.)?jstor\\.org/(discover/|action/(showArticle|doBasicSearch|doAdvancedSearch|doLocatorSearch|doAdvancedResults|doBasicResults)|stable/|pss/|openurl\\?|sici\\?)",
 	"minVersion": "3.0.12",
 	"maxVersion": "",
-	"priority": 99,
+	"priority": 90,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-12 14:52:17"
+	"lastUpdated": "2026-08-26 12:33:10"
 }
 
 /*
@@ -89,7 +89,7 @@ function getKeyWords(item) {
 function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = ZU.xpath(doc, '//ul[@class="visuallyhidden"]/li//li[1]/a');
+	var rows = doc.querySelectorAll('jdp-pharos-link[href*="/stable/"]');
 	for (let row of rows) {
 		let href = row.getAttribute('href');
 		let title = ZU.trimInternal(row.textContent);
