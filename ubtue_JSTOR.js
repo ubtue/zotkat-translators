@@ -5,11 +5,11 @@
 	"target": "^https?://([^/]+\\.)?jstor\\.org/(discover/|action/(showArticle|doBasicSearch|doAdvancedSearch|doLocatorSearch|doAdvancedResults|doBasicResults)|stable/|pss/|openurl\\?|sici\\?)",
 	"minVersion": "3.0.12",
 	"maxVersion": "",
-	"priority": 90,
+	"priority": 80,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-08-26 12:33:10"
+	"lastUpdated": "2026-08-31 09:36:35"
 }
 
 /*
