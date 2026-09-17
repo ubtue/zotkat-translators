@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-03-27 10:02:13"
+	"lastUpdated": "2026-09-17 15:32:10"
 }
 
 /*
@@ -35,10 +35,10 @@
 	***** END LICENSE BLOCK *****
 */
 function detectWeb(doc, url) {
-    if (getSearchResults(doc, true)) {
-        return 'multiple';
-    }
-    return false;
+	if (getSearchResults(doc, true)) {
+		return 'multiple';
+	}
+	return false;
 }
 
 function getSearchResults(doc, checkOnly) {
@@ -70,122 +70,124 @@ function getSearchResults(doc, checkOnly) {
 }
 
 function doWeb(doc, url) {
-    if (detectWeb(doc, url) == "multiple") {
-        // Get items once and reuse them
-        var searchResults = getSearchResults(doc, false);
-        
-        Zotero.selectItems(searchResults, function (selectedItems) {
-            if (selectedItems) {
-                // Preserve all original data including pages
-                var itemsToProcess = {};
-                for (let url in selectedItems) {
-                    itemsToProcess[url] = searchResults[url];
-                }
-                processHandleUrls(itemsToProcess);
-            }
-        });
-    }
-    else {
-        processHandleUrls({ 
-            [url]: { 
-                title: doc.title, 
-                pages: null 
-            } 
-        });
-    }
+	if (detectWeb(doc, url) == "multiple") {
+		// Get items once and reuse them
+		var searchResults = getSearchResults(doc, false);
+		
+		Zotero.selectItems(searchResults, function (selectedItems) {
+			if (selectedItems) {
+				// Preserve all original data including pages
+				var itemsToProcess = {};
+				for (let url in selectedItems) {
+					itemsToProcess[url] = searchResults[url];
+				}
+				processHandleUrls(itemsToProcess);
+			}
+		});
+	}
+	else {
+		processHandleUrls({ 
+			[url]: { 
+				title: doc.title, 
+				pages: null 
+			} 
+		});
+	}
 }
 
 function processHandleUrls(items) {
-    for (let url in items) {
-        let handleId = url.split('/handle/')[1];
-        let oaiUrl = `https://cdr.creighton.edu/oai/request?verb=GetRecord&metadataPrefix=dim&identifier=dim:cdr.creighton.edu:${handleId}`;
-        
-        // Add retry mechanism
-        fetchWithRetry(oaiUrl, 3, 2000, function(response) {
-            var parser = new DOMParser();
-            var xml = parser.parseFromString(response, "text/xml");
-            parseOAI(xml, url, items[url].pages, items[url].title);
-        });
-    }
+	for (let url in items) {
+		let handleId = url.split('/handle/')[1];
+		let oaiUrl = `https://cdr.creighton.edu/oai/request?verb=GetRecord&metadataPrefix=dim&identifier=dim:cdr.creighton.edu:${handleId}`;
+		
+		// Add retry mechanism
+		fetchWithRetry(oaiUrl, 3, 2000, function(response) {
+			var parser = new DOMParser();
+			var xml = parser.parseFromString(response, "text/xml");
+			parseOAI(xml, url, items[url].pages, items[url].title);
+		});
+	}
 }
 
 // Retry function with exponential backoff
 function fetchWithRetry(url, maxRetries, initialDelay, successCallback, errorCallback) {
-    var retries = 0;
-    
-    function attemptFetch() {
-        ZU.doGet(url, function(response) {
-            successCallback(response);
-        }, function(error) {
-            retries++;
-            if (retries < maxRetries) {
-                var delay = initialDelay * Math.pow(2, retries - 1);
-                Z.debug(`Retry ${retries}/${maxRetries} in ${delay}ms for ${url}`);
-                setTimeout(attemptFetch, delay);
-            } else {
-                errorCallback(error);
-            }
-        });
-    }
-    
-    attemptFetch();
+	var retries = 0;
+	
+	function attemptFetch() {
+		ZU.doGet(url, function(response) {
+			successCallback(response);
+		}, function(error) {
+			retries++;
+			if (retries < maxRetries) {
+				var delay = initialDelay * Math.pow(2, retries - 1);
+				Z.debug(`Retry ${retries}/${maxRetries} in ${delay}ms for ${url}`);
+				setTimeout(attemptFetch, delay);
+			} else {
+				errorCallback(error);
+			}
+		});
+	}
+	
+	attemptFetch();
 }
 
 function parseOAI(xml, url, storedPages, storedTitle) {
-    var item = new Zotero.Item("journalArticle");
-    
-    var ns = {
-        'dim': 'http://www.dspace.org/xmlns/dspace/dim'
-    };
-    
-    var dimNode = ZU.xpath(xml, '//dim:dim', ns)[0];
-    if (!dimNode) return;
-    
-    // Title
-    item.title = ZU.xpathText(dimNode, './/dim:field[@element="title" and not(@qualifier)]', ns);
-    
-    // Authors
-    var authors = ZU.xpath(dimNode, './/dim:field[@element="contributor"][@qualifier="author"]', ns);
-    for (let authorNode of authors) {
-        item.creators.push(ZU.cleanAuthor(authorNode.textContent, "author", true));
-    }
-    
-    // Date
-    item.date = ZU.xpathText(dimNode, './/dim:field[@element="date"][@qualifier="issued"]', ns);
-    
-    // Abstract
-    item.abstractNote = ZU.xpathText(dimNode, './/dim:field[@element="description"][@qualifier="abstract"]', ns);
-    
-    // Volume
-    item.volume = ZU.xpathText(dimNode, './/dim:field[@element="description"][@qualifier="volume"]', ns);
+	var item = new Zotero.Item("journalArticle");
+	
+	var ns = {
+		'dim': 'http://www.dspace.org/xmlns/dspace/dim'
+	};
+	
+	var dimNode = ZU.xpath(xml, '//dim:dim', ns)[0];
+	if (!dimNode) return;
+	
+	// Title
+	item.title = ZU.xpathText(dimNode, './/dim:field[@element="title" and not(@qualifier)]', ns);
+	
+	// Authors
+	var authors = ZU.xpath(dimNode, './/dim:field[@element="contributor"][@qualifier="author"]', ns);
+	for (let authorNode of authors) {
+		item.creators.push(ZU.cleanAuthor(authorNode.textContent, "author", true));
+	}
+	
+	// Date
+	item.date = ZU.xpathText(dimNode, './/dim:field[@element="date"][@qualifier="issued"]', ns);
+	
+	// Abstract
+	item.abstractNote = ZU.xpathText(dimNode, './/dim:field[@element="description"][@qualifier="abstract"]', ns);
+	
+	// Volume
+	item.volume = ZU.xpathText(dimNode, './/dim:field[@element="description"][@qualifier="volume"]', ns);
 
-    // Subjects/Tags
-    var subjects = ZU.xpath(dimNode, './/dim:field[@element="subject"][not(@qualifier)]', ns);
-    for (let subjectNode of subjects) {
-        item.tags.push(subjectNode.textContent.trim());
-    }
-    
-    // Journal Title
-    item.publicationTitle = ZU.xpathText(dimNode, './/dim:field[@element="source"]', ns);
-    
-    // URL
-    item.url = url;
+	// Subjects/Tags
+	var subjects = ZU.xpath(dimNode, './/dim:field[@element="subject"][not(@qualifier)]', ns);
+	for (let subjectNode of subjects) {
+		item.tags.push(subjectNode.textContent.trim());
+	}
+	
+	// Journal Title
+	item.publicationTitle = ZU.xpathText(dimNode, './/dim:field[@element="source"]', ns);
+	
+	// URL
+	item.url = url;
+	if (item.url.includes("handle")) {
+		item.notes.push('handle:' + item.url.replace(/https:\/\/cdr.creighton.edu\/handle/, 'https://hdl.handle.net'));
+	}
 
-    // Language
-    let langField = ZU.xpath(dimNode, './/dim:field[@element="title"]/@lang', ns);
-    if (langField.length > 0) {
-        item.language = langField[0].value.split('_')[0];
-    }
+	// Language
+	let langField = ZU.xpath(dimNode, './/dim:field[@element="title"]/@lang', ns);
+	if (langField.length > 0) {
+		item.language = langField[0].value.split('_')[0];
+	}
 
-    // ISSN
-    item.ISSN = ZU.xpathText(dimNode, './/dim:field[@element="identifier"][@qualifier="issn"]', ns) || "1522-5658";
-    
-    // Pages - use stored value (from getSearchResults)
-    item.pages = storedPages;
-    
-    item.complete();
+	// ISSN
+	item.ISSN = ZU.xpathText(dimNode, './/dim:field[@element="identifier"][@qualifier="issn"]', ns) || "1522-5658";
+	
+	// Pages - use stored value (from getSearchResults)
+	item.pages = storedPages;
+	
+	item.complete();
 }
-
 
 /** BEGIN TEST CASES **/
 var testCases = [
