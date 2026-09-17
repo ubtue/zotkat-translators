@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-06-09 09:43:18"
+	"lastUpdated": "2026-09-17 14:18:18"
 }
 
 /*
@@ -172,7 +172,8 @@ function postProcess(doc, item) {
 const JOURNAL_ISSN_MAP = new Map([
 	["journal for continental philosophy of religion", "2588-9613"],
 	["muqarnas online", "2211-8993"], 
-	["zutot", "1875-0214"]
+	["zutot", "1875-0214"],
+	["gnosis: journal of gnostic studies", "2451-8581"]
 ]);
 
 // ISSN lookup based on publication title (case insensitive)
