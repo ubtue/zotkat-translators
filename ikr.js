@@ -8,7 +8,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 2,
-	"lastUpdated": "2026-09-29 13:34:34"
+	"lastUpdated": "2026-09-30 13:36:34"
 }
 
 // Zotero Export Translator für das Pica3-Format angepasst für DAKAR-Datenbank
@@ -330,8 +330,8 @@ function performExport() {
 			physicalForm = issn_to_physical_form.get(item.publicationTitle); // position 1 http://swbtools.bsz-bw.de/winibwhelp/Liste_0500.htm
 			Z.debug("Found physicalForm:" + physicalForm);
 		}
-		if (issn_to_license.get(item.ISSN) !== undefined) {
-			licenceField = issn_to_license.get(item.ISSN); // position 4 http://swbtools.bsz-bw.de/winibwhelp/Liste_0500.htm
+		if (issn_to_license.get(item.publicationTitle) !== undefined) {
+			licenceField = issn_to_license.get(item.publicationTitle); // position 4 http://swbtools.bsz-bw.de/winibwhelp/Liste_0500.htm
 			Z.debug("Found license:" + licenceField);
 		}
 		if (issn_to_superior_ppn.get(item.ISSN) !== undefined) {
@@ -720,11 +720,6 @@ function performExport() {
 			} else if (item.publicationTitle.match(/^[A-Z]|[a-z]/)) {
 				addLine(currentItemId, "\\n4241", "Enthalten in" + item.publicationTitle);
 			}
-
-		//4950 – DOI/Handle/URI, with license flags
-		if (item.publicationTitle && physicalForm === "O" && licenceField === "l") {
-			addLine(currentItemId, "\\n4950", item.url + "$xH$3Volltext$4LF$534");
-		}
 
 			//SSG bzw. FID-Nummer --> 5056 "0" = Religionwissenschaft | "1" = Theologie | "0$a1" = RW & Theol; mehrere SSG-Nummern werden durch $a getrennt
 
