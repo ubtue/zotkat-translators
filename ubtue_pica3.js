@@ -8,7 +8,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 2,
-	"lastUpdated": "2025-06-23 08:24:08"
+	"lastUpdated": "2026-10-06 13:23:11"
 }
 
 // Zotero Export Translator in Pica3 Format für das Einzeln- und Mulitiupload in WinIBW
@@ -984,6 +984,9 @@ function performExport() {
 			else if (institution_retrieve_sign == "tojs") {
 					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 tojs$aixzs$aixzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
 			}
+			else if (institution_retrieve_sign == "lszo") {
+					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 lszo' + ixrkIxtheo + rwrkRelbib + localURL, "");
+			}
 			//K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
 			//Schlagwörter aus einem Thesaurus (Fremddaten) --> 5520 (oder alternativ siehe Mapping)
 
@@ -1054,4 +1057,3 @@ function doExport() {
 var testCases = [
 ]
 /** END TEST CASES **/
-
