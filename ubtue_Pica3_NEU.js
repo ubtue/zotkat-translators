@@ -8,7 +8,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 2,
-	"lastUpdated": "2026-07-06 12:47:54"
+	"lastUpdated": "2026-10-06 13:35:34"
 }
 
 /*
@@ -1865,6 +1865,9 @@ function performExport() {
 		}
 		else if (institution_retrieve_sign == "tojs") {
 				addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 tojs$aixzs$aixzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
+		}
+		else if (institution_retrieve_sign == "lszo") {
+					addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 lszo' + ixrkIxtheo + rwrkRelbib + localURL, "");
 		}
 
 		// 5520 (IxTheo subjects from Zotero tags) — skip internal/control tags
