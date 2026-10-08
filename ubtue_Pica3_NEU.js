@@ -8,7 +8,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 2,
-	"lastUpdated": "2026-10-06 13:35:34"
+	"lastUpdated": "2026-10-08 10:29:09"
 }
 
 /*
@@ -679,12 +679,12 @@ function processGndCandidatesToUniquePpn(gndCandidates, threadParams, finalizeRe
 			"$aixzom$bVerfasserIn in der Zoterovorlage [" + authorName + "] einer PPN " + chosen.ppn + " maschinell zugeordnet"
 		  );
 
-		  if (chosen.review) {
+		  /*if (chosen.review) {
 			addOnce8910(
 			  itemId,
 			  "$aixzom$bPPN " + chosen.ppn + " automatisch zugeordnet, aber 060R fehlt – bitte prüfen"
 			);
-		  }
+		  }*/
 
 		  return finalizeReconcile("reconcile:done (unique-after-unapi) auth=" + authorName);
 		}
@@ -1316,8 +1316,75 @@ function performExport() {
 	// 1505 (RDA)
 	addLine(currentItemId, "\n1505", "$erda");
 
+	// 205x
+	if (item.DOI) {
+	  const doiValue = String(item.DOI)
+		.replace(/^doi:\s*/i, "")
+		.replace(/^https?:\/\/doi\.org\//i, "")
+		.replace(/\r?\n/g, "")
+		.trim();
+
+	  if (doiValue) {
+		if (physicalForm === "A") {
+		  addLine(currentItemId, "\n2053", doiValue);
+		} else {
+		  addLine(currentItemId, "\n2051", doiValue);
+		}
+	  }
+	}
+
+	// 2050/2051/2052/2053: identifiers from Zotero notes
+	if (item.notes) {
+	  for (let i = 0; i < item.notes.length; i++) {
+		const rawNote =
+		  item.notes[i] && item.notes[i].note
+			? String(item.notes[i].note)
+			: "";
+
+		const note = ZU.unescapeHTML(rawNote)
+		  .replace(/\r?\n/g, "")
+		  .trim();
+
+		if (!note) continue;
+
+		// 2050: URN from note
+		if (/^urn:/i.test(note)) {
+		  addLine(currentItemId, "\n2050", note);
+		}
+
+		// 2051/2053: DOI from note
+		if (/^doi:/i.test(note)) {
+		  const doiValue = note
+			.replace(/^doi:\s*/i, "")
+			.replace(/^https?:\/\/doi\.org\//i, "")
+			.trim();
+
+		  if (doiValue) {
+			if (physicalForm === "A") {
+			  addLine(currentItemId, "\n2053", doiValue);
+			} else {
+			  addLine(currentItemId, "\n2051", doiValue);
+			}
+		  }
+		}
+
+		// 2052: Handle from note
+		if (/^handle:/i.test(note)) {
+		  const handleValue = note
+			.replace(/^handle:\s*/i, "")
+			.replace(/^https?:\/\/hdl\.handle\.net\//i, "")
+			.trim();
+
+		  if (handleValue) {
+			addLine(currentItemId, "\n2052", handleValue);
+		  }
+		}
+	  }
+	}
+
 	// Titel / Sortierzeichen
 	var titleStatement = "";
+
 	if (item.shortTitle == "journalArticle") {
 	  titleStatement += item.shortTitle;
 	  if (item.title && item.title.length > item.shortTitle.length) {
@@ -1556,12 +1623,12 @@ function performExport() {
 							);
 
 							// Option B: if 060R missing -> add "please review" note
-							if (chosen.review) {
+							/*if (chosen.review) {
 								addOnce8910(
 								_itemId,
 								"$aixzom$bPPN " + ppn + " automatisch zugeordnet, aber 060R fehlt – bitte prüfen"
 								);
-							}
+							}*/
 
 							return finalizeSru("sru:done (unapi-unique-" + chosen.strength + ") key=" + _key);
 							}
@@ -1683,84 +1750,261 @@ function performExport() {
 	  }
 	}
 
-	// 4950 / 205x – DOI/Handle/URI, with license flags
-	if (item.url && item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "l") {
-	  addLine(currentItemId, "\n4950", item.url + "$xR$3Volltext$4LF$534");
-	} else if (item.url && !item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "l") {
-	  addLine(currentItemId, "\n4950", item.url + "$xH$3Volltext$4LF$534");
-	} else if (item.url && item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "kw") {
-	  addLine(currentItemId, "\n4950", item.url + "$xR$3Volltext$4KW$534");
-	} else if (item.url && !item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "kw") {
-	  addLine(currentItemId, "\n4950", item.url + "$xH$3Volltext$4KW$534");
-	} else if (item.url && item.url.match(/doi\.org\/10\./) && physicalForm === "O") {
-	  addLine(currentItemId, "\n4950", item.url + "$xR$3Volltext$4ZZ$534");
-	} else if (item.url && !item.url.match(/doi\.org\/10\./) && physicalForm === "O") {
-	  addLine(currentItemId, "\n4950", item.url + "$xH$3Volltext$4ZZ$534");
-	} else if (item.url && item.itemType == "magazineArticle") {
-	  addLine(currentItemId, "\n4950", item.url + "$xH");
+
+	// 4950 from the regular Zotero URL field
+	if (
+	  item.url &&
+	  item.url.match(/doi\.org\/10\./) &&
+	  physicalForm === "O" &&
+	  licenceField === "l"
+	) {
+	  addLine(
+		currentItemId,
+		"\n4950",
+		item.url + "$xR$3Volltext$4LF$534"
+	  );
+	} else if (
+	  item.url &&
+	  !item.url.match(/doi\.org\/10\./) &&
+	  physicalForm === "O" &&
+	  licenceField === "l"
+	) {
+	  addLine(
+		currentItemId,
+		"\n4950",
+		item.url + "$xH$3Volltext$4LF$534"
+	  );
+	} else if (
+	  item.url &&
+	  item.url.match(/doi\.org\/10\./) &&
+	  physicalForm === "O" &&
+	  licenceField === "kw"
+	) {
+	  addLine(
+		currentItemId,
+		"\n4950",
+		item.url + "$xR$3Volltext$4KW$534"
+	  );
+	} else if (
+	  item.url &&
+	  !item.url.match(/doi\.org\/10\./) &&
+	  physicalForm === "O" &&
+	  licenceField === "kw"
+	) {
+	  addLine(
+		currentItemId,
+		"\n4950",
+		item.url + "$xH$3Volltext$4KW$534"
+	  );
+	} else if (
+	  item.url &&
+	  item.url.match(/doi\.org\/10\./) &&
+	  physicalForm === "O"
+	) {
+	  addLine(
+		currentItemId,
+		"\n4950",
+		item.url + "$xR$3Volltext$4ZZ$534"
+	  );
+	} else if (
+	  item.url &&
+	  !item.url.match(/doi\.org\/10\./) &&
+	  physicalForm === "O"
+	) {
+	  addLine(
+		currentItemId,
+		"\n4950",
+		item.url + "$xH$3Volltext$4ZZ$534"
+	  );
+	} else if (
+	  item.url &&
+	  item.itemType === "magazineArticle"
+	) {
+	  addLine(
+		currentItemId,
+		"\n4950",
+		item.url + "$xH"
+	  );
 	}
 
-	if (item.DOI && item.url && !item.url.match(/https?:\/\/doi\.org/) && licenceField === "l") {
-	  addLine(currentItemId, "\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4LF$534");
-	}
-	if (item.DOI && item.url && !item.url.match(/https?:\/\/doi\.org/) && !licenceField) {
-	  addLine(currentItemId, "\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4ZZ$534");
-	}
-	if (item.DOI && !item.url) {
-	  if (licenceField === "l") {
-		addLine(currentItemId, "\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4LF$534");
-	  } else if (!licenceField) {
-		addLine(currentItemId, "\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4ZZ$534");
-	  }
-	}
+	// 4950 from the regular Zotero DOI field
 	if (item.DOI) {
-	  if (physicalForm === "O" || item.DOI) {
-		addLine(currentItemId, "\n2051", item.DOI.replace('https://doi.org/', ''));
-	  } else if (physicalForm === "A") {
-		addLine(currentItemId, "\n2053", item.DOI.replace('https://doi.org/', ''));
+	  const doiValue = String(item.DOI)
+		.replace(/^doi:\s*/i, "")
+		.replace(/^https?:\/\/doi\.org\//i, "")
+		.replace(/\r?\n/g, "")
+		.trim();
+
+	  if (doiValue) {
+		const doiUrl = "https://doi.org/" + doiValue;
+		const urlContainsSameDoi =
+		  item.url &&
+		  String(item.url)
+			.replace(/^https?:\/\/doi\.org\//i, "")
+			.replace(/\r?\n/g, "")
+			.trim() === doiValue;
+
+		if (!urlContainsSameDoi) {
+		  if (licenceField === "l") {
+			addLine(
+			  currentItemId,
+			  "\n4950",
+			  doiUrl + "$xR$3Volltext$4LF$534"
+			);
+		  } else if (licenceField === "kw") {
+			addLine(
+			  currentItemId,
+			  "\n4950",
+			  doiUrl + "$xR$3Volltext$4KW$534"
+			);
+		  } else {
+			addLine(
+			  currentItemId,
+			  "\n4950",
+			  doiUrl + "$xR$3Volltext$4ZZ$534"
+			);
+		  }
+		}
 	  }
 	}
 
+	// 4950 fields from Zotero notes
 	if (item.notes) {
-	  for (let i in item.notes) {
-		if (item.notes[i].note.includes('doi:')) {
-		  addLine(currentItemId, "\n2051", ZU.unescapeHTML(item.notes[i].note.replace('doi:https://doi.org/', '')));
+	  for (let i = 0; i < item.notes.length; i++) {
+		const rawNote =
+		  item.notes[i] && item.notes[i].note
+			? String(item.notes[i].note)
+			: "";
+
+		const note = ZU.unescapeHTML(rawNote)
+		  .replace(/\r?\n/g, "")
+		  .trim();
+
+		if (!note) continue;
+
+		// 4950 from DOI note
+		if (/^doi:/i.test(note)) {
+		  const doiValue = note
+			.replace(/^doi:\s*/i, "")
+			.replace(/^https?:\/\/doi\.org\//i, "")
+			.trim();
+
+		  if (doiValue) {
+			const doiUrl = "https://doi.org/" + doiValue;
+
+			if (licenceField === "l") {
+			  addLine(
+				currentItemId,
+				"\n4950",
+				doiUrl + "$xR$3Volltext$4LF$534"
+			  );
+			} else if (licenceField === "kw") {
+			  addLine(
+				currentItemId,
+				"\n4950",
+				doiUrl + "$xR$3Volltext$4KW$534"
+			  );
+			} else {
+			  addLine(
+				currentItemId,
+				"\n4950",
+				doiUrl + "$xR$3Volltext$4ZZ$534"
+			  );
+			}
+		  }
+		}
+
+		// 4950 from Handle note
+		if (/^handle:/i.test(note)) {
+		  const handleValue = note
+			.replace(/^handle:\s*/i, "")
+			.replace(/^https?:\/\/hdl\.handle\.net\//i, "")
+			.trim();
+
+		  if (handleValue) {
+			const handleUrl =
+			  "https://hdl.handle.net/" + handleValue;
+
+			if (licenceField === "l") {
+			  addLine(
+				currentItemId,
+				"\n4950",
+				handleUrl + "$xR$3Volltext$4LF$534"
+			  );
+			} else if (licenceField === "kw") {
+			  addLine(
+				currentItemId,
+				"\n4950",
+				handleUrl + "$xR$3Volltext$4KW$534"
+			  );
+			} else {
+			  addLine(
+				currentItemId,
+				"\n4950",
+				handleUrl + "$xR$3Volltext$4ZZ$534"
+			  );
+			}
+		  }
+		}
+
+		// 4950 from URN note
+		if (/^urn:/i.test(note)) {
+		  const urnUrl =
+			"https://nbn-resolving.org/" + note;
+
 		  if (licenceField === "l") {
-			addLine(currentItemId, "\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/doi:/i, '') + "$xR$3Volltext$4LF$534"));
+			addLine(
+			  currentItemId,
+			  "\n4950",
+			  urnUrl + "$xR$3Volltext$4LF$534"
+			);
+		  } else if (licenceField === "kw") {
+			addLine(
+			  currentItemId,
+			  "\n4950",
+			  urnUrl + "$xR$3Volltext$4KW$534"
+			);
 		  } else {
-			addLine(currentItemId, "\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/doi:/i, '') + "$xR$3Volltext$4ZZ$534"));
+			addLine(
+			  currentItemId,
+			  "\n4950",
+			  urnUrl + "$xR$3Volltext$4ZZ$534"
+			);
+		  }
+		}
+
+		// 4950 from URI note
+		if (/^URI:/i.test(note)) {
+		  const uriValue = note
+			.replace(/^URI:\s*/i, "")
+			.trim();
+
+		  if (uriValue) {
+			if (licenceField === "l") {
+			  addLine(
+				currentItemId,
+				"\n4950",
+				uriValue + "$xR$3Volltext$4LF$534"
+			  );
+			} else if (licenceField === "kw") {
+			  addLine(
+				currentItemId,
+				"\n4950",
+				uriValue + "$xR$3Volltext$4KW$534"
+			  );
+			} else {
+			  addLine(
+				currentItemId,
+				"\n4950",
+				uriValue + "$xR$3Volltext$4ZZ$534"
+			  );
+			}
 		  }
 		}
 	  }
 	}
 
-	if (item.notes) {
-	  for (let i in item.notes) {
-		if (item.notes[i].note.includes('handle:')) {
-		  addLine(currentItemId, "\n2052", ZU.unescapeHTML(item.notes[i].note.replace(/handle:https?:\/\/hdl\.handle\.net\//i, '')));
-		  if (licenceField === "l") {
-			addLine(currentItemId, "\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/handle:/i, '') + "$xR$3Volltext$4LF$534"));
-		  } else {
-			addLine(currentItemId, "\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/handle:/i, '') + "$xR$3Volltext$4ZZ$534"));
-		  }
-		}
-		if (item.notes[i].note.indexOf('urn:') == 0) {
-		  addLine(currentItemId, "\n2050", ZU.unescapeHTML(item.notes[i].note));
-		  if (licenceField === "l") {
-			addLine(currentItemId, "\n4950", 'http://nbn-resolving.de/' + ZU.unescapeHTML(item.notes[i].note + "$xR$3Volltext$4LF$534"));
-		  } else {
-			addLine(currentItemId, "\n4950", 'http://nbn-resolving.de/' + ZU.unescapeHTML(item.notes[i].note + "$xR$3Volltext$4ZZ$534"));
-		  }
-		}
-		if (item.notes[i].note.indexOf('URI:') == 0) {
-		  if (licenceField === "l") {
-			addLine(currentItemId, "\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/URI:/, '') + "$xR$3Volltext$4LF$534"));
-		  } else {
-			addLine(currentItemId, "\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/URI:/i, '') + "$xR$3Volltext$4ZZ$534"));
-		  }
-		}
-	  }
-	}
+	// 4110 (series)
 
 	// 4110 (series)
 	if (!article) {
