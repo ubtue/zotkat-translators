@@ -8,7 +8,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 2,
-	"lastUpdated": "2026-10-08 10:29:09"
+	"lastUpdated": "2026-10-08 10:54:11"
 }
 
 /*
@@ -397,7 +397,6 @@ function _toAscii(s) {
 	return String(s);
   }
 }
-
 function buildNameQueries(authorName) {
   // Reconciliation expects the plain label to match, not a fielded ES query.
   const s = _normalizePreferredName(authorName); // e.g., "Schramke, Mona"
@@ -1722,6 +1721,50 @@ function performExport() {
 	// 4000 (Title proper)
 	addLine(currentItemId, "\n4000", ZU.unescapeHTML(titleStatement));
 
+	// 4020 (Paralleltitel)
+	if (item.archiveLocation && item.ISSN == '2660-7743') {
+		switch (true) {
+			case item.language == "ger" || !item.language && item.archiveLocation:
+				addLine(currentItemId, "\n4002", item.archiveLocation.replace(/^(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "„$2 @$3"));
+				break;
+			case item.language == "eng" || !item.language && item.archiveLocation:
+				addLine(currentItemId, "\n4002", item.archiveLocation.replace(/^(The|A|An) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(The|A|An) ([^@])/i, "„$2 @$3"));
+				break;
+			case item.language == "fre" || !item.language && item.archiveLocation:
+				addLine(currentItemId, "\n4002", item.archiveLocation.replace(/^(Le|La|Les|Des|Un|Une) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(Le|La|Les|Des|Un|Une) ([^@])/i, "„$2 @$3").replace(/^L'\s?([^@])/i, "L' @$1").replace(/^([\u201e]|[\u201d]|[\u201c])L'\s?([^@])/i, "„L' @$2"));
+				break;
+			case item.language == "ita" || !item.language && item.archiveLocation:
+				addLine(currentItemId, "\n4002", item.archiveLocation.replace(/^(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "„$2 @$3").replace(/^L'\s?([^@])/i, "L' @$1").replace(/^([\u201e]|[\u201d]|[\u201c])L'\s?([^@])/i, "„L' @$2"));
+				break;
+			case item.language == "por" || !item.language && item.archiveLocation:
+				addLine(currentItemId, "\n4002", item.archiveLocation.replace(/^(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/i, "„$2 @$3"));
+				break;
+			case item.language == "spa" || !item.language && item.archiveLocation:
+				addLine(currentItemId, "\n4002", item.archiveLocation.replace(/^(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/i, "„$2 @$3"));
+				break;
+		}
+	}
+
+	// 4020 (Paralleltitel OJS )
+	// 4212 (Übersetzung des Haupttitels)
+	for (let i in item.notes) {
+			if (item.notes[i].note.includes('Paralleltitel:')) addLine(currentItemId, "\n4002", item.notes[i].note.replace(/paralleltitel:/i, ''));
+			if (item.notes[i].note.includes('translatedTitle:')) addLine(currentItemId, "\n4212 Übersetzung des Haupttitels: ", item.notes[i].note.replace(/translatedTitle:/i, ''));
+	}
+
+	// 4020 (Ausgabe) 
+	if (item.edition) {
+		addLine(currentItemId, "\n4020", item.edition);
+	}
+
+	// 4030 (Erscheinungsvermerk)
+	if (!article) {
+		var publicationStatement = "";
+		if (item.place) { publicationStatement += item.place; }
+		if (item.publisher) { publicationStatement +=  "$n" + item.publisher; }
+		addLine(currentItemId, "\n4030", publicationStatement);
+	}
+
 	// 4070 (volume/year/issue/pages)
 	if (item.itemType == "journalArticle" || item.itemType == "magazineArticle") {
 	  var volumeyearissuepage = "";
@@ -1751,7 +1794,40 @@ function performExport() {
 	}
 
 
-	// 4950 from the regular Zotero URL field
+	// 4110 (series)
+	if (!article) {
+	  var seriesStatement = "";
+	  if (item.series) {
+		seriesStatement += item.series;
+	  }
+	  if (item.seriesNumber) {
+		seriesStatement += " ; " + item.seriesNumber;
+	  }
+	  addLine(currentItemId, "\n4110", seriesStatement);
+	}
+
+	// 4207 (abstracts / summaries, lightly cleaned)
+	if (item.abstractNote) {
+	  item.abstractNote = ZU.unescapeHTML(item.abstractNote);
+	  addLine(currentItemId, "\n4207", item.abstractNote.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract\s?:?/, '').replace(/Abstract  :/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, ''));
+	}
+	if (item.notes) {
+	  for (let i in item.notes) {
+		if (item.notes[i].note.includes('abs')) addLine(currentItemId, "\n4207", item.notes[i].note.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract\s?:?/, '').replace(/Abstract  :/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, '').replace('abs:', ''));
+	  }
+	}
+
+	// 4241 (Enthalten in ...) - uses either ISSN-based superiorPPN or title-to-PPN map
+	if (item.itemType == "journalArticle" || item.itemType == "magazineArticle" || item.itemType == "bookSection") {
+	  if (superiorPPN.length != 0) {
+		addLine(currentItemId, "\n4241", "Enthalten in" + superiorPPN);
+	  } else if (journalTitlePPN.length != 0) {
+		addLine(currentItemId, "\n4241", "Enthalten in" + journalTitlePPN);
+	  } else {
+		addLine(currentItemId, "\n4241", undefined);
+	  }
+
+// 4950 from the regular Zotero URL field
 	if (
 	  item.url &&
 	  item.url.match(/doi\.org\/10\./) &&
@@ -2004,42 +2080,8 @@ function performExport() {
 	  }
 	}
 
-	// 4110 (series)
 
-	// 4110 (series)
-	if (!article) {
-	  var seriesStatement = "";
-	  if (item.series) {
-		seriesStatement += item.series;
-	  }
-	  if (item.seriesNumber) {
-		seriesStatement += " ; " + item.seriesNumber;
-	  }
-	  addLine(currentItemId, "\n4110", seriesStatement);
-	}
-
-	// 4207 (abstracts / summaries, lightly cleaned)
-	if (item.abstractNote) {
-	  item.abstractNote = ZU.unescapeHTML(item.abstractNote);
-	  addLine(currentItemId, "\n4207", item.abstractNote.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract\s?:?/, '').replace(/Abstract  :/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, ''));
-	}
-	if (item.notes) {
-	  for (let i in item.notes) {
-		if (item.notes[i].note.includes('abs')) addLine(currentItemId, "\n4207", item.notes[i].note.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract\s?:?/, '').replace(/Abstract  :/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, '').replace('abs:', ''));
-	  }
-	}
-
-	// 4241 (Enthalten in ...) - uses either ISSN-based superiorPPN or title-to-PPN map
-	if (item.itemType == "journalArticle" || item.itemType == "magazineArticle" || item.itemType == "bookSection") {
-	  if (superiorPPN.length != 0) {
-		addLine(currentItemId, "\n4241", "Enthalten in" + superiorPPN);
-	  } else if (journalTitlePPN.length != 0) {
-		addLine(currentItemId, "\n4241", "Enthalten in" + journalTitlePPN);
-	  } else {
-		addLine(currentItemId, "\n4241", undefined);
-	  }
-
-	  // 5056 (SSG-Feld)
+	// 5056 (SSG-Feld)
 	  if (SsgField === "1" || SsgField === "0" || SsgField === "0$a1" || SsgField === "2,1") {
 		addLine(currentItemId, "\n5056", SsgField);
 	  } else if (SsgField == "NABZ" || institution_retrieve_sign == "tojs") {
