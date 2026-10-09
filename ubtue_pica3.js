@@ -8,13 +8,8 @@
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 2,
-	"lastUpdated": "2026-10-06 13:23:11"
+	"lastUpdated": "2026-10-09 15:13:08"
 }
-
-// Zotero Export Translator in Pica3 Format für das Einzeln- und Mulitiupload in WinIBW
-// (wie es im K10+ Verbund benutzt wird)
-// https://verbundwiki.gbv.de/display/VZG/PICA-Format
-
 
 /*
  ***** BEGIN LICENSE BLOCK *****
@@ -28,12 +23,59 @@
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU Affero General Public License for more details.
   You should have received a copy of the GNU Affero General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  along with this program.  If not, see http://www.gnu.org/licenses/.
  ***** END LICENSE BLOCK *****
  */
+/* ===========================================================================================
+   A. OVERVIEW
+   -------------------------------------------------------------------------------------------
+   This translator exports Zotero items to PICA3 blocks for WinIBW (K10plus). During export it
+   can enrich author 30xx fields by linking them to K10plus PPNs via a GND-based workflow.
 
+   High-level flow per item:
+   1) performExport()
+      - Iterates items, builds PICA fields, and for each author slot (3000/3010...):
+        (a) Pre-seed 30xx with the personal name (and optional ORCID), using a temporary marker
+            " ##NNN##" so it can be overwritten in-place later.
+        (b) Build a GND candidate list via reconcile.gnd.network (Reconciliation Service API).
+            IMPORTANT: We do NOT require reconciliation to yield a single unique match.
+            We only use reconciliation to generate a ranked candidate set.
+        (c) Candidate list selection depends on SSG:
+            - If SSG is SSG0 or SSG1 or SSG 0$a1:
+                * apply STRICT profession whitelist filtering via reconcile "extend="
+                * forward all filtered GND candidates (capped) to SRU->unAPI
+            - If NOT SSG0/SSG1 (e.g., NABZ, 2,1, empty, other):
+                * do NOT use profession hints/filters
+                * forward Top-N (e.g., Top-3) ranked GND candidates to SRU->unAPI
+        (d) For each forwarded GND candidate, resolve GND → K10plus PPN via SRU
+            (query pica.nid=<GND>). Collect PPN candidates across all GNDs.
+            Apply the PPN blocklist (PPN-Lookup-False-Positive.map) before validation.
+        (e) unAPI final validation (decides uniqueness):
+            For each remaining PPN candidate, fetch the person record via unAPI (format=pp) and validate:
+              - 028A strict name match (surname + given name, normalized)
+              - 060R temporal plausibility guard:
+                  reject if 060R has $b (end-of-timespan),
+                  accept strong if 060R$a >= threshold (default 1930) OR 060R$d indicates 20/21 century,
+                  accept weak if 060R missing (only if final unique).
+            Only if EXACTLY ONE PPN passes unAPI validation do we overwrite the 30xx marker to:
+              !PPN!$BVerfasserIn$4aut
+            Otherwise we keep the original personal name in 30xx.
+
+   Concurrency model & final write:
+   - Network requests are asynchronous (reconcile queries, reconcile extend, SRU, unAPI).
+   - runningThreadCount (RTC) is incremented when an async branch starts and decremented when it
+     finishes. Only when RTC reaches 0 do we flush all buffered output via WriteItems().
+   - itemsOutputCache buffers per-item output lines. We never reorder 30xx markers; we overwrite
+     the pre-seeded marker line in-place when a PPN is accepted.
+
+   Safety/invariants:
+   - threadParams is frozen per author slot so callbacks update the correct marker (printIndex).
+   - SRU fan-out must be guarded against double-callback situations (rare late error/success);
+     we count each SRU request only once and ignore late callbacks.
+=========================================================================================== */
 /* =============================================================================================================== */
-// Mapping tables that get populated with the entries from their corresponding map files in the Github repo
+/* B. MAPPING TABLES & GLOBAL CONFIG                                                                               */
+/* =============================================================================================================== */
 var issn_to_language_code = {};
 var issn_to_license = {};
 var issn_to_physical_form = {};
@@ -46,1012 +88,1796 @@ var journal_title_to_ppn = {};
 var publication_title_to_physical_form = {};
 var issn_to_institution = {};
 var issn_to_collection_code = {};
-// Repository base URL
-var zts_enhancement_repo_url = 'https://raw.githubusercontent.com/ubtue/zotero-enhancement-maps/master/';
+// Profession maps (team-editable) — used as a STRICT whitelist for candidate filtering (SSG0/SSG1)
+//   - profession_for_lookup_zotkat.map      → SSG=1 profession allow-list
+//   - profession_for_lookup_ssg0_zotkat.map → SSG=0 profession allow-list
+//
+// Map format: key = human label (e.g., "Theologe"), value = comma-separated GND profession IDs
+// (either full URIs "https://d-nb.info/gnd/..." or short IDs like "4059756-8").
+//
+// IMPORTANT (current pipeline):
+// - Reconciliation is used ONLY to generate a ranked candidate list (not to decide uniqueness).
+// - If SSG is SSG0 or SSG1, we enforce profession constraints STRICTLY via reconcile "extend="
+//   (professionOrOccupation must intersect the whitelist) and forward the filtered candidates to SRU->unAPI.
+// - If NOT SSG0/SSG1 (e.g., NABZ, 2,1, empty, other), we skip profession filtering and forward Top-N
+//   candidates to SRU->unAPI.
+// - Final uniqueness is decided later by unAPI validation (028A name + 060R temporal guard).
+var profession_to_gndids = new Map(); // SSG=1 allow-list map (label → ids)
+var profession_to_gndids_ssg0 = new Map(); // SSG=0 allow-list map (label → ids)
+// PPN blocklist (false positives):
+// Initialized empty and replaced at startup from "PPN-Lookup-False-Positive.map" (Map keys = PPN).
+// If SRU returns a PPN in this blocklist, we keep/revert to the personal name instead of linking.
+var ppn_false_positive = new Map();
+// Repository base URL (kept empty; URLs below are absolute). The value can be used as an optional prefix.
+var zts_enhancement_repo_url = '';
 var downloaded_map_files = 0;
-var max_map_files = 12;
-
-
-/*
-	The following maps DO NOT have a corresponding file in the zts_enhancement_maps repository.
-	Until they are added somewhere online for downloading, we'll use the hardcoded maps that follow:
-	*/
-// Mapping für JournalTitle missing ISSN >PPN
-
-// Mapping JournalTitle>Language
+// Map file count guard: adjust when adding/removing a URL in doExport().
+// map = 15 total.
+var max_map_files = 15;
+// Mapping JournalTitle>Language (fallback examples)
 var journal_title_to_language_code = {
-	"Oriens Christianus" :"ger",
-	"Ephemerides Theologicae Lovanienses" : "fre",
-	"Science et Esprit" : "fre",
-}
-
-/* =============================================================================================================== */
-// ab hier Programmcode
+    "Oriens Christianus": "ger",
+    "Ephemerides Theologicae Lovanienses": "fre",
+    "Science et Esprit": "fre",
+};
+/* Defaults & flags used when no map data applies */
 var defaultSsgNummer = undefined;
 var defaultLanguage = "eng";
-
-//lokaldatensatz z.B. \\n6700 !372049834!\\n6700 !37205241X!\\n6700 !372053025!\\n6700!37205319X!
-
-//item.type --> 0500 Bibliographische Gattung und Status
-//http://swbtools.bsz-bw.de/winibwhelp/Liste_0500.htm
-// TODO: check if the folowing 3 variables are being used correctly
-var cataloguingStatus = "n";//0500 Position 3
-var cataloguingStatusO = "n";//0500 Position 3
-
-/*
-	WICHTIG - ERST LESEN UND !!!VERSTEHEN!!! BEVOR ÄNDERUNGEN GEMACHT WERDEN
-
-	Hinweise zur Nebenläufigkeit
-	- Dieses Skript verwendet Remote-calls zum Auflösen verschiedener Daten (z.B. PPNs für Autoren)
-	- Diese Calls sind per Javascript nur asynchron aufrufbar
-		- Konstrukte wie z.B. Zotero.wait() und Zotero.done() existieren in der aktuellen Zotero-Version (5) noch, haben aber keine Funktion mehr.
-		- Verschiedene Workarounds wurden ausprobiert (z.B. Semaphor über globale Variable), haben aber nie funktioniert
-		- Man kommt also um die asynchronen Aufrufe nicht herum
-
-	HINWEISE ZUR IMPLEMENTATION in diesem Skript
-	- Die Variable runningThreadCount enthält die Anzahl der noch laufenden Threads (Hauptskript + asynchrone abfragen)
-		- Startwert 1 (für Hauptskript)
-		- +1 beim Start jedes zusätzlichen asynchronen Aufrufs
-		- -1 beim Ende jedes asynchronen Aufrufs (im ondone callback)
-		- -1 beim Ende des Hauptskripts
-	- Alle Informationen werden im itemsOutputCache nach Item gruppiert gesammelt (laufende Nummer)
-	- Erst am Ende des Skripts werden die Einträge im itemsOutputCache sortiert und geschrieben
-		- Sortierung ist notwendig, da Hauptskript und asynchrone Threads gemischt Codes reinschreiben => Codes sind durcheinander
-		- So wird auch verhindert dass Datensätze durcheinander sind, falls mehrere gleichzeitig exportiert werden
-	- Dafür ist es notwendig, dass sowohl das Ende des Skripts als auch jeder einzelne Async ondone callback auf
-	  runningThreadCount == 0 prüft und bei Bedarf die finale Funktion WriteItems aufruft.
-	  */
-
+var cataloguingStatus = "n"; // 0500 Position 3
+var cataloguingStatusO = "n"; // 0500 Position 3
+/* =============================================================================================================== */
+/* C. MAP LOADER: populateISSNMaps                                                                                 */
+/* =============================================================================================================== */
 function populateISSNMaps(mapData, url) {
-	var mapFilename = url.substr(url.lastIndexOf("/") + 1);
-	var temp = new Map();
-	var lines = mapData.split('\n');
-
-	for (i in lines) {
-		var line = lines[i].split("#")[0].trim();
-		if (line.length < 2)
-			continue;
-
-		var elements = line.split("=");
-		if (elements.length != 2) {
-			Z.debug("Line " + i + " in map file " + mapFilename + " has too many/few splits (" + elements.length + ")");
-			Z.debug("Invalid line: " + line);
-			continue;
-		}
-
-		switch (mapFilename) {
-			case "notes_to_ixtheo_notations.map":
-			case "ISSN_to_superior_ppn.map":
-				temp.set(elements[0], "!" + elements[1] + "!");
-				break;
-			default:
-				temp.set(elements[0], elements[1]);
-		}
-	}
-
-	if (temp.size == 0) {
-		throw "Empty map file! This is unexpected";
-	}
-
-	switch (mapFilename) {
-		case "ISSN_to_language_code.map":
-			issn_to_language_code = temp;
-			break;
-		case "ISSN_to_licence.map":
-			issn_to_license = temp;
-			break;
-		case "ISSN_to_physical_form.map":
-			issn_to_physical_form = temp;
-			Z.debug("physical form");
-			break;
-		case "ISSN_to_SSG_zotkat.map":
-			issn_to_ssg_zotkat = temp;
-			break;
-		case "ISSN_to_superior_ppn.map":
-			issn_to_superior_ppn = temp;
-			break;
-		case "ISSN_to_volume.map":
-			issn_to_volume = temp;
-			break;
-		case "language_to_language_code.map":
-			language_to_language_code = temp;
-			break;
-		case "notes_to_ixtheo_notations.map":
-			notes_to_ixtheo_notations = temp;
-			break;
-		case "journal_title_to_ppn.map":
-			journal_title_to_ppn = temp;
-			break;
-		case "publication_title_to_physical_form.map":
-			publication_title_to_physical_form = temp;
-			break;
-		case "ISSN_to_Sammlungscode_zotkat.map":
-			issn_to_collection_code = temp;
-			break;
-		case "ISSN_to_Institution_zotkat.map":
-			issn_to_institution = temp;
-			break;
-		default:
-			throw "Unknown map file: " + mapFilename;
-	}
-
-	downloaded_map_files += 1;
+    var mapFilename = url.substr(url.lastIndexOf("/") + 1);
+    var temp = new Map();
+    var lines = mapData.split('\n');
+    for (i in lines) {
+        var line = lines[i].split("#")[0].trim();
+        if (line.length < 2)
+            continue;
+        var elements = line.split("=");
+        if (elements.length != 2) {
+            Z.debug("Line " + i + " in map file " + mapFilename + " has too many/few splits (" + elements.length + ")");
+            Z.debug("Invalid line: " + line);
+            continue;
+        }
+        switch (mapFilename) {
+            case "notes_to_ixtheo_notations.map":
+            case "ISSN_to_superior_ppn.map":
+                temp.set(elements[0], "!" + elements[1] + "!");
+                break;
+            default:
+                temp.set(elements[0], elements[1]);
+        }
+    }
+    if (temp.size == 0) {
+        throw "Empty map file! This is unexpected";
+    }
+    Z.debug(temp);
+    switch (mapFilename) {
+        case "ISSN_to_language_code.map":
+            issn_to_language_code = temp;
+            break;
+        case "ISSN_to_licence.map":
+            issn_to_license = temp;
+            break;
+        case "ISSN_to_physical_form.map":
+            issn_to_physical_form = temp;
+            Z.debug("physical form");
+            break;
+        case "ISSN_to_SSG_zotkat.map":
+            issn_to_ssg_zotkat = temp;
+            break;
+        case "ISSN_to_superior_ppn.map":
+            issn_to_superior_ppn = temp;
+            break;
+        case "ISSN_to_volume.map":
+            issn_to_volume = temp;
+            break;
+        case "language_to_language_code.map":
+            language_to_language_code = temp;
+            break;
+        case "notes_to_ixtheo_notations.map":
+            notes_to_ixtheo_notations = temp;
+            break;
+        case "journal_title_to_ppn.map":
+            journal_title_to_ppn = temp;
+            break;
+        case "publication_title_to_physical_form.map":
+            publication_title_to_physical_form = temp;
+            break;
+        case "ISSN_to_Sammlungscode_zotkat.map":
+            issn_to_collection_code = temp;
+            break;
+        case "ISSN_to_Institution_zotkat.map":
+            issn_to_institution = temp;
+            break;
+        case "profession_for_lookup_zotkat.map":
+            profession_to_gndids = temp;
+            break;
+        case "profession_for_lookup_ssg0_zotkat.map":
+            profession_to_gndids_ssg0 = temp;
+            break;
+        case "PPN-Lookup-False-Positive.map":
+            ppn_false_positive = temp;
+            break;
+        default:
+            throw "Unknown map file: " + mapFilename;
+    }
+    downloaded_map_files += 1;
 }
-
-var runningThreadCount = 1;
+/* =============================================================================================================== */
+/* D. ASYNC + OUTPUT INFRASTRUCTURE                                                                                */
+/* =============================================================================================================== */
+var runningThreadCount = 1; // Start at 1 to keep the pipeline open until performExport() schedules everything.
 var currentItemId = -1;
-var itemsOutputCache = []
-var authorMapping = {};
-
-/**
- * Diese Funktion dient als Ersatz für Zotero.ProcessDocuments
- * Mit dieser Funktion ist es möglich, der processor-Funktion eine zusätzliche Variable weiterzugeben ("processorParams").
- * Notwendig um z.B. Kopien globaler Variablen weiterzugeben, die sonst den Wert ändern
- * bis die Processor-Funktion am Ende des callbacks aufgerufen wird.
- *
- * Original siehe: https://github.com/zotero/zotero/blob/master/chrome/content/zotero/xpcom/http.js
- */
-async function processDocumentsCustom (url, processor, processorParams, onDone, onError) {
-	var f = function() {
-		Zotero.Utilities.loadDocument(url, function(doc) {
-			processor(doc, url, processorParams);
-		});
-
-	};
-
-	try {
-		await f();
-	}
-	catch (e) {
-		if (onError) {
-			onError(e);
-		}
-		throw e;
-	}
-
-	if (onDone) {
-		onDone();
-	}
-};
-
-//Generate Unicode escapes for all non-ASCII characters.
-
+var itemsOutputCache = [];
+var authorMapping = {}; // used to stash per-author data (e.g., ORCID) by key "<itemId>:<printIndex>"
+var _ppnLookupState = Object.create(null); // key = "<itemId>:<printIndex>" -> "inflight" | "done" | "failed"
+var _sruOutstanding = Object.create(null); // key guard for SRU inflight -> ensure we close the thread once
+var _finalExportLogged = false;
+function _bump(delta, why) {
+    runningThreadCount += delta;
+    Z.debug("[RTC] now=" + runningThreadCount + "  " + (delta > 0 ? "++" : "--") + "  " + why);
+}
+function finishIfIdle() {
+    if (runningThreadCount === 0 && !_finalExportLogged) {
+        WriteItems();
+        Z.debug("Done exporting item(s)!");
+        _finalExportLogged = true;
+    }
+}
+/* =============================================================================================================== */
+/* E. LOW-LEVEL UTILITIES                                                                                          */
+/* =============================================================================================================== */
+// Add 8910 once per identical payload (per item)
+// Dedupes audit notes because multiple async branches may try to append the same 8910.
+function addOnce8910(itemId, payload) {
+    var line = "\n8910 " + payload;
+    var buf = itemsOutputCache[itemId] || [];
+    for (var i = 0; i < buf.length; i++) {
+        if (buf[i] === line)
+            return; // already present → do nothing
+    }
+    buf.push(line);
+    itemsOutputCache[itemId] = buf; // defensive in case the array wasn't set
+}
 function EscapeNonASCIICharacters(unescaped_string) {
-	let escaped_string = "";
-	const length = unescaped_string.length;
-	for (var i = 0; i < length; ++i) {
-		const char_code = unescaped_string.charCodeAt(i);
-		if (char_code < 128) // ASCII                                                                                                                            
-			escaped_string += unescaped_string[i];
-		else
-			escaped_string += "\\u" + ("00" + char_code.toString(16)).substr(-4);
-	}
-
-	return escaped_string;
+    let escaped_string = "";
+    const length = unescaped_string.length;
+    for (var i = 0; i < length; ++i) {
+        const char_code = unescaped_string.charCodeAt(i);
+        if (char_code < 128) {
+            escaped_string += unescaped_string[i];
+        }
+        else {
+            escaped_string += "\\u" + ("00" + char_code.toString(16)).substr(-4);
+        }
+    }
+    return escaped_string;
 }
-
+// addLine() is a generic output sanitizer:
+// - normalizes quotes,
+// - strips known internal markers,
+// - does minor cleanup of common URL/artifact patterns.
+//
+// IMPORTANT: Because this applies global replacements, do not rely on addLine() to filter semantic
+// control tags (e.g., RezensionstagPica). Filter such tags before calling addLine() (see 5520 loop).
 function addLine(itemid, code, value) {
-	//if (value == undefined) {
-	//Zotero.write('application.messageBox("Upload fehlgeschlagen", "Eintrag in Feldnummer ' + code + ' ist nicht definiert", "alert-icon")\n');
-	//}
-
-
-	//Zeile zusammensetzen
-	if (value == undefined) {
-		value = "Für Feld " +  code.replace(/\\n/, '') + " wurde kein Eintrag hinterlegt";
-		code = '\\nxxxx';
-	}
-	var line = code + " " + value.trim().replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"').replace('RezensionstagPica', '').replace(/\t/g, '').replace(/\t/g, '').replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed').replace(/\|s\|book\s+reviews?/i, '|f|Book Review').replace('|f|Book Reviews, Book Review', '|f|Book Review').replace('https://doi.org/https://doi.org/', 'https://doi.org/').replace(/@\s/, '@').replace('abs1:', '').replace('doi:https://doi.org/', '').replace('handle:https://hdl.handle.net/', '').replace('ixrk', '').replace('rwrk', '');;
-	itemsOutputCache[itemid].push(line);
+    if (value == undefined) {
+        value = "Für Feld " + code.replace(/\n/, '') + " wurde kein Eintrag hinterlegt";
+        code = '\nxxxx';
+    }
+    var line = code + " " + value.trim()
+        .replace(/"/g, '\\"').replace(/“/g, '\\"').replace(/”/g, '\\"').replace(/„/g, '\\"')
+        .replace('RezensionstagPica', '').replace(/\t/g, '')
+        .replace(/\|s\|peer\s?reviewed?/i, '|f|Peer reviewed')
+        .replace(/\|s\|book\s+reviews?/i, '|f|Book Review')
+        .replace('|f|Book Reviews, Book Review', '|f|Book Review')
+        .replace('https://doi.org/https://doi.org/', 'https://doi.org/')
+        .replace(/@\s/, '@')
+        .replace('abs1:', '')
+        .replace('doi:https://doi.org/', '')
+        .replace('handle:https://hdl.handle.net/', '');
+    itemsOutputCache[itemid].push(line);
 }
-
-// this should be called at end of each element,
-// and also when all async calls are finished (only when runningThreadCount == 0)
-function WriteItems() {
-	var batchUpload = false;
-	if (itemsOutputCache.length > 1) batchUpload = true;
-	itemsOutputCache.forEach(function(element, index) {
-		let errorString = "";
-		// sort first, codes might be unsorted due to async stuff
-		element.sort();
-		//remove sorting characters from fields 3000 and 3010
-		var cleanElement = [];
-		for (let line of element) {
-			let toDelete = line.match(/30\d{2}( ##\d{3}##)/);
-			if (toDelete != null) {
-				line = line.replace(toDelete[1], '');
-			}
-			line = line.replace(/^\\nZ/, '\\n');
-			if (line.match(/\\nxxxx /) != null) {
-				errorString += line.substring(7, line.length) + '\\n';
-			}
-			cleanElement.push(line);
-		}
-		// implode + write
-		if(index > 0) {
-			Zotero.write("\n");
-		}
-		if (batchUpload) {
-			let writeString = cleanElement.join("");
-			writeString = EscapeNonASCIICharacters(writeString);
-			if (errorString != "") {
-				Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + writeString + '");')
-				Zotero.write("application.messageBox('Fehler beim Export aus Zotero', '" + errorString + "', 'error-icon')");
-			}
-			else {
-				Zotero.write('application.activeWindow.command("e", false);\napplication.activeWindow.title.insertText("' + writeString + '");\napplication.activeWindow.pressButton("Enter");\n\n');
-			}
-		}
-		else {
-			var elementString = cleanElement.join("");
-			elementString = elementString.replace(/\\n/g, '\n').replace(/\\"/g, '"');
-			Zotero.write(elementString);
-		}
-	});
-}
-
+/* =============================================================================================================== */
+/* F. ORCID HELPERS                                                                                                */
+/* =============================================================================================================== */
 function createNoteAuthorsToOrcidsMap(item) {
-	if (!item.notes)
-		return new Map();
-;
-
-	let noteAuthorsToOrcids = new Map();
-;
-   
-	for (let orcidEntry of item.notes.filter(entry => entry.note.startsWith('orcid:'))) {
-		let orcidLine = orcidEntry.note.replace(/orcid:/, '');
-		let orcidAndAuthor = orcidLine.split('|');
-		if (orcidAndAuthor.length < 2)
-			continue;
-		if (!orcidAndAuthor[0].match(/\d{4}-\d{4}-\d{4}-\d{3}(?:\d|x)/i))
-			continue;
-		let orcid = orcidAndAuthor[0].trim();
-		let creator = ZU.cleanAuthor(orcidAndAuthor[1].trim());
-		noteAuthorsToOrcids.set(JSON.stringify(creator), orcid);
-	}
-	return noteAuthorsToOrcids;
+    if (!item.notes)
+        return new Map();
+    const map = new Map();
+    for (const entry of item.notes) {
+        const note = (entry && entry.note) ? String(entry.note) : "";
+        if (!note.toLowerCase().startsWith("orcid:"))
+            continue;
+        // Split "orcid:ID|Surname, Forename"
+        const raw = note.replace(/^orcid:/i, "");
+        const parts = raw.split("|");
+        if (parts.length < 2)
+            continue;
+        const orcid = parts[0].trim();
+        // Basic ORCID format check (final char may be digit or X/x)
+        if (!/\b\d{4}-\d{4}-\d{4}-\d{3}(?:\d|x)\b/i.test(orcid))
+            continue;
+        const authorString = parts[1].trim(); // "Surname, Forename"
+        const creatorObj = ZU.cleanAuthor(authorString);
+        // Use a canonical JSON of the creator (without creatorType) as key
+        map.set(JSON.stringify(creatorObj), orcid);
+    }
+    return map;
 }
-
-
 function getAuthorOrcid(creator, noteAuthorsToOrcids) {
-	let creatorNoType = creator;
-	delete creatorNoType["creatorType"];
-	return noteAuthorsToOrcids.get(JSON.stringify(creatorNoType));
+    if (!creator)
+        return undefined;
+    const keyObj = Object.assign({}, creator);
+    delete keyObj.creatorType;
+    return noteAuthorsToOrcids.get(JSON.stringify(keyObj));
 }
+/* =============================================================================================================== */
+/* G. 30xx MUTATORS                                                                                                */
+/* =============================================================================================================== */
+function updateAuthorLineToPPN(itemId, code, printIndex, ppn, roleLabel = "VerfasserIn", roleCode = "aut") {
+    const payload = "!" + ppn + "!$B" + roleLabel + "$4" + roleCode;
+    const markerBackslash = code + " ##" + printIndex + "##";
+    const markerNewline = markerBackslash.replace(/\\n/, "\n");
+    const buf = itemsOutputCache[itemId] || [];
+    for (let k = 0; k < buf.length; k++) {
+        const line = buf[k];
+        if (line.startsWith(markerBackslash + " ") ||
+            line.startsWith(markerNewline + " ")) {
+            buf[k] =
+                (line.startsWith(markerBackslash)
+                    ? markerBackslash
+                    : markerNewline) +
+                    " " +
+                    payload;
+            return true;
+        }
+    }
+    Z.debug("[WARN] 30xx marker not found for itemId=" +
+        itemId +
+        " printIndex=" +
+        printIndex +
+        " (skipping overwrite to PPN=" +
+        ppn +
+        ")");
+    return false;
+}
+function updateAuthorLineToName(itemId, code, printIndex, creatorName, roleLabel = "VerfasserIn", roleCode = "aut") {
+    const key = itemId + ":" + printIndex;
+    const orcid = authorMapping && authorMapping[key];
+    const roleSuffix = "$B" + roleLabel + "$4" + roleCode;
+    const payload = orcid
+        ? creatorName +
+            "$iorcid$j" +
+            orcid +
+            roleSuffix
+        : creatorName + roleSuffix;
+    const markerBackslash = code + " ##" + printIndex + "##";
+    const markerNewline = markerBackslash.replace(/\\n/, "\n");
+    const buf = itemsOutputCache[itemId] || [];
+    for (let k = 0; k < buf.length; k++) {
+        const line = buf[k];
+        if (line.startsWith(markerBackslash + " ") ||
+            line.startsWith(markerNewline + " ")) {
+            buf[k] =
+                (line.startsWith(markerBackslash)
+                    ? markerBackslash
+                    : markerNewline) +
+                    " " +
+                    payload;
+            return true;
+        }
+    }
+    Z.debug("[WARN] 30xx marker not found for itemId=" +
+        itemId +
+        " printIndex=" +
+        printIndex +
+        " (skipping revert to name)");
+    return false;
+}
+/* =============================================================================================================== */
+/* H. gnd reconcile service HELPERS                                                                                */
+/* =============================================================================================================== */
+function _normalizePreferredName(name) { return String(name || '').trim(); }
+function _toAscii(s) {
+    try {
+        return String(s).normalize("NFKD").replace(/[\u0300-\u036f]/g, '');
+    }
+    catch (e) {
+        return String(s);
+    }
+}
+function buildNameQueries(authorName) {
+    // Reconciliation expects the plain label to match, not a fielded ES query.
+    const s = _normalizePreferredName(authorName); // e.g., "Schramke, Mona"
+    return [{ label: "q", q: s }];
+}
+function _allGndIdsFromMap(mapObj) {
+    const ids = [];
+    try {
+        if (mapObj && typeof mapObj.forEach === "function") {
+            mapObj.forEach(function (val /*, key */) {
+                String(val)
+                    .split(/\s*,\s*|\s*;\s*|\s*\|\s*/)
+                    .forEach(u => { if (u)
+                    ids.push(u); });
+            });
+        }
+    }
+    catch (e) { /* ignore */ }
+    return Array.from(new Set(ids));
+}
+// The profession maps may contain either full URIs (https://d-nb.info/gnd/...) or short IDs
+// (e.g., 4059756-8). normalizeGndId() standardizes both formats to the short ID used in
+// reconcile.gnd.network "extend" responses.
+function _allProfessionUrisFromMapValues(mapObj) {
+    const uris = [];
+    try {
+        if (mapObj && typeof mapObj.forEach === "function") {
+            mapObj.forEach(function (val /*, key */) {
+                String(val)
+                    .split(/\s*,\s*|\s*;\s*|\s*\|\s*/)
+                    .forEach(u => { if (u)
+                    uris.push(u); });
+            });
+        }
+    }
+    catch (e) { /* ignore */ }
+    return Array.from(new Set(uris));
+}
+function normalizeGndId(x) {
+    // Accept either short IDs like "4059756-8" or full URIs like "https://d-nb.info/gnd/4059756-8"
+    return String(x || "")
+        .trim()
+        .replace(/^https?:\/\/d-nb\.info\/gnd\//i, "");
+}
+/* ===========================================================================================
+   GND RECONCILIATION (reconcile.gnd.network)
+   -------------------------------------------------------------------------------------------
+   We use https://reconcile.gnd.network to obtain a ranked set of candidate GND identifiers for
+   an author name string. The service follows the OpenRefine / Reconciliation Service API model.
 
+   IMPORTANT CHANGE vs older versions of this translator:
+   - We do NOT require reconciliation to return a unique match.
+   - Reconciliation only provides candidate generation (ranked list).
+   - Final uniqueness is decided later by SRU (PPN expansion) + unAPI validation.
 
+   (A) Candidate retrieval ("queries=" POST)
+       Request (form field "queries"):
+         {
+           "q1": {
+             "query": "Lastname, Firstname",
+             "type": "DifferentiatedPerson",
+             "properties": [
+               { "pid": "professionOrOccupation", "v": { "id": "4059756-8" } }
+             ]
+           }
+         }
+
+       Notes:
+       - query: main label to match (our authorName string)
+       - type: restrict candidates to a class (we use DifferentiatedPerson)
+       - properties: optional hints (may influence ranking; not guaranteed strict)
+
+   (B) Data Extension ("extend=" POST) - STRICT profession whitelist enforcement (SSG0/SSG1 only)
+       We do NOT trust profession hints from (A) as strict filters. If profession filtering is enabled,
+       we explicitly fetch authoritative professions via "extend=" and filter candidates by a whitelist.
+
+       Request (form field "extend"):
+         {
+           "ids": ["<cand1>", "<cand2>", ...],
+           "properties": [ { "id": "professionOrOccupation" } ]
+         }
+
+       Result:
+       - For SSG0/SSG1: keep all candidates that intersect the whitelist (capped to maxWithProfession)
+       - For non-SSG0/SSG1: skip extension filtering and forward Top-N ranked candidates (maxNoProfession)
+
+   Output of reconcile step in this translator:
+   - Array of GND candidate IDs (not a single selected ID)
+   - This list is forwarded to SRU->unAPI for final decision.
+=========================================================================================== */
+function reconcileExtend(ids, propertyIds, onSuccess, onError) {
+    try {
+        const endpoint = "https://reconcile.gnd.network";
+        const extendObj = {
+            ids: (ids || []).map(String),
+            properties: (propertyIds || []).map(id => ({ id: id }))
+        };
+        const payload = "extend=" + encodeURIComponent(JSON.stringify(extendObj));
+        ZU.doPost(endpoint, payload, function (text) {
+            try {
+                const data = JSON.parse(text);
+                return onSuccess(data);
+            }
+            catch (e) {
+                return onError(e);
+            }
+        }, function (e) { onError(e || new Error("extend request failed")); }, { "Content-Type": "application/x-www-form-urlencoded" });
+    }
+    catch (e) {
+        onError(e);
+    }
+}
+function candidateHasAnyProfessionViaExtend(candidateId, profSet, onYes, onNo) {
+    // candidateId: string like "1028581203"
+    // profSet: Set of normalized profession IDs like "4059756-8"
+    const cid = String(candidateId || "").trim();
+    if (!cid || !profSet || profSet.size === 0)
+        return onNo();
+    reconcileExtend([cid], ["professionOrOccupation"], function (ext) {
+        try {
+            const rows = ext && ext.rows ? ext.rows : {};
+            const row = rows[cid];
+            if (!row)
+                return onNo();
+            const po = row.professionOrOccupation;
+            const arr = Array.isArray(po) ? po : [];
+            const candProfIds = arr
+                .map(o => normalizeGndId(o && o.id))
+                .filter(Boolean);
+            const ok = candProfIds.some(pid => profSet.has(pid));
+            return ok ? onYes() : onNo();
+        }
+        catch (e) {
+            Z.debug("candidateHasAnyProfessionViaExtend error: " + e);
+            return onNo();
+        }
+    }, function (e) {
+        Z.debug("candidateHasAnyProfessionViaExtend extend error: " + e);
+        return onNo();
+    });
+}
+function reconcileCandidates(authorName, profileOpts, onDone, onError) {
+    try {
+        const endpoint = "https://reconcile.gnd.network";
+        const typeId = (profileOpts && profileOpts.typeId) || "DifferentiatedPerson";
+        const profUris = (profileOpts && Array.isArray(profileOpts.professionUris)) ? profileOpts.professionUris : [];
+        const maxNoProf = (profileOpts && profileOpts.maxCandidatesNoProfession) || 3;
+        const maxWithProf = (profileOpts && profileOpts.maxCandidatesWithProfession) || 10;
+        // Normalize profession IDs to short ids (extend returns short ids)
+        const profSet = new Set(profUris.map(normalizeGndId).filter(Boolean));
+        // still send profession hints (harmless)
+        const props = Array.from(profSet).slice(0, 20).map(id => ({ pid: "professionOrOccupation", v: { id: id } }));
+        const q = { q1: { query: authorName, type: typeId, properties: props } };
+        const payload = "queries=" + encodeURIComponent(JSON.stringify(q));
+        Z.debug("reconcileCandidates call: " + endpoint + " payload=" + JSON.stringify(q));
+        ZU.doPost(endpoint, payload, function (text) {
+            let res = [];
+            try {
+                const data = JSON.parse(text);
+                res = (data && data.q1 && Array.isArray(data.q1.result)) ? data.q1.result : [];
+            }
+            catch (e) {
+                return onError(e);
+            }
+            if (!res.length)
+                return onDone([]);
+            // Prefer persons (DifferentiatedPerson) but keep order as returned (ranked)
+            const personRes = res.filter(c => {
+                const t = (c && Array.isArray(c.type)) ? c.type : [];
+                return t.some(x => (x && x.id) === "DifferentiatedPerson");
+            });
+            // If no profession filter is requested: return top N candidates (persons preferred)
+            if (profSet.size === 0) {
+                const baseList = personRes.length ? personRes : res;
+                const ids = baseList.map(c => String(c && c.id || "")).filter(Boolean).slice(0, maxNoProf);
+                return onDone(ids);
+            }
+            // Profession filter requested: extend all candidate ids, keep those that intersect whitelist
+            const candIds = (personRes.length ? personRes : res)
+                .map(c => String(c && c.id || ""))
+                .filter(Boolean);
+            return reconcileExtend(candIds, ["professionOrOccupation"], function (ext) {
+                try {
+                    const rows = ext && ext.rows ? ext.rows : {};
+                    const keep = [];
+                    for (const cid of candIds) {
+                        const row = rows[cid];
+                        if (!row)
+                            continue;
+                        const po = row.professionOrOccupation;
+                        const arr = Array.isArray(po) ? po : [];
+                        const candProfIds = arr.map(o => normalizeGndId(o && o.id)).filter(Boolean);
+                        if (candProfIds.some(pid => profSet.has(pid))) {
+                            keep.push(cid);
+                        }
+                    }
+                    Z.debug("reconcileCandidates profession filter: kept=" + keep.length + " of " + candIds.length);
+                    return onDone(keep.slice(0, maxWithProf));
+                }
+                catch (e) {
+                    return onError(e);
+                }
+            }, function (e) { return onError(e || new Error("extend failed")); });
+        }, function (e) { onError(e || new Error("Reconciliation request failed")); }, { "Content-Type": "application/x-www-form-urlencoded" });
+    }
+    catch (e) {
+        onError(e);
+    }
+}
+function processGndCandidatesToUniquePpn(gndCandidates, threadParams, finalizeReconcile) {
+    const itemId = threadParams.currentItemId;
+    const printIndex = threadParams.printIndex;
+    const code = threadParams.code;
+    const authorName = threadParams.authorName;
+    const roleLabel = threadParams.roleLabel || "VerfasserIn";
+    const roleCode = threadParams.roleCode || "aut";
+    const gnds = (gndCandidates || []).map(String).filter(Boolean);
+    if (!gnds.length) {
+        updateAuthorLineToName(itemId, code, printIndex, authorName, roleLabel, roleCode);
+        return finalizeReconcile("reconcile:done (no-gnd-candidates) auth=" + authorName);
+    }
+    // 1) SRU phase: collect PPNs from ALL GND candidates
+    const ppnSet = new Set();
+    let pending = gnds.length;
+    function finishSruPhase() {
+        // apply blocklist + dedup
+        const ppns = Array.from(ppnSet).filter(ppn => !(ppn_false_positive && ppn_false_positive.has(ppn)));
+        if (!ppns.length) {
+            updateAuthorLineToName(itemId, code, printIndex, authorName, roleLabel, roleCode);
+            return finalizeReconcile("reconcile:done (no-ppn-after-sru) auth=" + authorName);
+        }
+        // 2) unAPI phase: validate all PPNs; accept only if exactly 1 ok
+        const ok = [];
+        let i = 0;
+        function nextPpn() {
+            if (i >= ppns.length) {
+                if (ok.length === 1) {
+                    const chosen = ok[0];
+                    updateAuthorLineToPPN(itemId, code, printIndex, chosen.ppn, roleLabel, roleCode);
+                    addOnce8910(itemId, "$aixzom$b" + roleLabel + " in der Zoterovorlage [" + authorName + "] einer PPN " + chosen.ppn + " maschinell zugeordnet");
+                    /*if (chosen.review) {
+                      addOnce8910(
+                        itemId,
+                        "$aixzom$bPPN " + chosen.ppn + " automatisch zugeordnet, aber 060R fehlt – bitte prüfen"
+                      );
+                    }*/
+                    return finalizeReconcile("reconcile:done (unique-after-unapi) auth=" + authorName);
+                }
+                updateAuthorLineToName(itemId, code, printIndex, authorName, roleLabel, roleCode);
+                return finalizeReconcile("reconcile:done (not-unique-after-unapi ok=" + ok.length + ") auth=" + authorName);
+            }
+            const ppn = ppns[i++];
+            verifyPpnByUnapi028Aand060R(ppn, authorName, 1930, function (ver) {
+                if (ver && ver.ok) {
+                    ok.push({
+                        ppn: ppn,
+                        strength: ver.strength || "strong",
+                        review: !!ver.review,
+                        reviewReason: ver.reviewReason
+                    });
+                }
+                nextPpn();
+            });
+        }
+        nextPpn();
+    }
+    // Launch SRU lookups for each GND (ONE-SHOT per request)
+    gnds.forEach(function (gnd) {
+        let finishedThisGnd = false;
+        function finishOnce() {
+            if (finishedThisGnd)
+                return;
+            finishedThisGnd = true;
+            pending -= 1;
+            if (pending === 0)
+                finishSruPhase();
+        }
+        lookupTitlePPNFromOpacByGND(gnd, function (ppnList) {
+            if (finishedThisGnd)
+                return; // ignore late success
+            const list = Array.isArray(ppnList) ? ppnList : [];
+            list.forEach(function (p) { if (p)
+                ppnSet.add(String(p)); });
+            finishOnce();
+        }, function (_err) {
+            if (finishedThisGnd)
+                return; // ignore late error
+            finishOnce();
+        });
+    });
+}
+/* =============================================================================================================== */
+/* SSG CLASSIFICATION / SSG-KLASSIFIKATION                                                                          */
+/* =============================================================================================================== */
+/*
+  EN: Normalize and classify SSG values from maps. Variants may include "0$a1", "2,1", "NABZ", etc.
+      We treat:
+        - SSG0: "0" and "0..." (e.g. "0$a1")
+        - SSG1: only exact "1"
+        - NONE: everything else (including "NABZ" and "2,1")
+*/
+function classifySsgField(SsgField) {
+    const s = String(SsgField || "").trim().toUpperCase();
+    // leer/undefiniert
+    if (!s)
+        return "NONE";
+    // Sonderfälle wie NABZ immer "NONE"
+    if (s.includes("NABZ"))
+        return "NONE";
+    // SSG0: "0" oder "0$a1" oder allgemein "0..." (z.B. "0$a1")
+    // (wenn du noch andere 0-Varianten erwartest, ist startsWith("0") korrekt)
+    if (s === "0" || s.startsWith("0$") || s.startsWith("0"))
+        return "SSG0";
+    // SSG1: nur wenn es wirklich exakt "1" ist
+    // (wichtig: "2,1" soll NICHT als SSG1 zählen)
+    if (s === "1")
+        return "SSG1";
+    // alles andere (z.B. "2,1", "2", "krimdok", etc.)
+    return "NONE";
+}
+/* =============================================================================================================== */
+/* I. SRU HELPER                                                                                                   */
+/* =============================================================================================================== */
+function lookupTitlePPNFromOpacByGND(gndEitherForm, onSuccess, onError) {
+    try {
+        if (!gndEitherForm)
+            return onSuccess([]);
+        let nid = String(gndEitherForm).trim()
+            .replace(/^https?:\/\/(www\.)?d-nb\.info\/gnd\//i, '')
+            .replace(/-/g, '');
+        if (!/^[0-9]+X?$/i.test(nid))
+            return onSuccess([]);
+        const base = "https://sru.k10plus.de/opac-de-627";
+        const cql = "pica.nid=" + nid; // titles linked to this GND
+        const url = base
+            + "?version=1.2&operation=searchRetrieve"
+            + "&maximumRecords=10&recordSchema=picaxml"
+            + "&query=" + encodeURIComponent(cql);
+        Z.debug("[SRU] url=" + url + "  (gnd=" + gndEitherForm + ", nid=" + nid + ", cql=" + cql + ")");
+        ZU.doGet(url, function (xml) {
+            try {
+                // Normalize: works whether response was HTML-escaped or plain XML
+                xml = xml.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+                // Split into records
+                const recs = xml.match(/<record[^>]*>[\s\S]*?<\/record>/gi) || [];
+                const candidates = [];
+                for (const rec of recs) {
+                    const blocks = rec.match(/<datafield[^>]*tag="028[AC]"[^>]*>[\s\S]*?<\/datafield>/gi) || [];
+                    for (const b of blocks) {
+                        const hasThisNID = new RegExp(`<subfield[^>]*code="7"[^>]*>\\s*[^<>]*gnd/${nid}\\s*<\\/subfield>`, 'i').test(b);
+                        if (!hasThisNID)
+                            continue;
+                        const m9 = b.match(/<subfield[^>]*code="9"[^>]*>([^<]+)<\/subfield>/i);
+                        if (m9) {
+                            const ppn = String(m9[1] || "").trim();
+                            if (ppn)
+                                candidates.push(ppn);
+                        }
+                    }
+                }
+                // De-duplicate, preserve order
+                const seen = new Set();
+                const uniq = candidates.filter(p => (seen.has(p) ? false : (seen.add(p), true)));
+                Z.debug("KXP SRU 028[AC]$9 candidates => " + JSON.stringify(uniq) + " (nid=" + nid + ")");
+                onSuccess(uniq);
+            }
+            catch (e) {
+                onError(e);
+            }
+        }, function (err) {
+            onError(err || new Error("SRU request failed"));
+        });
+    }
+    catch (e) {
+        onError(e);
+    }
+}
+/* =============================================================================================================== */
+/* J. unAPI PERSON VALIDATION (K10plus pp format) / unAPI-PERSONENVALIDIERUNG                                         */
+/* =============================================================================================================== */
+/*
+  EN:
+  - unAPI provides person records in "pp" (plain-text, line-based PICA).
+  - We validate candidate PPNs by:
+      1) Strict name check using 028A ($a surname, $d given name)
+      2) Temporal plausibility guard using 060R (time span / century)
+  - Final uniqueness in the pipeline is decided after unAPI: only if exactly ONE candidate passes.
+
+  DE:
+  - unAPI liefert Personensätze im Format "pp" (Text, zeilenbasiert, PICA).
+  - Validierung von PPN-Kandidaten über:
+      1) striktes Namensmatching (028A)
+      2) Zeit-/Plausibilitätsprüfung (060R)
+*/
+/**
+ * Build unAPI URL for a given PPN (person record, format=pp).
+ *
+ * NOTE:
+ * - This is an HTTP URL; use "&format=pp" (NOT the HTML escaped "&amp;format=pp").
+ * - We URL-encode the full "id=" parameter.
+ */
+function buildUnapiUrlForPpn(ppn) {
+    const id = "opac-de-627!xpn=online:ppn:" + String(ppn || "").trim();
+    return "https://unapi.k10plus.de/?id=" + encodeURIComponent(id) + "&format=pp";
+}
+/**
+ * Token normalizer used for strict name matching:
+ * - lowercase, remove diacritics, normalize whitespace
+ * - keep letters, digits, spaces and hyphens
+ */
+function _normToken(s) {
+    return String(s || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/ß/g, "ss")
+        .replace(/[^\p{L}\p{N}\s-]+/gu, "")
+        .replace(/\s+/g, " ");
+}
+/**
+ * Parse 028A name variants from unAPI "pp" output.
+ * 028A subfields:
+ * - $a / ƒa : surname
+ * - $d / ƒd : given name
+ *
+ * Returns array of normalized variants: [{surname:"...", given:"..."}]
+ */
+function parse028AFromPp(ppText) {
+    const text = String(ppText || "");
+    const lines = text.split(/\r?\n/);
+    const variants = [];
+    function extractSubfields(line, code) {
+        const re = new RegExp(`[\\$ƒ]${code}([^\\$ƒ]*)`, "g");
+        const out = [];
+        let m;
+        while ((m = re.exec(line)) !== null)
+            out.push((m[1] || "").trim());
+        return out;
+    }
+    for (const raw of lines) {
+        const line = String(raw || "");
+        if (!line.startsWith("028A"))
+            continue;
+        const surs = extractSubfields(line, "a");
+        const giv = extractSubfields(line, "d");
+        for (const s of surs) {
+            if (giv.length) {
+                for (const g of giv)
+                    variants.push({ surname: _normToken(s), given: _normToken(g) });
+            }
+            else {
+                variants.push({ surname: _normToken(s), given: "" });
+            }
+        }
+    }
+    return variants;
+}
+/**
+ * Parse 060R temporal information from unAPI "pp" output.
+ *
+ * Subfields (heuristics used by this translator):
+ * - 060R $a / ƒa : begin of timespan (often a year like 1978, 1959, ...)
+ * - 060R $b / ƒb : end of timespan   (if present -> reject; typically historical/deceased)
+ * - 060R $d / ƒd : century notation  (accept if indicates 20th/21st century)
+ *
+ * Returns:
+ * {
+ *   has060R: boolean,
+ *   hasB: boolean,
+ *   yearsA: number[],
+ *   hasCentury20or21: boolean
+ * }
+ */
+function parse060RFromPp(ppText) {
+    const text = String(ppText || "");
+    const lines = text.split(/\r?\n/);
+    let has060R = false;
+    let hasB = false;
+    const yearsA = [];
+    let hasCentury20or21 = false;
+    function extractSubfields(line, code) {
+        const re = new RegExp(`[\\$ƒ]${code}([^\\$ƒ]*)`, "g");
+        const out = [];
+        let m;
+        while ((m = re.exec(line)) !== null)
+            out.push((m[1] || "").trim());
+        return out;
+    }
+    function chunkHas20or21Century(chunk) {
+        const s = String(chunk || "");
+        return /(^|[^\d])(20|21)(?!\d)/.test(s);
+    }
+    for (const raw of lines) {
+        const line = String(raw || "");
+        if (!line.startsWith("060R"))
+            continue;
+        has060R = true;
+        if (extractSubfields(line, "b").length > 0)
+            hasB = true;
+        for (const chunk of extractSubfields(line, "a")) {
+            const m = String(chunk).match(/(\d{4})/);
+            if (m)
+                yearsA.push(parseInt(m[1], 10));
+        }
+        for (const chunk of extractSubfields(line, "d")) {
+            if (chunkHas20or21Century(chunk))
+                hasCentury20or21 = true;
+        }
+    }
+    return { has060R, hasB, yearsA, hasCentury20or21 };
+}
+/**
+ * Strict name match:
+ * - Input is expected as "Surname, Given"
+ * - We require exact normalized match of BOTH surname and full given name.
+ */
+function strictNameMatches(authorNameSurnameCommaGiven, variants028A) {
+    const parts = String(authorNameSurnameCommaGiven || "").split(",");
+    const inSurname = _normToken(parts[0] || "");
+    const inGiven = _normToken((parts[1] || "").trim());
+    if (!inSurname || !inGiven)
+        return false;
+    for (const v of (variants028A || [])) {
+        if (!v)
+            continue;
+        if (v.surname !== inSurname)
+            continue;
+        if ((v.given || "") === inGiven)
+            return true;
+    }
+    return false;
+}
+/**
+ * Validate a candidate PPN via unAPI using:
+ * - 028A strict name match
+ * - 060R temporal plausibility guard
+ *
+ * Result object:
+ * - ok:true,  strength:"strong" : name ok + temporal evidence ok
+ * - ok:true,  strength:"weak"   : name ok + 060R missing (accept but mark for review)
+ * - ok:false                   : reject (name mismatch, old/historic, request/parse error, etc.)
+ */
+function verifyPpnByUnapi028Aand060R(ppn, authorName, minYear, onResult) {
+    const _ppn = String(ppn || "").trim();
+    if (!_ppn)
+        return onResult({ ok: false, reason: "no-ppn" });
+    let done = false;
+    function once(obj) { if (done)
+        return; done = true; onResult(obj); }
+    const threshold = (minYear == null) ? 1930 : Number(minYear);
+    const url = buildUnapiUrlForPpn(_ppn);
+    ZU.doGet(url, function (ppText) {
+        try {
+            const v028 = parse028AFromPp(ppText);
+            const nameOk = strictNameMatches(authorName, v028);
+            if (!nameOk)
+                return once({ ok: false, reason: "name-mismatch" });
+            const info = parse060RFromPp(ppText);
+            if (!info.has060R)
+                return once({ ok: true, strength: "weak", review: true, reviewReason: "060R_MISSING" });
+            if (info.hasB)
+                return once({ ok: false, reason: "060R-has-b" });
+            let maxA = null;
+            if (info.yearsA && info.yearsA.length)
+                maxA = Math.max.apply(null, info.yearsA);
+            if (maxA != null && maxA >= threshold)
+                return once({ ok: true, strength: "strong", maxA: maxA });
+            if (info.hasCentury20or21)
+                return once({ ok: true, strength: "strong", byCentury: true });
+            return once({ ok: false, reason: "060R-too-old-or-unknown" });
+        }
+        catch (e) {
+            return once({ ok: false, reason: "parse-error:" + e });
+        }
+    }, function (err) {
+        return once({ ok: false, reason: "unapi-failed:" + (err || "unknown") });
+    });
+}
+/* =============================================================================================================== */
+/* K. WRITE-OUT (FINAL FLUSH)                                                                                       */
+/* =============================================================================================================== */
+function WriteItems() {
+    var batchUpload = false;
+    if (itemsOutputCache.length > 1)
+        batchUpload = true;
+    itemsOutputCache.forEach(function (element, index) {
+        let errorString = "";
+        // 1) DO NOT SORT – keep the order we built during export
+        // element.sort();   <-- remove this line
+        var cleanElement = [];
+        for (let line of element) {
+            // strip the temporary " ##NNN##" markers from 30xx lines
+            let toDelete = line.match(/30\d{2}( ##\d+##)/);
+            if (toDelete != null) {
+                line = line.replace(toDelete[1], '');
+            }
+            // un-prefix accidental "\nZ" to "\n" (defensive cleanup)
+            line = line.replace(/^\nZ/, '\n');
+            // collect error messages (xxxx placeholder lines)
+            if (line.match(/\nxxxx /) != null) {
+                errorString += line.substring(7) + '\n';
+            }
+            cleanElement.push(line);
+        }
+        if (batchUpload) {
+            // Join all lines into one payload
+            let writeString = cleanElement.join("");
+            // 2) Make \uXXXX visible and turn REAL newlines into LITERAL "\n" for a single-line JS string
+            writeString = EscapeNonASCIICharacters(writeString)
+                .replace(/\r?\n/g, '\\n');
+            // 3) Emit one WinIBW block per item, with EXACTLY two blank lines after it
+            if (errorString !== "") {
+                Zotero.write('application.activeWindow.command("e", false);\n' +
+                    'application.activeWindow.title.insertText("' + writeString + '");');
+                Zotero.write("application.messageBox('Fehler beim Export aus Zotero', '" +
+                    errorString.replace(/'/g, "\\'") + "', 'error-icon')");
+                Zotero.write('\n\n'); // two blank lines
+            }
+            else {
+                Zotero.write('application.activeWindow.command("e", false);\n' +
+                    'application.activeWindow.title.insertText("' + writeString + '");\n' +
+                    'application.activeWindow.pressButton("Enter");\n\n'); // "\n\n" already gives you two blank lines
+            }
+            // 4) Do NOT write an extra "\n" between items (would create 3 blank lines)
+            // if (index > 0) { Zotero.write("\n"); }  <-- remove this
+        }
+        else {
+            // Single‑item export stays as before (raw PICA with real newlines)
+            var elementString = cleanElement.join("");
+            elementString = elementString.replace(/\n/g, '\n').replace(/\\"/g, '"');
+            Zotero.write(elementString);
+        }
+    });
+}
+/* =============================================================================================================== */
+/* L. MAIN EXPORT PIPELINE                                                                                          */
+/* =============================================================================================================== */
 function performExport() {
-	Z.debug("Begin exporting item(s)...");
-
-	var item;
-	while ((item = Zotero.nextItem())) {
-		currentItemId++;
-		itemsOutputCache[currentItemId] = [];
-
-		var physicalForm = "";//0500 Position 1
-		var licenceField = ""; // 0500 Position 4 only for Open Access Items; http://swbtools.bsz-bw.de/cgi-bin/help.pl?cmd=kat&val=4085&regelwerk=RDA&verbund=SWB
-		var SsgField = "";
-		var superiorPPN = "";
-		var journalTitlePPN = "";
-		var issn_to_language = "";
-		var institution_retrieve_sign = "";
-		var collection_code = "";
-		var retrieve_sign = "";
-		if (!item.ISSN)
-			item.ISSN = "";
-		if (item.ISSN.match(/^\d+/)) item.ISSN = ZU.cleanISSN(item.ISSN);
-		//enrich items based on their ISSN
-		if (issn_to_language_code.get(item.ISSN) !== undefined) {
-			item.language = issn_to_language_code.get(item.ISSN);
-			Z.debug("Found lang:" + item.language);
-		}
-		if (language_to_language_code.get(item.ISSN) !== undefined) {
-			item.language = language_to_language_code.get(item.ISSN);
-			Z.debug("Found lang:" + item.language);
-		}
-		if (issn_to_ssg_zotkat.get(item.ISSN) !== undefined) {
-			SsgField = issn_to_ssg_zotkat.get(item.ISSN);
-		}
-		if (issn_to_ssg_zotkat.get(item.ISBN) !== undefined) {
-			SsgField = issn_to_ssg_zotkat.get(item.ISBN);
-		}
-		if (issn_to_ssg_zotkat.get(item.ISSN) !== undefined) {
-			SsgField = issn_to_ssg_zotkat.get(item.ISSN);
-		}
-		if (!item.volume && issn_to_volume.get(item.ISSN) !== undefined) {
-			item.volume = issn_to_volume.get(item.ISSN) + item.volume;
-			Z.debug("Found volume:" + item.volume);
-		}
-		if (issn_to_physical_form.get(item.ISSN) !== undefined) {
-			physicalForm = issn_to_physical_form.get(item.ISSN); // position 1 http://swbtools.bsz-bw.de/winibwhelp/Liste_0500.htm
-			Z.debug("Found physicalForm:" + physicalForm);
-		}
-		if (issn_to_physical_form.get(item.ISBN) !== undefined) {
-			physicalForm = issn_to_physical_form.get(item.ISBN); // position 1 http://swbtools.bsz-bw.de/winibwhelp/Liste_0500.htm
-			Z.debug("Found physicalForm:" + physicalForm);
-		}
-		if (issn_to_license.get(item.ISSN) !== undefined) {
-			licenceField = issn_to_license.get(item.ISSN); // position 4 http://swbtools.bsz-bw.de/winibwhelp/Liste_0500.htm
-			Z.debug("Found license:" + licenceField);
-		}
-		if (issn_to_superior_ppn.get(item.ISSN) !== undefined) {
-			superiorPPN = issn_to_superior_ppn.get(item.ISSN);
-			Z.debug("Found superiorPPN:" + superiorPPN);
-		}
-		if (issn_to_superior_ppn.get(item.ISBN) !== undefined) {
-			superiorPPN = issn_to_superior_ppn.get(item.ISBN);
-			Z.debug("Found superiorPPN:" + superiorPPN);
-		}
-		if (journal_title_to_ppn.get(item.publicationTitle) !== undefined) {
-			journalTitlePPN = journal_title_to_ppn.get(item.publicationTitle);
-			Z.debug("Found journalTitlePPN:" + journalTitlePPN);
-		}
-		if (publication_title_to_physical_form.get(item.publicationTitle) !== undefined) {
-			physicalForm = publication_title_to_physical_form.get(item.publicationTitle);
-			Z.debug("Found journalTitlePPN:" + physicalForm);
-		}
-		if (issn_to_collection_code.get(item.ISSN) != undefined) {
-			collection_code = issn_to_collection_code.get(item.ISSN);
-			Z.debug("Found Collection code:" + collection_code);
-		}
-		if (issn_to_institution.get(item.ISSN) != undefined) {
-			institution_retrieve_sign = issn_to_institution.get(item.ISSN);
-			Z.debug("Found Institution:" + institution_retrieve_sign);
-		}
-
-		var article = false;
-		switch (item.itemType) {
-			case "journalArticle":
-			case "bookSection":
-			case "magazineArticle": // wird bei der Erfassung von Rezensionen verwendet. Eintragsart "Magazin-Artikel" wird manuell geändert.
-			case "newspaperArticle":
-			case "encyclopediaArticle":
-				article = true;
-				break;
-		}
-		//item.type --> 0500 Bibliographische Gattung und Status K10Plus: 0500 das "o" an der 2. Stelle muss in ein "s" geändert werden
-		//http://swbtools.bsz-bw.de/winibwhelp/Liste_0500.htm
-		switch (true) {
-			case physicalForm === "A":
-				addLine(currentItemId, '\\n0500', physicalForm+"s"+cataloguingStatus);
-				break;
-			case physicalForm === "O" && licenceField === "l": // 0500 das "l" an der vierten Stelle entfällt, statt dessen wird $4LF in 4950 gebildet
-				addLine(currentItemId, '\\n0500', physicalForm+"s"+cataloguingStatus);
-				break;
-			case physicalForm === "O" && licenceField === "kw":
-				addLine(currentItemId, '\\n0500', physicalForm+"s"+cataloguingStatus);
-				break;
-			default:
-				addLine(currentItemId, '\\n0500', physicalForm+"s"+cataloguingStatus); // //z.B. Aou, Oou, Oox etc.
-		}
-		//item.type --> 0501 Inhaltstyp
-		addLine(currentItemId, "\\n0501", "Text$btxt");
-
-		//item.type --> 0502 Medientyp
-		switch (physicalForm) {
-			case "A":
-				addLine(currentItemId, "\\n0502", "ohne Hilfsmittel zu benutzen$bn");
-				break;
-			case "O":
-				addLine(currentItemId, "\\n0502", "Computermedien$bc");
-				break;
-			default:
-				addLine(currentItemId, "\\n0502", "Computermedien$bc");
-		}
-
-		//item.type --> 0503 Datenträgertyp
-
-		switch (physicalForm) {
-			case "A":
-				addLine(currentItemId, "\\n0503", "Band$bnc");
-				break;
-			case "O":
-				addLine(currentItemId, "\\n0503", "Online-Ressource$bcr");
-				break;
-			default:
-				addLine(currentItemId, "\\n0503", "Online-Ressource$bcr");
-		}
-
-		if (collection_code != "") {
-			addLine(currentItemId, "\\n0575", collection_code);
-		}
-		//item.date --> 1100
-		var date = Zotero.Utilities.strToDate(item.date);
-		if (date.year !== undefined) {
-			addLine(currentItemId, "\\n1100", date.year.toString());
-		}
-
-		//1130 Datenträger K10Plus:1130 alle Codes entfallen, das Feld wird folglich nicht mehr benötigt
-		//http://swbtools.bsz-bw.de/winibwhelp/Liste_1130.htm
-
-		/*switch (physicalForm) {
-			case "A":
-				addLine(currentItemId, "1130", "druck");
-				break;
-			case "O":
-				addLine(currentItemId, "1130", "cofz");
-				break;
-			default:
-				addLine(currentItemId, "1130", "");
-		}*/
-
-		//1131 Art des Inhalts
-		for (i=0; i<item.tags.length; i++) {
-			if (item.tags[i].tag.match(/RezensionstagPica|Book\s?reviews?/gi)) {
-				addLine(currentItemId, "\\n1131", "!106186019!");
-			}
-		}
-		var localURL = "";		
-		if (item.url && item.url.match(/research.ebsco.com/) && physicalForm === "O") {
-			localURL = "\\n7133 " + item.url + "$xH$3Volltext$4ZZ$534";
-			item.url = null;		
-		}
-		if (item.DOI && institution_retrieve_sign == "zojs") {
-			localURL = "\\n7133 " + "https://doi.org/" + item.DOI;
-			item.url = null;
-		}
-
-		//1140 Veröffentlichungsart und Inhalt
-		if (['3052-685X'].includes(item.ISSN)) {
-			addLine(currentItemId, "\\n1140", "uwlx");
-		}
-
-		//item.language --> 1500 Sprachcodes
-		if (item.itemType == "journalArticle") {
-			if (language_to_language_code.get(item.language)) {
-				item.language = language_to_language_code.get(item.language);
-			}
-			addLine(currentItemId, "\\n1500", item.language);
-		} else if (item.itemType == "bookSection"){
-			item.language = issn_to_language_code.get(item.ISBN);
-			addLine(currentItemId, "\\n1500", item.language);
-		} else {
-			item.language = issn_to_language_code.get(item.language);
-			addLine(currentItemId, "\\n1500", item.language);
-		}
-
-
-		//1505 Katalogisierungsquelle
-		addLine(currentItemId, "\\n1505", "$erda");
-
-
-		//Autoren --> 3000, 3010
-		//Titel, erster Autor --> 4000
-		var titleStatement = "";
-		if (item.shortTitle == "journalArticle") {
-			titleStatement += item.shortTitle;
-			if (item.title && item.title.length > item.shortTitle.length) {
-				titleStatement += ZU.unescapeHTML(item.title.substr(item.shortTitle.length));
-			}
-		} else {
-			titleStatement += item.title;
-		}
-		//Sortierzeichen hinzufügen, vgl. https://github.com/UB-Mannheim/zotkat/files/137992/ARTIKEL.pdf
-		if (item.language == "ger" || !item.language) {
-			titleStatement = titleStatement.replace(/^(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "$1 @$2");
-		}
-		if (item.language == "ger" || !item.language) {
-			titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "„$2 @$3");
-		}
-		if (item.language == "eng" || !item.language) {
-			titleStatement = titleStatement.replace(/^(The|A|An) ([^@])/i, "$1 @$2");
-		}
-		if (item.language == "eng" || !item.language) {
-			titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])(The|A|An) ([^@])/i, "„$2 @$3");
-		}
-		if (item.language == "fre" || !item.language) {
-			titleStatement = titleStatement.replace(/^(Le|La|Les|Des|Un|Une) ([^@])/i, "$1 @$2");
-			titleStatement = titleStatement.replace(/^L'\s?([^@])/i, "L'@$1").replace(/^L’\s?([^@])/i, "L'@$1");
-		}
-		if (item.language == "fre" || !item.language) {
-			titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])(Le|La|Les|Des|Un|Une) ([^@])/i, "„$2 @$3");
-			titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])L'\s?([^@])/i, "„L'@$2").replace(/^([\u201e]|[\u201d]|[\u201c])L’\s?([^@])/i, "„L'@$2");
-		}
-		if (item.language == "ita" || !item.language) {
-			titleStatement = titleStatement.replace(/^(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "$1 @$2");
-			titleStatement = titleStatement.replace(/^L'\s?([^@])/i, "L'@$1").replace(/^L’\s?([^@])/i, "L'@$1");
-		}
-		if (item.language == "ita" || !item.language) {
-			titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "„$2 @$3");
-			titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])L'\s?([^@])/i, "„L'@$2").replace(/^([\u201e]|[\u201d]|[\u201c])L’\s?([^@])/i, "„L'@$2");
-		}
-		if (item.language == "por" || !item.language) {
-			titleStatement = titleStatement.replace(/^(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/i, "$1 @$2");
-		}
-		if (item.language == "por" || !item.language) {
-			titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/i, "„$2 @$3");
-		}
-		if (item.language == "spa" || !item.language) {
-			titleStatement = titleStatement.replace(/^(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/i, "$1 @$2");
-		}
-		if (item.language == "spa" || !item.language) {
-			titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/i, "„$2 @$3");
-		}
-
-		let noteAuthorsToOrcids = createNoteAuthorsToOrcidsMap(item);
-		var i = 0;
-		var creator;
-		while (item.creators.length>0) {
-			creator = item.creators.shift();
-
-			if (creator.creatorType == "author") {
-				var authorName = creator.lastName + (creator.firstName ? ", " + creator.firstName : "");
-
-				var code = 0;
-				if (i === 0) {
-					code = "\\n3000";
-					titleStatement;
-				} else {
-					code = "\\n3010";
-				}
-				//preserve original index of Author
-				let authorIndex = i.toString();
-				let printIndex = authorIndex.padStart(3, '0');
-
-				i++;
-
-				//Lookup für Autoren
-				if (authorName[0] != "!") {
-					if (institution_retrieve_sign == "krzo") {
-						var lookupUrl = "https://swb.bsz-bw.de/DB=2.104/SET=4/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=1&TRM0=" + authorName + "&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=*&ACT3=-&IKT3=8991&TRM3=1%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%5D%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9%5D%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9%5D&SRT=RLV"
-					}
-					else if (institution_retrieve_sign == "zojs") {
-						var lookupUrl = "https://swb.bsz-bw.de/DB=2.104/SET=4/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=1&TRM0=" + "&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=*&ACT3=-&IKT3=8991&TRM3=1%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%5D%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9%5D%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9%5D&SRT=RLV"
-					}	else {
-						var lookupUrl = "https://swb.bsz-bw.de/DB=2.104/SET=70/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=3040&TRM0=" + authorName + "&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=(theolog*|neutestament*|alttestament*|kirchenhist*)&ACT3=-&IKT3=8991&TRM3=1[0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9]"
-					}
-					/*
-					lookupUrl kann je nach Anforderung noch spezifiziert werden.
-		  Beispiel mit "Zenger, Erich"
-		  https://swb.bsz-bw.de/DB=2.104/SET=70/TTL=1/CMD?SGE=&ACT=SRCHM&MATCFILTER=Y&MATCSET=Y&NOSCAN=Y&PARSE_MNEMONICS=N&PARSE_OPWORDS=N&PARSE_OLDSETS=N&IMPLAND=Y&NOABS=Y&ACT0=SRCHA&SHRTST=50&IKT0=3040&TRM0=zenger, erich&ACT1=*&IKT1=2057&TRM1=*&ACT2=*&IKT2=8991&TRM2=(theolog*|neutestament*|alttestament*|kirchenhist*)&ACT3=-&IKT3=8991&TRM3=1[0%2C1%2C2%2C3%2C4%2C5%2C6%2C7][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9][0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9]"
-
-		  Suchaktion im Katalog sieht wie folgt aus:
-
-					suchen [und] (Person(Phrase: Nachname, Vorname) [PER]) zenger, erich
-		  eingrenzen (Systematiknummer der SWD [SN]) *
-		  eingrenzen (Relationierter Normsatz in der GND [RL]) (theolog*|neutestament*|alttestament*|kirchenhist*)
-		  ausgenommen (Relationierter Normsatz in der GND [RL]) 1[0,1,2,3,4,5,6,7][0,1,2,3,4,5,6,7,8,9][0,1,2,3,4,5,6,7,8,9]
-
-					Aufbau des Lookup-URL:
-		  "IKT0=3040" Erster Suchaspekt mit Indikatorwert "1" (=Phrasensuche mit Nachname, Vorname)
-		  "TRM0=" Nach "=" kommt dann der Suchstring.
-		  ...
-
-		  IKT0=3040 TRM0= für Persönlicher Name in Picafeld 100
-					IKT1=2057 TRM1=3.* für GND-Systematik
-					IKT2=8963 TRM2=theolog*    für Berufsbezeichnung 550
-					IKT3=8991 TRM3=1[1,2,3,4,5,6,7,8][0,1,2,3,4,5,6,7,8,9][0,1,2,3,4,5,6,7,8,9] für Geburts- und Sterbedatum (Bereich)
-
-					###OPERATOREN "ACT" vor "IKT"###
-					UND-Verknüpfung "&" | ODER-Verknüpfung "%2B&" | Nicht "-&"
-
-					###TYP IKT=Indikatoren|Zweite Spalte Schlüssel(IKT)###
-					Liste der Indikatoren und Routine http://swbtools.bsz-bw.de/cgi-bin/help.pl?cmd=idx_list_typ&regelwerk=RDA&verbund=SWB
-					*/
-
-					// threadParams = globale Variablen die sich evtl ändern
-					// während die async-Funktion processDocumentsCustom ausgeführt wird
-					// und daher per Kopie übergeben werden müssen
-
-					let authorOrcid = getAuthorOrcid(creator, noteAuthorsToOrcids);
-
-					var threadParams = {
-						"currentItemId" : currentItemId,
-						"code" : code,
-						"authorName" : authorName,
-						"authorOrcid" : authorOrcid
-					};
-							//works only for first value? how can I iterate through the threadParams["authorName"]; is this an array or 
-
-
-					runningThreadCount++;
-					processDocumentsCustom(lookupUrl,
-						// processing callback function
-						function(doc, url, threadParams){
-							var ppn = Zotero.Utilities.xpathText(doc, '//div[a[img]]');
-							if (ppn && SsgField != "0" && institution_retrieve_sign != "krzo") {
-								var authorValue = "!" + ppn.match(/^\d+X?/) + "!" + "$BVerfasserIn$4aut" + "\\n8910 $aixzom$bVerfasserIn in der Zoterovorlage ["  + threadParams["authorName"] + "]" + " einer PPN " + ppn.match(/^\d+X?/) + " maschinell zugeordnet\\n";
-								addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', authorValue);
-							}
-							else if (ppn && SsgField != "0") {
-								var authorValue = "!" + ppn.match(/^\d+X?/) + "!" + "$BVerfasserIn$4aut" + "\\n8910 $akrzom$bVerfasserIn in der Zoterovorlage ["  + threadParams["authorName"] + "]" + " einer PPN " + ppn.match(/^\d+X?/) + " maschinell zugeordnet\\n";
-								addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', authorValue);
-							}
-							else if (threadParams["authorOrcid"]) {
-								var authorValue = `${threadParams["authorName"]}$iorcid$j${threadParams["authorOrcid"]}$BVerfasserIn$4aut`;
-								addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', authorValue);	
-							}
-							else if (institution_retrieve_sign == "itbk" || institution_retrieve_sign == "tojs") {
-								if (threadParams["authorName"].match(/^\d+/)) {
-								addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', "!" + threadParams["authorName"] + "!" + "$BVerfasserIn$4aut");
-								}
-								else if(threadParams["authorName"].match(/^\w+/)) {
-								addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', threadParams["authorName"]  + "$BVerfasserIn$4aut"); 
-								}
-							}
-							else if (institution_retrieve_sign == "zojs") {
-								if (threadParams["authorName"].match(/^\d+/)) {
-								addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', "!" + threadParams["authorName"] + "!" + "$BVerfasserIn$4aut" + "\\n8910 $azojsm$bVerfasserIn in der Zoterovorlage ["  + threadParams["authorName"] + "]"  + " einer PPN " + ppn + "maschinell zugeordnet\\n");
-								}
-								else if(threadParams["authorName"].match(/^\w+/)) {
-								addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', threadParams["authorName"]  + "$BVerfasserIn$4aut"); 
-								}
-							}
-							else {
-								addLine(threadParams["currentItemId"], threadParams["code"] + ' ##' + printIndex + '##', threadParams["authorName"]  + "$BVerfasserIn$4aut");
-							}
-
-							// separate onDone function not needed because we only call one url
-							runningThreadCount--;
-							if (runningThreadCount === 0) {
-								for (key in authorMapping) {
-									var value = authorMapping[key];
-								}
-								WriteItems();
-							}
-						},
-						threadParams,
-						//onDone
-						undefined,
-						//onError
-						function(e) {
-							var message = "Error in external lookup: " + e.message;
-							Zotero.debug(message);
-							Zotero.write(message);
-						}
-					);
-				}
-			}
-		}
-
-		addLine(currentItemId, "\\n4000", ZU.unescapeHTML(titleStatement));
-		//Paralleltitel --> 4002
-		if (item.archiveLocation && item.ISSN == '2660-7743') {
-			switch (true) {
-				case item.language == "ger" || !item.language && item.archiveLocation:
-					addLine(currentItemId, "\\n4002", item.archiveLocation.replace(/^(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "„$2 @$3"));
-					break;
-				case item.language == "eng" || !item.language && item.archiveLocation:
-					addLine(currentItemId, "\\n4002", item.archiveLocation.replace(/^(The|A|An) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(The|A|An) ([^@])/i, "„$2 @$3"));
-					break;
-				case item.language == "fre" || !item.language && item.archiveLocation:
-					addLine(currentItemId, "\\n4002", item.archiveLocation.replace(/^(Le|La|Les|Des|Un|Une) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(Le|La|Les|Des|Un|Une) ([^@])/i, "„$2 @$3").replace(/^L'\s?([^@])/i, "L' @$1").replace(/^([\u201e]|[\u201d]|[\u201c])L'\s?([^@])/i, "„L' @$2"));
-					break;
-				case item.language == "ita" || !item.language && item.archiveLocation:
-					addLine(currentItemId, "\\n4002", item.archiveLocation.replace(/^(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "„$2 @$3").replace(/^L'\s?([^@])/i, "L' @$1").replace(/^([\u201e]|[\u201d]|[\u201c])L'\s?([^@])/i, "„L' @$2"));
-					break;
-				case item.language == "por" || !item.language && item.archiveLocation:
-					addLine(currentItemId, "\\n4002", item.archiveLocation.replace(/^(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/i, "„$2 @$3"));
-					break;
-				case item.language == "spa" || !item.language && item.archiveLocation:
-					addLine(currentItemId, "\\n4002", item.archiveLocation.replace(/^(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/i, "„$2 @$3"));
-					break;
-			}
-		}
-		
-
-
-		
-		//Paralleltitel OJS --> 4002 
-		//Übersetzung des Haupttitels --> 4212
-		if (item.notes) {
-			for (let i in item.notes) {
-				if (item.notes[i].note.includes('Paralleltitel:')) addLine(currentItemId, "\\n4002", item.notes[i].note.replace(/paralleltitel:/i, ''));
-				if (item.notes[i].note.includes('translatedTitle:')) addLine(currentItemId, "\\n4212 Übersetzung des Haupttitels: ", item.notes[i].note.replace(/translatedTitle:/i, ''));
-			}
-		}
-
-		//Ausgabe --> 4020
-		if (item.edition) {
-			addLine(currentItemId, "\\n4020", item.edition);
-		}
-
-		//Erscheinungsvermerk --> 4030
-		if (!article) {
-			var publicationStatement = "";
-			if (item.place) { publicationStatement += item.place; }
-			if (item.publisher) { publicationStatement +=  "$n" + item.publisher; }
-			addLine(currentItemId, "\\n4030", publicationStatement);
-		}
-
-
-		//4070 $v Bandzählung $j Jahr $h Heftnummer $p Seitenzahl K10Plus:4070 aus $h wird $a
-		if (item.itemType == "journalArticle" || item.itemType == "magazineArticle") {
-			var volumeyearissuepage = "";
-			if (item.volume) { volumeyearissuepage += "$v" + item.volume.replace("Tome ", "").replace(/\s\(Number\s\d+-?\d+\)/, "").replace(/^\d.\w..\s\w\w.\s/, ""); }
-			if (date.year !== undefined) { volumeyearissuepage +=  "$j" + date.year; }
-			if (item.issue && item.ISSN !== "2699-5433") { volumeyearissuepage += "$a" + item.issue.replace("-", "/").replace(/^0/, ""); }
-			if (item.issue && item.ISSN === "2699-5433") { volumeyearissuepage += "$m" + item.issue.replace("-", "/").replace(/^0/, ""); }
-			for (let i in item.notes) {
-				if (item.notes[i].note.includes('artikelID:')) { volumeyearissuepage += "$i" + item.notes[i].note.replace(/artikelID:/i, '') };
-				if (item.notes[i].note.includes('SonderHeft:')) { volumeyearissuepage += "$n" + item.notes[i].note.replace(/SonderHeft:/i, '') };
-			}
-			if (item.pages) { volumeyearissuepage += "$p" + item.pages; }
-			for (let i in item.notes) {
-				if (item.notes[i].note.includes('seitenGesamt:')) { volumeyearissuepage += "$t" + item.notes[i].note.replace(/seitenGesamt:/i, '') };
-			}
-			if (item.ISSN === "2077-1444" && item.callNumber) {volumeyearissuepage += "$i" + item.callNumber;}
-			addLine(currentItemId, "\\n4070", volumeyearissuepage);
-		}
-
-		//Open Access / Free Access als LF --> 4950
-		if (item.notes) {
-			for (let i in item.notes) {
-				if (item.notes[i].note.includes('LF')) {
-					licenceField = "l";	
-				}
-			}
-		}
-		//URL --> 4085 nur bei Satztyp "O.." im Feld 0500 K10Plus:aus 4085 wird 4950
-		switch (true) {
-			case item.url && item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "l": 
-				addLine(currentItemId, "\\n4950", item.url + "$xR$3Volltext$4LF$534");//K10Plus:0500 das "l" an der vierten Stelle entfällt, statt dessen wird $4LF in 4950 gebildet
-				break;
-			case item.url && !item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "l": 
-				addLine(currentItemId, "\\n4950", item.url + "$xH$3Volltext$4LF$534");//K10Plus:0500 das "l" an der vierten Stelle entfällt, statt dessen wird $4LF in 4950 gebildet
-				break;
-			case item.url && item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "kw":
-				addLine(currentItemId, "\\n4950", item.url + "$xR$3Volltext$4KW$534");
-				break;
-			case item.url && !item.url.match(/doi\.org\/10\./) && physicalForm === "O" && licenceField === "kw":
-				addLine(currentItemId, "\\n4950", item.url + "$xH$3Volltext$4KW$534");
-				break;
-			case item.url && item.url.match(/doi\.org\/10\./) && physicalForm === "O":
-				addLine(currentItemId, "\\n4950", item.url + "$xR$3Volltext$4ZZ$534");
-				break;
-			case item.url && !item.url.match(/doi\.org\/10\./) && physicalForm === "O":
-				addLine(currentItemId, "\\n4950", item.url + "$xH$3Volltext$4ZZ$534");
-				break;
-			case item.url && item.itemType == "magazineArticle":
-				addLine(currentItemId, "\\n4950", item.url + "$xH");
-				break;
-		}
-
-		//DOI --> 4950 DOI in aufgelöster Form mit Lizenzinfo "LF"
-		if (item.DOI && item.url && !item.url.match(/https?:\/\/doi\.org/) && licenceField === "l") {
-			addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4LF$534");
-		}
-		//DOI --> 4950 DOI in aufgelöster Form mit Lizenzinfo "ZZ"
-		if (item.DOI && item.url && !item.url.match(/https?:\/\/doi\.org/) && !licenceField) {
-			addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4ZZ$534");
-		}
-		if (item.DOI && !item.url) {
-			if (licenceField === "l") {
-				addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4LF$534");
-			} else if (!licenceField) {
-				addLine(currentItemId, "\\n4950", "https://doi.org/" + item.DOI + "$xR$3Volltext$4ZZ$534");
-			}
-		}
-		//item.DOI --> 2051 bei "Oou" bzw. 2053 bei "Aou"
-		if (item.DOI) {
-			if (physicalForm === "O" || item.DOI) {
-				addLine(currentItemId, "\\n2051", item.DOI.replace('https://doi.org/', ''));
-			} else if (physicalForm === "A") {
-				addLine(currentItemId, "\\n2053", item.DOI.replace('https://doi.org/', ''));
-			}
-		}
-
-		//item.notes as second doi --> 2051
-		if (item.notes) {
-			for (let i in item.notes) {
-				if (item.notes[i].note.includes('doi:')) {
-					addLine(currentItemId, "\\n2051", ZU.unescapeHTML(item.notes[i].note.replace('doi:https://doi.org/', '')));
-					if (licenceField === "l") {
-						addLine(currentItemId, "\\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/doi:/i, '') + "$xR$3Volltext$4LF$534"));
-					}
-					else {
-						addLine(currentItemId, "\\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/doi:/i, '') + "$xR$3Volltext$4ZZ$534"));
-					}
-				}
-			}
-		}
-
-		//item.notes as handle --> 2052
-		if (item.notes) {
-			for (let i in item.notes) {
-				if (item.notes[i].note.includes('handle:')) {
-					addLine(currentItemId, "\\n2052", ZU.unescapeHTML(item.notes[i].note.replace(/handle:https?:\/\/hdl\.handle\.net\//i, '')));
-					if (licenceField === "l") {
-						addLine(currentItemId, "\\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/handle:/i, '') + "$xR$3Volltext$4LF$534"));
-					}
-					else {
-						addLine(currentItemId, "\\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/handle:/i, '') + "$xR$3Volltext$4ZZ$534"));
-					}
-				}
-				if (item.notes[i].note.indexOf('urn:') == 0) {
-					addLine(currentItemId, "\\n2050", ZU.unescapeHTML(item.notes[i].note));
-					if (licenceField === "l") {
-						addLine(currentItemId, "\\n4950", 'http://nbn-resolving.de/' + ZU.unescapeHTML(item.notes[i].note + "$xR$3Volltext$4LF$534"));
-					}
-					else {
-						addLine(currentItemId, "\\n4950", 'http://nbn-resolving.de/' + ZU.unescapeHTML(item.notes[i].note + "$xR$3Volltext$4ZZ$534"));
-					}
-				}
-				if (item.notes[i].note.indexOf('URI:') == 0) {
-					if (licenceField === "l") {
-						addLine(currentItemId, "\\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/URI:/, '') + "$xR$3Volltext$4LF$534"));
-					}
-					else {
-						addLine(currentItemId, "\\n4950", ZU.unescapeHTML(item.notes[i].note.replace(/URI:/i, '') + "$xR$3Volltext$4ZZ$534"));
-					}
-				}
-			}
-		}
-
-
-		//Reihe --> 4110
-		if (!article) {
-			var seriesStatement = "";
-			if (item.series) {
-				seriesStatement += item.series;
-			}
-			if (item.seriesNumber) {
-				seriesStatement += " ; " + item.seriesNumber;
-			}
-			addLine(currentItemId, "\\n4110", seriesStatement);
-		}
-
-		//Inhaltliche Zusammenfassung --> 4207
-		if (item.abstractNote) {
-			item.abstractNote = ZU.unescapeHTML(item.abstractNote);
-			addLine(currentItemId, "\\n4207", item.abstractNote.replace(/–/g, '-').replace(/&#160;|^abstract\s*:?|^zusammenfassung|^summary|not?\s(abstract\s)?available\.?/gi, ''));
-		}
-		//Inhaltliche Zusammenfassung, falls mehr als ein Abstract --> 4207
-		if (item.notes) {
-			for (let i in item.notes) {
-				if (item.notes[i].note.includes('abs:')) addLine(currentItemId, "\\n4207", item.notes[i].note.replace(/–/g, '-').replace(/&#160;|^abstract\s*:?|^zusammenfassung|^summary|abs:|not?\s(abstract\s)?available\.?/gi, ''));
-			}
-		}
-		//item.publicationTitle --> 4241 Beziehungen zur größeren Einheit
-		if (item.itemType == "journalArticle" || item.itemType == "magazineArticle" || item.itemType == "bookSection") {
-			if (superiorPPN.length != 0) {
-				addLine(currentItemId, "\\n4241", "Enthalten in" + superiorPPN);
-			} else if (journalTitlePPN.length != 0) {
-				addLine(currentItemId, "\\n4241", "Enthalten in" + journalTitlePPN);
-			}
-			else addLine(currentItemId, "\\n4241", undefined);
-
-
-			//4261 Themenbeziehungen (Beziehung zu der Veröffentlichung, die beschrieben wird)|case:magazineArticle
-			if (item.itemType == "magazineArticle") {
-				addLine(currentItemId, "\\n4261", "Rezension von" + item.publicationTitle); // zwischen den Ausrufezeichen noch die PPN des rezensierten Werkes manuell einfügen.
-			}
-
-			//SSG bzw. FID-Nummer --> 5056 "0" = Religionwissenschaft | "1" = Theologie | "0; 1" = RW & Theol.
-
-			if (SsgField === "1" || SsgField === "0" || SsgField === "0$a1" || SsgField === "2,1") { 
-				addLine(currentItemId, "\\n5056", SsgField);
-			} 
-			else if (SsgField == "NABZ" || institution_retrieve_sign == "zojs") {
-				addLine(currentItemId, "\\n5056", '');
-			}
-			else {
-				addLine(currentItemId, "\\n5056", defaultSsgNummer);
-			}
-
-
-			//ORCID und Autorennamen --> 8910
-			if (item.notes) {
-				for (let i in item.notes) {
-					if (item.notes[i].note.includes('orcid')) {
-						if (institution_retrieve_sign == "krzo") addLine(currentItemId, "\\n8910", '$akrzom$b'+item.notes[i].note);
-						else addLine(currentItemId, "\\n8910", '$aixzom$b'+item.notes[i].note);
-					}
-				}
-			}
-			//Abrufzeichen für Retrokat "ixrk" --> 8910
-			var ixrkIxtheo = "";
-			if (item.tags) {
-				for (let i in item.tags) {
-					if (item.tags[i].tag.includes('ixrk')) {
-						ixrkIxtheo = "$aixrk";
-					}
-				}
-			}
-						//Abrufzeichen für Retrokat "ixrk" --> 8910
-			var rwrkRelbib = "";
-			if (item.tags) {
-				for (let i in item.tags) {
-					if (item.tags[i].tag.includes('rwrk')) {
-						rwrkRelbib = "$arwrk";
-					}
-				}
-			}
-			if (institution_retrieve_sign == "") {
-				if (SsgField == "NABZ") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo$aNABZ' + ixrkIxtheo + rwrkRelbib + localURL, ""); 
-				}
-				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 ixzs$aixzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
-			}
-			else if (institution_retrieve_sign == "inzo") {
-				if (SsgField == "NABZ") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo$aNABZ' + ixrkIxtheo + rwrkRelbib + localURL, ""); 
-				}
-				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 inzs$ainzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
-			}
-			else if (institution_retrieve_sign == "krzo") {
-				if (SsgField == "NABZ") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 krzo$aNABZ' + ixrkIxtheo + rwrkRelbib + localURL, ""); 
-				}
-				else addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 krzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
-			}
-			else if (institution_retrieve_sign == "itbk") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 itbk$aixzs$aixzo' + ixrkIxtheo + rwrkRelbib + localURL, ""); 
-			}
-			else if (institution_retrieve_sign == "zojs") {
-					addLine(currentItemId, '\\nE* l01\\n4801 Der Zugriff ist kostenfrei möglich\\n7100 $B21\\n8012 fauf$auwzs$azojs' + ixrkIxtheo + rwrkRelbib + localURL, "");
-			}
-			else if (institution_retrieve_sign == "tojs") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 tojs$aixzs$aixzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
-			}
-			else if (institution_retrieve_sign == "lszo") {
-					addLine(currentItemId, '\\nE* l01\\n7100$Jn\\n8012 lszo' + ixrkIxtheo + rwrkRelbib + localURL, "");
-			}
-			//K10plus:das "j" in 7100 $jn wird jetzt groß geschrieben, also $Jn / aus 8002,  dem Feld für die lokalen Abrufzeichen, wird 8012/ 8012 mehrere Abrufzeichen werden durch $a getrennt, nicht wie bisher durch Semikolon. Also: 8012 ixzs$aixzo
-			//Schlagwörter aus einem Thesaurus (Fremddaten) --> 5520 (oder alternativ siehe Mapping)
-
-			for (i=0; i<item.tags.length; i++) {
-				addLine(currentItemId, "\\n5520", " " + ZU.unescapeHTML(item.tags[i].tag.replace(/\s?--\s?/g, '; ')));
-			}
-			//notes > IxTheo-Notation K10plus: 6700 wird hochgezählt und nicht wiederholt, inkrementell ab z.B. 6800, 6801, 6802 etc.
-			if (item.notes) {
-				for (i in item.notes) {
-					var note = ZU.unescapeHTML(item.notes[i].note)
-					var re = /\s*,\s*/;
-					var notation_splits = note.split(re);
-					for (i in notation_splits) {
-						var notation = notation_splits[i].toLowerCase();
-						var notation_ppn = notes_to_ixtheo_notations.get(notation);
-						if (notation_ppn !== undefined) {
-							var field = 670 + i
-							for (i=0; i<item.notes.length; i++) {
-								addLine(currentItemId, '\\n'+field, notation_ppn);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	runningThreadCount--;
-	if (runningThreadCount === 0) {
-		WriteItems();
-	}
-	Z.debug("Done exporting item(s)!");
+    _finalExportLogged = false;
+    Z.debug("Begin exporting item(s)!");
+    var item;
+    while ((item = Zotero.nextItem())) {
+        item.notes = item.notes || [];
+        item.tags = item.tags || [];
+        item.creators = item.creators || [];
+        currentItemId++;
+        itemsOutputCache[currentItemId] = [];
+        var physicalForm = ""; //0500 Position 1
+        var licenceField = ""; // 0500 Position 4 only for Open Access Items
+        var SsgField = "";
+        var superiorPPN = "";
+        var journalTitlePPN = "";
+        var issn_to_language = "";
+        var institution_retrieve_sign = "";
+        var collection_code = "";
+        var retrieve_sign = "";
+        if (!item.ISSN)
+            item.ISSN = "";
+        if (item.ISSN.match(/^\d+/))
+            item.ISSN = ZU.cleanISSN(item.ISSN);
+        // Enrich items based on their ISSN (or publication title) through the loaded maps.
+        // These maps drive language, physical form (A/O), SSG codes, superior PPN, etc.
+        if (issn_to_language_code.get(item.ISSN) !== undefined) {
+            item.language = issn_to_language_code.get(item.ISSN);
+            Z.debug("Found lang:" + item.language);
+        }
+        if (language_to_language_code.get(item.ISSN) !== undefined) {
+            item.language = language_to_language_code.get(item.ISSN);
+            Z.debug("Found lang:" + item.language);
+        }
+        if (issn_to_ssg_zotkat.get(item.ISSN) !== undefined) {
+            SsgField = issn_to_ssg_zotkat.get(item.ISSN);
+        }
+        if (issn_to_ssg_zotkat.get(item.ISBN) !== undefined) {
+            SsgField = issn_to_ssg_zotkat.get(item.ISBN);
+        }
+        if (issn_to_ssg_zotkat.get(item.ISSN) !== undefined) {
+            SsgField = issn_to_ssg_zotkat.get(item.ISSN);
+        }
+        if (!item.volume && issn_to_volume.get(item.ISSN) !== undefined) {
+            item.volume = issn_to_volume.get(item.ISSN) + item.volume;
+            Z.debug("Found volume:" + item.volume);
+        }
+        if (issn_to_physical_form.get(item.ISSN) !== undefined) {
+            physicalForm = issn_to_physical_form.get(item.ISSN);
+            Z.debug("Found physicalForm:" + physicalForm);
+        }
+        if (issn_to_physical_form.get(item.ISBN) !== undefined) {
+            physicalForm = issn_to_physical_form.get(item.ISBN);
+            Z.debug("Found physicalForm:" + physicalForm);
+        }
+        if (issn_to_license.get(item.ISSN) !== undefined) {
+            licenceField = issn_to_license.get(item.ISSN);
+            Z.debug("Found license:" + licenceField);
+        }
+        if (issn_to_superior_ppn.get(item.ISSN) !== undefined) {
+            superiorPPN = issn_to_superior_ppn.get(item.ISSN);
+            Z.debug("Found superiorPPN:" + superiorPPN);
+        }
+        if (issn_to_superior_ppn.get(item.ISBN) !== undefined) {
+            superiorPPN = issn_to_superior_ppn.get(item.ISBN);
+            Z.debug("Found superiorPPN:" + superiorPPN);
+        }
+        if (journal_title_to_ppn.get(item.publicationTitle) !== undefined) {
+            journalTitlePPN = journal_title_to_ppn.get(item.publicationTitle);
+            Z.debug("Found journalTitlePPN:" + journalTitlePPN);
+        }
+        if (publication_title_to_physical_form.get(item.publicationTitle) !== undefined) {
+            physicalForm = publication_title_to_physical_form.get(item.publicationTitle);
+            Z.debug("Found journalTitlePPN:" + physicalForm);
+        }
+        if (issn_to_collection_code.get(item.ISSN) != undefined) {
+            collection_code = issn_to_collection_code.get(item.ISSN);
+            Z.debug("Found Collection code:" + collection_code);
+        }
+        if (issn_to_institution.get(item.ISSN) != undefined) {
+            institution_retrieve_sign = issn_to_institution.get(item.ISSN);
+            Z.debug("Found Institution:" + institution_retrieve_sign);
+        }
+        var article = false;
+        switch (item.itemType) {
+            case "journalArticle":
+            case "bookSection":
+            case "magazineArticle":
+            case "newspaperArticle":
+            case "encyclopediaArticle":
+                article = true;
+                break;
+        }
+        // 0500 (physical form + cataloguing status)
+        switch (true) {
+            case physicalForm === "A":
+                addLine(currentItemId, '\n0500', physicalForm + "s" + cataloguingStatus);
+                break;
+            case physicalForm === "O" && licenceField === "l":
+                addLine(currentItemId, '\n0500', physicalForm + "s" + cataloguingStatus);
+                break;
+            case physicalForm === "O" && licenceField === "kw":
+                addLine(currentItemId, '\n0500', physicalForm + "s" + cataloguingStatus);
+                break;
+            default:
+                addLine(currentItemId, '\n0500', physicalForm + "s" + cataloguingStatus);
+        }
+        // 0501/0502/0503 material codes
+        addLine(currentItemId, "\n0501", "Text$btxt");
+        switch (physicalForm) {
+            case "A":
+                addLine(currentItemId, "\n0502", "ohne Hilfsmittel zu benutzen$bn");
+                break;
+            case "O":
+                addLine(currentItemId, "\n0502", "Computermedien$bc");
+                break;
+            default:
+                addLine(currentItemId, "\n0502", "Computermedien$bc");
+        }
+        switch (physicalForm) {
+            case "A":
+                addLine(currentItemId, "\n0503", "Band$bnc");
+                break;
+            case "O":
+                addLine(currentItemId, "\n0503", "Online-Ressource$bcr");
+                break;
+            default:
+                addLine(currentItemId, "\n0503", "Online-Ressource$bcr");
+        }
+        if (collection_code != "") {
+            addLine(currentItemId, "\n0575", collection_code);
+        }
+        // 1100 (year)
+        var date = Zotero.Utilities.strToDate(item.date);
+        if (date.year !== undefined) {
+            addLine(currentItemId, "\n1100", date.year.toString());
+        }
+        // 1131 (RezensionstagPica / Book reviews marker)
+        for (i = 0; i < item.tags.length; i++) {
+            if (item.tags[i].tag.match(/RezensionstagPica|Book\s?reviews?/gi)) {
+                addLine(currentItemId, "\n1131", "!106186019!");
+            }
+        }
+        // Move local URLs to 7133 if needed; adjust for tojs DOI handling.
+        var localURL = "";
+        if (item.url && item.url.match(/redi-bw.de/) && physicalForm === "O") {
+            localURL = "\n7133 " + item.url + "$xH$3Volltext$4ZZ$534";
+            item.url = null;
+        }
+        if (item.DOI && institution_retrieve_sign == "tojs") {
+            localURL = "\n7133 " + "https://doi.org/" + item.DOI;
+            item.url = null;
+        }
+        if (item.url && item.url.match(/research.ebsco.com/) && physicalForm === "O") {
+            localURL = "\n7133 " + item.url + "$xH$3Volltext$4ZZ$534";
+            item.url = null;
+        }
+        if (item.DOI && institution_retrieve_sign == "zojs") {
+            localURL = "\n7133 " + "https://doi.org/" + item.DOI;
+            item.url = null;
+        }
+        if (item.url && item.url.match(/access.heinonline/) && physicalForm === "O") {
+            localURL = "\n7133 " + item.url + "$xG$3Volltext$4ZZ$534";
+            item.url = null;
+        }
+        //1140 Veröffentlichungsart und Inhalt
+        if (['3052-685X'].includes(item.ISSN)) {
+            addLine(currentItemId, "\n1140", "uwlx");
+        }
+        // 1500 (language code)
+        if (item.itemType == "journalArticle") {
+            if (language_to_language_code.get(item.language)) {
+                item.language = language_to_language_code.get(item.language);
+            }
+            addLine(currentItemId, "\n1500", item.language);
+        }
+        else if (item.itemType == "bookSection") {
+            item.language = issn_to_language_code.get(item.ISBN);
+            addLine(currentItemId, "\n1500", item.language);
+        }
+        else {
+            item.language = issn_to_language_code.get(item.language);
+            addLine(currentItemId, "\n1500", item.language);
+        }
+        // 1505 (RDA)
+        addLine(currentItemId, "\n1505", "$erda");
+        // 205x
+        if (item.DOI) {
+            const doiValue = String(item.DOI)
+                .replace(/^doi:\s*/i, "")
+                .replace(/^https?:\/\/doi\.org\//i, "")
+                .replace(/\r?\n/g, "")
+                .trim();
+            if (doiValue) {
+                if (physicalForm === "A") {
+                    addLine(currentItemId, "\n2053", doiValue);
+                }
+                else {
+                    addLine(currentItemId, "\n2051", doiValue);
+                }
+            }
+        }
+        // 2050/2051/2052/2053: identifiers from Zotero notes
+        if (item.notes) {
+            for (let i = 0; i < item.notes.length; i++) {
+                const rawNote = item.notes[i] && item.notes[i].note
+                    ? String(item.notes[i].note)
+                    : "";
+                const note = ZU.unescapeHTML(rawNote)
+                    .replace(/\r?\n/g, "")
+                    .trim();
+                if (!note)
+                    continue;
+                // 2050: URN from note
+                if (/^urn:/i.test(note)) {
+                    addLine(currentItemId, "\n2050", note);
+                }
+                // 2051/2053: DOI from note
+                if (/^doi:/i.test(note)) {
+                    const doiValue = note
+                        .replace(/^doi:\s*/i, "")
+                        .replace(/^https?:\/\/doi\.org\//i, "")
+                        .trim();
+                    if (doiValue) {
+                        if (physicalForm === "A") {
+                            addLine(currentItemId, "\n2053", doiValue);
+                        }
+                        else {
+                            addLine(currentItemId, "\n2051", doiValue);
+                        }
+                    }
+                }
+                // 2052: Handle from note
+                if (/^handle:/i.test(note)) {
+                    const handleValue = note
+                        .replace(/^handle:\s*/i, "")
+                        .replace(/^https?:\/\/hdl\.handle\.net\//i, "")
+                        .trim();
+                    if (handleValue) {
+                        addLine(currentItemId, "\n2052", handleValue);
+                    }
+                }
+            }
+        }
+        // Titel / Sortierzeichen
+        var titleStatement = "";
+        if (item.shortTitle == "journalArticle") {
+            titleStatement += item.shortTitle;
+            if (item.title && item.title.length > item.shortTitle.length) {
+                titleStatement += ZU.unescapeHTML(item.title.substr(item.shortTitle.length));
+            }
+        }
+        else {
+            titleStatement += item.title;
+        }
+        if (item.language == "ger" || !item.language) {
+            titleStatement = titleStatement.replace(/^(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "$1 @$2");
+            titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "„$2 @$3");
+        }
+        if (item.language == "eng" || !item.language) {
+            titleStatement = titleStatement.replace(/^(The|A|An) ([^@])/i, "$1 @$2");
+            titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])(The|A|An) ([^@])/i, "„$2 @$3");
+        }
+        if (item.language == "fre" || !item.language) {
+            titleStatement = titleStatement.replace(/^(Le|La|Les|Des|Un|Une) ([^@])/i, "$1 @$2");
+            titleStatement = titleStatement.replace(/^L'\s?([^@])/i, "L' @$1").replace(/^L’\s?([^@])/i, "L' @$1");
+            titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])(Le|La|Les|Des|Un|Une) ([^@])/i, "„$2 @$3");
+            titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])L'\s?([^@])/i, "„L' @$2").replace(/^([\u201e]|[\u201d]|[\u201c])L’\s?([^@])/i, "„L' @$2");
+        }
+        if (item.language == "ita" || !item.language) {
+            titleStatement = titleStatement.replace(/^(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "$1 @$2");
+            titleStatement = titleStatement.replace(/^L'\s?([^@])/i, "L' @$1").replace(/^L’\s?([^@])/i, "L' @$1");
+            titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "„$2 @$3");
+            titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])L'\s?([^@])/i, "„L' @$2").replace(/^([\u201e]|[\u201d]|[\u201c])L’\s?([^@])/i, "„L' @$2");
+        }
+        if (item.language == "por" || !item.language) {
+            titleStatement = titleStatement.replace(/^(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/i, "$1 @$2");
+            titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/i, "„$2 @$3");
+        }
+        if (item.language == "spa" || !item.language) {
+            titleStatement = titleStatement.replace(/^(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/i, "$1 @$2");
+            titleStatement = titleStatement.replace(/^([\u201e]|[\u201d]|[\u201c])(El|La|Los|Las|Un|Una|Unas) ([^@])/i, "„$2 @$3");
+        }
+        /* ===========================================================================================
+       AUTHOR ENRICHMENT TIMELINE (CURRENT VERSION) / AUTOREN-ANREICHERUNG (AKTUELLE VERSION)
+       -------------------------------------------------------------------------------------------
+       EN:
+       - Reconciliation is used ONLY to generate a ranked candidate list (GND IDs).
+       - If SSG is SSG0 or SSG1, we apply a strict profession whitelist via reconcile "extend=".
+         Otherwise (e.g. NABZ, 2,1, empty, other) we do NOT apply profession filtering and forward
+         only the Top-N (e.g. Top-3) candidates.
+       - Final uniqueness is decided AFTER SRU and unAPI:
+           GND candidates -> SRU (PPN expansion) -> unAPI (028A name + 060R time check)
+         Only if exactly ONE PPN passes unAPI validation do we link the author line to that PPN.
+    
+       DE:
+       - Reconciliation dient NUR zur Erzeugung einer gerankten Kandidatenliste (GND-IDs).
+       - Bei SSG0 oder SSG1 wird ein strikter Berufs-Whitelist-Filter via reconcile "extend=" angewendet.
+         In allen anderen Fällen (z.B. NABZ, 2,1, leer, sonstige Werte) werden KEINE Berufsfilter genutzt
+         und nur die Top-N (z.B. Top-3) Kandidaten weitergegeben.
+       - Die finale Eindeutigkeit wird ERST NACH SRU und unAPI entschieden:
+           GND-Kandidaten -> SRU (PPN-Ermittlung) -> unAPI (028A Name + 060R Zeitprüfung)
+         Nur wenn GENAU EINE PPN die unAPI-Prüfung besteht, wird die 30xx-Zeile auf diese PPN verknüpft.
+    
+       RTC/Async (both):
+       - runningThreadCount (RTC) tracks async work; WriteItems() runs when RTC returns to 0.
+        =========================================================================================== */
+        // Authors first, preserving order within each group.
+        const creatorRoles = {
+            author: { label: "VerfasserIn", code: "aut" },
+            editor: { label: "HerausgeberIn", code: "edt" },
+            translator: { label: "ÜbersetzerIn", code: "trl" },
+            contributor: { label: "Mitwirkender", code: "ctb" }
+        };
+        const sourceCreators = (item.creators || []).filter(function (creator) {
+            return creator && Object.prototype.hasOwnProperty.call(creatorRoles, creator.creatorType);
+        });
+        const exportCreators = sourceCreators.filter(c => c.creatorType === "author")
+            .concat(sourceCreators.filter(c => c.creatorType !== "author"));
+        const noteAuthorsToOrcids = createNoteAuthorsToOrcidsMap(item);
+        let creatorSeq = 0;
+        let authorSeq = 0;
+        for (const creator of exportCreators) {
+            const role = creatorRoles[creator.creatorType];
+            const lastName = String(creator.lastName || creator.name || "").trim();
+            const firstName = String(creator.firstName || "").trim();
+            if (!lastName)
+                continue;
+            const singleField = Number(creator.fieldMode) === 1;
+            const creatorName = lastName + (!singleField && firstName ? ", " + firstName : "");
+            const fieldTag = creator.creatorType === "author" && authorSeq === 0 ? "3000" : "3010";
+            if (creator.creatorType === "author")
+                authorSeq++;
+            const code = "\n" + fieldTag;
+            const printIndex = String(creatorSeq++).padStart(3, "0");
+            const orcid = getAuthorOrcid(creator, noteAuthorsToOrcids);
+            authorMapping[currentItemId + ":" + printIndex] = orcid || null;
+            const roleSuffix = "$B" + role.label + "$4" + role.code;
+            const namePayload = creatorName + (orcid && !creatorName.startsWith("!") ? "$iorcid$j" + orcid : "") + roleSuffix;
+            addLine(currentItemId, code + " ##" + printIndex + "##", namePayload);
+            // Keep existing PPNs and single-field names unchanged. The person
+            // validator requires a separate surname and given name.
+            if (creatorName.startsWith("!") || singleField || !firstName)
+                continue;
+            const threadParams = Object.freeze({
+                currentItemId: currentItemId,
+                code: code,
+                fieldTag: fieldTag,
+                authorName: creatorName,
+                printIndex: printIndex,
+                creatorType: creator.creatorType,
+                roleLabel: role.label,
+                roleCode: role.code
+            });
+            let profUris = [];
+            const ssgClass = classifySsgField(SsgField);
+            if (institution_retrieve_sign !== "krzo") {
+                if (ssgClass === "SSG0") {
+                    profUris = _allProfessionUrisFromMapValues(profession_to_gndids_ssg0);
+                }
+                else if (ssgClass === "SSG1") {
+                    profUris = _allProfessionUrisFromMapValues(profession_to_gndids);
+                }
+            }
+            let reconcileClosed = false;
+            let reconcileResolved = false;
+            const endReconcileOnce = function (reason) {
+                if (reconcileClosed)
+                    return;
+                reconcileClosed = true;
+                _bump(-1, reason);
+                finishIfIdle();
+            };
+            const failReconcile = function (error) {
+                Z.debug("Creator lookup failed: " + threadParams.authorName + ": " + error);
+                updateAuthorLineToName(threadParams.currentItemId, threadParams.code, threadParams.printIndex, threadParams.authorName, threadParams.roleLabel, threadParams.roleCode);
+                endReconcileOnce("reconcile:done (error) name=" + threadParams.authorName);
+            };
+            _bump(1, "reconcile:start name=" + creatorName);
+            try {
+                reconcileCandidates(creatorName, {
+                    typeId: "DifferentiatedPerson",
+                    professionUris: profUris,
+                    maxCandidatesNoProfession: 3,
+                    maxCandidatesWithProfession: 10
+                }, function (gndCandidates) {
+                    if (reconcileResolved)
+                        return;
+                    reconcileResolved = true;
+                    try {
+                        processGndCandidatesToUniquePpn(gndCandidates, threadParams, endReconcileOnce);
+                    }
+                    catch (error) {
+                        failReconcile(error);
+                    }
+                }, function (error) {
+                    if (reconcileResolved)
+                        return;
+                    reconcileResolved = true;
+                    failReconcile(error);
+                });
+            }
+            catch (error) {
+                if (!reconcileResolved) {
+                    reconcileResolved = true;
+                    failReconcile(error);
+                }
+            }
+        }
+        // 4000 (Title proper)
+        addLine(currentItemId, "\n4000", ZU.unescapeHTML(titleStatement));
+        // 4020 (Paralleltitel)
+        if (item.archiveLocation && item.ISSN == '2660-7743') {
+            switch (true) {
+                case item.language == "ger" || !item.language && item.archiveLocation:
+                    addLine(currentItemId, "\n4002", item.archiveLocation.replace(/^(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(Der|Die|Das|Des|Dem|Den|Ein|Eines|Einem|Eine|Einen|Einer) ([^@])/i, "„$2 @$3"));
+                    break;
+                case item.language == "eng" || !item.language && item.archiveLocation:
+                    addLine(currentItemId, "\n4002", item.archiveLocation.replace(/^(The|A|An) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(The|A|An) ([^@])/i, "„$2 @$3"));
+                    break;
+                case item.language == "fre" || !item.language && item.archiveLocation:
+                    addLine(currentItemId, "\n4002", item.archiveLocation.replace(/^(Le|La|Les|Des|Un|Une) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(Le|La|Les|Des|Un|Une) ([^@])/i, "„$2 @$3").replace(/^L'\s?([^@])/i, "L' @$1").replace(/^([\u201e]|[\u201d]|[\u201c])L'\s?([^@])/i, "„L' @$2"));
+                    break;
+                case item.language == "ita" || !item.language && item.archiveLocation:
+                    addLine(currentItemId, "\n4002", item.archiveLocation.replace(/^(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(La|Le|Lo|Gli|I|Il|Un|Una|Uno) ([^@])/i, "„$2 @$3").replace(/^L'\s?([^@])/i, "L' @$1").replace(/^([\u201e]|[\u201d]|[\u201c])L'\s?([^@])/i, "„L' @$2"));
+                    break;
+                case item.language == "por" || !item.language && item.archiveLocation:
+                    addLine(currentItemId, "\n4002", item.archiveLocation.replace(/^(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(A|O|As|Os|Um|Uma|Umas|Uns) ([^@])/i, "„$2 @$3"));
+                    break;
+                case item.language == "spa" || !item.language && item.archiveLocation:
+                    addLine(currentItemId, "\n4002", item.archiveLocation.replace(/^(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/i, "$1 @$2").replace(/^([\u201e]|[\u201d]|[\u201c])(El|La|Los|Las|Un|Una|Unos|Unas) ([^@])/i, "„$2 @$3"));
+                    break;
+            }
+        }
+        // 4020 (Paralleltitel OJS )
+        // 4212 (Übersetzung des Haupttitels)
+        for (let i in item.notes) {
+            if (item.notes[i].note.includes('Paralleltitel:'))
+                addLine(currentItemId, "\n4002", item.notes[i].note.replace(/paralleltitel:/i, ''));
+            if (item.notes[i].note.includes('translatedTitle:'))
+                addLine(currentItemId, "\n4212 Übersetzung des Haupttitels: ", item.notes[i].note.replace(/translatedTitle:/i, ''));
+        }
+        // 4020 (Ausgabe) 
+        if (item.edition) {
+            addLine(currentItemId, "\n4020", item.edition);
+        }
+        // 4030 (Erscheinungsvermerk)
+        if (!article) {
+            var publicationStatement = "";
+            if (item.place) {
+                publicationStatement += item.place;
+            }
+            if (item.publisher) {
+                publicationStatement += "$n" + item.publisher;
+            }
+            addLine(currentItemId, "\n4030", publicationStatement);
+        }
+        // 4070 (volume/year/issue/pages)
+        if (item.itemType == "journalArticle" || item.itemType == "magazineArticle") {
+            var volumeyearissuepage = "";
+            if (item.volume) {
+                volumeyearissuepage += "$v" + item.volume.replace("Tome ", "").replace(/\s\(Number\s\d+-?\d+\)/, "").replace(/^\d.\w..\s\w\w.\s/, "");
+            }
+            if (date.year !== undefined) {
+                volumeyearissuepage += "$j" + date.year;
+            }
+            if (item.issue && item.ISSN !== "2699-5433") {
+                volumeyearissuepage += "$a" + item.issue.replace("-", "/").replace(/^0/, "");
+            }
+            if (item.issue && item.ISSN === "2699-5433") {
+                volumeyearissuepage += "$m" + item.issue.replace("-", "/").replace(/^0/, "");
+            }
+            for (let i in item.notes) {
+                if (item.notes[i].note.includes('artikelID:')) {
+                    volumeyearissuepage += "$i" + item.notes[i].note.replace(/artikelID:/i, '');
+                }
+                ;
+                if (item.notes[i].note.includes('SonderHeft:')) {
+                    volumeyearissuepage += "$n" + item.notes[i].note.replace(/SonderHeft:/i, '');
+                }
+                ;
+            }
+            if (item.pages) {
+                volumeyearissuepage += "$p" + item.pages;
+            }
+            for (let i in item.notes) {
+                if (item.notes[i].note.includes('seitenGesamt:')) {
+                    volumeyearissuepage += "$t" + item.notes[i].note.replace(/seitenGesamt:/i, '');
+                }
+                ;
+            }
+            if (item.ISSN === "2077-1444" && item.callNumber) {
+                volumeyearissuepage += "$i" + item.callNumber;
+            }
+            addLine(currentItemId, "\n4070", volumeyearissuepage);
+        }
+        // LF flag via notes
+        if (item.notes) {
+            for (let i in item.notes) {
+                if (item.notes[i].note.includes('LF')) {
+                    licenceField = "l";
+                }
+            }
+        }
+        // 4110 (series)
+        if (!article) {
+            var seriesStatement = "";
+            if (item.series) {
+                seriesStatement += item.series;
+            }
+            if (item.seriesNumber) {
+                seriesStatement += " ; " + item.seriesNumber;
+            }
+            addLine(currentItemId, "\n4110", seriesStatement);
+        }
+        // 4207 (abstracts / summaries, lightly cleaned)
+        if (item.abstractNote) {
+            item.abstractNote = ZU.unescapeHTML(item.abstractNote);
+            addLine(currentItemId, "\n4207", item.abstractNote.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract\s?:?/, '').replace(/Abstract  :/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, ''));
+        }
+        if (item.notes) {
+            for (let i in item.notes) {
+                if (item.notes[i].note.includes('abs'))
+                    addLine(currentItemId, "\n4207", item.notes[i].note.replace("", "").replace(/–/g, '-').replace(/&#160;/g, "").replace('No abstract available.', '').replace('not available', '').replace(/^Abstract\s?:?/, '').replace(/Abstract  :/, '').replace(/^Zusammenfassung/, '').replace(/^Summary/, '').replace('abs:', ''));
+            }
+        }
+        // 4241 (Enthalten in ...) - uses either ISSN-based superiorPPN or title-to-PPN map
+        if (item.itemType == "journalArticle" || item.itemType == "magazineArticle" || item.itemType == "bookSection") {
+            if (superiorPPN.length != 0) {
+                addLine(currentItemId, "\n4241", "Enthalten in" + superiorPPN);
+            }
+            else if (journalTitlePPN.length != 0) {
+                addLine(currentItemId, "\n4241", "Enthalten in" + journalTitlePPN);
+            }
+            else {
+                addLine(currentItemId, "\n4241", undefined);
+            }
+            // 4950 from the regular Zotero URL field
+            if (item.url &&
+                item.url.match(/doi\.org\/10\./) &&
+                physicalForm === "O" &&
+                licenceField === "l") {
+                addLine(currentItemId, "\n4950", item.url + "$xR$3Volltext$4LF$534");
+            }
+            else if (item.url &&
+                !item.url.match(/doi\.org\/10\./) &&
+                physicalForm === "O" &&
+                licenceField === "l") {
+                addLine(currentItemId, "\n4950", item.url + "$xH$3Volltext$4LF$534");
+            }
+            else if (item.url &&
+                item.url.match(/doi\.org\/10\./) &&
+                physicalForm === "O" &&
+                licenceField === "kw") {
+                addLine(currentItemId, "\n4950", item.url + "$xR$3Volltext$4KW$534");
+            }
+            else if (item.url &&
+                !item.url.match(/doi\.org\/10\./) &&
+                physicalForm === "O" &&
+                licenceField === "kw") {
+                addLine(currentItemId, "\n4950", item.url + "$xH$3Volltext$4KW$534");
+            }
+            else if (item.url &&
+                item.url.match(/doi\.org\/10\./) &&
+                physicalForm === "O") {
+                addLine(currentItemId, "\n4950", item.url + "$xR$3Volltext$4ZZ$534");
+            }
+            else if (item.url &&
+                !item.url.match(/doi\.org\/10\./) &&
+                physicalForm === "O") {
+                addLine(currentItemId, "\n4950", item.url + "$xH$3Volltext$4ZZ$534");
+            }
+            else if (item.url &&
+                item.itemType === "magazineArticle") {
+                addLine(currentItemId, "\n4950", item.url + "$xH");
+            }
+            // 4950 from the regular Zotero DOI field
+            if (item.DOI) {
+                const doiValue = String(item.DOI)
+                    .replace(/^doi:\s*/i, "")
+                    .replace(/^https?:\/\/doi\.org\//i, "")
+                    .replace(/\r?\n/g, "")
+                    .trim();
+                if (doiValue) {
+                    const doiUrl = "https://doi.org/" + doiValue;
+                    const urlContainsSameDoi = item.url &&
+                        String(item.url)
+                            .replace(/^https?:\/\/doi\.org\//i, "")
+                            .replace(/\r?\n/g, "")
+                            .trim() === doiValue;
+                    if (!urlContainsSameDoi) {
+                        if (licenceField === "l") {
+                            addLine(currentItemId, "\n4950", doiUrl + "$xR$3Volltext$4LF$534");
+                        }
+                        else if (licenceField === "kw") {
+                            addLine(currentItemId, "\n4950", doiUrl + "$xR$3Volltext$4KW$534");
+                        }
+                        else {
+                            addLine(currentItemId, "\n4950", doiUrl + "$xR$3Volltext$4ZZ$534");
+                        }
+                    }
+                }
+            }
+            // 4950 fields from Zotero notes
+            if (item.notes) {
+                for (let i = 0; i < item.notes.length; i++) {
+                    const rawNote = item.notes[i] && item.notes[i].note
+                        ? String(item.notes[i].note)
+                        : "";
+                    const note = ZU.unescapeHTML(rawNote)
+                        .replace(/\r?\n/g, "")
+                        .trim();
+                    if (!note)
+                        continue;
+                    // 4950 from DOI note
+                    if (/^doi:/i.test(note)) {
+                        const doiValue = note
+                            .replace(/^doi:\s*/i, "")
+                            .replace(/^https?:\/\/doi\.org\//i, "")
+                            .trim();
+                        if (doiValue) {
+                            const doiUrl = "https://doi.org/" + doiValue;
+                            if (licenceField === "l") {
+                                addLine(currentItemId, "\n4950", doiUrl + "$xR$3Volltext$4LF$534");
+                            }
+                            else if (licenceField === "kw") {
+                                addLine(currentItemId, "\n4950", doiUrl + "$xR$3Volltext$4KW$534");
+                            }
+                            else {
+                                addLine(currentItemId, "\n4950", doiUrl + "$xR$3Volltext$4ZZ$534");
+                            }
+                        }
+                    }
+                    // 4950 from Handle note
+                    if (/^handle:/i.test(note)) {
+                        const handleValue = note
+                            .replace(/^handle:\s*/i, "")
+                            .replace(/^https?:\/\/hdl\.handle\.net\//i, "")
+                            .trim();
+                        if (handleValue) {
+                            const handleUrl = "https://hdl.handle.net/" + handleValue;
+                            if (licenceField === "l") {
+                                addLine(currentItemId, "\n4950", handleUrl + "$xR$3Volltext$4LF$534");
+                            }
+                            else if (licenceField === "kw") {
+                                addLine(currentItemId, "\n4950", handleUrl + "$xR$3Volltext$4KW$534");
+                            }
+                            else {
+                                addLine(currentItemId, "\n4950", handleUrl + "$xR$3Volltext$4ZZ$534");
+                            }
+                        }
+                    }
+                    // 4950 from URN note
+                    if (/^urn:/i.test(note)) {
+                        const urnUrl = "https://nbn-resolving.org/" + note;
+                        if (licenceField === "l") {
+                            addLine(currentItemId, "\n4950", urnUrl + "$xR$3Volltext$4LF$534");
+                        }
+                        else if (licenceField === "kw") {
+                            addLine(currentItemId, "\n4950", urnUrl + "$xR$3Volltext$4KW$534");
+                        }
+                        else {
+                            addLine(currentItemId, "\n4950", urnUrl + "$xR$3Volltext$4ZZ$534");
+                        }
+                    }
+                    // 4950 from URI note
+                    if (/^URI:/i.test(note)) {
+                        const uriValue = note
+                            .replace(/^URI:\s*/i, "")
+                            .trim();
+                        if (uriValue) {
+                            if (licenceField === "l") {
+                                addLine(currentItemId, "\n4950", uriValue + "$xR$3Volltext$4LF$534");
+                            }
+                            else if (licenceField === "kw") {
+                                addLine(currentItemId, "\n4950", uriValue + "$xR$3Volltext$4KW$534");
+                            }
+                            else {
+                                addLine(currentItemId, "\n4950", uriValue + "$xR$3Volltext$4ZZ$534");
+                            }
+                        }
+                    }
+                }
+            }
+            // 5056 (SSG-Feld)
+            if (SsgField === "1" || SsgField === "0" || SsgField === "0$a1" || SsgField === "2,1") {
+                addLine(currentItemId, "\n5056", SsgField);
+            }
+            else if (SsgField == "NABZ" || institution_retrieve_sign == "tojs") {
+                addLine(currentItemId, "\n5056", '');
+            }
+            else {
+                addLine(currentItemId, "\n5056", defaultSsgNummer);
+            }
+            // 8910 ORCID passthrough (kept if present in item notes)
+            // Decode HTML entities with ZU.unescapeHTML (no tag stripping)
+            if (item.notes) {
+                for (let i in item.notes) {
+                    var raw = (item.notes[i] && item.notes[i].note) ? item.notes[i].note : "";
+                    var unescaped = ZU.unescapeHTML(raw); // turn &lt;...&gt; into real <...>
+                    // Check for 'orcid' after unescaping (case-insensitive)
+                    if (unescaped.toLowerCase().indexOf('orcid') !== -1) {
+                        if (institution_retrieve_sign == "krzo") {
+                            addLine(currentItemId, "\n8910", "$akrzom$b" + unescaped);
+                        }
+                        else {
+                            addLine(currentItemId, "\n8910", "$aixzom$b" + unescaped);
+                        }
+                    }
+                }
+            }
+            //Abrufzeichen für Retrokat "ixrk" --> 8012
+            var ixrkIxtheo = "";
+            if (item.tags) {
+                for (let i in item.tags) {
+                    if (item.tags[i].tag.includes('ixrk')) {
+                        ixrkIxtheo = "$aixrk";
+                    }
+                }
+            }
+            //Abrufzeichen für Retrokat "ixrk" --> 8012
+            var rwrkRelbib = "";
+            if (item.tags) {
+                for (let i in item.tags) {
+                    if (item.tags[i].tag.includes('rwrk')) {
+                        rwrkRelbib = "$arwrk";
+                    }
+                }
+            }
+            if (institution_retrieve_sign == "") {
+                if (SsgField == "NABZ") {
+                    addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 ixzs$aixzo$aNABZ' + ixrkIxtheo + rwrkRelbib + localURL, "");
+                }
+                else
+                    addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 ixzs$aixzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
+            }
+            else if (institution_retrieve_sign == "inzo") {
+                if (SsgField == "NABZ") {
+                    addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 inzs$ainzo$aNABZ' + ixrkIxtheo + rwrkRelbib + localURL, "");
+                }
+                else
+                    addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 inzs$ainzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
+            }
+            else if (institution_retrieve_sign == "krzo") {
+                if (SsgField == "NABZ") {
+                    addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 krzo$aNABZ' + ixrkIxtheo + rwrkRelbib + localURL, "");
+                }
+                else
+                    addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 krzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
+            }
+            else if (institution_retrieve_sign == "itbk") {
+                addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 itbk$aixzs$aixzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
+            }
+            else if (institution_retrieve_sign == "zojs") {
+                addLine(currentItemId, '\nE* l01\n4801 Der Zugriff ist kostenfrei möglich\n7100 $B21\n8012 fauf$auwzs$azojs' + ixrkIxtheo + rwrkRelbib + localURL, "");
+            }
+            else if (institution_retrieve_sign == "tojs") {
+                addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 tojs$aixzs$aixzo' + ixrkIxtheo + rwrkRelbib + localURL, "");
+            }
+            else if (institution_retrieve_sign == "lszo") {
+                addLine(currentItemId, '\nE* l01\n7100$Jn\n8012 lszo' + ixrkIxtheo + rwrkRelbib + localURL, "");
+            }
+            // 5520 (IxTheo subjects from Zotero tags) — skip internal/control tags
+            for (i = 0; i < item.tags.length; i++) {
+                const rawTag = (item.tags[i] && item.tags[i].tag) ? String(item.tags[i].tag) : "";
+                let tag = ZU.unescapeHTML(rawTag).replace(/\s?--\s?/g, '; ').trim();
+                // Skip empty tags
+                if (!tag)
+                    continue;
+                // Skip internal workflow markers handled elsewhere
+                if (/^(ixrk|rwrk)$/i.test(tag))
+                    continue;
+                // Skip tags that are used as control markers (1131 etc.)
+                if (/^RezensionstagPica$/i.test(tag))
+                    continue;
+                if (/^Book\s*reviews?$/i.test(tag))
+                    continue;
+                addLine(currentItemId, "\n5520", tag);
+            }
+            // 6700++ (IxTheo-Notation via notes_to_ixtheo_notations map)
+            if (item.notes) {
+                for (i in item.notes) {
+                    var note = ZU.unescapeHTML(item.notes[i].note);
+                    var re = /\s*,\s*/;
+                    var notation_splits = note.split(re);
+                    for (i in notation_splits) {
+                        var notation = notation_splits[i].toLowerCase();
+                        var notation_ppn = notes_to_ixtheo_notations.get(notation);
+                        if (notation_ppn !== undefined) {
+                            var field = 670 + i;
+                            for (i = 0; i < item.notes.length; i++) {
+                                addLine(currentItemId, '\n' + field, notation_ppn);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // We scheduled all lobid/SRU tasks (if any). Now allow the pipeline to drain.
+    _bump(-1, "main:done performExport");
+    finishIfIdle();
 }
-
+/* =============================================================================================================== */
+/* M. BOOTSTRAP                                                                                                    */
+/* =============================================================================================================== */
 function doExport() {
-	Z.debug("Populating ISSN mapping tables...");
-
-	ZU.doGet([
-		zts_enhancement_repo_url + "ISSN_to_language_code.map",
-		zts_enhancement_repo_url + "ISSN_to_licence.map",
-		zts_enhancement_repo_url + "ISSN_to_physical_form.map",
-		zts_enhancement_repo_url + "ISSN_to_SSG_zotkat.map",
-		zts_enhancement_repo_url + "ISSN_to_superior_ppn.map",
-		zts_enhancement_repo_url + "ISSN_to_volume.map",
-		zts_enhancement_repo_url + "language_to_language_code.map",
-		zts_enhancement_repo_url + "notes_to_ixtheo_notations.map",
-		zts_enhancement_repo_url + "journal_title_to_ppn.map",
-		zts_enhancement_repo_url + "publication_title_to_physical_form.map",
-		zts_enhancement_repo_url + "ISSN_to_Sammlungscode_zotkat.map",
-		zts_enhancement_repo_url + "ISSN_to_Institution_zotkat.map",
-	], function (responseText, request, url) {
-		switch (responseText) {
-			case "404: Not Found":
-				Z.debug("Error: 404 for url " + url);
-				break;
-			default:
-				populateISSNMaps(responseText, url);
-		}
-	}, function () {
-		if (downloaded_map_files != max_map_files)
-			throw "Some map files were not downloaded!";
-
-		performExport();
-	});
+    Z.debug("Populating ISSN mapping tables...");
+    ZU.doGet([
+        zts_enhancement_repo_url + "https://raw.githubusercontent.com/ubtue/zotero-enhancement-maps/master/ISSN_to_language_code.map",
+        zts_enhancement_repo_url + "https://raw.githubusercontent.com/ubtue/zotero-enhancement-maps/master/ISSN_to_licence.map",
+        zts_enhancement_repo_url + "https://raw.githubusercontent.com/ubtue/zotero-enhancement-maps/master/ISSN_to_physical_form.map",
+        zts_enhancement_repo_url + "https://raw.githubusercontent.com/ubtue/zotero-enhancement-maps/master/ISSN_to_SSG_zotkat.map",
+        zts_enhancement_repo_url + "https://raw.githubusercontent.com/ubtue/zotero-enhancement-maps/master/ISSN_to_superior_ppn.map",
+        zts_enhancement_repo_url + "https://raw.githubusercontent.com/ubtue/zotero-enhancement-maps/master/ISSN_to_volume.map",
+        zts_enhancement_repo_url + "https://raw.githubusercontent.com/ubtue/zotero-enhancement-maps/master/language_to_language_code.map",
+        zts_enhancement_repo_url + "https://raw.githubusercontent.com/ubtue/zotero-enhancement-maps/master/notes_to_ixtheo_notations.map",
+        zts_enhancement_repo_url + "https://raw.githubusercontent.com/ubtue/zotero-enhancement-maps/master/journal_title_to_ppn.map",
+        zts_enhancement_repo_url + "https://raw.githubusercontent.com/ubtue/zotero-enhancement-maps/master/publication_title_to_physical_form.map",
+        zts_enhancement_repo_url + "https://raw.githubusercontent.com/ubtue/zotero-enhancement-maps/master/ISSN_to_Sammlungscode_zotkat.map",
+        zts_enhancement_repo_url + "https://raw.githubusercontent.com/ubtue/zotero-enhancement-maps/master/ISSN_to_Institution_zotkat.map",
+        // lobid lookup query filter maps
+        zts_enhancement_repo_url + "https://raw.githubusercontent.com/ubtue/zotero-enhancement-maps/master/profession_for_lookup_zotkat.map",
+        zts_enhancement_repo_url + "https://raw.githubusercontent.com/ubtue/zotero-enhancement-maps/master/profession_for_lookup_ssg0_zotkat.map",
+        // false-positive PPN blocklist (keys=PPN, value=reason/flag)
+        zts_enhancement_repo_url + "https://raw.githubusercontent.com/ubtue/zotero-enhancement-maps/master/PPN-Lookup-False-Positive.map"
+    ], function (responseText, request, url) {
+        switch (responseText) {
+            case "404: Not Found":
+                Z.debug("Error: 404 for url " + url);
+                break;
+            default:
+                populateISSNMaps(responseText, url);
+        }
+    }, function () {
+        if (downloaded_map_files != max_map_files)
+            throw "Some map files were not downloaded!";
+        performExport();
+    });
 }
+/* =============================================================================================================== */
+/* O. DEBUG TOGGLE                                                                                                 */
+/* =============================================================================================================== */
+var ENABLE_DEBUG = false;
+if (!ENABLE_DEBUG) {
+    Z.debug = function () { };
+}
+// DEBUG toggles for reconciliation (set to "" to disable verbose logging)
+var DEBUG_RECONCILE_VERBOSE = false;
+var DEBUG_RECONCILE_ONLY_NAME = "";
 
 /** BEGIN TEST CASES **/
 var testCases = [
