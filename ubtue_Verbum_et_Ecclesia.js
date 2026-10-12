@@ -2,14 +2,14 @@
 	"translatorID": "630c8504-46cb-405e-acf8-c6e7d60b47db",
 	"label": "ubtue_Verbum_et_Ecclesia",
 	"creator": "Mara Spieß",
-	"target": "https://verbumetecclesia.org.za/index.php/ve/(article|issue)",
+	"target": "https://(verbumetecclesia|indieskriflig).org.za/index.php/(ve|skriflig)/(article|issue)",
 	"minVersion": "5.0",
 	"maxVersion": "",
 	"priority": 80,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-10-27 15:44:00"
+	"lastUpdated": "2026-10-12 12:14:41"
 }
 
 /*
