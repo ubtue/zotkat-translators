@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-09-01 13:36:08"
+	"lastUpdated": "2026-10-15 13:13:29"
 }
 
 /*
@@ -282,7 +282,7 @@ function invokeEMTranslator(doc) {
 		}
 
 		if (orcidAuthorEntryCaseC.length) {
-			if (['2304-8557'].includes(i.ISSN)) {
+			if (['2304-8557', '2312-3621'].includes(i.ISSN)) {
 				for (let c of orcidAuthorEntryCaseC) {
 					let orcidLink = ZU.xpath(c, './/a[@class="orcidImage"]/@href');
 					let author = ZU.xpathText(c, './/span');
