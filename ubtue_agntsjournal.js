@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-10-09 15:19:34"
+	"lastUpdated": "2026-10-15 18:12:48"
 }
 
 /*
@@ -35,10 +35,13 @@
 	***** END LICENSE BLOCK *****
 */
 
-
 function detectWeb(doc, url) {
-	if (getSearchResults(doc, true)) {
-		return "multiple";
+	// TODO: adjust the logic here
+	if (!url.includes('/volumes/')) {
+		return 'journalArticle';
+	}
+	else if (getSearchResults(doc, true)) {
+		return 'multiple';
 	}
 	return false;
 }
@@ -86,9 +89,40 @@ async function scrape(doc, url = doc.location.href) {
 		// Correct the title using the clean JSON-LD headline.
 		if (json.headline) item.title = json.headline;
 
-		// Authors remain supplied by Embedded Metadata.
-		if (!item.language && json.inLanguage) {
-			item.language = json.inLanguage;
+		let languageBox = doc.querySelector('.content-box-gray');
+		let boxLanguage = '';
+
+		if (languageBox) {
+			let clone = languageBox.cloneNode(true);
+			for (let br of clone.querySelectorAll('br')) {
+				br.replaceWith(doc.createTextNode('\n'));
+			}
+
+			let match = clone.textContent.match(/^\s*Language:\s*([^\n]+)/im);
+			if (match) boxLanguage = ZU.trimInternal(match[1]);
+		}
+
+		let languageCodes = {
+			english: 'en',
+			german: 'de',
+			french: 'fr',
+			italian: 'it',
+			spanish: 'es'
+		};
+
+		let jsonLanguage = json.inLanguage || '';
+
+		if (boxLanguage) {
+			let boxCode = languageCodes[boxLanguage.toLowerCase()]
+				|| boxLanguage.toLowerCase();
+			let jsonCode = jsonLanguage.toLowerCase().split(/[-_]/)[0];
+
+			item.language = jsonCode == boxCode
+				? jsonLanguage
+				: boxLanguage;
+		}
+		else if (!item.language && jsonLanguage) {
+			item.language = jsonLanguage;
 		}
 
 		// Translator or Editor supplied only by box section
@@ -183,6 +217,20 @@ async function scrape(doc, url = doc.location.href) {
 				}
 			}
 		}
+
+		let reviewBox = doc.querySelector('.content-box-gray');
+		if (reviewBox) {
+			let clone = reviewBox.cloneNode(true);
+
+			for (let br of clone.querySelectorAll('br')) {
+				br.replaceWith(doc.createTextNode('\n'));
+			}
+
+			if (/^\s*Article\s+Type:\s*Book\s+Review\s*$/im.test(clone.textContent)) {
+				item.tags.push('RezensionstagPica');
+			}
+		}
+
 		// Add visible-page fallbacks here for fields absent from JSON-LD.
 		item.complete();
 	});
@@ -198,6 +246,84 @@ var testCases = [
 		"type": "web",
 		"url": "https://agntsjournal.com/volume-1-2025/",
 		"items": "multiple"
+	},
+	{
+		"type": "web",
+		"url": "https://agntsjournal.com/volume-1-2025/",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Volume 1 (2025) - Accessible German New Testament Scholarship",
+				"creators": [],
+				"ISSN": "3068-6660",
+				"language": "en-US",
+				"libraryCatalog": "agntsjournal.com",
+				"publicationTitle": "Accessible German New Testament Scholarship",
+				"url": "https://agntsjournal.com/volume-1-2025/",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://agntsjournal.com/wischmeyer_gaventa_german/",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Der Römerbrief. Ein neuer Kommentar von Beverly Roberts Gaventa, gelesen aus einer deutschsprachigen exegetischen Perspektive",
+				"creators": [
+					{
+						"firstName": "Oda",
+						"lastName": "Wischmeyer",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Wayne",
+						"lastName": "Coppins",
+						"creatorType": "translator"
+					}
+				],
+				"date": "2026-08-24T12:01:00+00:00",
+				"ISSN": "3068-6660",
+				"abstractNote": "Die bereits sehr umfangreiche Römerbrief-Kommentarszene, die unseres Wissens mit Origenes beginnt, ist um eine weitere gewichtige Neuerscheinung bereichert worden: den knapp 500 Seiten umfassenden Kommentar von Beverly Gaventa. Gaventa legt von vornherein Wert darauf, den Text selbständig durchgearbeitet zu haben. … Download PDF to read more. Author: Oda Wischmeyer Title: Der Römerbrief. Ein neuer Kommentar […]",
+				"language": "German",
+				"libraryCatalog": "agntsjournal.com",
+				"pages": "91-98",
+				"publicationTitle": "Accessible German New Testament Scholarship",
+				"url": "https://agntsjournal.com/wischmeyer_gaventa_german/",
+				"volume": "2",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [
+					{
+						"tag": "Beverly Gaventa"
+					},
+					{
+						"tag": "Paul"
+					},
+					{
+						"tag": "RezensionstagPica"
+					},
+					{
+						"tag": "Romans"
+					}
+				],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
 	}
 ]
 /** END TEST CASES **/
