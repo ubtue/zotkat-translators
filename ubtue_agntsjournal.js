@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-10-15 18:12:48"
+	"lastUpdated": "2026-10-21 12:52:26"
 }
 
 /*
@@ -36,14 +36,15 @@
 */
 
 function detectWeb(doc, url) {
-	// TODO: adjust the logic here
-	if (!url.includes('/volumes/')) {
+	if (doc.querySelector('meta[property="article:published_time"]')) {
 		return 'journalArticle';
 	}
 	else if (getSearchResults(doc, true)) {
 		return 'multiple';
 	}
-	return false;
+	else {
+		return false;
+	}
 }
 
 function getSearchResults(doc, checkOnly) {
