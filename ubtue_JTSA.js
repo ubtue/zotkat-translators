@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-10-15 15:55:47"
+	"lastUpdated": "2026-10-22 10:45:05"
 }
 
 /*
@@ -71,11 +71,12 @@ async function doWeb(doc, url) {
 			let date = doc.querySelector('p.issue-head-year');
 			if (date) item.date = date.textContent;
 
-			let volume = doc.querySelector('h1.issue-head-title');
-			if (volume) {
-				let volumeNumber = volume.textContent?.match(/volume\s*(\d+)/i);
-				if (volumeNumber) item.volume = volumeNumber[1];
-			}
+			const volume = doc
+				.querySelector('h1.issue-head-title')
+				?.textContent
+				?.match(/volume\s*(\d+)/i)?.[1];
+			
+			if (volume) item.volume = volume;
 
 			let path = new URL(url).pathname;
 			let entry = doc.querySelector('a.toc-title[href*="' + path + '"]');
@@ -83,16 +84,16 @@ async function doWeb(doc, url) {
 			if (entry) {
 				item.title = ZU.trimInternal(entry.textContent);
 
-				let authorsEntry = entry.closest('div.toc-item-text');
-				if (authorsEntry) {
-					let authorNames = authorsEntry.querySelector('p.toc-author');
-					let authors = authorNames?.textContent?.split(',');
-					if (authors) {
-						authors.forEach(author => {
-						item.creators.push(ZU.cleanAuthor(author, 'author', false));
-						})
-					}
-				}
+				item.creators.push(
+					...(
+						entry.closest('div.toc-item-text')
+							?.querySelector('p.toc-author')
+							?.textContent
+							?.split(',')
+							.map(author => ZU.cleanAuthor(author, 'author', false))
+						|| []
+					)
+				);
 			} 
 
 			item.complete();
