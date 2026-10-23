@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-10-15 13:13:29"
+	"lastUpdated": "2026-10-23 09:34:21"
 }
 
 /*
@@ -428,7 +428,9 @@ function invokeEMTranslator(doc) {
 				i.tags.push(tag[t].capitalizeFirstLetter()); //alternativ .replace(/^\w/, function($0) { return $0.toUpperCase(); }))
 			}
 		}
-		if (i.tags[0] === "book review") i.tags.push('RezensionstagPica') && delete i.tags[0];
+		if (i.tags.some(tag => tag?.trim().toLowerCase() === "book review")) {
+			i.tags.push("RezensionstagPica");
+		}
 		if (doc.querySelector(".current")) {
 			if (doc.querySelector(".current").textContent.trim() === "Book Reviews" || articleType === "Recensiones" || articleType === "Rezensionen") {
 				i.tags.push('RezensionstagPica');
@@ -893,6 +895,11 @@ function invokeEMTranslator(doc) {
 		if (['2182-8822', '0718-9273', '1904-8181', '1822-4571', '2974-7309', '2519-5425'].includes(i.ISSN)) {
 			i.volume = i.issue;
 			delete i.issue;
+		}
+
+		// filter out redundant tag "book review"
+		if (i.tags.some(tag => tag?.trim().toLowerCase() === "rezensionstagpica")) {
+			i.tags = i.tags.filter(tag => tag?.trim().toLowerCase() !== "book review");
 		}
 
 		i.complete();

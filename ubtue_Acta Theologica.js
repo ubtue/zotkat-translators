@@ -5,11 +5,11 @@
 	"target": "^https?://journals\\.ufs\\.ac\\.za/index\\.php/at/(article|issue)/view/",
 	"minVersion": "3.0",
 	"maxVersion": "",
-	"priority": 80,
-	"inRepository": false,
+	"priority": 100,
+	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2020-07-02 12:27:26"
+	"lastUpdated": "2026-10-23 09:14:01"
 }
 
 /*
@@ -92,3 +92,8 @@ function doWeb(doc, url) {
 	} else
 		invokeEMTranslator(doc, url);
 }
+
+/** BEGIN TEST CASES **/
+var testCases = [
+]
+/** END TEST CASES **/
