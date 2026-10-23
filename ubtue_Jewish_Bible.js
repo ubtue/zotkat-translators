@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-10-16 09:03:07"
+	"lastUpdated": "2026-10-23 09:40:16"
 }
 
 /*
@@ -82,6 +82,7 @@ async function scrape(doc, url = doc.location.href) {
 	translator.setDocument(doc);
 	
 	translator.setHandler('itemDone', (_obj, item) => {
+		item.itemType = "journalArticle";
 
 		let issn = doc.querySelector('span.hide-mobile-issn');
 		if (issn) item.ISSN = issn.textContent?.replace(/issn/i, '');
