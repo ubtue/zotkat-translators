@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-08-21 15:49:52"
+	"lastUpdated": "2026-10-26 14:53:22"
 }
 
 /*
@@ -100,9 +100,10 @@ async function scrape(doc, url = doc.location.href) {
 		let elements = doc.querySelectorAll('div[data-astro-cid-u2ukveoy]');
 
 		elements.forEach(element => {
-			let volumeMatch = element.innerText.match(/Jahrgang\s(\d+)\s\(\d+\)/i);
+			let volumeMatch = element.innerText.match(/Jahrgang\s(\d+)\s\((\d+)\)/i);
 			if (volumeMatch) {
 				item.volume = volumeMatch[1];
+				item.date = volumeMatch[2];
 			}
 			
 			let pagesMatch = element.innerText.match(/S.\s(\d+-\d+)/i);
@@ -137,7 +138,8 @@ async function scrape(doc, url = doc.location.href) {
 
 	await em.doWeb(doc, url);
 }
-	/** BEGIN TEST CASES **/
+
+/** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "web",
