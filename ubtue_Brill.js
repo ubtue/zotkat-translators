@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-09-17 14:18:18"
+	"lastUpdated": "2026-10-26 16:44:49"
 }
 
 /*
@@ -83,18 +83,22 @@ function postProcess(doc, item) {
 	  else
 		 item.abstractNote = '';
 	}
-	if (ZU.xpathText(doc, '//abstract')) {
-		item.abstractNote.substring(0,30)
-		if (!ZU.xpathText(doc, '//abstract').includes(item.abstractNote.substring(0,30))) {
-			item.notes.push('abs:' + ZU.xpathText(doc, '//abstract'));
-			item.abstractNote = item.abstractNote.replace(/^abstract/i, '');
-		}
-	}
-	// i set 100 as limit of string length, because usually a string of a pseudoabstract has less then 150 character e.g. "abstractNote": "\"Die Vernünftigkeit des jüdischen Dogmas\" published on 05 Sep 2020 by Brill."
-	if (item.abstractNote.length < 100) delete item.abstractNote;
-
-
 	
+	doc.querySelectorAll('abstract').forEach(abstractElement => {
+		let abstract = abstractElement.textContent;
+		
+		if (abstract && !abstract.includes(item.abstractNote.substring(0, 30))) {
+			item.notes.push('abs:' + abstract.replace(/^(abstract|resumen)/i, ''));
+			
+		}
+	});
+
+	// i set 100 as limit of string length, because usually a string of a pseudoabstract has less then 150 character 
+	// e.g. "abstractNote": "\"Die Vernünftigkeit des jüdischen Dogmas\" published on 05 Sep 2020 by Brill."
+	if (item.abstractNote.length < 100) delete item.abstractNote;
+	item.abstractNote = item.abstractNote ? item.abstractNote.replace(/^(abstract|resumen)/i, '') : '';
+
+
 	item.tags = ZU.xpath(doc, '//dd[contains(@class, "keywords")]//a');
 	if (item.tags) {
 		let allTags = item.tags.map(i => i.textContent.trim());
