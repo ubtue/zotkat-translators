@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-07-06 13:37:09"
+	"lastUpdated": "2026-10-27 08:34:11"
 }
 
 /*
@@ -43,14 +43,15 @@ function detectWeb(doc, url) {
 	}
 }
 
-function getSearchResults(doc) {
+function getSearchResults(doc, checkOnly) {
 	var items = {};
 	var found = false;
-	var rows = ZU.xpath(doc, "//div[contains(@class, 'al-article-items')]/h5[contains(@class, 'item-title')]/a");
-	for (let i=0; i<rows.length; i++) {
-		let href = rows[i].href;
-		let title = ZU.trimInternal(rows[i].textContent);
+	var rows = doc.querySelectorAll('a.at-articleLink[href*="/article/"]');
+	for (let row of rows) {
+		let href = row.href;
+		let title = ZU.trimInternal(row.textContent);
 		if (!href || !title) continue;
+		if (checkOnly) return true;
 		found = true;
 		items[href] = title;
 	}
