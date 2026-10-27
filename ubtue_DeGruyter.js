@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-05-12 12:53:26"
+	"lastUpdated": "2026-10-27 11:57:31"
 }
 
 /*
@@ -100,11 +100,20 @@ function invokeEMTranslator(doc, url) {
 		}
 		for (let authorTag of ZU.xpath(doc, '//span[contains(@class, "contributor")]')) {
 			let orcidRegex = /\d+-\d+-\d+-\d+x?/i;
-			if (authorTag != null && authorTag.innerHTML.match(orcidRegex)) {
-				let authorname = ZU.xpath(authorTag, '//span[@class ="displayName linkAnimation"]')
-				let name = (authorname != null && authorname.length) ? authorname[0].innerText : authorTag.innerText;
-				let orcid = authorTag.innerHTML.match(orcidRegex);
-				i.notes.push({note:'orcid:' + orcid + ' | '+ name +' | taken from website'});	
+			let orcid = authorTag.innerHTML.match(orcidRegex);
+			
+			if (orcid) {
+				let authorNames = ZU.xpath(
+					authorTag,
+					'.//button[contains(concat(" ", normalize-space(@class), " "), " displayName ")]'
+				);
+				let name = authorNames.length ? authorNames[0].textContent.trim() : '';
+				
+				if (name) {
+					i.notes.push({
+						note: 'orcid:' + orcid[0] + ' | ' + name + ' | taken from website'
+					});
+				}
 			}
 		}
 		if (!i.ISSN) i.ISSN = ZU.xpathText(doc, '//*[contains(concat( " ", @class, " " ), concat( " ", "onlineissn", " " )) and contains(concat( " ", @class, " " ), concat( " ", "text-metadata-value", " " ))]');
