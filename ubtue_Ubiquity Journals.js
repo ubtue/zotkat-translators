@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-23 13:05:49"
+	"lastUpdated": "2026-11-18 11:32:43"
 }
 
 /*
@@ -99,6 +99,13 @@ function getOrcid (doc, item) {
 	}
 }
 
+function getPages (doc, item) {
+	let pagesElement = ZU.xpathText(doc, "//div[starts-with(text(), 'Page/Article:')]");
+	if (pagesElement && !item.pages) {
+		item.pages = pagesElement.replace(/page\/article:/i, '').replace(/–/, '-');
+	}
+}
+
 function scrape(doc, url) {
 	var abstract = ZU.xpathText(doc, '//meta[@name="DC.Description"]/@content');
 	var translator = Zotero.loadTranslator('web');
@@ -119,8 +126,12 @@ function scrape(doc, url) {
 				}
 			}
 		}
+		if (item.title.match(/^(Review\s+of|Book\s+Review\s*:)/i)) {
+			item.tags.push("RezensionstagPica");
+		}
 		getOrcid (doc, item);
 		getKeywords (doc, item);
+		getPages (doc, item);
 		item.complete();
 	});
 	translator.getTranslatorObject(function (trans) {
